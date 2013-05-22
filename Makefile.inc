@@ -10,10 +10,10 @@ ifeq ($(OS),Windows_NT)
 	LIBS := $(LIBS) $(WIN_LIBS)
 	LDFLAGS := $(LDFLAGS) $(WIN_LDFLAGS)
 	ifdef WIN_CC
-	    CC := $(LINUX_CC)
+	    CC := $(WIN_CC)
 	endif
 	ifdef WIN_CXX
-		CXX := $(LINUX_CXX)
+		CXX := $(WIN_CXX)
 	endif
 	ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
     endif

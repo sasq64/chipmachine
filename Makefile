@@ -7,10 +7,12 @@ LIBS := -lsexypsf -lz
 LDFLAGS := -Lplugins/SexyPSFPlugin
 OBJS := player.o utils.o
 
-WIN_CFLAGS := -static -Icurl-7.30.0/include -DWIN32 -Doverride=""
+WIN_CFLAGS := -static -Icurl/include -DWIN32 -Doverride=""
 WIN_LIBS := -lwinmm -lcurldll
-WIN_LDFLAGS := -Lcurl-7.30.0/lib -static
+WIN_LDFLAGS := -Lcurl/lib -static
 WIN_OBJS := AudioPlayerWindows.o
+WIN_CC := gcc
+WIN_CXX := g++
 
 LINUX_CC := gcc
 LINUX_CXX := g++
