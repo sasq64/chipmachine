@@ -24,6 +24,10 @@ void File::read() {
 	loaded = true;
 }
 
+bool File::exists() {
+	return true;
+}
+
 uint8_t *File::getPtr() { 
 	if(!loaded)
 		read();

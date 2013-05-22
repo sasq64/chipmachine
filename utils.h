@@ -15,7 +15,9 @@ class File {
 public:
 	File(const std::string &name);
 	void read();
+	bool exists();
 	uint8_t *getPtr();
+	const std::string &getName() { return fileName; }
 	int getSize() { return size; }
 private:
 	std::string fileName;

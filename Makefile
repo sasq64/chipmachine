@@ -5,7 +5,7 @@ TARGET := player
 MODULES := plugins/ModPlugin/modplug ziplib
 LIBS := -lsexypsf -lz
 LDFLAGS := -Lplugins/SexyPSFPlugin
-OBJS := player.o utils.o
+OBJS := player.o utils.o WebGetter.o URLPlayer.o
 
 WIN_CFLAGS := -static -Icurl/include -DWIN32 -Doverride=""
 WIN_LIBS := -lwinmm -lcurldll

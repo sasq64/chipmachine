@@ -10,8 +10,11 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <thread>
-#include <mutex>
+//#include <thread>
+//#include <mutex>
+
+#include "ChipPlayer.h"
+#include "URLPlayer.h"
 
 #include "zip.h"
 #include "common/Fifo.h"
@@ -23,27 +26,13 @@
 #include "AudioPlayerLinux.h"
 #endif
 
-extern "C" {
-#include <curl/curl.h>
-}
 
 typedef unsigned int uint;
 using namespace std;
 using namespace utils;
 
-#include "WebGetter.h"
 
-
-class MusicSystem {
-};
-
-
-class Player {
-public:
-	virtual int getSamples(short *target, int size) = 0;
-};
-
-class ModPlayer : public Player {
+class ModPlayer : public ChipPlayer {
 public:
 	ModPlayer(uint8_t *data, int size) {
 		ModPlug_Settings settings;
@@ -77,7 +66,7 @@ void sexyd_update(unsigned char *pSound, long lBytes)
 }
 
 
-class PSXPlayer : public Player {
+class PSXPlayer : public ChipPlayer {
 public:
 	PSXPlayer(const string &fileName) : fifo(1024 * 128) {
 		char temp[1024];
@@ -100,6 +89,14 @@ public:
 private:
 	Fifo fifo;
 	PSFINFO *psfInfo;
+};
+
+class PlayerSystem : public PlayerFactory {
+	ChipPlayer *fromFile(File &file) override {
+		if(file.getName().rfind(".psf") != string::npos)
+			return new PSXPlayer {file.getName()};
+		return new ModPlayer {file.getPtr(), file.getSize()};
+	}
 };
 
 /*
@@ -160,91 +157,15 @@ class Extractor {
 };
 
 
-
-class URLPlayer : public Player {
-public:
-	URLPlayer(const string &url) : webGetter("_cache"), currentPlayer(nullptr), urlJob(nullptr) {
-		StringTokenizer st(url, ":");
-		string protocol = "";
-		string path;
-		int p = 0;
-
-		if(st.noParts() > 1 && st.getString(1).substr(0,2) == "//" && st.getDelim(1) == ':') {
-			protocol = st.getString(p++);
-			path = st.getString(p).substr(1);
-		} else {
-			path = st.getString(p);
-		}
-
-		if(protocol == "http") {
-			string musicUrl = protocol.append(":/").append(path);
-			urlJob = webGetter.getURL(musicUrl);
-		}
-		else {
-			printf("Loading file '%s'\n", path.c_str());
-			File file(path);
-			currentPlayer = new ModPlayer{file.getPtr(), file.getSize()};
-		}
-	};
-
-
-	int getSamples(short *target, int noSamples) override {
-
-		if(!currentPlayer) {
-			if(urlJob) {
-				if(urlJob->isDone()) {
-
-					string target = urlJob->getFile();
-
-					if(target.rfind(".zip") != string::npos) {
-						ZipFile zf(target);
-						//zf.extract(targetDir);
-					}
-
-					File file(target);
-
-					currentPlayer = new ModPlayer{file.getPtr(), file.getSize()};
-					urlJob = nullptr;
-				}
-			}
-
-		}
-		if(currentPlayer)
-			return currentPlayer->getSamples(target, noSamples);
-		sleepms(100);
-		return 0;
-	}
-
-private:
-
-	WebGetter webGetter;
-	Player *currentPlayer;
-	WebGetter::Job *urlJob;
-
-	mutex m;
-};
-
-
-
 int main(int argc, char* argv[]) {
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	printf("Modplayer test\n");
 
 
-	URLPlayer urlPlayer(argv[1]);
-	Player *player = &urlPlayer; 
+	URLPlayer urlPlayer {argv[1], new PlayerSystem()};
+	ChipPlayer *player = &urlPlayer; 
 
-	//return 0;
-	//Player *player = urlPlayer.play("http://swimsuitboys.com/droidmusic/jested.mod"); //argv[0]);
-/*
-	File file("loader.mod");
-	ModPlayer modPlayer{file.getPtr(), file.getSize()};
-	player = &modPlayer;
-
-	PSXPlayer psxPlayer("chrono.psf");
-	player = &psxPlayer;
-*/
 	AudioPlayerNative ap;
 
 	int bufSize = 4096;
