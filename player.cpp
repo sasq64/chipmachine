@@ -17,8 +17,11 @@
 #include "common/Fifo.h"
 #include "utils.h"
 
+#ifdef WIN32
 #include "AudioPlayerWindows.h"
-
+#else
+#include "AudioPlayerLinux.h"
+#endif
 
 extern "C" {
 #include <curl/curl.h>
@@ -208,7 +211,7 @@ public:
 		}
 		if(currentPlayer)
 			return currentPlayer->getSamples(target, noSamples);
-		Sleep(100);
+		sleepms(100);
 		return 0;
 	}
 
@@ -242,9 +245,9 @@ int main(int argc, char* argv[]) {
 	PSXPlayer psxPlayer("chrono.psf");
 	player = &psxPlayer;
 */
-	AudioPlayerWindows ap;
+	AudioPlayerNative ap;
 
-	int bufSize = 8192;
+	int bufSize = 4096;
 	vector<short> buffer(bufSize);
 	while(true) {
 		int rc = player->getSamples(&buffer[0], bufSize);

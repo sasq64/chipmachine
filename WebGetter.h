@@ -1,4 +1,8 @@
 
+#include "utils.h"
+
+using namespace utils;
+
 class WebGetter {
 public:
 	class Job {
@@ -89,11 +93,7 @@ public:
 
 
 	WebGetter(const string &workDir) : workDir(workDir) {
-#ifdef WIN32
-		mkdir(workDir.c_str());
-#else
-		mkdir(workDir.c_str(), 0777);
-#endif
+		makedir(workDir.c_str());
 	}
 
 

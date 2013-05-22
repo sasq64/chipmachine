@@ -5,6 +5,7 @@ TOP_MAKEFILE = $(firstword $(MAKEFILE_LIST))
 
 ifeq ($(OS),Windows_NT)
 	MODULES := $(MODULES) $(WIN_MODULES)
+	OBJS := $(OBJS) $(WIN_OBJS)
 	CFLAGS := $(CFLAGS) $(WIN_CFLAGS) -DWIN32
 	LIBS := $(LIBS) $(WIN_LIBS)
 	LDFLAGS := $(LDFLAGS) $(WIN_LDFLAGS)
@@ -20,6 +21,7 @@ else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Linux)
 	    MODULES := $(MODULES) $(LINUX_MODULES)
+	    OBJS := $(OBJS) $(LINUX_OBJS)
 	    CFLAGS := $(CFLAGS) $(LINUX_CFLAGS)
 		LIBS := $(LIBS) $(LINUX_LIBS)
 		LDFLAGS := $(LDFLAGS) $(LINUX_LDFLAGS)

@@ -49,7 +49,9 @@ inline void ProcessPlugins(int n) {}
 #define HAVE_SINF 1
 
 #else
-
+#include <stdint.h>
+#define HAVE_SETENV
+#define HAVE_SINF
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

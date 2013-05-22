@@ -1,3 +1,5 @@
+#ifndef UTILS_H
+#define UTILS_H
 
 #include <stdio.h>
 #include <stdint.h>
@@ -36,4 +38,8 @@ private:
 std::string urlencode(const std::string &s, const std::string &chars);
 std::string urldecode(const std::string &s, const std::string &chars);
 
+void sleepms(uint ms);
+void makedir(const std::string &name);
 };
+
+#endif // UTILS_H

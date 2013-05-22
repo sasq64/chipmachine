@@ -38,4 +38,6 @@ private:
 
 };
 
+typedef AudioPlayerWindows AudioPlayerNative;
+
 #endif // AUDIOPLAYER_WINDOWS_H

@@ -76,5 +76,21 @@ string urldecode(const string &s, const string &chars) {
 	return string(target);
 }
 
+void sleepms(uint ms) {
+#ifdef WIN32
+	Sleep(ms);
+#else
+	usleep(ms*1000);
+#endif
+}
+
+void makedir(const std::string &name) {
+#ifdef WIN32
+	mkdir(name.c_str());
+#else
+	mkdir(name.c_str(), 07777);
+#endif
+}
+
 
 }

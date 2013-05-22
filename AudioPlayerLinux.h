@@ -18,4 +18,6 @@ private:
 	snd_pcm_t *playback_handle;
 };
 
+typedef AudioPlayerLinux AudioPlayerNative;
+
 #endif // AUDIOPLAYER_LINUX_H
