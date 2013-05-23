@@ -10,7 +10,9 @@ namespace utils {
 
 using namespace std;
 
-File::File(const string &name) : fileName(name), size(-1), loaded(false) {
+File::File() : size(-1), loaded(false), writeFP(nullptr), readFP(nullptr) {}
+
+File::File(const string &name) : fileName(name), size(-1), loaded(false), writeFP(nullptr), readFP(nullptr) {
 };
 
 void File::read() {		
@@ -24,11 +26,26 @@ void File::read() {
 	loaded = true;
 }
 
+void File::write(const uint8_t *data, int size) {
+	if(!writeFP) {
+		makedirs(fileName);
+		writeFP = fopen(fileName.c_str(), "wb");	
+	}
+	fwrite(data, 1, size, writeFP);
+}
+
+void File::close() {
+	if(writeFP)
+		fclose(writeFP);
+	writeFP = nullptr;
+}
+
 bool File::exists() {
 	return true;
 }
 
-uint8_t *File::getPtr() { 
+uint8_t *File::getPtr() {
+	close();
 	if(!loaded)
 		read();
 	return &data[0];
@@ -92,11 +109,24 @@ void sleepms(uint ms) {
 }
 
 void makedir(const std::string &name) {
+	printf("Makedir '%s'\n", name.c_str());
 #ifdef WIN32
 	mkdir(name.c_str());
 #else
 	mkdir(name.c_str(), 07777);
 #endif
+}
+
+void makedirs(const std::string &path) {
+	int start = 0;
+	while(true) {
+		int pos = path.find("/", start);
+		if(pos != string::npos) {
+			makedir(path.substr(0, pos));
+			start = pos+1;
+		} else
+			break;
+	}
 }
 
 

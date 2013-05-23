@@ -16,7 +16,6 @@
 #include "ChipPlayer.h"
 #include "URLPlayer.h"
 
-#include "zip.h"
 #include "common/Fifo.h"
 #include "utils.h"
 
@@ -26,6 +25,7 @@
 #include "AudioPlayerLinux.h"
 #endif
 
+#include "Archive.h"
 
 typedef unsigned int uint;
 using namespace std;
@@ -113,58 +113,29 @@ file://mdat.monkey+smp.monkey
 
 */
 
-class ZipFile {
-public:
-	ZipFile(const string &fileName) {
-		zipFile = zip_open(fileName.c_str(), 0, NULL);
-	}
-
-	~ZipFile() {
-		if(zipFile)
-			close();
-	}
-
-	void close() {
-		zip_close(zipFile);
-		zipFile = nullptr;
-	}
-
-	void extract(const string &name) {
-		//int e = zip_name_locate(zipFile, name, ZIP_FL_NOCASE);
-
-		int no = zip_get_num_files(zipFile);
-		for(int i=0; i<no; i++) {
-			struct zip_stat sz;
-			zip_stat_index(zipFile, i, 0, &sz);
-			printf("Extracting %s (%d)\n", sz.name, (int)sz.size);
-			struct zip_file *zf = zip_fopen_index(zipFile, i, 0);
-			uint8_t *ptr = new uint8_t [sz.size] ;
-			/*int rc =*/ zip_fread(zf, ptr, sz.size);
-			zip_fclose(zf);
-			delete [] ptr;
-		}
-		//const char *name = zip_get_name(zipFile, e, 0 /* ZIP_FL_UNCHANGED */ );
-	}
-
-private:
-	struct zip *zipFile;
-};
-
-class Extractor {
-	Extractor(const string &fileName) {
-
-	};
-};
-
 
 int main(int argc, char* argv[]) {
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	printf("Modplayer test\n");
 
+	//ZipFile zfile("test.zip", ".");
+	Archive *a = Archive::open("test.zip", ".");
 
-	URLPlayer urlPlayer {argv[1], new PlayerSystem()};
-	ChipPlayer *player = &urlPlayer; 
+	File modFile;
+
+	for(const string &name : *a) {
+		printf("%s\n", name.c_str());
+		if(name.rfind(".mod") != string::npos) {
+			modFile = a->extract(name);
+			break;
+		}
+	}
+	//return 0;
+	//URLPlayer urlPlayer {argv[1], new PlayerSystem()};
+
+	ChipPlayer *player = new ModPlayer { modFile.getPtr(), modFile.getSize() };	
+	//ChipPlayer *player = &urlPlayer; 
 
 	AudioPlayerNative ap;
 

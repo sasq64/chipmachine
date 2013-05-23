@@ -13,8 +13,12 @@ typedef unsigned int uint;
 
 class File {
 public:
+	File();
 	File(const std::string &name);
 	void read();
+	void write(const uint8_t *data, int size);
+	void close();
+
 	bool exists();
 	uint8_t *getPtr();
 	const std::string &getName() { return fileName; }
@@ -24,6 +28,8 @@ private:
 	std::vector<uint8_t> data;
 	int size;
 	bool loaded;
+	FILE *writeFP;
+	FILE *readFP;
 };
 
 class StringTokenizer {
@@ -42,6 +48,8 @@ std::string urldecode(const std::string &s, const std::string &chars);
 
 void sleepms(uint ms);
 void makedir(const std::string &name);
+void makedirs(const std::string &name);
+
 };
 
 #endif // UTILS_H
