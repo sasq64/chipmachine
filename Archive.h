@@ -43,7 +43,7 @@ public:
     	return const_iterator(this, totalFiles());
     }
 
-	static Archive *open(const std::string &fileName, const std::string &targetDir);
+	static Archive *open(const std::string &fileName, const std::string &targetDir = ".");
 	static bool canHandle(const std::string &name);
 
 };

@@ -1,11 +1,35 @@
 OBJDIR := obj/
 CFLAGS := -g -Wall -I. -Iinclude -Iplugins/ModPlugin/modplug/libmodplug -Iplugins/SexyPSFPlugin
+
+
+CFLAGS := $(CFLAGS) \
+	-Iplugins/VICEPlugin \
+	-Iplugins/VICEPlugin/common \
+    -Iplugins/VICEPlugin/vice \
+    -Iplugins/VICEPlugin/vice/drive \
+    -Iplugins/VICEPlugin/vice/lib/p64 \
+    -Iplugins/VICEPlugin/vice/c64 \
+
+    # -Ivice/c64 \
+    # -Ivice/c64/cart \
+    # -Ivice/c64dtv \
+    # -Ivice/imagecontents \
+    # -Ivice/monitor \
+    # -Ivice/raster \
+    # -Ivice/sid \
+    # -Ivice/tape \
+    # -Ivice/userport \
+    # -Ivice/vdrive \
+    # -Ivice/vicii \
+    # -Ivice/rtc
+
+
 CXXFLAGS := -std=c++0x
 TARGET := player
 MODULES := plugins/ModPlugin/modplug ziplib
-LIBS := -lsexypsf -lz
-LDFLAGS := -Lplugins/SexyPSFPlugin
-OBJS := player.o utils.o WebGetter.o URLPlayer.o Archive.o
+LIBS := -lsexypsf -lz -lviceplayer
+LDFLAGS := -Lplugins/SexyPSFPlugin -Lplugins/VICEPlugin
+OBJS := player.o utils.o WebGetter.o URLPlayer.o Archive.o VicePlayer.o
 
 WIN_CFLAGS := -static -Icurl/include -DWIN32 -Doverride=""
 WIN_LIBS := -lwinmm -lcurldll

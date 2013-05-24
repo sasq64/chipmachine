@@ -19,6 +19,9 @@
 #include "common/Fifo.h"
 #include "utils.h"
 
+#include "VicePlayer.h"
+
+
 #ifdef WIN32
 #include "AudioPlayerWindows.h"
 #else
@@ -91,12 +94,28 @@ private:
 	PSFINFO *psfInfo;
 };
 
+#include <algorithm>
+
 class PlayerSystem : public PlayerFactory {
 	ChipPlayer *fromFile(File &file) override {
 		if(file.getName().rfind(".psf") != string::npos)
 			return new PSXPlayer {file.getName()};
 		return new ModPlayer {file.getPtr(), file.getSize()};
 	}
+
+	virtual bool canHandle(const std::string &name) override {
+
+		string uname;
+		std::transform(name.begin(), name.end(), uname.begin(), ::toupper);
+		printf("Checking %s\n", uname.c_str());
+		return true;
+		return (
+			(uname.rfind(".MOD") != string::npos) ||
+			(uname.rfind(".XM") != string::npos)
+			);
+
+	}
+
 };
 
 /*
@@ -104,7 +123,7 @@ Should handle; url parsing, http gets, archive extraction, local caching
 
 URL FORMAT:
 
-[file:/|http:/|]<filePath>:<SongPath>:<songStart>
+[file:/|http:/|]<filePath>[:port]:<SongPath>:<songStart>
 eg
 http://somesite.com/music/sids.zip:/Hubbard/commando.sid:2
 file://mdat.monkey+smp.monkey
@@ -113,29 +132,17 @@ file://mdat.monkey+smp.monkey
 
 */
 
-
 int main(int argc, char* argv[]) {
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	printf("Modplayer test\n");
 
-	//ZipFile zfile("test.zip", ".");
-	Archive *a = Archive::open("test.zip", ".");
-
-	File modFile;
-
-	for(const string &name : *a) {
-		printf("%s\n", name.c_str());
-		if(name.rfind(".mod") != string::npos) {
-			modFile = a->extract(name);
-			break;
-		}
-	}
 	//return 0;
 	//URLPlayer urlPlayer {argv[1], new PlayerSystem()};
-
-	ChipPlayer *player = new ModPlayer { modFile.getPtr(), modFile.getSize() };	
 	//ChipPlayer *player = &urlPlayer; 
+	//ChipPlayer *player = new ModPlayer { modFile.getPtr(), modFile.getSize() };	
+	VicePlayer::init("c64");
+	ChipPlayer *player = new VicePlayer { argv[1] };
 
 	AudioPlayerNative ap;
 

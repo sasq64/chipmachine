@@ -41,7 +41,7 @@ AudioPlayerWindows::~AudioPlayerWindows() {
 
 void AudioPlayerWindows::writeAudio(short *samples, int sampleCount) {
 
-		printf("Writing block %d\n", blockPosition);
+		//printf("Writing block %d\n", blockPosition);
 
 		WAVEHDR &h = header[blockPosition];
 		h.dwBufferLength = sampleCount * 2;

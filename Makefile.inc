@@ -115,7 +115,7 @@ $(OBJDIR)%.o : $(SRCDIR)%.s
 
 $(OBJDIR)%.d : $(SRCDIR)%.c
 	@mkdir -p $(@D)
-	@$(CC) -MM -MG  -MT '$(OBJDIR)$*.o' $(CFLAGS) $< > $@
+	$(CC) -MM -MG  -MT '$(OBJDIR)$*.o' $(CFLAGS) $< > $@
 
 $(OBJDIR)%.d : $(SRCDIR)%.cpp
 	@mkdir -p $(@D)

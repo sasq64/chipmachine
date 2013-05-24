@@ -1,5 +1,6 @@
 #include "URLPlayer.h"
 #include "utils.h"
+#include "Archive.h"
 
 using namespace std;
 using namespace utils;
@@ -37,22 +38,24 @@ int URLPlayer::getSamples(short *target, int noSamples) override {
 			if(urlJob->isDone()) {
 
 				string target = urlJob->getFile();
-#if 0
-				if(Extractor.canHandle(target)) {
-					Archive a = Extractor.openArchive(target);
-					if(deepPath.length() > 0) {
-						target = a.extract(deepPath, "_cache");
-					} else {
-						for(const string &name: a.names()) {
-							if(name.rfind(".mod") != string::npos) {
-								target = a.extract(entry, "_cache");
-							}
+
+				File file(target);
+
+				if(Archive::canHandle(target)) {
+
+					Archive *a = Archive::open(target, "_cache");
+					for(const string &name : *a) {
+						printf("%s\n", name.c_str());
+						if(playerFactory->canHandle(name)) {
+							printf("Can handle\n");
+							file = a->extract(name);
+							break;
 						}
 					}
 				}
-#endif
-				File file(target);
+				
 				if(file.exists()) {
+					printf("Trying %s\n", file.getName().c_str());
 					currentPlayer = playerFactory->fromFile(file); //new ModPlayer {file.getPtr(), file.getSize()};
 				}
 				urlJob = nullptr;
