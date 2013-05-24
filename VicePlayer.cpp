@@ -23,6 +23,10 @@ static bool videomode_is_forced;
 static int sid;
 static bool sid_is_forced;
 
+int console_mode = 1;
+int vsid_mode = 1;
+int video_disabled_mode = 1;
+
 #include "VicePlayer.h"
 
 bool VicePlayer::init(const std::string &c64Dir) {

@@ -27,7 +27,7 @@ CFLAGS := $(CFLAGS) \
 CXXFLAGS := -std=c++0x
 TARGET := player
 MODULES := plugins/ModPlugin/modplug ziplib
-LIBS := -lsexypsf -lz -lviceplayer
+LIBS := -lsexypsf -lviceplayer -lz 
 LDFLAGS := -Lplugins/SexyPSFPlugin -Lplugins/VICEPlugin
 OBJS := player.o utils.o WebGetter.o URLPlayer.o Archive.o VicePlayer.o
 
