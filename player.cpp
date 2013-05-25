@@ -102,17 +102,21 @@ public:
 	virtual ChipPlayer *fromFile(File &file) = 0;
 };
 
+void toLower(string &s) {
+	for(uint i=0; i<s.length(); i++)
+		s[i] = tolower(s[i]);
+}
+
 class PlayerSystem : public PlayerFactory {
 public:
 	virtual ChipPlayer *fromFile(File &file) override {
 
-		string uname;
-		const string &name = file.getName();
-		std::transform(name.begin(), name.end(), uname.begin(), ::tolower);
-		printf("Handling %s\n", uname.c_str());
+		string name = file.getName();
+		toLower(name);
+		printf("Handling %s\n", name.c_str());
 
 		for(auto *plugin : plugins) {
-			if(plugin->canHandle(uname))
+			if(plugin->canHandle(name))
 				return plugin->fromFile(file);
 		}
 		return nullptr;
@@ -120,18 +124,18 @@ public:
 
 	virtual bool canHandle(const std::string &name) override {
 
-		string uname;
-		std::transform(name.begin(), name.end(), uname.begin(), ::tolower);
-		printf("Checking %s\n", uname.c_str());
+		string lname = name;
+		toLower(lname);
+		printf("Checking %s\n", lname.c_str());
 
 		for(auto *plugin : plugins) {
-			if(plugin->canHandle(uname))
+			if(plugin->canHandle(lname))
 				return true;
 		}
 		return false;
 	}
 
-	void registerPlugin(Plugin *p) {
+	void registerPlugin(Plugin *p) {	
 		plugins.push_back(p);
 	}
 private:
@@ -140,20 +144,20 @@ private:
 
 static bool endsWith(const string &name, const string &ext) {
 	size_t pos = name.rfind(ext);
-	const char *p = strstr(name.c_str(), ext.c_str());
-	return (p != nullptr);
-	//printf("'%s' '%s' -> %d %p\n", x.c_str(), ext.c_str(), pos, p);
-	//return (pos == name.length() - ext.length());
+	return (pos == name.length() - ext.length());
 }
 
 class SidPlugin : public Plugin {
 public:
+	SidPlugin() {
+		VicePlayer::init("c64");
+	}
+
 	virtual bool canHandle(const std::string &name) override {
 		return endsWith(name, ".sid");
 	}
 
 	virtual ChipPlayer *fromFile(File &file) override {
-		VicePlayer::init("c64");
 		return new VicePlayer { file.getName() };
 	}
 };

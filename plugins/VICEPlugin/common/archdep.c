@@ -60,6 +60,8 @@
 #include "ui.h"
 #include "util.h"
 
+#undef HAVE_MKSTEMP
+
 #ifdef __NeXT__
 #define waitpid(p, s, o) wait3((union wait *)(s), (o), (struct rusage *) 0)
 #endif
@@ -182,7 +184,11 @@ char *archdep_default_save_resource_file_name(void)
     }
 
     if (access(viceuserdir, F_OK)) {
+#ifdef WIN32
+        mkdir(viceuserdir);
+#else
         mkdir(viceuserdir, 0700);
+#endif
     }
 
     fname = util_concat(viceuserdir, "/vicerc", NULL);
@@ -459,7 +465,7 @@ FILE *archdep_mkstemp_fd(char **filename, const char *mode)
         return NULL;
     }
 
-    fd = fopen(tmp, mode);
+    int fd = fopen(tmp, mode);
 
     if (fd == NULL) {
         return NULL;
@@ -488,11 +494,12 @@ int archdep_file_set_gzip(const char *name)
 
 int archdep_mkdir(const char *pathname, int mode)
 {
-#ifndef __NeXT__
-    return mkdir(pathname, (mode_t)mode);
+#ifdef WIN32
+        mkdir(pathname);
 #else
-    return mkdir(pathname, mode);
+    return mkdir(pathname, (mode_t)mode);
 #endif
+
 }
 
 int archdep_stat(const char *file_name, unsigned int *len, unsigned int *isdir)

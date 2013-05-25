@@ -1,6 +1,7 @@
 OBJDIR=obj/
 TARGET=libviceplayer
 EXT=.a
+CC=gcc
 
 MODULES := vice/resid
 
