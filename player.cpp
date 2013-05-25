@@ -96,26 +96,89 @@ private:
 
 #include <algorithm>
 
+class Plugin {
+public:
+	virtual bool canHandle(const std::string &name) = 0;
+	virtual ChipPlayer *fromFile(File &file) = 0;
+};
+
 class PlayerSystem : public PlayerFactory {
-	ChipPlayer *fromFile(File &file) override {
-		if(file.getName().rfind(".psf") != string::npos)
-			return new PSXPlayer {file.getName()};
-		return new ModPlayer {file.getPtr(), file.getSize()};
+public:
+	virtual ChipPlayer *fromFile(File &file) override {
+
+		string uname;
+		const string &name = file.getName();
+		std::transform(name.begin(), name.end(), uname.begin(), ::tolower);
+		printf("Handling %s\n", uname.c_str());
+
+		for(auto *plugin : plugins) {
+			if(plugin->canHandle(uname))
+				return plugin->fromFile(file);
+		}
+		return nullptr;
 	}
 
 	virtual bool canHandle(const std::string &name) override {
 
 		string uname;
-		std::transform(name.begin(), name.end(), uname.begin(), ::toupper);
+		std::transform(name.begin(), name.end(), uname.begin(), ::tolower);
 		printf("Checking %s\n", uname.c_str());
-		return true;
-		return (
-			(uname.rfind(".MOD") != string::npos) ||
-			(uname.rfind(".XM") != string::npos)
-			);
 
+		for(auto *plugin : plugins) {
+			if(plugin->canHandle(uname))
+				return true;
+		}
+		return false;
 	}
 
+	void registerPlugin(Plugin *p) {
+		plugins.push_back(p);
+	}
+private:
+	vector<Plugin*> plugins;
+};
+
+static bool endsWith(const string &name, const string &ext) {
+	size_t pos = name.rfind(ext);
+	const char *p = strstr(name.c_str(), ext.c_str());
+	return (p != nullptr);
+	//printf("'%s' '%s' -> %d %p\n", x.c_str(), ext.c_str(), pos, p);
+	//return (pos == name.length() - ext.length());
+}
+
+class SidPlugin : public Plugin {
+public:
+	virtual bool canHandle(const std::string &name) override {
+		return endsWith(name, ".sid");
+	}
+
+	virtual ChipPlayer *fromFile(File &file) override {
+		VicePlayer::init("c64");
+		return new VicePlayer { file.getName() };
+	}
+};
+
+
+class ModPlugin : public Plugin {
+public:
+	virtual bool canHandle(const std::string &name) override {
+		return endsWith(name, ".mod") || endsWith(name, ".xm");
+	}
+
+	virtual ChipPlayer *fromFile(File &file) override {
+		return new ModPlayer {file.getPtr(), file.getSize()};
+	}
+};
+
+class PSFPlugin : public Plugin {
+public:
+	virtual bool canHandle(const std::string &name) override {
+		return endsWith(name, ".psf");
+	}
+
+	virtual ChipPlayer *fromFile(File &file) override {
+		return new PSXPlayer {file.getName()};
+	}
 };
 
 /*
@@ -136,13 +199,24 @@ int main(int argc, char* argv[]) {
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	printf("Modplayer test\n");
+	string name;
+
+	if(argc > 1)
+		name = argv[1];
+	else
+		name = "http://swimsuitboys.com/droidmusic/C64%20Demo/Amplifire.sid";
+
+	PlayerSystem psys;
+	psys.registerPlugin(new ModPlugin {});
+	psys.registerPlugin(new SidPlugin {});
+	psys.registerPlugin(new PSFPlugin {});
 
 	//return 0;
-	//URLPlayer urlPlayer {argv[1], new PlayerSystem()};
-	//ChipPlayer *player = &urlPlayer; 
+	URLPlayer urlPlayer {name, &psys};
+	ChipPlayer *player = &urlPlayer; 
 	//ChipPlayer *player = new ModPlayer { modFile.getPtr(), modFile.getSize() };	
-	VicePlayer::init("c64");
-	ChipPlayer *player = new VicePlayer { argv[1] };
+	//VicePlayer::init("c64");
+	//ChipPlayer *player = new VicePlayer { argv[1] };
 
 	AudioPlayerNative ap;
 

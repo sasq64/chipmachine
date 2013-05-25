@@ -41,6 +41,8 @@
 //#include <sys/wait.h>
 #include <unistd.h>
 
+#undef HAVE_VFORK_H
+
 #ifdef HAVE_VFORK_H
 #include <vfork.h>
 #endif
@@ -253,7 +255,9 @@ int archdep_path_is_relative(const char *path)
 
 int archdep_spawn(const char *name, char **argv, char **pstdout_redir, const char *stderr_redir)
 {
-#if !defined(OPENSTEP_COMPILE) && !defined(NEXTSTEP_COMPILE)
+    printf("SPAWN! %s\n", name);
+#if 0 
+!defined(OPENSTEP_COMPILE) && !defined(NEXTSTEP_COMPILE)
     pid_t child_pid;
     int child_status;
     char *stdout_redir = NULL;

@@ -47,7 +47,7 @@ int URLPlayer::getSamples(short *target, int noSamples) override {
 					for(const string &name : *a) {
 						printf("%s\n", name.c_str());
 						if(playerFactory->canHandle(name)) {
-							printf("Can handle\n");
+							printf("We can handle %s\n", name.c_str());
 							file = a->extract(name);
 							break;
 						}
@@ -55,8 +55,11 @@ int URLPlayer::getSamples(short *target, int noSamples) override {
 				}
 				
 				if(file.exists()) {
-					printf("Trying %s\n", file.getName().c_str());
-					currentPlayer = playerFactory->fromFile(file); //new ModPlayer {file.getPtr(), file.getSize()};
+					if(true) { //playerFactory->canHandle(file.getName())) {
+						printf("Trying %s\n", file.getName().c_str());
+						currentPlayer = playerFactory->fromFile(file); //new ModPlayer {file.getPtr(), file.getSize()};
+					} else
+						printf("Can not handle %s\n", file.getName().c_str());
 				}
 				urlJob = nullptr;
 			}

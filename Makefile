@@ -46,4 +46,13 @@ LINUX_OBJS := AudioPlayerLinux.o
 
 #GCC_VERSION := $(subst /platform-tools/,,$(dir $(shell which adb)))
 
+all : $(TARGET)$(EXT) vice sexypsf
+
+
+vice :
+	make -C plugins/VICEPlugin
+
+sexypsf :
+	make -C plugins/SexyPSFPlugin
+
 include Makefile.inc
