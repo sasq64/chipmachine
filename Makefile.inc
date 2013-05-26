@@ -76,6 +76,7 @@ CXXFLAGS := $(CXXFLAGS) $(CFLAGS)
 
 MO := $(patsubst %.cpp,%.o, $(wildcard $(addsuffix /*.cpp, $(SRC_MODULES))))
 MO += $(patsubst %.cxx,%.o, $(wildcard $(addsuffix /*.cxx, $(SRC_MODULES))))
+MO += $(patsubst %.cc,%.o, $(wildcard $(addsuffix /*.cc, $(SRC_MODULES))))
 MO += $(patsubst %.c,%.o, $(wildcard $(addsuffix /*.c, $(SRC_MODULES))))
 MO += $(patsubst %.s,%.o, $(wildcard $(addsuffix /*.s, $(SRC_MODULES))))
 

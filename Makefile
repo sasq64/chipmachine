@@ -2,7 +2,7 @@ OBJDIR := obj/
 CFLAGS := -g -Wall -I. -Iinclude -Iplugins/ModPlugin/modplug/libmodplug -Iplugins/SexyPSFPlugin
 
 
-CFLAGS := $(CFLAGS) \
+CFLAGS := $(CFLAGS) -Inetlink/include \
 	-Iplugins/VICEPlugin \
 	-Iplugins/VICEPlugin/common \
     -Iplugins/VICEPlugin/vice \
@@ -26,10 +26,10 @@ CFLAGS := $(CFLAGS) \
 
 CXXFLAGS := -std=c++0x
 TARGET := player
-MODULES := plugins/ModPlugin/modplug ziplib
+MODULES := plugins/ModPlugin/modplug ziplib netlink/src
 LIBS := -lsexypsf -lviceplayer -lz 
 LDFLAGS := -Lplugins/SexyPSFPlugin -Lplugins/VICEPlugin
-OBJS := player.o utils.o WebGetter.o URLPlayer.o Archive.o VicePlayer.o
+OBJS := player.o server.o utils.o WebGetter.o URLPlayer.o Archive.o VicePlayer.o
 
 WIN_CFLAGS := -static -Icurl/include -DWIN32 -Doverride=""
 WIN_LIBS := -lwinmm -lcurldll
