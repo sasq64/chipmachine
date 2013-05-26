@@ -24,7 +24,7 @@ AudioPlayerLinux::AudioPlayerLinux() {
 	}
 }
 
-void AudioPlayerLinux::writeAudio(short *samples, int sampleCount) {
+void AudioPlayerLinux::writeAudio(int16_t *samples, int sampleCount) {
 	int frames = snd_pcm_writei(playback_handle, (char*)samples, sampleCount/2);
 	if (frames < 0) {
 		snd_pcm_recover(playback_handle, frames, 0);

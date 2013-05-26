@@ -27,12 +27,12 @@ CFLAGS := $(CFLAGS) -Inetlink/include \
 CXXFLAGS := -std=c++0x
 TARGET := player
 MODULES := plugins/ModPlugin/modplug ziplib netlink/src
-LIBS := -lsexypsf -lviceplayer -lz 
+LIBS := -lsexypsf -lviceplayer -lz
 LDFLAGS := -Lplugins/SexyPSFPlugin -Lplugins/VICEPlugin
 OBJS := player.o server.o utils.o WebGetter.o URLPlayer.o Archive.o VicePlayer.o
 
 WIN_CFLAGS := -static -Icurl/include -DWIN32 -Doverride=""
-WIN_LIBS := -lwinmm -lcurldll
+WIN_LIBS := -lwinmm -lcurldll -lws2_32
 WIN_LDFLAGS := -Lcurl/lib -static
 WIN_OBJS := AudioPlayerWindows.o
 WIN_CC := gcc
@@ -46,8 +46,10 @@ LINUX_OBJS := AudioPlayerLinux.o
 
 #GCC_VERSION := $(subst /platform-tools/,,$(dir $(shell which adb)))
 
-all : $(TARGET)$(EXT) vice sexypsf
+all : $(TARGET)$(EXT) vice sexypsf netlink
 
+netlink :
+	make -f netlink.mk
 
 vice :
 	make -C plugins/VICEPlugin

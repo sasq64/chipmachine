@@ -31,7 +31,7 @@ URLPlayer::URLPlayer(const string &url, PlayerFactory *playerFactory) : webGette
 };
 
 
-int URLPlayer::getSamples(short *target, int noSamples) override {
+int URLPlayer::getSamples(int16_t *target, int noSamples) override {
 
 	if(!currentPlayer) {
 		if(urlJob) {

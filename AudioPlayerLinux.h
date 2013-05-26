@@ -12,7 +12,7 @@
 class AudioPlayerLinux : public AudioPlayer {
 public:
 	AudioPlayerLinux();
-	void writeAudio(short *samples, int sampleCount);
+	void writeAudio(int16_t *samples, int sampleCount);
 private:
 	int dspFD;
 	snd_pcm_t *playback_handle;

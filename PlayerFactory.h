@@ -4,6 +4,8 @@
 #include "utils.h"
 class ChipPlayer;
 
+/** Interface to create a player from a file
+*/
 class PlayerFactory {
 public:
 	virtual ChipPlayer *fromFile(utils::File &f) = 0;

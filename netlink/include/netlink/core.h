@@ -50,7 +50,7 @@
     // Link to Ws2_32.lib library
 
 
-	#define snprintf _snprintf
+	//#define snprintf _snprintf
 
 #else
 

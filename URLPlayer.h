@@ -8,7 +8,7 @@
 class URLPlayer : public ChipPlayer {
 public:
 	URLPlayer(const std::string &url, PlayerFactory *playerFactory);
-	int getSamples(short *target, int noSamples) override;
+	int getSamples(int16_t *target, int noSamples) override;
 
 private:
 	WebGetter webGetter;

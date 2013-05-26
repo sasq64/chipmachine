@@ -4,13 +4,14 @@
 #include "AudioPlayer.h"
 #include <windows.h>
 #include <vector>
+#include <stdint.h>
 //#include <winmm.h>
 
 class AudioPlayerWindows : public AudioPlayer {
 public:
 	AudioPlayerWindows();
 	~AudioPlayerWindows();
-	void writeAudio(short *samples, int sampleCount) override;
+	void writeAudio(int16_t *samples, int sampleCount) override;
 private:
 	CRITICAL_SECTION lock;
 	volatile int blockCounter;
@@ -21,7 +22,7 @@ private:
 	int bufSize;
 	int bufCount;
 
-	std::vector<std::vector<short>> buffer;
+	std::vector<std::vector<int16_t>> buffer;
 	std::vector<WAVEHDR> header;
 
 	static void CALLBACK waveOutProc(HWAVEOUT hWaveOut, UINT uMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2) {

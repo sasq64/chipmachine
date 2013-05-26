@@ -10,9 +10,8 @@
 #include <vector>
 #include <string>
 #include <memory>
-//#include <thread>
-//#include <mutex>
 
+#include "ChipPlugin.h"
 #include "ChipPlayer.h"
 #include "URLPlayer.h"
 
@@ -78,7 +77,7 @@ public:
 		sexyFifo = &fifo;
 	}
 
-	int getSamples(short *target, int noSamples) override {
+	int getSamples(int16_t *target, int noSamples) override {
 		while(fifo.filled() < noSamples*2) {
 			int rc = sexy_execute();
 			if(rc <= 0)
@@ -94,25 +93,12 @@ private:
 	PSFINFO *psfInfo;
 };
 
-#include <algorithm>
-
-class Plugin {
-public:
-	virtual bool canHandle(const std::string &name) = 0;
-	virtual ChipPlayer *fromFile(File &file) = 0;
-};
-
-void toLower(string &s) {
-	for(uint i=0; i<s.length(); i++)
-		s[i] = tolower(s[i]);
-}
-
 class PlayerSystem : public PlayerFactory {
 public:
 	virtual ChipPlayer *fromFile(File &file) override {
 
 		string name = file.getName();
-		toLower(name);
+		makeLower(name);
 		printf("Handling %s\n", name.c_str());
 
 		for(auto *plugin : plugins) {
@@ -125,7 +111,7 @@ public:
 	virtual bool canHandle(const std::string &name) override {
 
 		string lname = name;
-		toLower(lname);
+		makeLower(lname);
 		printf("Checking %s\n", lname.c_str());
 
 		for(auto *plugin : plugins) {
@@ -135,35 +121,15 @@ public:
 		return false;
 	}
 
-	void registerPlugin(Plugin *p) {	
+	void registerPlugin(ChipPlugin *p) {	
 		plugins.push_back(p);
 	}
 private:
-	vector<Plugin*> plugins;
-};
-
-static bool endsWith(const string &name, const string &ext) {
-	size_t pos = name.rfind(ext);
-	return (pos == name.length() - ext.length());
-}
-
-class SidPlugin : public Plugin {
-public:
-	SidPlugin() {
-		VicePlayer::init("c64");
-	}
-
-	virtual bool canHandle(const std::string &name) override {
-		return endsWith(name, ".sid");
-	}
-
-	virtual ChipPlayer *fromFile(File &file) override {
-		return new VicePlayer { file.getName() };
-	}
+	vector<ChipPlugin*> plugins;
 };
 
 
-class ModPlugin : public Plugin {
+class ModPlugin : public ChipPlugin {
 public:
 	virtual bool canHandle(const std::string &name) override {
 		return endsWith(name, ".mod") || endsWith(name, ".xm");
@@ -174,7 +140,7 @@ public:
 	}
 };
 
-class PSFPlugin : public Plugin {
+class PSFPlugin : public ChipPlugin {
 public:
 	virtual bool canHandle(const std::string &name) override {
 		return endsWith(name, ".psf");
@@ -225,7 +191,7 @@ int main(int argc, char* argv[]) {
 	AudioPlayerNative ap;
 
 	int bufSize = 4096;
-	vector<short> buffer(bufSize);
+	vector<int16_t> buffer(bufSize);
 	while(true) {
 		int rc = player->getSamples(&buffer[0], bufSize);
 		if(rc > 0)

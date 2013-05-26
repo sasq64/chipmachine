@@ -129,5 +129,14 @@ void makedirs(const std::string &path) {
 	}
 }
 
+bool endsWith(const string &name, const string &ext) {
+	size_t pos = name.rfind(ext);
+	return (pos == name.length() - ext.length());
+}
+
+void makeLower(string &s) {
+	for(uint i=0; i<s.length(); i++)
+		s[i] = tolower(s[i]);
+}
 
 }

@@ -39,7 +39,7 @@ AudioPlayerWindows::~AudioPlayerWindows() {
 	waveOutClose(hWaveOut);
 }
 
-void AudioPlayerWindows::writeAudio(short *samples, int sampleCount) {
+void AudioPlayerWindows::writeAudio(int16_t *samples, int sampleCount) {
 
 		//printf("Writing block %d\n", blockPosition);
 

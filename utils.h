@@ -50,6 +50,9 @@ void sleepms(uint ms);
 void makedir(const std::string &name);
 void makedirs(const std::string &name);
 
+bool endsWith(const std::string &name, const std::string &ext);
+void makeLower(std::string &s);
+
 };
 
 #endif // UTILS_H
