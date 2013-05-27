@@ -11,7 +11,7 @@ class VicePlayer : public ChipPlayer {
 public:
 	static bool init(const std::string &c64Dir);
 	VicePlayer(const std::string &sidFile);
-	virtual int getSamples(short *target, int size);
+	virtual int getSamples(int16_t *target, int size);
 };
 
 

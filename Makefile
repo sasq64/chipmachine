@@ -31,7 +31,7 @@ LIBS := -lsexypsf -lviceplayer -lz
 LDFLAGS := -Lplugins/SexyPSFPlugin -Lplugins/VICEPlugin
 OBJS := player.o server.o utils.o WebGetter.o URLPlayer.o Archive.o VicePlayer.o
 
-WIN_CFLAGS := -static -Icurl/include -DWIN32 -Doverride=""
+WIN_CFLAGS := -static -Icurl/include -DWIN32
 WIN_LIBS := -lwinmm -lcurldll -lws2_32
 WIN_LDFLAGS := -Lcurl/lib -static
 WIN_OBJS := AudioPlayerWindows.o

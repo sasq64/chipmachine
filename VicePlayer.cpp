@@ -84,7 +84,7 @@ VicePlayer::VicePlayer(const std::string &sidFile) {
 }
 
 
-int VicePlayer::getSamples(short *target, int size) {
+int VicePlayer::getSamples(int16_t *target, int size) {
 	psid_play(target, size);
 	return size;
 }

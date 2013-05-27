@@ -23,26 +23,23 @@ URLPlayer::URLPlayer(const string &url, PlayerFactory *playerFactory) : webGette
 		urlJob = webGetter.getURL(musicUrl);
 	}
 	else {
-		printf("Loading file '%s'\n", path.c_str());
 		File file(path);
-		//currentPlayer = new ModPlayer{file.getPtr(), file.getSize()};
 		currentPlayer = playerFactory->fromFile(file);
 	}
 };
 
 
-int URLPlayer::getSamples(int16_t *target, int noSamples) override {
+int URLPlayer::getSamples(int16_t *target, int noSamples) {
 
+	printf("%p\n", currentPlayer);
 	if(!currentPlayer) {
 		if(urlJob) {
 			if(urlJob->isDone()) {
 
 				string target = urlJob->getFile();
-
 				File file(target);
 
 				if(Archive::canHandle(target)) {
-
 					Archive *a = Archive::open(target, "_cache");
 					for(const string &name : *a) {
 						printf("%s\n", name.c_str());
@@ -58,6 +55,7 @@ int URLPlayer::getSamples(int16_t *target, int noSamples) override {
 					if(true) { //playerFactory->canHandle(file.getName())) {
 						printf("Trying %s\n", file.getName().c_str());
 						currentPlayer = playerFactory->fromFile(file); //new ModPlayer {file.getPtr(), file.getSize()};
+						printf("%p\n", currentPlayer);
 					} else
 						printf("Can not handle %s\n", file.getName().c_str());
 				}
