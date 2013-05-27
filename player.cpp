@@ -9,6 +9,8 @@
 #include <string>
 #include <memory>
 
+#include <sqlite3.h>
+
 #include "ChipPlugin.h"
 #include "ChipPlayer.h"
 #include "URLPlayer.h"
@@ -16,6 +18,8 @@
 #include "utils.h"
 
 #include "ModPlugin.h"
+#include "VicePlayer.h"
+#include "PSXPlugin.h"
 
 
 #ifdef WIN32
@@ -75,6 +79,27 @@ int main(int argc, char* argv[]) {
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	printf("Modplayer test\n");
+
+	sqlite3 *db = nullptr;
+
+	int rc = sqlite3_open("hvsc.db", &db);
+	if(rc == SQLITE_OK) {
+		printf("DB opened\n");
+		sqlite3_stmt *s;
+		const char *tail;
+		rc = sqlite3_prepare(db, "select * from songs;", -1, &s, &tail);
+		if(rc == SQLITE_OK) {
+			printf("Statement created\n");
+			while(true) {
+				sqlite3_step(s);
+				const char *title = (const char *)sqlite3_column_text(s, 2);
+				printf("title %s\n", title);
+			}
+		} else
+			printf("%s\n", sqlite3_errmsg(db));
+	} else
+		printf("%s\n", sqlite3_errmsg(db));
+
 	string name;
 
 	if(argc > 1)

@@ -2,6 +2,7 @@
 #define MODPLAYER_H
 
 #include "ChipPlayer.h"
+#include "utils.h"
 #include "modplug.h"
 
 
@@ -30,10 +31,10 @@ private:
 class ModPlugin : public ChipPlugin {
 public:
 	virtual bool canHandle(const std::string &name) override {
-		return endsWith(name, ".mod") || endsWith(name, ".xm");
+		return utils::endsWith(name, ".mod") || utils::endsWith(name, ".xm");
 	}
 
-	virtual ChipPlayer *fromFile(File &file) override {
+	virtual ChipPlayer *fromFile(utils::File &file) override {
 		return new ModPlayer {file.getPtr(), file.getSize()};
 	}
 };

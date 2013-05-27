@@ -5,6 +5,7 @@
 extern "C" {
 #include "sexypsf/driver.h"
 }
+#include "common/Fifo.h"
 
 static Fifo *sexyFifo;
 
@@ -17,7 +18,7 @@ void sexyd_update(unsigned char *pSound, long lBytes)
 
 class PSXPlayer : public ChipPlayer {
 public:
-	PSXPlayer(const string &fileName) : fifo(1024 * 128) {
+	PSXPlayer(const std::string &fileName) : fifo(1024 * 128) {
 		char temp[1024];
 		strcpy(temp, fileName.c_str());
 		psfInfo = sexy_load(temp);
@@ -43,12 +44,12 @@ private:
 class PSFPlugin : public ChipPlugin {
 public:
 	virtual bool canHandle(const std::string &name) override {
-		return endsWith(name, ".psf");
+		return utils::endsWith(name, ".psf");
 	}
 
-	virtual ChipPlayer *fromFile(File &file) override {
+	virtual ChipPlayer *fromFile(utils::File &file) override {
 		return new PSXPlayer {file.getName()};
 	}
 };
 
-#endif PSXPLUGIN_H
+#endif // PSXPLUGIN_H
