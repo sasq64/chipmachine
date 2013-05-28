@@ -65,6 +65,6 @@ Archive *Archive::open(const std::string &fileName, const std::string &targetDir
 }
 
 bool Archive::canHandle(const std::string &name) {
-	return name.rfind(".zip") != string::npos;
+	return utils::endsWith(name, ".zip");
 }
 

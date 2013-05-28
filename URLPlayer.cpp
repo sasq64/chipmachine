@@ -18,7 +18,7 @@ URLPlayer::URLPlayer(const string &url, PlayerFactory *playerFactory) : webGette
 		path = st.getString(p);
 	}
 
-	if(protocol == "http") {
+	if(protocol == "http" || protocol == "ftp") {
 		string musicUrl = protocol.append(":/").append(path);
 		urlJob = webGetter.getURL(musicUrl);
 	}
@@ -52,7 +52,7 @@ int URLPlayer::getSamples(int16_t *target, int noSamples) {
 				}
 				
 				if(file.exists()) {
-					if(true) { //playerFactory->canHandle(file.getName())) {
+					if(playerFactory->canHandle(file.getName())) {
 						printf("Trying %s\n", file.getName().c_str());
 						currentPlayer = playerFactory->fromFile(file); //new ModPlayer {file.getPtr(), file.getSize()};
 						printf("%p\n", currentPlayer);

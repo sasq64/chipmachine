@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
 		ChipPlayer *player = psys.play(name);
 	});*/
 
-	sqlite3 *db = nullptr;
+	/*sqlite3 *db = nullptr;
 
 	int rc = sqlite3_open("hvsc.db", &db);
 	if(rc == SQLITE_OK) {
@@ -104,13 +104,14 @@ int main(int argc, char* argv[]) {
 			printf("%s\n", sqlite3_errmsg(db));
 	} else
 		printf("%s\n", sqlite3_errmsg(db));
-
+*/
 	string name;
 
 	if(argc > 1)
 		name = argv[1];
 	else
-		name = "http://swimsuitboys.com/droidmusic/C64%20Demo/Amplifire.sid";
+		name = "ftp://modland.ziphoid.com/pub/modules/Protracker/Heatbeat/cheeseburger.mod";
+		//name = "http://swimsuitboys.com/droidmusic/C64%20Demo/Amplifire.sid";
 
 
 
