@@ -5,8 +5,8 @@
  */
 
 #include "modplug.h"
-#include "stdafx.h"
-#include "sndfile.h"
+#include "libmodplug/stdafx.h"
+#include "libmodplug/sndfile.h"
 
 struct _ModPlugFile
 {

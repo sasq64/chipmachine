@@ -18,7 +18,7 @@
 #include "utils.h"
 
 #include "ModPlugin.h"
-#include "VicePlayer.h"
+#include "VicePlugin.h"
 #include "PSXPlugin.h"
 
 
@@ -80,6 +80,11 @@ int main(int argc, char* argv[]) {
 	setvbuf(stdout, NULL, _IONBF, 0);
 	printf("Modplayer test\n");
 
+	/*TelnetServer telnet { 12345 };
+	telnet.addCommand("play", [&](vector<string> args) {
+		ChipPlayer *player = psys.play(name);
+	});*/
+
 	sqlite3 *db = nullptr;
 
 	int rc = sqlite3_open("hvsc.db", &db);
@@ -111,7 +116,7 @@ int main(int argc, char* argv[]) {
 
 	PlayerSystem psys;
 	psys.registerPlugin(new ModPlugin {});
-	psys.registerPlugin(new SidPlugin {});
+	psys.registerPlugin(new VicePlugin {});
 	psys.registerPlugin(new PSFPlugin {});
 
 	ChipPlayer *player = psys.play(name);

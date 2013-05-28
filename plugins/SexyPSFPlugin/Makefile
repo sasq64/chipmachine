@@ -11,6 +11,8 @@ OBJS := sexypsf/PsxBios.o sexypsf/PsxCounters.o sexypsf/PsxDma.o \
 
 
 CFLAGS := -Isexypsf -DPSS_STYLE=1
+CXXFLAGS := -std=c++0x
+
 LDLIBS := -lz
 
 include ../../Makefile.inc

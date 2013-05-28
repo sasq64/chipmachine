@@ -6,6 +6,7 @@ CC=gcc
 MODULES := vice/resid
 
 OBJS := \
+	VicePlugin.o \
 	common/archdep.o \
     common/console.o \
     common/joy.o \
@@ -153,8 +154,8 @@ INCLUDES := \
     -Ivice/vicii \
     -Ivice/rtc
 
-CFLAGS := -g -Wall -I. $(INCLUDES)
-#CXXFLAGS := -std=c++0x
+CFLAGS := -g -Wall -I. -I../.. $(INCLUDES)
+CXXFLAGS := -std=c++0x
 
 
 include ../../Makefile.inc

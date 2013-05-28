@@ -1,35 +1,14 @@
 OBJDIR := obj/
-CFLAGS := -g -Wall -I. -Iinclude -Iplugins/ModPlugin/modplug/libmodplug -Iplugins/SexyPSFPlugin
+CFLAGS := -g -Wall -I. -Iinclude -Iplugins/SexyPSFPlugin
 
-
-CFLAGS := $(CFLAGS) -Inetlink/include \
-	-Iplugins/VICEPlugin \
-	-Iplugins/VICEPlugin/common \
-    -Iplugins/VICEPlugin/vice \
-    -Iplugins/VICEPlugin/vice/drive \
-    -Iplugins/VICEPlugin/vice/lib/p64 \
-    -Iplugins/VICEPlugin/vice/c64 \
-
-    # -Ivice/c64 \
-    # -Ivice/c64/cart \
-    # -Ivice/c64dtv \
-    # -Ivice/imagecontents \
-    # -Ivice/monitor \
-    # -Ivice/raster \
-    # -Ivice/sid \
-    # -Ivice/tape \
-    # -Ivice/userport \
-    # -Ivice/vdrive \
-    # -Ivice/vicii \
-    # -Ivice/rtc
-
+CFLAGS := $(CFLAGS) -Inetlink/include -Isqlite3 -Iplugins/VicePlugin -Iplugins/ModPlugin
 
 CXXFLAGS := -std=c++0x
 TARGET := player
-MODULES := plugins/ModPlugin/modplug ziplib netlink/src
-LIBS := -lsexypsf -lviceplayer -lz
-LDFLAGS := -Lplugins/SexyPSFPlugin -Lplugins/VICEPlugin
-OBJS := player.o server.o utils.o WebGetter.o URLPlayer.o Archive.o VicePlayer.o
+MODULES := ziplib netlink/src
+LIBS := -lsexypsf -lviceplayer -lmodplugin -lz
+LDFLAGS := -Lplugins/SexyPSFPlugin -Lplugins/VicePlugin -Lplugins/ModPlugin
+OBJS := player.o TelnetServer.o utils.o WebGetter.o URLPlayer.o Archive.o sqlite3/sqlite3.o
 
 WIN_CFLAGS := -static -Icurl/include -DWIN32
 WIN_LIBS := -lwinmm -lcurldll -lws2_32
@@ -46,7 +25,7 @@ LINUX_OBJS := AudioPlayerLinux.o
 
 #GCC_VERSION := $(subst /platform-tools/,,$(dir $(shell which adb)))
 
-all : $(TARGET)$(EXT) vice sexypsf netlink
+all : vice sexypsf netlink $(TARGET)$(EXT)
 
 netlink :
 	make -f netlink.mk

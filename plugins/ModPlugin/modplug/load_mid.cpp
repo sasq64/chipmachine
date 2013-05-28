@@ -43,8 +43,8 @@ typedef UWORD WORD;
 #define MAX_TRACKS    63  // max mod tracks
 #define WHEELSHIFT    11  // how many bits the 13bit midi wheel value must shift right 
 #else
-#include "stdafx.h"
-#include "sndfile.h"
+#include "libmodplug/stdafx.h"
+#include "libmodplug/sndfile.h"
 #define PAN_LEFT    0x30
 #define PAN_RIGHT   0xD0
 #define MAX_POLYPHONY 16  // max notes in one midi channel

@@ -7,8 +7,8 @@
 //////////////////////////////////////////////
 // DSIK Internal Format (DSM) module loader //
 //////////////////////////////////////////////
-#include "stdafx.h"
-#include "sndfile.h"
+#include "libmodplug/stdafx.h"
+#include "libmodplug/sndfile.h"
 
 #pragma pack(1)
 

@@ -4,8 +4,8 @@
  * Authors: Olivier Lapicque <olivierl@jps.net>
 */
 
-#include "stdafx.h"
-#include "sndfile.h"
+#include "libmodplug/stdafx.h"
+#include "libmodplug/sndfile.h"
 
 #ifdef MODPLUG_FASTSOUNDLIB
 #define MODPLUG_NO_REVERB

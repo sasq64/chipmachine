@@ -39,8 +39,8 @@
 typedef UBYTE BYTE;
 typedef UWORD WORD;
 #else
-#include "stdafx.h"
-#include "sndfile.h"
+#include "libmodplug/stdafx.h"
+#include "libmodplug/sndfile.h"
 #endif
 
 #include "load_pat.h"
