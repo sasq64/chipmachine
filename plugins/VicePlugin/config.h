@@ -677,7 +677,7 @@
 /* #undef NEXTSTEP_COMPILE */
 
 /* NLS local directory. */
-#define NLS_LOCALEDIR PREFIX"/"DATADIRNAME"/locale"
+#define NLS_LOCALEDIR PREFIX "/" DATADIRNAME "/locale"
 
 /* Enable SCO Openserver 5.x support */
 /* #undef OPENSERVER5_COMPILE */

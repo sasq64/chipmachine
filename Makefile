@@ -1,9 +1,11 @@
+
+include settings.mk
+
 OBJDIR := obj/
 CFLAGS := -g -Wall -I. -Iinclude -Iplugins/SexyPSFPlugin
 
 CFLAGS := $(CFLAGS) -Inetlink/include -Isqlite3 -Iplugins/VicePlugin -Iplugins/ModPlugin
 
-CXXFLAGS := -std=c++0x
 TARGET := player
 MODULES := ziplib netlink/src
 LIBS := -lsexypsf -lviceplayer -lmodplugin -lz
@@ -17,21 +19,29 @@ WIN_OBJS := AudioPlayerWindows.o
 WIN_CC := gcc
 WIN_CXX := g++
 
-LINUX_CC := gcc
-LINUX_CXX := g++
-LINUX_CFLAGS := `curl-config --cflags` -Doverride=""
+LINUX_CFLAGS := $(LINUX_CFLAGS) `curl-config --cflags`
 LINUX_LIBS := -lasound `curl-config --libs`
 LINUX_OBJS := AudioPlayerLinux.o
 
 #GCC_VERSION := $(subst /platform-tools/,,$(dir $(shell which adb)))
 
-all : vice sexypsf netlink $(TARGET)$(EXT)
+all : vice sexypsf modplug netlink $(TARGET)$(EXT)
+
+cleanall : clean
+	make -f netlink.mk clean
+	make -C plugins/VicePlugin clean
+	make -C plugins/SexyPSFPlugin clean
+	make -C plugins/ModPlugin clean
+
 
 netlink :
 	make -f netlink.mk
 
+modplug :
+	make -C plugins/ModPlugin
+
 vice :
-	make -C plugins/VICEPlugin
+	make -C plugins/VicePlugin
 
 sexypsf :
 	make -C plugins/SexyPSFPlugin
