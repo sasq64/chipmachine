@@ -86,8 +86,42 @@ int main(int argc, char* argv[]) {
 	setvbuf(stdout, NULL, _IONBF, 0);
 	printf("Chipmachine starting\n");
 
-	mutex playMutex;
+	bool daemonize = false;
 	queue<string> playQueue;
+
+	for(int i=1; i<argc; i++) {
+		if(argv[i][0] == '-') {
+			if((strcmp(argv[i], "--start-daemon") == 0) || (strcmp(argv[i], "-d") == 0)) {
+				daemonize = true;
+			}
+		} else 
+			playQueue.push(argv[1]);
+	}
+#ifndef WIN32
+	if(daemonize)
+		daemon(0, 0);
+#endif
+
+
+	mutex playMutex;
+
+	FILE *fp = fopen("/opt/chipmachine/startsongs", "rb");
+	if(fp) {		
+		char buffer[2048];
+		while(true) {
+			char *line = fgets(buffer, sizeof(buffer), fp);
+			if(line) {
+				int len = strlen(line);
+				while(len > 0 && line[len-1] == '\n' || line[len-1] == '\r')
+					len--;
+				line[len] = 0;
+				playQueue.push(line);
+			} else
+				break;
+		}
+		fclose(fp);
+	}
+
 
 
 	TelnetServer telnet { 12345 };
@@ -104,17 +138,6 @@ int main(int argc, char* argv[]) {
 
 	telnet.runThread();
 
-	bool daemonize = false;
-
-	for(int i=1; i<argc; i++) {
-		if(argv[i][0] == '-') {
-			if((strcmp(argv[i], "--start-daemon") == 0) || (strcmp(argv[i], "-d") == 0)) {
-				daemonize = true;
-			}
-		} else 
-			playQueue.push(argv[1]);
-	}
-
 	//else
 		//name = "ftp://modland.ziphoid.com/pub/modules/Protracker/Heatbeat/cheeseburger.mod";
 		//name = "http://swimsuitboys.com/droidmusic/C64%20Demo/Amplifire.sid";
@@ -130,8 +153,6 @@ int main(int argc, char* argv[]) {
 	//if(name.length() > 0)
 	//	player = psys.play(name);
 
-	if(daemonize)
-		daemon(0, 0);
 
 
 	AudioPlayerNative ap;
