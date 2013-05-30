@@ -34,6 +34,8 @@
 
 #include "Archive.h"
 
+#include <unistd.h>
+
 typedef unsigned int uint;
 using namespace std;
 using namespace utils;
@@ -82,7 +84,7 @@ private:
 int main(int argc, char* argv[]) {
 
 	setvbuf(stdout, NULL, _IONBF, 0);
-	printf("Modplayer test\n");
+	printf("Chipmachine starting\n");
 
 	mutex playMutex;
 	queue<string> playQueue;
@@ -102,9 +104,17 @@ int main(int argc, char* argv[]) {
 
 	telnet.runThread();
 
-	if(argc > 1) {
-		playQueue.push(argv[1]);
+	bool daemonize = false;
+
+	for(int i=1; i<argc; i++) {
+		if(argv[i][0] == '-') {
+			if((strcmp(argv[i], "--start-daemon") == 0) || (strcmp(argv[i], "-d") == 0)) {
+				daemonize = true;
+			}
+		} else 
+			playQueue.push(argv[1]);
 	}
+
 	//else
 		//name = "ftp://modland.ziphoid.com/pub/modules/Protracker/Heatbeat/cheeseburger.mod";
 		//name = "http://swimsuitboys.com/droidmusic/C64%20Demo/Amplifire.sid";
@@ -119,6 +129,10 @@ int main(int argc, char* argv[]) {
 	ChipPlayer *player = nullptr; //psys.play(name);
 	//if(name.length() > 0)
 	//	player = psys.play(name);
+
+	if(daemonize)
+		daemon(0, 0);
+
 
 	AudioPlayerNative ap;
 	int bufSize = 4096;

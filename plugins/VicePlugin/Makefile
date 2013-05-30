@@ -155,7 +155,7 @@ INCLUDES := \
     -Ivice/vicii \
     -Ivice/rtc
 
-CFLAGS := -g -Wall -I. -I../.. $(INCLUDES)
+CFLAGS := $(CFLAGS) -Wall -I. -I../.. $(INCLUDES)
 
 #LINUX_CFLAGS := -Doverride=""
 

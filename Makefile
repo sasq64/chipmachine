@@ -10,7 +10,7 @@ TARGET := player
 MODULES := ziplib netlink/src
 LIBS := -lsexypsf -lviceplayer -lmodplugin -lz
 LDFLAGS := -Lplugins/SexyPSFPlugin -Lplugins/VicePlugin -Lplugins/ModPlugin
-OBJS := player.o TelnetServer.o utils.o WebGetter.o URLPlayer.o Archive.o sqlite3/sqlite3.o
+OBJS := player.o TelnetServer.o utils.o WebGetter.o URLPlayer.o Archive.o
 
 WIN_CFLAGS := -static -Icurl/include -DWIN32
 WIN_LIBS := -lwinmm -lcurldll -lws2_32
