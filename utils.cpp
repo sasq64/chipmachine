@@ -6,6 +6,9 @@
 #include <windows.h>
 #endif
 
+#include <iostream>
+#include <sstream>
+
 namespace utils {
 
 using namespace std;
@@ -26,6 +29,21 @@ void File::read() {
 	loaded = true;
 }
 
+vector<string> File::getLines() {
+	vector<string> lines;
+	close();
+	if(!loaded)
+		read();
+	string source { reinterpret_cast<char*>(&data[0]), size };
+	stringstream ss(source);
+	string to;
+
+	while(getline(ss, to)) {
+		lines.push_back(to);
+    }
+    return lines;
+}
+
 void File::write(const uint8_t *data, int size) {
 	if(!writeFP) {
 		makedirs(fileName);
@@ -41,7 +59,8 @@ void File::close() {
 }
 
 bool File::exists() {
-	return true;
+	struct stat ss;
+	return (stat(fileName.c_str(), &ss) == 0);
 }
 
 uint8_t *File::getPtr() {

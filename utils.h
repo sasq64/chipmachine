@@ -23,10 +23,11 @@ public:
 	uint8_t *getPtr();
 	const std::string &getName() { return fileName; }
 	int getSize() { return size; }
+	std::vector<std::string> getLines();
 private:
 	std::string fileName;
 	std::vector<uint8_t> data;
-	int size;
+	uint size;
 	bool loaded;
 	FILE *writeFP;
 	FILE *readFP;

@@ -28,7 +28,7 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 	buffer[255] = '\0';
 	int len = socket->read(buffer, 255);
 	//size_t l = strlen(buffer);
-	while(len > 0 && buffer[len-1] == '\n' || buffer[len-1] == '\r')
+	while((len > 0) && ((buffer[len-1] == '\n') || (buffer[len-1] == '\r')))
 		len--;
 	buffer[len] = 0;
 	printf("Text from %s:%d: %s\n", socket->hostTo().c_str(), socket->portTo(), buffer);

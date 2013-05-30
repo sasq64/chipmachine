@@ -105,6 +105,14 @@ int main(int argc, char* argv[]) {
 
 	mutex playMutex;
 
+	File startSongs { "/opt/chipmachine/startsongs" };
+	if(startSongs.exists()) {
+		for(string s : startSongs.getLines()) {
+			playQueue.push(s);
+		}
+		startSongs.close();
+	}
+/*
 	FILE *fp = fopen("/opt/chipmachine/startsongs", "rb");
 	if(fp) {		
 		char buffer[2048];
@@ -121,8 +129,7 @@ int main(int argc, char* argv[]) {
 		}
 		fclose(fp);
 	}
-
-
+*/
 
 	TelnetServer telnet { 12345 };
 	telnet.addCommand("play", [&](TelnetServer::User &user, const vector<string> &args) {
