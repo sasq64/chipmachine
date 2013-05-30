@@ -1,7 +1,7 @@
 OBJDIR=obj/
 TARGET=libsexypsf
 EXT := .a
-CC = gcc
+
 OBJS := sexypsf/PsxBios.o sexypsf/PsxCounters.o sexypsf/PsxDma.o \
        sexypsf/Spu.o sexypsf/PsxHw.o sexypsf/PsxMem.o sexypsf/Misc.o \
        sexypsf/R3000A.o sexypsf/PsxInterpreter.o \
@@ -11,7 +11,6 @@ OBJS := sexypsf/PsxBios.o sexypsf/PsxCounters.o sexypsf/PsxDma.o \
 
 
 CFLAGS := -Isexypsf -DPSS_STYLE=1
-CXXFLAGS := -std=c++0x
 
 LDLIBS := -lz
 

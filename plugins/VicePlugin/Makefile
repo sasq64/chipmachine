@@ -1,7 +1,8 @@
+include ../../settings.mk
+
 OBJDIR=obj/
 TARGET=libviceplayer
 EXT=.a
-CC=gcc
 
 MODULES := vice/resid
 
@@ -155,7 +156,7 @@ INCLUDES := \
     -Ivice/rtc
 
 CFLAGS := -g -Wall -I. -I../.. $(INCLUDES)
-CXXFLAGS := -std=c++0x
 
+#LINUX_CFLAGS := -Doverride=""
 
 include ../../Makefile.inc

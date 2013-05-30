@@ -465,7 +465,7 @@ FILE *archdep_mkstemp_fd(char **filename, const char *mode)
         return NULL;
     }
 
-    int fd = fopen(tmp, mode);
+    FILE *fd = fopen(tmp, mode);
 
     if (fd == NULL) {
         return NULL;
