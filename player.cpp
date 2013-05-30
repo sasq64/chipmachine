@@ -8,6 +8,8 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <mutex>
+#include <queue>
 
 #include <sqlite3.h>
 
@@ -20,6 +22,8 @@
 #include "ModPlugin.h"
 #include "VicePlugin.h"
 #include "PSXPlugin.h"
+
+#include "TelnetServer.h"
 
 
 #ifdef WIN32
@@ -80,37 +84,29 @@ int main(int argc, char* argv[]) {
 	setvbuf(stdout, NULL, _IONBF, 0);
 	printf("Modplayer test\n");
 
-	/*TelnetServer telnet { 12345 };
-	telnet.addCommand("play", [&](vector<string> args) {
-		ChipPlayer *player = psys.play(name);
-	});*/
+	mutex playMutex;
+	queue<string> playQueue;
 
-	/*sqlite3 *db = nullptr;
 
-	int rc = sqlite3_open("hvsc.db", &db);
-	if(rc == SQLITE_OK) {
-		printf("DB opened\n");
-		sqlite3_stmt *s;
-		const char *tail;
-		rc = sqlite3_prepare(db, "select * from songs;", -1, &s, &tail);
-		if(rc == SQLITE_OK) {
-			printf("Statement created\n");
-			while(true) {
-				sqlite3_step(s);
-				const char *title = (const char *)sqlite3_column_text(s, 2);
-				printf("title %s\n", title);
-			}
-		} else
-			printf("%s\n", sqlite3_errmsg(db));
-	} else
-		printf("%s\n", sqlite3_errmsg(db));
-*/
-	string name;
+	TelnetServer telnet { 12345 };
+	telnet.addCommand("play", [&](TelnetServer::User &user, const vector<string> &args) {
+		//printf("Play '%s'\n", args[1].c_str());
+		playMutex.lock();
+		playQueue.push(args[1]);
+		playMutex.unlock();
+	});
 
-	if(argc > 1)
-		name = argv[1];
-	else
-		name = "ftp://modland.ziphoid.com/pub/modules/Protracker/Heatbeat/cheeseburger.mod";
+	telnet.setConnectCallback([&](TelnetServer::User &user) {
+		user.write("Chipmachine v0.1\n");
+	});
+
+	telnet.runThread();
+
+	if(argc > 1) {
+		playQueue.push(argv[1]);
+	}
+	//else
+		//name = "ftp://modland.ziphoid.com/pub/modules/Protracker/Heatbeat/cheeseburger.mod";
 		//name = "http://swimsuitboys.com/droidmusic/C64%20Demo/Amplifire.sid";
 
 
@@ -120,16 +116,30 @@ int main(int argc, char* argv[]) {
 	psys.registerPlugin(new VicePlugin {});
 	psys.registerPlugin(new PSFPlugin {});
 
-	ChipPlayer *player = psys.play(name);
+	ChipPlayer *player = nullptr; //psys.play(name);
+	//if(name.length() > 0)
+	//	player = psys.play(name);
 
 	AudioPlayerNative ap;
 	int bufSize = 4096;
 	vector<int16_t> buffer(bufSize);
 	while(true) {
-		int rc = player->getSamples(&buffer[0], bufSize);
-		printf("%d\n", rc);
-		if(rc > 0)
-			ap.writeAudio(&buffer[0], rc);
+
+		playMutex.lock();
+		if(!playQueue.empty()) {
+			if(player)
+				delete player;
+			player = psys.play(playQueue.front());
+			playQueue.pop();
+		}
+		playMutex.unlock();
+
+		if(player) {
+			int rc = player->getSamples(&buffer[0], bufSize);
+			if(rc > 0)
+				ap.writeAudio(&buffer[0], rc);
+		} else
+			sleepms(250);
 	}
 	return 0;
 }

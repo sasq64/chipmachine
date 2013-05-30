@@ -31,7 +31,6 @@ URLPlayer::URLPlayer(const string &url, PlayerFactory *playerFactory) : webGette
 
 int URLPlayer::getSamples(int16_t *target, int noSamples) {
 
-	printf("%p\n", currentPlayer);
 	if(!currentPlayer) {
 		if(urlJob) {
 			if(urlJob->isDone()) {

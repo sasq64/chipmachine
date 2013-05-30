@@ -15,6 +15,7 @@ public:
 		ModPlug_SetSettings(&settings);
 		mod = ModPlug_Load(data, size);
 	}
+	~ModPlayer() override {}
 
 	int getSamples(int16_t *target, int noSamples) override {
 		return ModPlug_Read(mod, (void*)target, noSamples*2) / 2;
