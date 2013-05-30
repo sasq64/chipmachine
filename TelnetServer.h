@@ -20,6 +20,8 @@ public:
 		void write(const std::string &text) {
 			socket->send(text.c_str(), text.length());
 		}
+
+
 		User(NL::Socket *socket) : socket(socket) {}
 	private:
 		NL::Socket *socket;

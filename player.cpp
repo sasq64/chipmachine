@@ -40,6 +40,61 @@ typedef unsigned int uint;
 using namespace std;
 using namespace utils;
 
+// This is our base-case for the print function:
+template <class T>
+void formatX(std::string &fmt, const T& arg) {
+	size_t pos = fmt.find_first_of('%');
+	if(pos != std::string::npos) {
+		fmt.replace(pos, 2, std::to_string(arg));
+	}	  
+}
+
+template <>
+void formatX<int>(std::string &fmt, const int& arg) {
+	size_t pos = fmt.find_first_of('%');
+	if(pos != std::string::npos) {
+		fmt.replace(pos, 2, std::to_string(arg));
+	}	  
+}
+
+template <>
+void formatX<std::string>(std::string &fmt, const std::string& arg) {
+	size_t pos = fmt.find_first_of('%');
+	if(pos != std::string::npos) {
+		fmt.replace(pos, 2, arg);
+	}
+}
+
+template <class A, class... B>
+void formatX(std::string &fmt, A head, B... tail)
+{
+	formatX(fmt, head);
+	formatX(fmt, tail...);
+}
+
+
+template <class T>
+std::string format(const std::string &fmt, const T& arg) {
+	std::string fcopy = fmt;
+	formatX(fcopy, arg);
+	return fcopy;  
+}
+
+std::string format(const std::string &fmt) {
+	return fmt;
+}
+
+// And this is the recursive case:
+
+template <class A, class... B>
+std::string format(const std::string &fmt, A head, B... tail)
+{
+	std::string fcopy = fmt;
+	formatX(fcopy, head);
+	formatX(fcopy, tail...);
+	return fcopy;
+}
+
 
 
 class PlayerSystem : public PlayerFactory {
@@ -131,6 +186,16 @@ int main(int argc, char* argv[]) {
 	}
 */
 
+	PlayerSystem psys;
+	psys.registerPlugin(new ModPlugin {});
+	psys.registerPlugin(new VicePlugin {});
+	psys.registerPlugin(new PSFPlugin {});
+
+	ChipPlayer *player = nullptr; //psys.play(name);
+
+	int frameCount = 0;
+	string songName;
+
 	TelnetServer telnet { 12345 };
 	telnet.addCommand("play", [&](TelnetServer::User &user, const vector<string> &args) {
 		//printf("Play '%s'\n", args[1].c_str());
@@ -139,11 +204,24 @@ int main(int argc, char* argv[]) {
 		playMutex.unlock();
 	});
 
+	telnet.addCommand("status", [&](TelnetServer::User &user, const vector<string> &args) {
+		if(player) {
+			char temp[2048];
+			sprintf(temp, "Playing '%s' for %d seconds\n", songName.c_str(), frameCount / 44100);
+			user.write(temp);
+		} else
+			user.write("Nothing playing\n");
+	});
+
+
 	telnet.setConnectCallback([&](TelnetServer::User &user) {
 		user.write("Chipmachine v0.1\n");
 	});
 
 	telnet.runThread();
+	songName = "yo";
+	string s = format("test %s %d", songName, 4);
+	printf(s.c_str());
 
 	//else
 		//name = "ftp://modland.ziphoid.com/pub/modules/Protracker/Heatbeat/cheeseburger.mod";
@@ -151,12 +229,6 @@ int main(int argc, char* argv[]) {
 
 
 
-	PlayerSystem psys;
-	psys.registerPlugin(new ModPlugin {});
-	psys.registerPlugin(new VicePlugin {});
-	psys.registerPlugin(new PSFPlugin {});
-
-	ChipPlayer *player = nullptr; //psys.play(name);
 	//if(name.length() > 0)
 	//	player = psys.play(name);
 
@@ -171,15 +243,19 @@ int main(int argc, char* argv[]) {
 		if(!playQueue.empty()) {
 			if(player)
 				delete player;
-			player = psys.play(playQueue.front());
+			songName = playQueue.front();
+			player = psys.play(songName);
 			playQueue.pop();
+			frameCount = 0;
 		}
 		playMutex.unlock();
 
 		if(player) {
 			int rc = player->getSamples(&buffer[0], bufSize);
-			if(rc > 0)
+			if(rc > 0) {
 				ap.writeAudio(&buffer[0], rc);
+				frameCount += rc/2;
+			}
 		} else
 			sleepms(250);
 	}

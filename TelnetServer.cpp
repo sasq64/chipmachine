@@ -35,7 +35,7 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 
 	StringTokenizer st {buffer, " "};
 	User user {socket};
-	if(st.noParts() > 1) {
+	if(st.noParts() > 0) {
 		printf("Command: %s\n", st.getString(0).c_str());
 		auto cmd  = ts->callBacks.find(st.getString(0));
 		if(cmd != ts->callBacks.end()) {
@@ -47,7 +47,8 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 			
 			func(user, x);
 		}
-	}
+	} else
+		user.write("Unknown command\n");
 
 	user.write(ts->prompt);
 	
