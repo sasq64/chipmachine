@@ -40,61 +40,86 @@ typedef unsigned int uint;
 using namespace std;
 using namespace utils;
 
-// This is our base-case for the print function:
-template <class T>
-void formatX(std::string &fmt, const T& arg) {
-	size_t pos = fmt.find_first_of('%');
-	if(pos != std::string::npos) {
-		fmt.replace(pos, 2, std::to_string(arg));
-	}	  
-}
-
-template <>
-void formatX<int>(std::string &fmt, const int& arg) {
-	size_t pos = fmt.find_first_of('%');
-	if(pos != std::string::npos) {
-		fmt.replace(pos, 2, std::to_string(arg));
-	}	  
-}
-
-template <>
-void formatX<std::string>(std::string &fmt, const std::string& arg) {
-	size_t pos = fmt.find_first_of('%');
-	if(pos != std::string::npos) {
-		fmt.replace(pos, 2, arg);
+/*
+void percent_replace(std::string &x) {
+	size_t pos = 0;
+	while(pos < x.length()) {
+		pos = x.find("%%", pos);
+		if(pos != string::npos) {
+			x.replace(pos, 2, "%");
+			pos += 2;
+		} else
+			break;
 	}
 }
 
-template <class A, class... B>
-void formatX(std::string &fmt, A head, B... tail)
-{
-	formatX(fmt, head);
-	formatX(fmt, tail...);
+void format_replace(std::string &fmt, int pos, int len, const std::string &arg) {
+	fmt.replace(pos, len, arg);
 }
 
+void format_replace(std::string &fmt, int pos, int len, char * const arg) {
+	fmt.replace(pos, len, arg);
+}
+
+template<class T>
+void format_replace(std::string &fmt, int pos, int len, const T &arg) {
+	fmt.replace(pos, len, std::to_string(arg));
+}
+
+
+template <class T>
+bool format_inplace(std::string &fmt, const T& arg) {
+	size_t pos = 0;
+	while(pos < fmt.length()) {
+		pos = fmt.find_first_of('%', pos);
+		if(pos == string::npos)
+			return false;
+		if(fmt[pos+1] != '%')
+			break;
+		pos += 2;
+	}
+	switch(fmt[pos+1]) {
+	case 's':
+		format_replace(fmt, pos, 2, arg);
+		return true;
+	case 'd':
+		format_replace(fmt, pos, 2, arg);
+		return true;
+	}
+	return false;
+}
+
+template <class A, class... B>
+void format_inplace(std::string &fmt, A head, B... tail)
+{
+	format_inplace(fmt, head);
+	format_inplace(fmt, tail...);
+}
 
 template <class T>
 std::string format(const std::string &fmt, const T& arg) {
 	std::string fcopy = fmt;
-	formatX(fcopy, arg);
+	format_inplace(fcopy, arg);
+	percent_replace(fcopy);
 	return fcopy;  
 }
 
 std::string format(const std::string &fmt) {
-	return fmt;
+	std::string fcopy = fmt;
+	percent_replace(fcopy);
+	return fcopy;
 }
-
-// And this is the recursive case:
 
 template <class A, class... B>
 std::string format(const std::string &fmt, A head, B... tail)
 {
 	std::string fcopy = fmt;
-	formatX(fcopy, head);
-	formatX(fcopy, tail...);
+	format_inplace(fcopy, head);
+	format_inplace(fcopy, tail...);
+	percent_replace(fcopy);
 	return fcopy;
 }
-
+*/
 
 
 class PlayerSystem : public PlayerFactory {
@@ -140,6 +165,10 @@ int main(int argc, char* argv[]) {
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	printf("Chipmachine starting\n");
+
+	std::string t = "gurka";
+
+	puts(format("Hello %% from '%s' and %s %d%%\n", argv[0], t, 19).c_str());
 
 	bool daemonize = false;
 	queue<string> playQueue;
@@ -206,9 +235,11 @@ int main(int argc, char* argv[]) {
 
 	telnet.addCommand("status", [&](TelnetServer::User &user, const vector<string> &args) {
 		if(player) {
-			char temp[2048];
-			sprintf(temp, "Playing '%s' for %d seconds\n", songName.c_str(), frameCount / 44100);
-			user.write(temp);
+			//char temp[2048];
+			//sprintf(temp, "Playing '%s' for %d seconds\n", songName.c_str(), frameCount / 44100);
+			//user.write(temp);
+			user.write("Playing '%s' for %d seconds\n", songName, frameCount / 44100);
+
 		} else
 			user.write("Nothing playing\n");
 	});

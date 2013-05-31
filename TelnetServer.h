@@ -1,6 +1,8 @@
 #ifndef TELNET_SERVER_H
 #define TELNET_SERVER_H
 
+#include "utils.h"
+
 #include <string>
 #include <vector>
 #include <functional>
@@ -17,10 +19,15 @@ public:
 
 	class User {
 	public:
-		void write(const std::string &text) {
+		void writeX(const std::string &text) {
 			socket->send(text.c_str(), text.length());
 		}
 
+		template <class... A>
+		void write(const std::string &fmt, A... args) {
+			std::string s = utils::format(fmt, args...);
+			write(s);
+		}
 
 		User(NL::Socket *socket) : socket(socket) {}
 	private:

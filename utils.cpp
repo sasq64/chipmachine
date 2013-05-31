@@ -158,6 +158,32 @@ void makeLower(string &s) {
 		s[i] = tolower(s[i]);
 }
 
+void percent_replace(std::string &x, size_t pos) {
+	while(pos < x.length()) {
+		pos = x.find("%%", pos);
+		if(pos != string::npos) {
+			x.replace(pos, 2, "%");
+			pos += 1;
+		} else
+			break;
+	}
+}
+
+size_t format_replace(std::string &fmt, size_t pos, int len, const std::string &arg) {
+	fmt.replace(pos, len, arg);
+	return pos + arg.length();
+}
+
+size_t format_replace(std::string &fmt, size_t pos, int len, char * const arg) {
+	fmt.replace(pos, len, arg);
+	return pos + strlen(arg);
+}
+
+std::string format(const std::string &fmt) {
+	std::string fcopy = fmt;
+	//percent_replace(fcopy);
+	return fcopy;
+}
 
 
 }

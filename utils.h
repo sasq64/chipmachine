@@ -55,6 +55,70 @@ bool endsWith(const std::string &name, const std::string &ext);
 void makeLower(std::string &s);
 
 
+void percent_replace(std::string &x, size_t pos);
+size_t format_replace(std::string &fmt, size_t pos, int len, const std::string &arg);
+size_t format_replace(std::string &fmt, size_t pos, int len, char * const arg);
+
+
+template<class T>
+size_t format_replace(std::string &fmt, size_t pos, int len, const T &arg) {
+	std::string s = std::to_string(arg);
+	fmt.replace(pos, len, s);
+	return pos + s.length();
+}
+
+template <class T>
+size_t format_inplace(std::string &fmt, size_t pos, const T& arg) {
+	//size_t pos = 0;
+	while(pos < fmt.length()) {
+		pos = fmt.find_first_of('%', pos);
+		if(pos == std::string::npos)
+			return -1;
+		if(fmt[pos+1] != '%')
+			break;
+		fmt.replace(pos, 2, "%");
+		pos += 1;
+	}
+	switch(fmt[pos+1]) {
+	case 's':
+		pos = format_replace(fmt, pos, 2, arg);
+		return pos;
+	case 'd':
+		pos = format_replace(fmt, pos, 2, arg);
+		return pos;
+	}
+	return -2;
+}
+
+template <class A, class... B>
+size_t format_inplace(std::string &fmt, size_t pos, A head, B... tail)
+{
+	pos = format_inplace(fmt, pos, head);
+	pos = format_inplace(fmt, pos, tail...);
+	return pos;
+}
+
+template <class T>
+std::string format(const std::string &fmt, const T& arg) {
+	std::string fcopy = fmt;
+	size_t pos = format_inplace(fcopy, 0, arg);
+	percent_replace(fcopy, pos);
+	return fcopy;  
+}
+
+std::string format(const std::string &fmt);
+
+template <class A, class... B>
+std::string format(const std::string &fmt, A head, B... tail)
+{
+	std::string fcopy = fmt;
+	size_t pos = format_inplace(fcopy, 0, head);
+	pos = format_inplace(fcopy, pos, tail...);
+	percent_replace(fcopy, pos);
+	return fcopy;
+}
+
+
 };
 
 #endif // UTILS_H
