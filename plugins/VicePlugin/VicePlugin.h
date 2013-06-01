@@ -1,8 +1,7 @@
 #ifndef VICE_PLAYER_H
 #define VICE_PLAYER_H
 
-#include "ChipPlugin.h"
-#include "utils.h"
+#include "../../ChipPlugin.h"
 
 class ChipPlayer;
 
@@ -11,8 +10,8 @@ class ChipPlayer;
 class VicePlugin : public ChipPlugin {
 public:
 	VicePlugin();
-	virtual bool canHandle(const std::string &name);
-	virtual ChipPlayer *fromFile(utils::File &file) override;
+	virtual bool canHandle(const std::string &name) override;
+	virtual ChipPlayer *fromFile(const std::string &fileName) override;
 };
 
 #endif // VICE_PLAYER_H

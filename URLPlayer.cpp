@@ -28,6 +28,16 @@ URLPlayer::URLPlayer(const string &url, PlayerFactory *playerFactory) : webGette
 	}
 };
 
+void URLPlayer::seekTo(int song, int seconds) {
+	if(currentPlayer)
+		return currentPlayer->seekTo(song, seconds);
+}
+
+std::string URLPlayer::getMetaData(const std::string &what) {
+	if(currentPlayer)
+		return currentPlayer->getMetaData(what);
+	return "";
+}
 
 int URLPlayer::getSamples(int16_t *target, int noSamples) {
 

@@ -1,9 +1,12 @@
  
 #include "WebGetter.h"
 
+#include "log.h"
+
 #include <curl/curl.h>
 
 using namespace utils;
+using namespace logging;
 using namespace std;
 
 WebGetter::Job::Job(const string &url, const string &targetDir) : loaded(false), targetDir(targetDir), fp(nullptr) {
@@ -69,11 +72,11 @@ size_t WebGetter::Job::headerFunc(void *ptr, size_t size, size_t nmemb, void *us
 
 	string line = string(text, sz);
 
-	printf("HEADER:'%s'\n", line.c_str());
+	log(DEBUG, "HEADER:'%s'\n", line);
 
 	if(line.substr(0, 9) == "Location:") {
 		string newUrl = line.substr(10);
-		printf("Newurl %s\n", newUrl.c_str());
+		log("Redirecting to %s\n", newUrl);
 		job->target = job->targetDir + "/" + urlencode(newUrl, ":/\\?;");
 	}
 

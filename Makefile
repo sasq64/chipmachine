@@ -3,14 +3,13 @@ include settings.mk
 
 OBJDIR := obj/
 CFLAGS := -g -Wall -I. -Iinclude -Iplugins/SexyPSFPlugin
-
-CFLAGS := $(CFLAGS) -Inetlink/include -Isqlite3 -Iplugins/VicePlugin -Iplugins/ModPlugin
+CFLAGS := $(CFLAGS) -Inetlink/include -Isqlite3 -Iplugins/VicePlugin -Iplugins/ModPlugin -Iplugins/GMEPlugin
 
 TARGET := player
 MODULES := ziplib netlink/src
-LIBS := -lsexypsf -lviceplayer -lmodplugin -lz
-LDFLAGS := -Lplugins/SexyPSFPlugin -Lplugins/VicePlugin -Lplugins/ModPlugin
-OBJS := player.o TelnetServer.o utils.o WebGetter.o URLPlayer.o Archive.o
+LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lz
+LDFLAGS := -Lplugins/SexyPSFPlugin -Lplugins/VicePlugin -Lplugins/ModPlugin -Lplugins/GMEPlugin
+OBJS := player.o TelnetServer.o utils.o WebGetter.o URLPlayer.o Archive.o log.o
 
 WIN_CFLAGS := -static -Icurl/include -DWIN32
 WIN_LIBS := -lwinmm -lcurldll -lws2_32
@@ -25,7 +24,10 @@ LINUX_OBJS := AudioPlayerLinux.o
 
 #GCC_VERSION := $(subst /platform-tools/,,$(dir $(shell which adb)))
 
-all : vice sexypsf modplug netlink $(TARGET)$(EXT)
+all : vice sexypsf modplug gmeplugin netlink $(TARGET)$(EXT)
+
+run :
+	./player
 
 cleanall : clean
 	make -f netlink.mk clean
@@ -45,5 +47,8 @@ vice :
 
 sexypsf :
 	make -C plugins/SexyPSFPlugin
+
+gmeplugin :
+	make -C plugins/GMEPlugin
 
 include Makefile.inc

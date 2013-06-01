@@ -19,7 +19,7 @@ public:
 
 	class User {
 	public:
-		void writeX(const std::string &text) {
+		void write(const std::string &text) {
 			socket->send(text.c_str(), text.length());
 		}
 

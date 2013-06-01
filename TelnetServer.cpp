@@ -1,10 +1,13 @@
 #include "TelnetServer.h"
 #include "utils.h"
-#include <string.h>
-#include <stdio.h>
+#include "log.h"
+
+//#include <string.h>
+//#include <stdio.h>
 
 using namespace std;
 using namespace utils;
+using namespace logging;
 
 
 const unsigned SERVER_PORT = 5000;
@@ -13,7 +16,7 @@ void TelnetServer::OnAccept::exec(NL::Socket* socket, NL::SocketGroup* group, vo
 	TelnetServer *ts = static_cast<TelnetServer*>(reference);
 	NL::Socket* c = socket->accept();
 	group->add(c);
-	printf("Connection from %s:%d\n", c->hostTo().c_str(), c->portTo());
+	log("Connection from %s:%d\n", c->hostTo(), c->portTo());
 	ts->users.push_back(User(c));
 	if(ts->connectCallback)
 		ts->connectCallback(ts->users.back());
@@ -31,12 +34,12 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 	while((len > 0) && ((buffer[len-1] == '\n') || (buffer[len-1] == '\r')))
 		len--;
 	buffer[len] = 0;
-	printf("Text from %s:%d: %s\n", socket->hostTo().c_str(), socket->portTo(), buffer);
+	log("Text from %s:%d: %s\n", socket->hostTo(), socket->portTo(), buffer);
 
 	StringTokenizer st {buffer, " "};
 	User user {socket};
 	if(st.noParts() > 0) {
-		printf("Command: %s\n", st.getString(0).c_str());
+		log("Command: %s\n", st.getString(0));
 		auto cmd  = ts->callBacks.find(st.getString(0));
 		if(cmd != ts->callBacks.end()) {
 			vector<string> x;
@@ -60,7 +63,7 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 
 void TelnetServer::OnDisconnect::exec(NL::Socket* socket, NL::SocketGroup* group, void* reference) {
 	group->remove(socket);
-	printf("Connection from %s disconnected\n", socket->hostTo().c_str());
+	log("Connection from %s disconnected\n", socket->hostTo());
 	delete socket;
 }
 

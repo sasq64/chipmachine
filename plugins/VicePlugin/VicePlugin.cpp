@@ -18,7 +18,8 @@ extern void psid_play(short *buf, int size);
 }
 
 #include "VicePlugin.h"
-#include "ChipPlayer.h"
+#include "../../ChipPlayer.h"
+#include "../../utils.h"
 
 using namespace std;
 using namespace utils;
@@ -63,34 +64,54 @@ public:
 		return true;
 	}
 
+	static void c64_song_init()
+	{
+	    /* Set default, potentially overridden by reset. */
+	    resources_set_int("MachineVideoStandard", videomode_is_ntsc ? MACHINE_SYNC_NTSC : MACHINE_SYNC_PAL);
+	    
+	    /* Default to 6581 in case tune doesn't specify. */
+	    resources_set_int("SidModel", sid);
+
+	    /* Reset C64, which also initializes PSID for us. */
+	    machine_trigger_reset(MACHINE_RESET_MODE_SOFT);
+
+	    /* Now force video mode if we are asked to. */
+	    if (videomode_is_forced)
+	    {
+	        resources_set_int("MachineVideoStandard", videomode_is_ntsc ? MACHINE_SYNC_NTSC : MACHINE_SYNC_PAL);
+	    }
+	    
+	    /* Force the SID model if told to in the settings */
+	    if (sid_is_forced)
+	    {
+	        resources_set_int("SidModel", sid);
+	    }
+	}
+
 	VicePlayer(const string &sidFile) {
 		int ret = psid_load_file(sidFile.c_str());
 		if (ret == 0) {
-
-			/* Set default, potentially overridden by reset. */
-			resources_set_int("MachineVideoStandard", videomode_is_ntsc ? MACHINE_SYNC_NTSC : MACHINE_SYNC_PAL);
-			
-			/* Default to 6581 in case tune doesn't specify. */
-			resources_set_int("SidModel", sid);
-
-			/* Reset C64, which also initializes PSID for us. */
-			machine_trigger_reset(MACHINE_RESET_MODE_SOFT);
-
-			/* Now force video mode if we are asked to. */
-			if(videomode_is_forced) {
-				resources_set_int("MachineVideoStandard", videomode_is_ntsc ? MACHINE_SYNC_NTSC : MACHINE_SYNC_PAL);
-			}
-			
-			/* Force the SID model if told to in the settings */
-			if(sid_is_forced) {
-				resources_set_int("SidModel", sid);
-			}
+			c64_song_init();
 		}
 	}
+
+	~VicePlayer() {
+		psid_set_tune(-1);
+	}
+
 	virtual int getSamples(int16_t *target, int size) {
 		psid_play(target, size);
 		return size;
 	}
+
+	virtual void seekTo(int song, int seconds) override {
+		if(song >= 0) {
+			psid_set_tune(song);
+    		c64_song_init();
+		}
+	}
+
+
 };
 
 VicePlugin::VicePlugin() {
@@ -101,8 +122,8 @@ bool VicePlugin::canHandle(const string &name) {
 	return endsWith(name, ".sid");
 }
 
-ChipPlayer *VicePlugin::fromFile(File &file) {
-	return new VicePlayer { file.getName() };
+ChipPlayer *VicePlugin::fromFile(const std::string &fileName) {
+	return new VicePlayer { fileName };
 }
 
 

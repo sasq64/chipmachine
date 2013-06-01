@@ -1,7 +1,12 @@
 
 #include "ModPlugin.h"
 #include "modplug.h"
-#include "ChipPlayer.h"
+#include "../../ChipPlayer.h"
+#include "../../utils.h"
+
+#include <set>
+
+using namespace std;
 
 class ModPlayer : public ChipPlayer {
 public:
@@ -15,21 +20,35 @@ public:
 		ModPlug_SetSettings(&settings);
 		mod = ModPlug_Load(data, size);
 	}
-	~ModPlayer() override {}
+	~ModPlayer() override {
+		if(mod)
+			ModPlug_Unload(mod);
+	}
 
-	int getSamples(int16_t *target, int noSamples) override {
+	virtual int getSamples(int16_t *target, int noSamples) override {
 		return ModPlug_Read(mod, (void*)target, noSamples*2) / 2;
 	}
+
+	virtual void seekTo(int song, int seconds) {
+	}
+
 
 private:
 	ModPlugFile *mod;
 };
 
+set<string> ext { ".mod", ".xm", ".s3m" , ".okt", ".it" };
 
 bool ModPlugin::canHandle(const std::string &name) {
-	return utils::endsWith(name, ".mod") || utils::endsWith(name, ".xm");
+	for(string x : ext) {
+		if(utils::endsWith(name, x))
+			return true;
+	}
+	return false;
+	//utils::endsWith(name, ".mod") || utils::endsWith(name, ".xm");
 }
 
-ChipPlayer *ModPlugin::fromFile(utils::File &file) {
+ChipPlayer *ModPlugin::fromFile(const std::string &fileName) {
+	utils::File file { fileName };
 	return new ModPlayer {file.getPtr(), file.getSize()};
 };

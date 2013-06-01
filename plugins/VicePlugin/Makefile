@@ -1,7 +1,7 @@
 include ../../settings.mk
 
 OBJDIR=obj/
-TARGET=libviceplayer
+TARGET=libviceplugin
 EXT=.a
 
 MODULES := vice/resid
@@ -155,7 +155,7 @@ INCLUDES := \
     -Ivice/vicii \
     -Ivice/rtc
 
-CFLAGS := $(CFLAGS) -Wall -I. -I../.. $(INCLUDES)
+CFLAGS := $(CFLAGS) -Wall -I. $(INCLUDES)
 
 #LINUX_CFLAGS := -Doverride=""
 

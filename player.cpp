@@ -10,6 +10,7 @@
 #include <memory>
 #include <mutex>
 #include <queue>
+#include <cstdlib>
 
 #include <sqlite3.h>
 
@@ -21,7 +22,8 @@
 
 #include "ModPlugin.h"
 #include "VicePlugin.h"
-#include "PSXPlugin.h"
+#include "SexyPSFPlugin.h"
+#include "GMEPlugin.h"
 
 #include "TelnetServer.h"
 
@@ -132,7 +134,7 @@ public:
 
 		for(auto *plugin : plugins) {
 			if(plugin->canHandle(name))
-				return plugin->fromFile(file);
+				return plugin->fromFile(file.getName());
 		}
 		return nullptr;
 	}
@@ -141,6 +143,8 @@ public:
 
 		string lname = name;
 		makeLower(lname);
+
+		printf("Factory checking: %s\n", lname.c_str());
 
 		for(auto *plugin : plugins) {
 			if(plugin->canHandle(lname))
@@ -218,7 +222,8 @@ int main(int argc, char* argv[]) {
 	PlayerSystem psys;
 	psys.registerPlugin(new ModPlugin {});
 	psys.registerPlugin(new VicePlugin {});
-	psys.registerPlugin(new PSFPlugin {});
+	psys.registerPlugin(new SexyPSFPlugin {});
+	psys.registerPlugin(new GMEPlugin {});
 
 	ChipPlayer *player = nullptr; //psys.play(name);
 
@@ -231,6 +236,14 @@ int main(int argc, char* argv[]) {
 		playMutex.lock();
 		playQueue.push(args[1]);
 		playMutex.unlock();
+	});
+
+	telnet.addCommand("go", [&](TelnetServer::User &user, const vector<string> &args) {
+		int song = atoi(args[1].c_str());
+		if(player && song >= 0) {
+			player->seekTo(song);
+			user.write("Setting song %d\n", song);
+		}
 	});
 
 	telnet.addCommand("status", [&](TelnetServer::User &user, const vector<string> &args) {

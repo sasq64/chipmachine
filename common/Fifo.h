@@ -1,6 +1,9 @@
 #ifndef DS_FIFO_H
 #define DS_FIFO_H
 
+#include <stdlib.h>
+#include <string.h>
+
 class Fifo {
 
 public:
