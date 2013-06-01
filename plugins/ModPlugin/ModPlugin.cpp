@@ -37,7 +37,7 @@ private:
 	ModPlugFile *mod;
 };
 
-set<string> ext { ".mod", ".xm", ".s3m" , ".okt", ".it" };
+static const set<string> ext { ".mod", ".xm", ".s3m" , ".okt", ".it" };
 
 bool ModPlugin::canHandle(const std::string &name) {
 	for(string x : ext) {

@@ -179,6 +179,11 @@ size_t format_replace(std::string &fmt, size_t pos, int len, char * const arg) {
 	return pos + strlen(arg);
 }
 
+size_t format_replace(std::string &fmt, size_t pos, int len, const char * const arg) {
+	fmt.replace(pos, len, arg);
+	return pos + strlen(arg);
+}
+
 std::string format(const std::string &fmt) {
 	std::string fcopy = fmt;
 	//percent_replace(fcopy);

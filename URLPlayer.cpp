@@ -1,9 +1,11 @@
 #include "URLPlayer.h"
 #include "utils.h"
 #include "Archive.h"
+#include "log.h"
 
 using namespace std;
 using namespace utils;
+using namespace logging;
 
 URLPlayer::URLPlayer(const string &url, PlayerFactory *playerFactory) : webGetter("_cache"), currentPlayer(nullptr), urlJob(nullptr), playerFactory(playerFactory) {
 	StringTokenizer st {url, ":"};
@@ -51,9 +53,9 @@ int URLPlayer::getSamples(int16_t *target, int noSamples) {
 				if(Archive::canHandle(target)) {
 					Archive *a = Archive::open(target, "_cache");
 					for(const string &name : *a) {
-						printf("%s\n", name.c_str());
+						LOGD("%s\n", name.c_str());
 						if(playerFactory->canHandle(name)) {
-							printf("We can handle %s\n", name.c_str());
+							LOGD("We can handle %s\n", name);
 							file = a->extract(name);
 							break;
 						}
@@ -62,11 +64,10 @@ int URLPlayer::getSamples(int16_t *target, int noSamples) {
 				
 				if(file.exists()) {
 					if(playerFactory->canHandle(file.getName())) {
-						printf("Trying %s\n", file.getName().c_str());
+						LOGD("Trying %s\n", file.getName());
 						currentPlayer = playerFactory->fromFile(file); //new ModPlayer {file.getPtr(), file.getSize()};
-						printf("%p\n", currentPlayer);
 					} else
-						printf("Can not handle %s\n", file.getName().c_str());
+						LOGD("Can not handle %s\n", file.getName());
 				}
 				urlJob = nullptr;
 			}

@@ -10,7 +10,7 @@ using namespace logging;
 using namespace std;
 
 WebGetter::Job::Job(const string &url, const string &targetDir) : loaded(false), targetDir(targetDir), fp(nullptr) {
-	printf("Job created");
+	LOGD("Job created");
 	jobThread = thread {&Job::urlGet, this, url};
 }
 
@@ -30,7 +30,7 @@ void WebGetter::Job::urlGet(string url) {
 
 	target = targetDir + "/" + urlencode(url, ":/\\?;");
 
-	printf("Getting %s -> %s\n", url.c_str(), target.c_str());
+	LOGD("Getting %s -> %s\n", url, target);
 
 	CURL *curl;
 	curl = curl_easy_init();
@@ -54,7 +54,7 @@ size_t WebGetter::Job::writeFunc(void *ptr, size_t size, size_t nmemb, void *use
 	Job *job = (Job*)userdata;
 	if(!job->fp) {
 		job->fp = fopen(job->target.c_str(), "wb");
-		printf("Opened %s to %p\n", job->target.c_str(), job->fp);
+		LOGD("Opened %s to %p\n", job->target, job->fp);
 	}
 	if(job->fp) {
 		fwrite(ptr, size, nmemb, job->fp); 
@@ -72,11 +72,11 @@ size_t WebGetter::Job::headerFunc(void *ptr, size_t size, size_t nmemb, void *us
 
 	string line = string(text, sz);
 
-	log(DEBUG, "HEADER:'%s'\n", line);
+	log(VERBOSE, "HEADER:'%s'\n", line);
 
 	if(line.substr(0, 9) == "Location:") {
 		string newUrl = line.substr(10);
-		log("Redirecting to %s\n", newUrl);
+		LOGD("Redirecting to %s\n", newUrl);
 		job->target = job->targetDir + "/" + urlencode(newUrl, ":/\\?;");
 	}
 

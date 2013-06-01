@@ -38,9 +38,12 @@
 
 #include <unistd.h>
 
+#include "log.h"
+
 typedef unsigned int uint;
 using namespace std;
 using namespace utils;
+using namespace logging;
 
 /*
 void percent_replace(std::string &x) {
@@ -130,7 +133,7 @@ public:
 
 		string name = file.getName();
 		makeLower(name);
-		printf("Handling %s\n", name.c_str());
+		LOGD("Handling %s\n", name);
 
 		for(auto *plugin : plugins) {
 			if(plugin->canHandle(name))
@@ -144,7 +147,7 @@ public:
 		string lname = name;
 		makeLower(lname);
 
-		printf("Factory checking: %s\n", lname.c_str());
+		LOGD("Factory checking: %s\n", lname);
 
 		for(auto *plugin : plugins) {
 			if(plugin->canHandle(lname))
@@ -172,7 +175,7 @@ int main(int argc, char* argv[]) {
 
 	std::string t = "gurka";
 
-	puts(format("Hello %% from '%s' and %s %d%%\n", argv[0], t, 19).c_str());
+	//puts(format("Hello %% from '%s' and %s %d%%\n", argv[0], t, 19).c_str());
 
 	bool daemonize = false;
 	queue<string> playQueue;
@@ -263,9 +266,9 @@ int main(int argc, char* argv[]) {
 	});
 
 	telnet.runThread();
-	songName = "yo";
-	string s = format("test %s %d", songName, 4);
-	printf(s.c_str());
+	//songName = "yo";
+	//string s = format("test %s %d", songName, 4);
+	//printf(s.c_str());
 
 	//else
 		//name = "ftp://modland.ziphoid.com/pub/modules/Protracker/Heatbeat/cheeseburger.mod";
