@@ -188,8 +188,10 @@ int main(int argc, char* argv[]) {
 		} else 
 			playQueue.push(argv[1]);
 	}
-#ifndef WIN32
 	if(daemonize)
+#ifndef WIN32
+		sleepms(1);	
+#else
 		daemon(0, 0);
 #endif
 
@@ -251,13 +253,10 @@ int main(int argc, char* argv[]) {
 
 	telnet.addCommand("status", [&](TelnetServer::User &user, const vector<string> &args) {
 		if(player) {
-			//char temp[2048];
-			//sprintf(temp, "Playing '%s' for %d seconds\n", songName.c_str(), frameCount / 44100);
-			//user.write(temp);
 			user.write("Playing '%s' for %d seconds\n", songName, frameCount / 44100);
-
-		} else
+		} else {
 			user.write("Nothing playing\n");
+		}
 	});
 
 
@@ -266,20 +265,6 @@ int main(int argc, char* argv[]) {
 	});
 
 	telnet.runThread();
-	//songName = "yo";
-	//string s = format("test %s %d", songName, 4);
-	//printf(s.c_str());
-
-	//else
-		//name = "ftp://modland.ziphoid.com/pub/modules/Protracker/Heatbeat/cheeseburger.mod";
-		//name = "http://swimsuitboys.com/droidmusic/C64%20Demo/Amplifire.sid";
-
-
-
-	//if(name.length() > 0)
-	//	player = psys.play(name);
-
-
 
 	AudioPlayerNative ap;
 	int bufSize = 4096;

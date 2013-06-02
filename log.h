@@ -1,3 +1,5 @@
+#ifndef LOG_H
+#define LOG_H
 
 #include "utils.h"
 #include <string>
@@ -34,6 +36,10 @@ void log2(const char *fn, int line, LogLevel level, const std::string &fmt, A...
 };
 
 
+#define LOGV(...) log2(__FILE__, __LINE__, VERBOSE, __VA_ARGS__)
 #define LOGD(...) log2(__FILE__, __LINE__, DEBUG, __VA_ARGS__)
+#define LOGI(...) log2(__FILE__, __LINE__, INFO, __VA_ARGS__)
 
 }
+
+#endif // LOG_H

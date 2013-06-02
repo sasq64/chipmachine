@@ -839,8 +839,8 @@ possibly_out_of_time:
 //////////////////////////////////////// CB prefix
 	{
 	case 0xCB:
-		unsigned data2;
-		data2 = instr [1];
+		//unsigned data2;
+		//data2 = instr [1];
 		pc++;
 		switch ( data )
 		{

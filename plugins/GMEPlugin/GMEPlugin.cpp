@@ -15,10 +15,10 @@ public:
 
 		gme_err_t err = gme_open_file(fileName.c_str(), &emu, 44100);
 		if(!err) {
-		    //gme_info_t* track0;
+		   	gme_info_t* track0;
 		    //gme_info_t* track1;
-			//err = gme_track_info(emu, &track0, 0);
-			int track_count = gme_track_count(emu);
+			err = gme_track_info(emu, &track0, 0);
+			//int track_count = gme_track_count(emu);
 		}
 
 
