@@ -248,21 +248,21 @@ int main(int argc, char* argv[]) {
 		int song = atoi(args[1].c_str());
 		if(player && song >= 0) {
 			player->seekTo(song);
-			user.write("Setting song %d\n", song);
+			user.write("Setting song %d\r\n", song);
 		}
 	});
 
 	telnet.addCommand("status", [&](TelnetServer::User &user, const vector<string> &args) {
 		if(player) {
-			user.write("Playing '%s' for %d seconds\n", songName, frameCount / 44100);
+			user.write("Playing '%s' for %d seconds\r\n", songName, frameCount / 44100);
 		} else {
-			user.write("Nothing playing\n");
+			user.write("Nothing playing\r\n");
 		}
 	});
 
 
 	telnet.setConnectCallback([&](TelnetServer::User &user) {
-		user.write("Chipmachine v0.1\n");
+		user.write("\r\nChipmachine v0.1\r\n");
 	});
 
 	telnet.runThread();

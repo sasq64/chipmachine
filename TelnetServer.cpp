@@ -18,10 +18,12 @@ void TelnetServer::OnAccept::exec(NL::Socket* socket, NL::SocketGroup* group, vo
 	group->add(c);
 	LOGD("Connection from %s:%d\n", c->hostTo(), c->portTo());
 	ts->users.push_back(User(c));
-	if(ts->connectCallback)
-		ts->connectCallback(ts->users.back());
+
 	ts->users.back().write(vector<int8_t>({ IAC, WILL, ECHO }));
 	ts->users.back().write(vector<int8_t>({ IAC, WILL, SUPRESS_GO_AHEAD }));
+
+	if(ts->connectCallback)
+		ts->connectCallback(ts->users.back());
 	ts->users.back().write(ts->prompt);
 
 
@@ -80,7 +82,7 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 				func(user, x);
 			}
 		} else
-			user.write("Unknown command\n");
+			user.write("Unknown command\r\n");
 		user.write(ts->prompt);
 	}
 
@@ -184,7 +186,7 @@ void TelnetServer::User::handleIndata(vector<int8_t> &buffer) {
 				break;
 			case CR_READ:
 				if(b == 0 || b == 10) {
-					//outBuffer.push_back(CR);
+					outBuffer.push_back(CR);
 					outBuffer.push_back(LF);
 				} else {
 					outBuffer.push_back(CR);

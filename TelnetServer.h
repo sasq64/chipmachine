@@ -56,9 +56,12 @@ public:
 			auto f = std::find(outBuffer.begin(), outBuffer.end(), LF);
 			if(f != outBuffer.end()) {
 				std::string line = std::string(outBuffer.begin(), f);
+				if(line[line.length()-1] == LF);
+					line.resize(line.length()-1);
 				outBuffer.erase(outBuffer.begin(), ++f);
 				return line;
 			}
+			return "";
 		}
 
 		bool hasLine() {
