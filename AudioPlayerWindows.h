@@ -5,7 +5,7 @@
 #include <windows.h>
 #include <vector>
 #include <stdint.h>
-//#include <winmm.h>
+#include <mmsystem.h>
 
 class AudioPlayerWindows : public AudioPlayer {
 public:

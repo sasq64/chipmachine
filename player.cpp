@@ -1,3 +1,4 @@
+#include "log.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -38,7 +39,6 @@
 
 #include <unistd.h>
 
-#include "log.h"
 
 typedef unsigned int uint;
 using namespace std;
@@ -189,7 +189,7 @@ int main(int argc, char* argv[]) {
 			playQueue.push(argv[1]);
 	}
 	if(daemonize)
-#ifndef WIN32
+#ifdef WIN32
 		sleepms(1);	
 #else
 		daemon(0, 0);
@@ -236,6 +236,7 @@ int main(int argc, char* argv[]) {
 	string songName;
 
 	TelnetServer telnet { 12345 };
+
 	telnet.addCommand("play", [&](TelnetServer::User &user, const vector<string> &args) {
 		//printf("Play '%s'\n", args[1].c_str());
 		playMutex.lock();

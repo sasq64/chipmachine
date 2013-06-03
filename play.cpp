@@ -88,8 +88,8 @@ int main(int argc, char* argv[]) {
 	File file { argv[1] };
 	ChipPlayer *player = psys.fromFile(file);
 
-	string songTitle = player->getMetaDataString("title");
-	int length player->getMetaDataInt("length");
+	//string songTitle = player->getMetaDataString("title");
+	//int length player->getMetaDataInt("length");
 
 	int frameCount = 0;
 	string songName;

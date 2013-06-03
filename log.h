@@ -1,5 +1,5 @@
-#ifndef LOG_H
-#define LOG_H
+#ifndef LOGGING_H
+#define LOGGING_H
 
 #include "utils.h"
 #include <string>
@@ -7,13 +7,13 @@
 
 namespace logging {
 
-typedef enum {
+enum LogLevel {
 	VERBOSE = 0,
 	DEBUG = 1,
 	INFO = 2,
 	WARNING = 3,
 	ERROR = 4
-} LogLevel;
+};
 
 void log(const std::string &text);
 void log(LogLevel level, const std::string &text);
@@ -36,10 +36,10 @@ void log2(const char *fn, int line, LogLevel level, const std::string &fmt, A...
 };
 
 
-#define LOGV(...) log2(__FILE__, __LINE__, VERBOSE, __VA_ARGS__)
-#define LOGD(...) log2(__FILE__, __LINE__, DEBUG, __VA_ARGS__)
-#define LOGI(...) log2(__FILE__, __LINE__, INFO, __VA_ARGS__)
+#define LOGV(...) logging::log2(__FILE__, __LINE__, logging::VERBOSE, __VA_ARGS__)
+#define LOGD(...) logging::log2(__FILE__, __LINE__, logging::DEBUG, __VA_ARGS__)
+#define LOGI(...) logging::log2(__FILE__, __LINE__, logging::INFO, __VA_ARGS__)
 
 }
 
-#endif // LOG_H
+#endif // LOGGING_H

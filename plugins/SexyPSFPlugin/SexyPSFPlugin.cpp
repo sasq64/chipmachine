@@ -30,7 +30,7 @@ public:
 		sexy_shutdown();
 	}
 
-	int getSamples(int16_t *target, int noSamples) override {
+	int getSamples(int16_t *target, int noSamples) {
 		while(fifo.filled() < noSamples*2) {
 			int rc = sexy_execute();
 			if(rc <= 0)
@@ -42,7 +42,7 @@ public:
 		return fifo.getShorts(target, noSamples);
 	}
 
-	virtual void seekTo(int song, int seconds) override {
+	virtual void seekTo(int song, int seconds) {
 	}
 
 private:
@@ -51,10 +51,10 @@ private:
 };
 
 
-bool SexyPSFPlugin::canHandle(const std::string &name) override {
+bool SexyPSFPlugin::canHandle(const std::string &name) {
 	return utils::endsWith(name, ".psf");
 }
 
-ChipPlayer *SexyPSFPlugin::fromFile(const std::string &name) override {
+ChipPlayer *SexyPSFPlugin::fromFile(const std::string &name) {
 	return new SexyPSFPlayer { name };
 }

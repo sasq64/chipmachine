@@ -5,13 +5,13 @@ OBJDIR := obj/
 CFLAGS := -g -Wall -I. -Iinclude -Iplugins/SexyPSFPlugin
 CFLAGS := $(CFLAGS) -Inetlink/include -Isqlite3 -Iplugins/VicePlugin -Iplugins/ModPlugin -Iplugins/GMEPlugin
 
-TARGET := play
+TARGET := player
 MODULES := ziplib netlink/src
 LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lz
 LDFLAGS := -Lplugins/SexyPSFPlugin -Lplugins/VicePlugin -Lplugins/ModPlugin -Lplugins/GMEPlugin
-OBJS := play.o TelnetServer.o utils.o WebGetter.o URLPlayer.o Archive.o log.o
+OBJS := player.o TelnetServer.o utils.o WebGetter.o URLPlayer.o Archive.o log.o
 
-WIN_CFLAGS := -static -Icurl/include -DWIN32
+WIN_CFLAGS := $(WIN_CFLAGS) -static -Icurl/include -DWIN32
 WIN_LIBS := -lwinmm -lcurldll -lws2_32
 WIN_LDFLAGS := -Lcurl/lib -static
 WIN_OBJS := AudioPlayerWindows.o
