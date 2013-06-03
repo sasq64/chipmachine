@@ -108,8 +108,7 @@ std::string format(const std::string &fmt, const T& arg) {
 
 std::string format(const std::string &fmt);
 
-template <class A, class... B>
-std::string format(const std::string &fmt, A head, B... tail)
+template <class A, class... B> std::string format(const std::string &fmt, A head, B... tail)
 {
 	std::string fcopy = fmt;
 	size_t pos = format_inplace(fcopy, 0, head);

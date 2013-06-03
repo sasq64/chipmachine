@@ -9,16 +9,65 @@
 #include <thread>
 #include <unordered_map>
 #include <algorithm>
+#include <memory>
+#include <tuple>
 
 #include <netlink/socket.h>
 #include <netlink/socket_group.h>
 
 class TelnetInit;
 
-class TelnetServer {
+
+class Terminal {
+public:
+	virtual void write(const std::vector<int8_t> &data, int len = -1) = 0;
+	//int read(std::vector<int8_t> &data) = 0;
+};
+
+
+
+class Screen {
+public:
+	Screen(std::shared_ptr<Terminal> terminal) : terminal(terminal) {}
+
+	virtual void gotoxy(int ax, int ay) { x = ax; y = ay; }
+	virtual std::tuple<int, int> getxy() { return std::make_tuple(x,y); }
+
+	virtual void write(const std::string &text) {
+		fragments.push_back(Fragment(x, y, color, text));
+	}
+
+	virtual void update() = 0;
+protected:
+
+	struct Fragment {
+		Fragment(int x, int y, int color, const std::string &text) : x(x), y(y), color(color), text(text) {}
+		int x;
+		int y;
+		int color;
+		std::string text;
+	};
+
+	int x;
+	int y;
+	int color;
+
+	std::shared_ptr<Terminal> terminal;
+	std::vector<Fragment> fragments;
+};
+
+class Editor {
+public:
+	Editor(std::shared_ptr<Screen> screen) : screen(screen) {}
+	virtual void put(std::vector<int8_t> &data) = 0;
+private:
+	std::shared_ptr<Screen> screen;
+};
+
+class TelnetServer { //: public Terminal {
 public:
 
-	class User {
+	class Session {
 	public:
 		void write(const std::vector<int8_t> &data) {
 			socket->send(&data[0], data.size());
@@ -34,7 +83,7 @@ public:
 			write(s);
 		}
 
-		User(NL::Socket *socket = nullptr) : socket(socket), state(NORMAL) {}
+		Session(NL::Socket *socket = nullptr) : socket(socket), state(NORMAL) {}
 
 		NL::Socket *getSocket() { return socket; }
 		void handleIndata(std::vector<int8_t> &buffer);
@@ -126,8 +175,8 @@ public:
 		WINDOW_SIZE = 31
 	};
 
-	typedef std::function<void(User&, const std::vector<std::string>&)> CMDFunction;
-	typedef std::function<void(User&)> UserFunction;
+	typedef std::function<void(Session&, const std::vector<std::string>&)> CMDFunction;
+	typedef std::function<void(Session&)> SessionFunction;
 
 	TelnetServer(int port);
 	void setPrompt(std::string);
@@ -135,20 +184,20 @@ public:
 	void run();
 	void runThread();
 
-	void setConnectCallback(UserFunction callback) {
+	void setConnectCallback(SessionFunction callback) {
 		connectCallback = callback;
 	}
 
-	User &getUser(NL::Socket* socket) {
+	Session &getSession(NL::Socket* socket) {
 
-		for(User &u : users) {
+		for(Session &u : sessions) {
 			if(u.getSocket() == socket)
 				return u;
 		}
-		return no_user;
+		return no_session;
 	}
 
-	User no_user;
+	Session no_session;
 
 
 private:
@@ -180,9 +229,9 @@ private:
 	std::thread mainThread;
 
 	std::unordered_map<std::string, CMDFunction> callBacks;
-	UserFunction connectCallback;
+	SessionFunction connectCallback;
 
-	std::vector<User> users;
+	std::vector<Session> sessions;
 
 	
 

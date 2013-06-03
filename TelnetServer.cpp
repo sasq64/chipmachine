@@ -17,14 +17,14 @@ void TelnetServer::OnAccept::exec(NL::Socket* socket, NL::SocketGroup* group, vo
 	NL::Socket* c = socket->accept();
 	group->add(c);
 	LOGD("Connection from %s:%d\n", c->hostTo(), c->portTo());
-	ts->users.push_back(User(c));
+	ts->sessions.push_back(Session(c));
 
-	ts->users.back().write(vector<int8_t>({ IAC, WILL, ECHO }));
-	ts->users.back().write(vector<int8_t>({ IAC, WILL, SUPRESS_GO_AHEAD }));
+	ts->sessions.back().write(vector<int8_t>({ IAC, WILL, ECHO }));
+	ts->sessions.back().write(vector<int8_t>({ IAC, WILL, SUPRESS_GO_AHEAD }));
 
 	if(ts->connectCallback)
-		ts->connectCallback(ts->users.back());
-	ts->users.back().write(ts->prompt);
+		ts->connectCallback(ts->sessions.back());
+	ts->sessions.back().write(ts->prompt);
 
 
 }
@@ -52,7 +52,7 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 
 	TelnetServer *ts = static_cast<TelnetServer*>(reference);
 
-	User &user = ts->getUser(socket);
+	Session &session = ts->getSession(socket);
 
 
 	vector<int8_t> buffer;
@@ -63,10 +63,10 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 	int len = socket->read(&buffer[0], 256);
 	buffer.resize(len);
 	LOGD("Read %d bytes %d,%d\n", len, buffer[0], buffer[1]);
-	user.handleIndata(buffer);
+	session.handleIndata(buffer);
 
-	if(user.hasLine()) {
-		string line = user.getLine();
+	if(session.hasLine()) {
+		string line = session.getLine();
 		LOGD("Got line: '%s'", line);
 
 		StringTokenizer st {line, " "};
@@ -79,45 +79,12 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 					x.push_back(st.getString(i));
 				}
 				CMDFunction &func = cmd->second;
-				func(user, x);
+				func(session, x);
 			}
 		} else
-			user.write("Unknown command\r\n");
-		user.write(ts->prompt);
+			session.write("Unknown command\r\n");
+		session.write(ts->prompt);
 	}
-
-
-
-	//size_t l = strlen(buffer);
-	//while((len > 0) && ((buffer[len-1] == '\n') || (buffer[len-1] == '\r')))
-	//	len--;
-	//buffer[len] = 0;
-	/*
-	const char *bufferText = static_cast<char*>(&buffer[0]);
-	log("Text from %s:%d: %s\n", socket->hostTo(), socket->portTo(), bufferText);
-
-	StringTokenizer st {bufferText, " "};
-	User user {socket};
-	if(st.noParts() > 0) {
-		log("Command: %s\n", st.getString(0));
-		auto cmd  = ts->callBacks.find(st.getString(0));
-		if(cmd != ts->callBacks.end()) {
-			vector<string> x;
-			for(int i=0; i<st.noParts(); i++) {
-				x.push_back(st.getString(i));
-			}
-			CMDFunction &func = cmd->second;
-			
-			func(user, x);
-		}
-	} else
-		user.write("Unknown command\n");
-
-	user.write(ts->prompt);
-	*/
-	//for(unsigned i=1; i < (unsigned) group->size(); ++i)
-	//	if(group->get(i) != socket)
-	//		group->get(i)->send(buffer, msgLen + 1);
 }
 
 
@@ -170,7 +137,7 @@ void TelnetServer::runThread() {
 
 
 
-void TelnetServer::User::handleIndata(vector<int8_t> &buffer) {
+void TelnetServer::Session::handleIndata(vector<int8_t> &buffer) {
 
 	int start = outBuffer.size();
 

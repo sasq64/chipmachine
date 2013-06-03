@@ -5,6 +5,7 @@
 #include "../../utils.h"
 
 #include <set>
+#include <unordered_map>
 
 using namespace std;
 
@@ -19,6 +20,9 @@ public:
 		settings.mLoopCount = -1;
 		ModPlug_SetSettings(&settings);
 		mod = ModPlug_Load(data, size);
+
+		//metaData[ChipPlayer::LENGTH] = to_string(ModPlug_GetLength() / 1000));
+		//metaData[ChipPlayer::TITLE] = ModPlug_GetName(mod);
 	}
 	~ModPlayer() override {
 		if(mod)
@@ -30,11 +34,18 @@ public:
 	}
 
 	virtual void seekTo(int song, int seconds) {
+		if(mod)
+			ModPlug_Seek(mod, seconds * 1000);
 	}
+
+	//virtual unordered_map<string, string> getMetaData() {
+	//	return metaData;
+	//}
 
 
 private:
 	ModPlugFile *mod;
+	//private unordered_map<string, string>;
 };
 
 static const set<string> ext { ".mod", ".xm", ".s3m" , ".okt", ".it" };
