@@ -46,11 +46,11 @@ using namespace logging;
 class AnsiScreen : public Screen {
 public:
 	void update() {
-		for(auto &f : fragments) {
-			if(f.x != x || f.y != y)
-				ansiGotoxy(f.x, f.y);
-			write(f.text);
-		}
+		//for(auto &f : fragments) {
+		//	if(f.x != x || f.y != y)
+		//		ansiGotoxy(f.x, f.y);
+		//	write(f.text);
+		//}
 	}
 
 	void ansiGotoxy(int x, int y) {

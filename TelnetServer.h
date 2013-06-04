@@ -33,27 +33,28 @@ public:
 	virtual void gotoxy(int ax, int ay) { x = ax; y = ay; }
 	virtual std::tuple<int, int> getxy() { return std::make_tuple(x,y); }
 
-	virtual void write(const std::string &text) {
-		fragments.push_back(Fragment(x, y, color, text));
-	}
+	//virtual void write(const std::string &text) {
+	//	fragments.push_back(Fragment(x, y, color, text));
+	//}
 
 	virtual void update() = 0;
 protected:
 
-	struct Fragment {
-		Fragment(int x, int y, int color, const std::string &text) : x(x), y(y), color(color), text(text) {}
-		int x;
-		int y;
-		int color;
-		std::string text;
+	struct Tile {
+		Tile(int c, int fg = -1, int bg = -1) : fg(fg), bg(bg), c(c) {}
+		int fg;
+		int bg;
+		char c;
 	};
+
+	std::vector<Tile> grid;
+	std::vector<Tile> lastGrid;
 
 	int x;
 	int y;
 	int color;
 
 	std::shared_ptr<Terminal> terminal;
-	std::vector<Fragment> fragments;
 };
 
 class Editor {

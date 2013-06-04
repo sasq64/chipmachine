@@ -22,7 +22,6 @@ URLPlayer::URLPlayer(const string &url, PlayerFactory *playerFactory) : webGette
 
 	if(protocol == "http" || protocol == "ftp") {
 		string musicUrl = protocol.append(":/").append(path);
-		urlJob = webGetter.getURL(musicUrl);
 	}
 	else {
 		File file(path);
