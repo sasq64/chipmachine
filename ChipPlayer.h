@@ -35,7 +35,7 @@ public:
 	virtual ~ChipPlayer() {}
 	virtual int getSamples(int16_t *target, int size) = 0;
 
-	std::string getMetaData(const std::string &what) { return ""; };
+	virtual std::string getMetaData(const std::string &what) { return ""; };
 /*
 	virtual const std::unordered_map<std::string, std::string> &getMetaData();
 	

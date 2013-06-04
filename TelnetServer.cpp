@@ -18,35 +18,15 @@ void TelnetServer::OnAccept::exec(NL::Socket* socket, NL::SocketGroup* group, vo
 	group->add(c);
 	LOGD("Connection from %s:%d\n", c->hostTo(), c->portTo());
 	ts->sessions.push_back(Session(c));
+	Session &s = ts->sessions.back();
 
-	ts->sessions.back().write(vector<int8_t>({ IAC, WILL, ECHO }));
-	ts->sessions.back().write(vector<int8_t>({ IAC, WILL, SUPRESS_GO_AHEAD }));
+	s.write(vector<int8_t>({ IAC, WILL, ECHO }));
+	s.write(vector<int8_t>({ IAC, WILL, SUPRESS_GO_AHEAD }));
 
 	if(ts->connectCallback)
-		ts->connectCallback(ts->sessions.back());
-	ts->sessions.back().write(ts->prompt);
-
-
+		ts->connectCallback(s);
+	//s.write(ts->prompt);
 }
-
-/*
-			state.mode = state match {
-				case State(SUB_OPTION, IAC) => FOUND_IAC_SUB
-				case State(SUB_OPTION, b) => optionData.put(b); SUB_OPTION
-				case State(FOUND_IAC_SUB, SE) => handleOptionData(); NORMAL
-				case State(FOUND_IAC_SUB, b) => optionData.put(IAC); optionData.put(b); SUB_OPTION
-				case State(OPTION, b) if(option == SB) => setOption(SB, b);  SUB_OPTION
-				case State(OPTION, b) => setOption(option, b);  NORMAL
-				case State(FOUND_IAC, b) if(b < 0 && b >= SE) => option = b; OPTION
-				case State(FOUND_IAC, b) => outBuffer.put(IAC); outBuffer.put(b); NORMAL
-				case State(NORMAL, IAC) => FOUND_IAC
-				case State(CR_READ, 0) => outBuffer.put(LF) ; NORMAL
-				case State(CR_READ, 10) => outBuffer.put(LF) ; NORMAL
-				case State(CR_READ, b) => outBuffer.put(CR) ; NORMAL
-				case State(NORMAL, CR) => CR_READ
-				case State(NORMAL, b) => outBuffer.put(b); NORMAL
-			}
-*/
 
 void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void* reference) {
 
@@ -139,7 +119,7 @@ void TelnetServer::runThread() {
 
 void TelnetServer::Session::handleIndata(vector<int8_t> &buffer) {
 
-	int start = outBuffer.size();
+	int start = inBuffer.size();
 
 	for(int8_t b : buffer) {
 
@@ -153,11 +133,11 @@ void TelnetServer::Session::handleIndata(vector<int8_t> &buffer) {
 				break;
 			case CR_READ:
 				if(b == 0 || b == 10) {
-					outBuffer.push_back(CR);
-					outBuffer.push_back(LF);
+					inBuffer.push_back(CR);
+					inBuffer.push_back(LF);
 				} else {
-					outBuffer.push_back(CR);
-					outBuffer.push_back(b);
+					inBuffer.push_back(CR);
+					inBuffer.push_back(b);
 				}
 				state = NORMAL;
 				break;
@@ -167,8 +147,8 @@ void TelnetServer::Session::handleIndata(vector<int8_t> &buffer) {
 					state = OPTION;
 					break;
 				}
-				outBuffer.push_back(IAC);
-				outBuffer.push_back(b);
+				inBuffer.push_back(IAC);
+				inBuffer.push_back(b);
 				break;
 			case OPTION:
 				if(option == SB) {
@@ -199,8 +179,9 @@ void TelnetServer::Session::handleIndata(vector<int8_t> &buffer) {
 
 			}
 		} else
-			outBuffer.push_back(b);
+			inBuffer.push_back(b);
 	}
-	socket->send(&outBuffer[start], outBuffer.size()-start);
+	// Local echo
+	socket->send(&inBuffer[start], inBuffer.size()-start);
 }
 
