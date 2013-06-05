@@ -149,12 +149,6 @@ private:
 	vector<ChipPlugin*> plugins;
 };
 
-class UserSession {
-public:
-	AnsiScreen screen;
-	Editor *currentEditor;
-};
-
 
 int main(int argc, char* argv[]) {
 
@@ -211,9 +205,9 @@ int main(int argc, char* argv[]) {
 
 	telnet.addCommand("play", [&](TelnetServer::Session &session, const vector<string> &args) {
 		//printf("Play '%s'\n", args[1].c_str());
-		playMutex.lock();
-		playQueue.push(args[1]);
-		playMutex.unlock();
+		{ lock_guard<playMutex>;
+			playQueue.push(args[1]);
+		}
 	});
 
 	telnet.addCommand("go", [&](TelnetServer::Session &session, const vector<string> &args) {
@@ -236,15 +230,21 @@ int main(int argc, char* argv[]) {
 	//});
 
 
-	telnet.setConnectCallback([&](TelnetServer::Session &session) {
+	telnet.setConnectCallback([&](shared_ptr<TelnetServer::Session> session) {
 
 		//auto userSession = make_shared<UserSession>();
 		//session.addUserSession(userSession);
+		//AnsiScreen screen;
+		//screen.put(5,5, "Chipmachine");
+		//screen.update(session);
+		session->write("\r\nName:");
+		string name = session->getLine();
+		LOGD("Line\n");
+		session->write("Name is '%s'\r\n", name);
+		string pass = session->getLine();
+		session->write("Pass: %s\r\n", pass);
 
 
-		AnsiScreen screen;
-		screen.put(5,5, "Chipmachine");
-		screen.update(session);
 	});
 
 	telnet.runThread();
@@ -253,17 +253,17 @@ int main(int argc, char* argv[]) {
 	int bufSize = 4096;
 	vector<int16_t> buffer(bufSize);
 	while(true) {
-
-		playMutex.lock();
-		if(!playQueue.empty()) {
-			if(player)
-				delete player;
-			songName = playQueue.front();
-			player = psys.play(songName);
-			playQueue.pop();
-			frameCount = 0;
+		{
+			lock_guard<mutex> guard(playMutex);
+			if(!playQueue.empty()) {
+				if(player)
+					delete player;
+				songName = playQueue.front();
+				player = psys.play(songName);
+				playQueue.pop();
+				frameCount = 0;
+			}
 		}
-		playMutex.unlock();
 
 		if(player) {
 			int rc = player->getSamples(&buffer[0], bufSize);
