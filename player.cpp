@@ -230,21 +230,25 @@ int main(int argc, char* argv[]) {
 	//});
 
 
-	telnet.setConnectCallback([&](shared_ptr<TelnetServer::Session> session) {
+	telnet.setOnConnect([&](TelnetServer::Session &session) {
 
 		//auto userSession = make_shared<UserSession>();
 		//session.addUserSession(userSession);
 		//AnsiScreen screen;
 		//screen.put(5,5, "Chipmachine");
 		//screen.update(session);
-		session->write("\r\nName:");
-		string name = session->getLine();
-		LOGD("Line\n");
-		session->write("Name is '%s'\r\n", name);
-		string pass = session->getLine();
-		session->write("Pass: %s\r\n", pass);
-
-
+		while(true) {
+			session.write("\r\n>> ");
+			string line = session.getLine();
+			StringTokenizer st { line, " " };
+			if(st.noParts() > 0) {
+				string cmd = st.getString(0);
+				if(cmd == "play") {
+					lock_guard<mutex>{playMutex};
+					playQueue.push(st.getString(1));
+				}
+			}
+		}
 	});
 
 	telnet.runThread();

@@ -2,13 +2,9 @@
 #include "TelnetServer.h"
 #include "utils.h"
 
-//#include <string.h>
-//#include <stdio.h>
-
 using namespace std;
 using namespace utils;
 using namespace logging;
-
 
 const unsigned SERVER_PORT = 5000;
 
@@ -17,23 +13,18 @@ void TelnetServer::OnAccept::exec(NL::Socket* socket, NL::SocketGroup* group, vo
 	NL::Socket* c = socket->accept();
 	group->add(c);
 	LOGD("Connection from %s:%d\n", c->hostTo(), c->portTo());
-	auto session = make_shared<Session>(c);
-	ts->sessions.push_back(session);
-
-	session->write(vector<int8_t>({ IAC, WILL, ECHO }));
-	session->write(vector<int8_t>({ IAC, WILL, SUPRESS_GO_AHEAD }));
-
+	ts->sessions.emplace_back(c);
+	Session &session = ts->sessions.back();
 	if(ts->connectCallback) {
-		session->startThread(ts->connectCallback, session);
+		session.startThread(ts->connectCallback);
 	}
-	//s.write(ts->prompt);
 }
 
 void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void* reference) {
 
 	TelnetServer *ts = static_cast<TelnetServer*>(reference);
 
-	auto session = ts->getSession(socket);
+	auto &session = ts->getSession(socket);
 
 	vector<int8_t> buffer;
 	buffer.resize(256);
@@ -41,30 +32,7 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 	int len = socket->read(&buffer[0], 256);
 	buffer.resize(len);
 	LOGD("Read %d bytes %d,%d\n", len, buffer[0], buffer[1]);
-	session->handleIndata(buffer);
-	LOGD("HANDLED\n");
-/*
-	if(session.hasLine()) {
-		string line = session.getLine();
-		LOGD("Got line: '%s'", line);
-
-		StringTokenizer st {line, " "};
-		if(st.noParts() > 0) {
-			log("Command: %s\n", st.getString(0));
-			auto cmd  = ts->callBacks.find(st.getString(0));
-			if(cmd != ts->callBacks.end()) {
-				vector<string> x;
-				for(int i=0; i<st.noParts(); i++) {
-					x.push_back(st.getString(i));
-				}
-				CMDFunction &func = cmd->second;
-				func(session, x);
-			}
-		} else
-			session.write("Unknown command\r\n");
-		session.write(ts->prompt);
-	}
-*/
+	session.handleIndata(buffer);
 }
 
 
@@ -87,7 +55,7 @@ private:
 
 bool TelnetInit::inited = false;
 
-TelnetServer::TelnetServer(int port) : init(new TelnetInit()), socketServer(port), prompt(">> ") {
+TelnetServer::TelnetServer(int port) : init(new TelnetInit()), no_session(nullptr), socketServer(port) {
 
 	delete init;
 	init = nullptr;
@@ -95,15 +63,8 @@ TelnetServer::TelnetServer(int port) : init(new TelnetInit()), socketServer(port
 	group.setCmdOnAccept(&onAccept);
 	group.setCmdOnRead(&onRead);
 	group.setCmdOnDisconnect(&onDisconnect);
-
 	group.add(&socketServer);
 }
-
-void TelnetServer::addCommand(const string &cmd, CMDFunction callback) {
-	callBacks[cmd] = callback;
-}
-
-
 
 void TelnetServer::run() {
 	while(true) {
@@ -184,8 +145,8 @@ void TelnetServer::Session::handleIndata(vector<int8_t> &buffer) {
 		} else
 			inBuffer.push_back(b);
 	}
-	// Local echo
-	socket->send(&inBuffer[start], inBuffer.size()-start);
+	if(localEcho)
+		socket->send(&inBuffer[start], inBuffer.size()-start);
 
 	inMutex.unlock();
 }
@@ -199,8 +160,6 @@ void TelnetServer::Session::write(const vector<int8_t> &data, int len) {
 void TelnetServer::Session::write(const string &text) {
 	socket->send(text.c_str(), text.length());
 }
-
-TelnetServer::Session::Session(NL::Socket *socket) : socket(socket), state(NORMAL) {}
 
 void TelnetServer::Session::handleIndata(vector<int8_t> &buffer);
 
@@ -220,7 +179,7 @@ char TelnetServer::Session::getChar() {
 	return c;
 }
 
-bool TelnetServer::Session::hasChar() {
+bool TelnetServer::Session::hasChar() const {
 	inMutex.lock();
 	bool rc = inBuffer.size() > 0;
 	inMutex.unlock();
@@ -237,8 +196,8 @@ string TelnetServer::Session::getLine() {
 			inBuffer.erase(inBuffer.begin(), ++f);
 			inMutex.unlock();
 
-			if(line[line.length()-1] == LF);
-				line.resize(line.length()-1);
+			if(line[line.length()-1] == LF)
+				line.pop_back();
 
 			return line;
 		}
@@ -249,6 +208,10 @@ string TelnetServer::Session::getLine() {
 }
 
 
-void TelnetServer::Session::startThread(SessionFunction callback, shared_ptr<TelnetServer::Session> s) {
-	sessionThread = thread(callback, s);
+void TelnetServer::Session::startThread(Session::Callback callback) {
+
+	write(vector<int8_t>({ IAC, WILL, ECHO }));
+	write(vector<int8_t>({ IAC, WILL, SUPRESS_GO_AHEAD }));
+
+	sessionThread = thread(callback, std::ref(*this));
 }

@@ -25,7 +25,11 @@ public:
 	class Session {
 	public:
 
-		typedef std::function<void(std::shared_ptr<Session>)> SessionFunction;
+		Session(NL::Socket *socket) : socket(socket), state(NORMAL), localEcho(true) {}
+		Session(const Session &s) = delete;
+		Session(const Session &&s) : socket(s.socket), state(NORMAL), localEcho(true) {}
+
+		typedef std::function<void(Session&)> Callback;
 
 		void write(const std::vector<int8_t> &data, int len = -1);
 		void write(const std::string &text);
@@ -36,15 +40,13 @@ public:
 			write(s);
 		}
 
-		Session(NL::Socket *socket = nullptr);
-
-		NL::Socket *getSocket() { return socket; }
+		NL::Socket *getSocket() const { return socket; }
 		void handleIndata(std::vector<int8_t> &buffer);
 
 		char getChar();
-		bool hasChar();
+		bool hasChar() const;
 		std::string getLine();
-		void startThread(SessionFunction callback, std::shared_ptr<Session> s);
+		void startThread(Callback callback);
 
 	private:
 		NL::Socket *socket;
@@ -62,8 +64,9 @@ public:
 		int8_t option;
 		std::vector<int8_t> optionData;
 		std::vector<int8_t> inBuffer;
-		std::mutex inMutex;
+		mutable std::mutex inMutex;
 		std::thread sessionThread;
+		bool localEcho;
 
 		void setOption(int opt, int val) {
 			LOGD("Set option %d %d", opt, val);
@@ -106,37 +109,26 @@ public:
 		WINDOW_SIZE = 31
 	};
 
-	typedef std::function<void(Session&, const std::vector<std::string>&)> CMDFunction;
-	typedef std::function<void(std::shared_ptr<Session>)> SessionFunction;
-
 	TelnetServer(int port);
-	void setPrompt(std::string);
-	void addCommand(const std::string &cmd, CMDFunction callback);
 	void run();
 	void runThread();
 
-	void setConnectCallback(SessionFunction callback) {
+	void setOnConnect(Session::Callback callback) {
 		connectCallback = callback;
 	}
 
-	std::shared_ptr<Session> getSession(NL::Socket* socket) {
+	Session& getSession(NL::Socket* socket) {
 
-		for(auto s : sessions) {
-			if(s->getSocket() == socket)
+		for(auto &s : sessions) {
+			if(s.getSocket() == socket)
 				return s;
 		}
-		return std::shared_ptr<Session>(nullptr);
+		return no_session;
 	}
 
-	//Session no_session;
 
 
 private:
-
-
-	TelnetInit *init;
-	NL::Socket socketServer;
-	std::string prompt;
 
 	class OnAccept : public NL::SocketGroupCmd {
 		void exec(NL::Socket* socket, NL::SocketGroup* group, void* reference) override;
@@ -151,6 +143,11 @@ private:
 		void exec(NL::Socket* socket, NL::SocketGroup* group, void* reference) override;
 	};
 
+
+	TelnetInit *init;
+	Session no_session;
+	NL::Socket socketServer;
+
 	OnAccept onAccept;
 	OnRead onRead;
 	OnDisconnect onDisconnect;
@@ -159,10 +156,9 @@ private:
 
 	std::thread mainThread;
 
-	std::unordered_map<std::string, CMDFunction> callBacks;
-	SessionFunction connectCallback;
+	Session::Callback connectCallback;
 
-	std::vector<std::shared_ptr<Session>> sessions;
+	std::vector<Session> sessions;
 };
 
 
