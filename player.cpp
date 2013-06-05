@@ -245,6 +245,7 @@ int main(int argc, char* argv[]) {
 				string cmd = st.getString(0);
 				if(cmd == "play") {
 					lock_guard<mutex>{playMutex};
+					//LOGD("Pushing '%s' to queue", st.getString(1));
 					playQueue.push(st.getString(1));
 				}
 			}
@@ -263,6 +264,7 @@ int main(int argc, char* argv[]) {
 				if(player)
 					delete player;
 				songName = playQueue.front();
+				LOGD("Found '%s' in queue", songName);
 				player = psys.play(songName);
 				playQueue.pop();
 				frameCount = 0;

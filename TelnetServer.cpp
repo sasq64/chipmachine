@@ -197,7 +197,7 @@ string TelnetServer::Session::getLine() {
 			inMutex.unlock();
 
 			if(line[line.length()-1] == LF)
-				line.pop_back();
+				line.resize(line.length()-1);
 
 			return line;
 		}

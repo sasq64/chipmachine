@@ -54,7 +54,7 @@ size_t WebGetter::Job::writeFunc(void *ptr, size_t size, size_t nmemb, void *use
 	Job *job = (Job*)userdata;
 	if(!job->fp) {
 		job->fp = fopen(job->target.c_str(), "wb");
-		LOGD("Opened %s to %p\n", job->target, job->fp);
+		LOGD("Opened %s => %s\n", job->target, job->fp ? "OK" : "FAIL");
 	}
 	if(job->fp) {
 		fwrite(ptr, size, nmemb, job->fp); 
