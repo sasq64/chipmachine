@@ -158,6 +158,8 @@ private:
 
 	Session::Callback connectCallback;
 
+	std::vector<int8_t> buffer;
+
 	std::vector<Session> sessions;
 };
 

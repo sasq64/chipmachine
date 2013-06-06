@@ -6,6 +6,7 @@
 #include <windows.h>
 #endif
 
+#include <unistd.h>
 #include <iostream>
 #include <sstream>
 
@@ -183,6 +184,13 @@ size_t format_replace(std::string &fmt, size_t pos, int len, const char * const 
 	fmt.replace(pos, len, arg);
 	return pos + strlen(arg);
 }
+
+size_t format_replace(std::string &fmt, size_t pos, int len, const std::vector<int8_t> &v) {
+	for(auto b : v) {		
+	}
+	return pos;
+}
+
 
 std::string format(const std::string &fmt) {
 	std::string fcopy = fmt;

@@ -44,6 +44,7 @@ public:
 	}
 
 	virtual int getInt(std::string what) {
+		stoi()
 		int i = atoi(getMetaData()[what]);
 		return i;
 	}

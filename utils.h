@@ -56,9 +56,11 @@ void makeLower(std::string &s);
 
 
 void percent_replace(std::string &x, size_t pos);
+
 size_t format_replace(std::string &fmt, size_t pos, int len, const std::string &arg);
 size_t format_replace(std::string &fmt, size_t pos, int len, const char * const arg);
 size_t format_replace(std::string &fmt, size_t pos, int len, char * const arg);
+size_t format_replace(std::string &fmt, size_t pos, int len, const std::vector<int8_t> &bytes);
 
 template<class T>
 size_t format_replace(std::string &fmt, size_t pos, int len, const T &arg) {

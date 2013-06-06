@@ -31,7 +31,7 @@ public:
 	int getSamples(int16_t *target, int noSamples) override {
 		gme_err_t err;
 		if(!started) {
-			 err = gme_start_track(emu, 0);
+			err = gme_start_track(emu, 0);
 			started = true;
 		}
 
