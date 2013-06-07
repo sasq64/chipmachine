@@ -1,18 +1,5 @@
 #include "log.h"
 
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-
-#include <sys/stat.h>
-
-#include <vector>
-#include <string>
-#include <memory>
-#include <mutex>
-#include <queue>
-#include <cstdlib>
-
 #include "ChipPlugin.h"
 #include "ChipPlayer.h"
 #include "URLPlayer.h"
@@ -25,7 +12,7 @@
 #include "GMEPlugin.h"
 
 #include "TelnetServer.h"
-
+#include "TextScreen.h"
 
 #ifdef WIN32
 #include "AudioPlayerWindows.h"
@@ -35,6 +22,17 @@
 
 #include "Archive.h"
 
+
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <vector>
+#include <string>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <cstdlib>
 #include <unistd.h>
 
 
@@ -42,72 +40,7 @@ typedef unsigned int uint;
 using namespace std;
 using namespace utils;
 using namespace logging;
-/*
-namespace aec {
-	std::string gotoxy(int x, int y) {
-		char temp[16];
-		sprintf(temp, "\x1b[%d;%dH", x, y);
-		return string(temp);
-	}
-}
 
-class AnsiScreen : public Screen {
-public:
-	void update() {
-		for(int y = 0; y<height; y++) {
-			for(int x = 0; x<width; x++) {
-				Tile &t0 = oldGrid[x+y*width];
-				Tile &t1 = grid[x+y*width];
-				if(t0 != t1) {					
-					if(curY != y or curX != x)
-						smartGoto(x, y);
-					if(t0.fg != t1.fg || t0.bg != t1.bg)
-						setColor(t1.fg, t1.bg);
-					putChar(t1.c);
-				}
-			}
-		}
-		//for(auto &f : fragments) {
-		//	if(f.x != x || f.y != y)
-		//		ansiGotoxy(f.x, f.y);
-		//	write(f.text);
-		//}
-	}
-
-	void setColor(int fg, int bg) {
-	}
-
-	void putChar(char c) {
-		write({c});
-		curX++;
-		if(curX > width) {
-			curX -= width;
-			curY++;
-		}
-	}
-
-
-
-	void smartGoto(int x, int y) {
-		// Not so smart for now
-		char temp[16];
-		sprintf(temp, "\x1b[%d;%dH", x, y);
-		write(temp);
-		curX = x;
-		curY = y;
-	}
-
-	void ansiGotoxy(int x, int y) {
-	}
-	void write(const string &text) {
-	}
-};
-
-//class LineEditor : Editor {
-//public:
-//};
-
-*/
 class PlayerSystem : public PlayerFactory {
 public:
 	virtual ChipPlayer *fromFile(File &file) override {
@@ -234,20 +167,24 @@ int main(int argc, char* argv[]) {
 
 		//auto userSession = make_shared<UserSession>();
 		//session.addUserSession(userSession);
-		//AnsiScreen screen;
-		//screen.put(5,5, "Chipmachine");
-		//screen.update(session);
+		AnsiScreen screen;
+		vector<int8_t> tempBuffer;
+		//screen.clear();
+		screen.setFg(2);
+		screen.put(5,5, "Chipmachine");
+		screen.setFg(4);
+		screen.put(3,3, "Chipmachine");
+		if(screen.update(tempBuffer) > 0) {
+			session.write(tempBuffer);
+		}
 		while(true) {
 			session.write("\r\n>> ");
-			string line = session.getLine();
-			StringTokenizer st { line, " " };
-			if(st.noParts() > 0) {
-				string cmd = st.getString(0);
-				if(cmd == "play") {
-					lock_guard<mutex>{playMutex};
-					//LOGD("Pushing '%s' to queue", st.getString(1));
-					playQueue.push(st.getString(1));
-				}
+			auto line = session.getLine();
+			auto args = split(line);
+			if(args[0] == "play") {
+				lock_guard<mutex>{playMutex};
+				//LOGD("Pushing '%s' to queue", st.getString(1));
+				playQueue.push(args[1]);
 			}
 		}
 	});

@@ -8,7 +8,7 @@ CFLAGS := $(CFLAGS) -Inetlink/include -Isqlite3 -Iplugins/VicePlugin -Iplugins/M
 TARGET := player
 MODULES := ziplib netlink/src
 LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lz
-LDFLAGS := -Lplugins/SexyPSFPlugin -Lplugins/VicePlugin -Lplugins/ModPlugin -Lplugins/GMEPlugin
+ LDFLAGS := -Wl,-Map -Wl,mapfile -Lplugins/SexyPSFPlugin -Lplugins/VicePlugin -Lplugins/ModPlugin -Lplugins/GMEPlugin
 OBJS := player.o TelnetServer.o utils.o WebGetter.o URLPlayer.o Archive.o log.o
 
 WIN_CFLAGS := $(WIN_CFLAGS) -static -Icurl/include -DWIN32

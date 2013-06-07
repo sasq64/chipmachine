@@ -44,6 +44,8 @@ private:
 	std::vector<char> delims;
 };
 
+std::vector<std::string> split(const std::string &s, const std::string &delim = " ");
+
 std::string urlencode(const std::string &s, const std::string &chars);
 std::string urldecode(const std::string &s, const std::string &chars);
 

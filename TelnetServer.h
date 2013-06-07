@@ -48,6 +48,8 @@ public:
 		std::string getLine();
 		void startThread(Callback callback);
 
+		
+
 	private:
 		NL::Socket *socket;
 

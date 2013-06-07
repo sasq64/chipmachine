@@ -71,6 +71,23 @@ uint8_t *File::getPtr() {
 	return &data[0];
 }
 
+vector<string> split(const string &s, const string &delim) {
+	vector<string> args;
+	char *temp = new char [ s.length()+1 ];
+	char *ptr = temp;
+	strcpy(temp, s.c_str());
+	while(true) {
+		char *arg = strtok(ptr, delim.c_str());			
+		if(arg) {
+			args.push_back(string(arg));
+		} else
+			break;
+		ptr = nullptr;
+	}
+	delete [] temp;
+	return args;
+}
+
 StringTokenizer::StringTokenizer(const string &s, const string &delim) {
 	char *temp = new char [ s.length()+1 ];
 	char *ptr = temp;
