@@ -25,7 +25,6 @@ void TelnetServer::OnAccept::exec(NL::Socket* socket, NL::SocketGroup* group, vo
 void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void* reference) {
 
 	TelnetServer *ts = static_cast<TelnetServer*>(reference);
-
 	auto &session = ts->getSession(socket);
 
 	int len = socket->read(&ts->buffer[0], 256);
@@ -38,6 +37,12 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 void TelnetServer::OnDisconnect::exec(NL::Socket* socket, NL::SocketGroup* group, void* reference) {
 	group->remove(socket);
 	log("Connection from %s disconnected\n", socket->hostTo());
+
+	TelnetServer *ts = static_cast<TelnetServer*>(reference);
+	auto &session = ts->getSession(socket);
+	session.close();
+
+
 	delete socket;
 }
 
@@ -76,8 +81,6 @@ void TelnetServer::run() {
 void TelnetServer::runThread() {
 	mainThread = thread {&TelnetServer::run, this};
 }
-
-
 
 void TelnetServer::Session::handleIndata(vector<int8_t> &buffer) {
 
@@ -222,6 +225,11 @@ string TelnetServer::Session::getLine() {
 		this_thread::sleep_for(ms);
 	}
 
+}
+
+void TelnetServer::Session::close() {
+	closeMe = true;
+	sessionThread.join();
 }
 
 

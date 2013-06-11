@@ -54,6 +54,8 @@ public:
 
 		void startThread(Callback callback);
 
+		void close();
+
 	private:
 		NL::Socket *socket;
 

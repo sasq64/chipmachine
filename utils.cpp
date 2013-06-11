@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 namespace utils {
 
@@ -203,8 +204,17 @@ size_t format_replace(std::string &fmt, size_t pos, int len, const char * const 
 }
 
 size_t format_replace(std::string &fmt, size_t pos, int len, const std::vector<int8_t> &v) {
-	for(auto b : v) {		
+
+	stringstream ss;
+
+	ss << std::hex << std::setfill('0') << "[ ";
+
+	for(auto b : v) {
+		ss << std::setw(2) << (b & 0xff) << " ";
 	}
+	ss << "]";
+	fmt.replace(pos, len, ss.str());
+
 	return pos;
 }
 
