@@ -208,6 +208,10 @@ bool TelnetServer::Session::hasChar() const {
 string TelnetServer::Session::getLine() {
 	chrono::milliseconds ms { 100 };
 	while(true) {
+
+		//if(closeMe)
+		//	return "";
+
 		inMutex.lock();
 		auto f = find(inBuffer.begin(), inBuffer.end(), LF);
 		if(f != inBuffer.end()) {
@@ -221,14 +225,14 @@ string TelnetServer::Session::getLine() {
 
 			return line;
 		}
-		inMutex.unlock();
+		inMutex.unlock();		
 		this_thread::sleep_for(ms);
 	}
 
 }
 
 void TelnetServer::Session::close() {
-	closeMe = true;
+	//closeMe = true;
 	sessionThread.join();
 }
 

@@ -187,7 +187,7 @@ int main(int argc, char* argv[]) {
 				auto p  = split(r, "\t");
 				lock_guard<mutex>{playMutex};
 				LOGD("Pushing '%s' to queue", p[0]);
-				playQueue.push("C64Music/" + p[0]);
+				playQueue.push("http://swimsuitboys.com/droidsound/dl/C64Music/" + p[0]);
 			} else
 				query.addLetter(c);
 			//session.write({ '\x1b', '[', '2', 'J' }, 4);
