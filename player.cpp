@@ -22,6 +22,7 @@
 
 #include "Archive.h"
 
+#include "SongDb.cpp"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -132,6 +133,8 @@ int main(int argc, char* argv[]) {
 	int frameCount = 0;
 	string songName;
 
+	SongDatabase db { "hvsc.db" };
+
 	TelnetServer telnet { 12345 };
 
 /*
@@ -177,15 +180,37 @@ int main(int argc, char* argv[]) {
 		if(screen.update(tempBuffer) > 0) {
 			session.write(tempBuffer);
 		}
+
+		auto query = db.find();
+
 		while(true) {
-			session.write("\r\n>> ");
+
+			char c = session.getChar();
+			LOGD("char %d\n", c);
+			if(c == 127)
+				query.removeLast();
+			else
+				query.addLetter(c);
+			//session.write({ '\x1b', '[', '2', 'J' }, 4);
+			session.write("\x1b[2J\x1b[%d;%dH", 1, 1);
+			session.write("[%s]\r\n\r\n", query.getString());
+			if(query.numHits() > 0) {
+				const auto &results = query.getHits(40);
+				int i = 0;
+				for(const auto &r : results) {
+					auto p = split(r, "\t");
+					session.write("[%d] %s - %s\r\n", i++, p[2], p[1]);
+				}
+			}
+
+			/*session.write("\r\n>> ");
 			auto line = session.getLine();
 			auto args = split(line);
 			if(args[0] == "play") {
 				lock_guard<mutex>{playMutex};
 				//LOGD("Pushing '%s' to queue", st.getString(1));
 				playQueue.push(args[1]);
-			}
+			} */
 		}
 	});
 

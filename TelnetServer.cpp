@@ -151,6 +151,10 @@ void TelnetServer::Session::handleIndata(vector<int8_t> &buffer) {
 }
 
 
+void TelnetServer::Session::putChar(int c) {	
+	write({(char)c}, 1);
+}
+
 
 void TelnetServer::Session::write(const vector<int8_t> &data, int len) {
 	socket->send(&data[0], data.size());

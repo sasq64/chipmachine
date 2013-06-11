@@ -21,8 +21,8 @@ public:
 
 	bool exists();
 	uint8_t *getPtr();
-	const std::string &getName() { return fileName; }
-	int getSize() { return size; }
+	const std::string &getName() const { return fileName; }
+	int getSize() const { return size; }
 	std::vector<std::string> getLines();
 private:
 	std::string fileName;

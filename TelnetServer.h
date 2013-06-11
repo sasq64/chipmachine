@@ -25,30 +25,31 @@ public:
 	class Session {
 	public:
 
+		typedef std::function<void(Session&)> Callback;
+
 		Session(NL::Socket *socket) : socket(socket), state(NORMAL), localEcho(true) {}
 		Session(const Session &s) = delete;
 		Session(const Session &&s) : socket(s.socket), state(NORMAL), localEcho(true) {}
 
-		typedef std::function<void(Session&)> Callback;
+		char getChar();
+		bool hasChar() const;
+		std::string getLine();
+
+		void putChar(int c);
 
 		void write(const std::vector<int8_t> &data, int len = -1);
 		void write(const std::string &text);
-
-		template <class... A>
-		void write(const std::string &fmt, A... args) {
+		template <class... A> void write(const std::string &fmt, A... args) {
 			std::string s = utils::format(fmt, args...);
 			write(s);
 		}
 
+	//private
+
 		NL::Socket *getSocket() const { return socket; }
 		void handleIndata(std::vector<int8_t> &buffer);
 
-		char getChar();
-		bool hasChar() const;
-		std::string getLine();
 		void startThread(Callback callback);
-
-		
 
 	private:
 		NL::Socket *socket;

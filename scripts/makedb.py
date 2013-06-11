@@ -21,15 +21,25 @@ def scanDir(path, depth) :
 			continue
 		scanDir(d, depth + 1)
 
+	print "Adding", path
+
 	for f in files :
 		if f.lower().endswith('.sid') :
 			data = open(f, 'rb').read()
 			title = data[22:22+32].strip('\x00') #  "ISO-8859-1"
 			composer = data[54:54+32].strip('\x00')
 			copyright = data[86:86+32].strip('\x00')
-			print f, title, composer, copyright
-			dbc.execute('insert into songs values (null, ?,?,?,?,?)', (str(f), title, composer, 'SID', 'COPYRIGHT='+copyright))
 
+			titleu = title.replace(' ', '_')
+			composeru = composer.replace(' ', '_')
+			f = f.replace('C64Music/', '')
+			#f = f.replace(composeru, '%c')
+			#f = f.replace(titleu, '%t')
+			#f = f.replace('MUSICIANS/', '%M')
+			#f = f.replace('DEMOS/', '%D')
+			#f = f.replace('GAMES/', '%G')
+			#print f, title, composer, copyright
+			dbc.execute('insert into songs values (null, ?,?,?,?)', (str(f), title, composer, 'COPYRIGHT='+copyright))
 	db.commit()
 	 
 
@@ -44,7 +54,7 @@ def main(argv) :
 
 	dbc = db.cursor()
 	try :
-		dbc.execute('create table songs (_id INTEGER PRIMARY KEY, path TEXT, title TEXT, composer TEXT, format TEXT, metadata TEXT)')
+		dbc.execute('create table songs (_id INTEGER PRIMARY KEY, path TEXT, title TEXT, composer TEXT, metadata TEXT)')
 #		dbc.execute('create index nameidx on songs (name)')
 #		dbc.execute('create table songs (_id INTEGER PRIMARY KEY, name TEXT, author INTEGER, game INTEGER, type INTEGER)')
 #		dbc.execute('create table types (_id INTEGER PRIMARY KEY, tname TEXT)')
