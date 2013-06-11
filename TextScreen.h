@@ -100,7 +100,7 @@ protected:
 
 class AnsiScreen : public Screen {
 public:
-	AnsiScreen() : Screen(), curX(0), curY(0) {
+	AnsiScreen(Terminal &terminal) : Screen(), terminal(terminal), curX(0), curY(0) {
 		outBuffer = { '\x1b', '[', '2', 'J' };
 		//sprintf((char*)&outBuffer[0], "\x1b""2J");
 	};
@@ -134,6 +134,13 @@ public:
 
 		return dest.size() - orgSize;
 
+	}
+
+	void flush() {
+		std::vector<int8_t> temp;
+		int rc = update(temp);
+		if(rc > 0)
+			terminal.write(temp, rc);
 	}
 
 private:
@@ -170,6 +177,7 @@ private:
 	}
 
 private:
+	Terminal &terminal;
 	std::vector<int8_t> outBuffer;
 	int curX;
 	int curY;

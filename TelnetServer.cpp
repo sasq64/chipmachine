@@ -2,6 +2,8 @@
 #include "TelnetServer.h"
 #include "utils.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace utils;
 using namespace logging;
@@ -156,8 +158,10 @@ void TelnetServer::Session::putChar(int c) {
 }
 
 
-void TelnetServer::Session::write(const vector<int8_t> &data, int len) {
-	socket->send(&data[0], data.size());
+int TelnetServer::Session::write(const vector<int8_t> &data, int len) {
+	if(len == -1) len = data.size();
+	socket->send(&data[0], len);
+	return len;
 }
 
 void TelnetServer::Session::write(const string &text) {
@@ -165,6 +169,15 @@ void TelnetServer::Session::write(const string &text) {
 }
 
 void TelnetServer::Session::handleIndata(vector<int8_t> &buffer);
+
+int TelnetServer::Session::read(std::vector<int8_t> &data, int len) {
+	inMutex.lock();
+	data.insert(data.end(), inBuffer.begin(), inBuffer.end());
+	inBuffer.resize(0);
+	inMutex.unlock();
+	return len;
+}
+
 
 char TelnetServer::Session::getChar() {
 	chrono::milliseconds ms { 100 };

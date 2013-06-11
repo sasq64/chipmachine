@@ -168,18 +168,11 @@ int main(int argc, char* argv[]) {
 
 	telnet.setOnConnect([&](TelnetServer::Session &session) {
 
-		//auto userSession = make_shared<UserSession>();
-		//session.addUserSession(userSession);
-		AnsiScreen screen;
-		vector<int8_t> tempBuffer;
-		//screen.clear();
+		AnsiScreen screen { session };
 		screen.setFg(2);
 		screen.put(5,5, "Chipmachine");
 		screen.setFg(4);
 		screen.put(3,3, "Chipmachine");
-		if(screen.update(tempBuffer) > 0) {
-			session.write(tempBuffer);
-		}
 
 		auto query = db.find();
 
@@ -189,13 +182,19 @@ int main(int argc, char* argv[]) {
 			LOGD("char %d\n", c);
 			if(c == 127)
 				query.removeLast();
-			else
+			else if(c >= '0' && c <= '9') {
+				string r = query.getResult()[c - '0'];
+				auto p  = split(r, "\t");
+				lock_guard<mutex>{playMutex};
+				LOGD("Pushing '%s' to queue", p[0]);
+				playQueue.push("C64Music/" + p[0]);
+			} else
 				query.addLetter(c);
 			//session.write({ '\x1b', '[', '2', 'J' }, 4);
 			session.write("\x1b[2J\x1b[%d;%dH", 1, 1);
 			session.write("[%s]\r\n\r\n", query.getString());
 			if(query.numHits() > 0) {
-				const auto &results = query.getHits(40);
+				const auto &results = query.getResult();
 				int i = 0;
 				for(const auto &r : results) {
 					auto p = split(r, "\t");

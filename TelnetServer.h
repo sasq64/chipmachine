@@ -2,6 +2,7 @@
 #define TELNET_SERVER_H
 
 #include "utils.h"
+#include "terminal.h"
 
 #include <string>
 #include <vector>
@@ -22,7 +23,7 @@ class TelnetInit;
 class TelnetServer { //: public Terminal {
 public:
 
-	class Session {
+	class Session : public Terminal {
 	public:
 
 		typedef std::function<void(Session&)> Callback;
@@ -37,7 +38,7 @@ public:
 
 		void putChar(int c);
 
-		void write(const std::vector<int8_t> &data, int len = -1);
+		int write(const std::vector<int8_t> &data, int len = -1) override;
 		void write(const std::string &text);
 		template <class... A> void write(const std::string &fmt, A... args) {
 			std::string s = utils::format(fmt, args...);
@@ -45,6 +46,8 @@ public:
 		}
 
 	//private
+
+		int read(std::vector<int8_t> &data, int len = -1) override;
 
 		NL::Socket *getSocket() const { return socket; }
 		void handleIndata(std::vector<int8_t> &buffer);

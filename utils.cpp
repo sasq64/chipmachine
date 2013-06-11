@@ -157,7 +157,7 @@ void makedir(const std::string &name) {
 void makedirs(const std::string &path) {
 	int start = 0;
 	while(true) {
-		int pos = path.find("/", start);
+		size_t pos = path.find("/", start);
 		if(pos != string::npos) {
 			makedir(path.substr(0, pos));
 			start = pos+1;

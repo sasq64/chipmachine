@@ -41,7 +41,7 @@ PATH\tCOMPOSER\tTITLE\tMETADATA
 class IncrementalQuery {
 public:
 
-	IncrementalQuery(sqlite3 *db) : db(db){
+	IncrementalQuery(sqlite3 *db) : db(db), searchLimit(40) {
 	}
 
 	void addLetter(char c) {		
@@ -61,9 +61,7 @@ public:
 		return string(&query[0], query.size());
 	}
 
-	const std::vector<std::string> &getHits(int limit = 100) {
-		searchLimit = limit;
-		search();
+	const std::vector<std::string> &getResult() const {
 		return result;
 	}
 	int numHits() {

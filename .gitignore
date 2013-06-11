@@ -2,3 +2,5 @@
 obj/
 *~
 _cache
+*.sublime-*
+.tags*
