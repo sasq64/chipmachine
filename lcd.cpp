@@ -53,16 +53,35 @@ void lcd_byte(int b, int mode) {
 	toggleEnable();
 }
 
+enum {
+	CLEAR_DISPLAY = 0x01,
+	CURSOR_HOME = 0x2,
+	ENTRY_MODE = 0x4,
+	DISPLAY_CTRL = 0x8,
+	CURSOR = 0x10,
+	FUNCTION = 0x20,
+	SET_CGRAM = 0x40,
+	SET_DGRAM = 0x80,
+
+	EM_LEFT_TO_RIGHT = 0x2,
+	EM_RIGHT_TO_LEFT = 0x0
+}
+
+enum {
+	DG_LINE0 = 0x00,
+	DG_LINE1 = 0x40,
+	DG_LINE2 = 0x14,
+	DG_LINE3 = 0x54
+}
 
 void lcd_init() {
-	vector<int> initSequence { 0x33, 0x32, 0x28, 0xc, 0x6, 0x1 };
+	vector<int> initSequence { FUNCTION | 0x13, FUNCTION | 0x12, FUNCTION | 0x8, DISPLAY_CTRL | 0x4, ENTRY_MODE | EM_LEFT_TO_RIGHT, CLEAR_DISPLAY };
 	for(auto b : initSequence) {
 		lcd_byte(b, LOW);
 	}
 }
 
 void lcd_string(const string &text) {
-
 	for(auto c : text) {
 		lcd_byte(c, HIGH);
 	}
@@ -74,15 +93,12 @@ int main(int argc, char **argv) {
 
 	pinMode(LCD_RS, OUTPUT);
 	pinMode(LCD_E, OUTPUT);
-	pinMode(LCD_D4, OUTPUT);
-	pinMode(LCD_D5, OUTPUT);
-	pinMode(LCD_D6, OUTPUT);
-	pinMode(LCD_D7, OUTPUT);
+	for(auto dp : dataPins)
+		pinMode(dp, OUTPUT);
 
 	lcd_init();
 
-	lcd_byte(0x80, LOW);
-
+	lcd_byte(SET_DGRAM | DG_LINE0, LOW);
 	lcd_string(argv[1]);
 
 	return 0;
