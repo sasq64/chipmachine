@@ -19,10 +19,11 @@ ifeq ($(OS),Windows_NT)
     endif
 else
     UNAME_S := $(shell uname -s)
+    UNAME_N := $(shell uname -n)
     ifeq ($(UNAME_S),Linux)
 	    MODULES := $(MODULES) $(LINUX_MODULES)
 	    OBJS := $(OBJS) $(LINUX_OBJS)
-	    CFLAGS := $(CFLAGS) $(LINUX_CFLAGS)
+	    CFLAGS := $(CFLAGS) $(LINUX_CFLAGS) -DLINUX
 		LIBS := $(LIBS) $(LINUX_LIBS)
 		LDFLAGS := $(LDFLAGS) $(LINUX_LDFLAGS)
 	    ifdef LINUX_CC
@@ -31,6 +32,14 @@ else
 	    ifdef LINUX_CXX
 	    CXX := $(LINUX_CXX)
 	    endif
+    endif
+
+    ifeq ($(UNAME_N),raspberrypi)
+	    MODULES := $(MODULES) $(PI_MODULES)
+	    OBJS := $(OBJS) $(PI_OBJS)
+	    CFLAGS := $(CFLAGS) $(PI_CFLAGS) -DRASPBERRYPI
+		LIBS := $(LIBS) $(PI_LIBS)
+		LDFLAGS := $(LDFLAGS) $(PI_LDFLAGS)    
     endif
 
     ifeq ($(UNAME_S),Darwin)

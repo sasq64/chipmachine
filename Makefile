@@ -22,6 +22,9 @@ LINUX_CFLAGS := $(LINUX_CFLAGS) `curl-config --cflags`
 LINUX_LIBS := -lasound `curl-config --libs`
 LINUX_OBJS := AudioPlayerLinux.o
 
+PI_OBJS := lcd.o
+PI_LIBS := -lwiringPi
+
 #GCC_VERSION := $(subst /platform-tools/,,$(dir $(shell which adb)))
 
 all : vice sexypsf modplug gmeplugin netlink $(TARGET)$(EXT)

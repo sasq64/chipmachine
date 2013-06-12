@@ -75,6 +75,11 @@ enum {
 }
 
 void lcd_init() {
+	pinMode(LCD_RS, OUTPUT);
+	pinMode(LCD_E, OUTPUT);
+	for(auto dp : dataPins)
+		pinMode(dp, OUTPUT);
+
 	vector<int> initSequence { FUNCTION | 0x13, FUNCTION | 0x12, FUNCTION | 0x8, DISPLAY_CTRL | 0x4, ENTRY_MODE | EM_LEFT_TO_RIGHT, CLEAR_DISPLAY };
 	for(auto b : initSequence) {
 		lcd_byte(b, LOW);
@@ -91,13 +96,7 @@ int main(int argc, char **argv) {
 
 	wiringPiSetupGpio();
 
-	pinMode(LCD_RS, OUTPUT);
-	pinMode(LCD_E, OUTPUT);
-	for(auto dp : dataPins)
-		pinMode(dp, OUTPUT);
-
 	lcd_init();
-
 	lcd_byte(SET_DGRAM | DG_LINE0, LOW);
 	lcd_string(argv[1]);
 
