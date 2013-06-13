@@ -36,6 +36,17 @@
 #include <cstdlib>
 #include <unistd.h>
 
+#ifdef PI
+void lcd_init();
+void lcd_print(int x, int y, const std::string &text);
+#else
+void lcd_init() {}
+void lcd_print(int x, int y, const std::string &text) {
+	puts(text.c_str());
+	putchar('\n');
+}
+#endif
+
 
 typedef unsigned int uint;
 using namespace std;
@@ -87,11 +98,13 @@ private:
 int main(int argc, char* argv[]) {
 
 	setvbuf(stdout, NULL, _IONBF, 0);
-	printf("Chipmachine starting\n");
 
-	std::string t = "gurka";
+	vector<string> strings { "kalle", "bertil" };
+	vector<short> x { 0,1,2,3,999,45678};
+	LOGD("Chipmachine starting\n");
+	LOGD("Chipmachine %% starting '%s' & '%04x' and %03d%% number %04x in hex\n", strings, x, 23, 40);
 
-	//puts(format("Hello %% from '%s' and %s %d%%\n", argv[0], t, 19).c_str());
+	lcd_init();
 
 	bool daemonize = false;
 	queue<string> playQueue;
@@ -218,6 +231,7 @@ int main(int argc, char* argv[]) {
 	AudioPlayerNative ap;
 	int bufSize = 4096;
 	vector<int16_t> buffer(bufSize);
+	int oldSeconds = -1;
 	while(true) {
 		{
 			lock_guard<mutex> guard(playMutex);
@@ -227,6 +241,17 @@ int main(int argc, char* argv[]) {
 				songName = playQueue.front();
 				LOGD("Found '%s' in queue", songName);
 				player = psys.play(songName);
+
+				LOGD("Now playing: %s - %s", player->getMeta("composer"), player->getMeta("title"));
+
+				int songs = player->getMetaInt("songs");
+				int startsong = player->getMetaInt("startsong");
+
+				lcd_print(0,0, player->getMeta("title"));
+				lcd_print(0,1, player->getMeta("composer"));
+				lcd_print(0,2, player->getMeta("copyright"));
+				lcd_print(0,3, format("Song %02d/%02d -- [00:00]", startsong, songs));
+				oldSeconds = 0;
 				playQueue.pop();
 				frameCount = 0;
 			}
@@ -237,6 +262,13 @@ int main(int argc, char* argv[]) {
 			if(rc > 0) {
 				ap.writeAudio(&buffer[0], rc);
 				frameCount += rc/2;
+
+				int seconds = frameCount / 44100;
+				if(seconds != oldSeconds) {
+					lcd_print(0, 15, format("%02d:%02d", seconds/60, seconds%60));
+					oldSeconds = seconds;
+				}
+
 			}
 		} else
 			sleepms(250);

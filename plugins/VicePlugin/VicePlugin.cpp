@@ -13,7 +13,11 @@ extern "C" {
 #include "sound.h"
 #include "sysfile.h"
 
-extern void psid_play(short *buf, int size);
+void psid_play(short *buf, int size);
+const char *psid_get_name();
+const char *psid_get_author();
+const char *psid_get_copyright();
+int psid_tunes(int* default_tune);
 
 }
 
@@ -86,11 +90,22 @@ public:
 	    {
 	        resources_set_int("SidModel", sid);
 	    }
+
 	}
 
 	VicePlayer(const string &sidFile) {
 		int ret = psid_load_file(sidFile.c_str());
 		if (ret == 0) {
+
+			int defaultSong;
+			int songs = psid_tunes(&defaultSong);
+
+			setMetaData("title", psid_get_name());
+			setMetaData("composer", psid_get_author());
+			setMetaData("copyright", psid_get_copyright());
+			setMetaData("songs", songs);
+			setMetaData("startsong", defaultSong);
+
 			c64_song_init();
 		}
 	}

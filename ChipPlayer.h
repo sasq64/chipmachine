@@ -9,33 +9,18 @@
 class ChipPlayer {
 public:
 
-	//static const std::string TITLE = "title";
-	//static const char *LENGTH = "length";
-/*
-	class MetaData {
-	public:
-		typedef enum {
-			INT,
-			STRING
-		} Type;
-
-		MetaData(const std::string &what, int value) : what(what), intValue(value), type(INT) {}
-		MetaData(const std::string &what, const std::string &value) : what(what), strValue(value), type(STRING) {}
-
-		int getInt() { return intValue; }
-		std::string getString() { return strValue; }
-
-	private:
-		int intValue;
-		std::string strValue;
-		Type type;
-
-	};*/
-
 	virtual ~ChipPlayer() {}
 	virtual int getSamples(int16_t *target, int size) = 0;
 
-	virtual std::string getMetaData(const std::string &what) { return ""; };
+	virtual std::string getMeta(const std::string &what) { 
+		return metaData[what];
+	};
+
+	int getMetaInt(const std::string &what) { 
+		const std::string &data = getMeta(what);
+		int i = atoi(data.c_str());
+		return i;
+	};
 /*
 	virtual const std::unordered_map<std::string, std::string> &getMetaData();
 	
@@ -49,8 +34,21 @@ public:
 		return i;
 	}
 */
-
 	virtual void seekTo(int song, int seconds = -1) { printf("NOT IMPLEMENTED\n"); }
+
+protected:
+
+	virtual void setMetaData(const std::string &meta, const std::string &value) {
+		metaData[meta] = value;
+	};
+
+	virtual void setMetaData(const std::string &meta, int value) {
+		metaData[meta] = std::to_string(value);
+	};
+
+private:
+	std::unordered_map<std::string, std::string> metaData;
+
 };
 
 #endif // CHIP_PLAYER_H

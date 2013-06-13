@@ -376,6 +376,18 @@ static int psid_set_cbm80(WORD vec, WORD addr)
     return i;
 }
 
+const char *psid_get_name() {
+    return psid ? psid->name : NULL;
+}
+
+const char *psid_get_author() {
+    return psid ? psid->author : NULL;
+}
+
+const char *psid_get_copyright() {
+    return psid ? psid->copyright : NULL;
+}
+
 void psid_init_tune(void)
 {
     int start_song = psid_tune;

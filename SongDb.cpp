@@ -108,10 +108,10 @@ private:
 			}
 		}
 	}
+	sqlite3 *db;
 	unsigned int searchLimit;
 	std::vector<char> query;
 	std::vector<std::string> result;
-	sqlite3 *db;
 };
 
 

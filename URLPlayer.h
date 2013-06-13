@@ -11,7 +11,7 @@ public:
 	URLPlayer(const std::string &url, PlayerFactory *playerFactory);
 	int getSamples(int16_t *target, int noSamples) override;
 	void seekTo(int song, int seconds) override;
-	std::string getMetaData(const std::string &what) override;
+	std::string getMeta(const std::string &what) override;
 
 private:
 	WebGetter webGetter;

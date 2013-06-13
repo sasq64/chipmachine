@@ -35,9 +35,9 @@ void URLPlayer::seekTo(int song, int seconds) {
 		return currentPlayer->seekTo(song, seconds);
 }
 
-std::string URLPlayer::getMetaData(const std::string &what) {
+string URLPlayer::getMeta(const string &what) {
 	if(currentPlayer)
-		return currentPlayer->getMetaData(what);
+		return currentPlayer->getMeta(what);
 	return "";
 }
 

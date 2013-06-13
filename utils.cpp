@@ -177,51 +177,100 @@ void makeLower(string &s) {
 		s[i] = tolower(s[i]);
 }
 
-void percent_replace(std::string &x, size_t pos) {
-	while(pos < x.length()) {
-		pos = x.find("%%", pos);
-		if(pos != string::npos) {
-			x.replace(pos, 2, "%");
-			pos += 1;
+void format_stream(stringstream &ss, string &fmt, const vector<int8_t> &bytes) {
+	if(parse_format(ss, fmt)) {
+		bool first = true;
+		int w = ss.width();
+		for(auto b : bytes) {
+			if(!first) ss << " ";
+			ss.width(w);
+			ss << (b & 0xff);
+			first = false;
+		}
+	}
+}
+
+void format_stream(stringstream &ss, string &fmt, const vector<uint8_t> &bytes) {
+	if(parse_format(ss, fmt)) {
+		bool first = true;
+		int w = ss.width();
+		for(auto b : bytes) {
+			if(!first) ss << " ";
+			ss.width(w);
+			ss << (b & 0xff);
+			first = false;
+		}
+	}
+}
+
+
+bool parse_format(stringstream &ss, string &fmt) {
+
+	size_t pos = 0;
+
+	// Find next format string while replacing %% with %
+	while(true) {
+		pos = fmt.find_first_of('%', pos);
+		if(pos != string::npos && pos < fmt.length()-1) {
+			if(fmt[pos+1] == '%') {
+				fmt.replace(pos, 2, "%");
+				pos++;
+			} else
+				break;
 		} else
-			break;
+			return false;
 	}
-}
 
-size_t format_replace(std::string &fmt, size_t pos, int len, const std::string &arg) {
-	fmt.replace(pos, len, arg);
-	return pos + arg.length();
-}
+	// Put everything before the format string on the stream
+	ss << fmt.substr(0, pos);
 
-size_t format_replace(std::string &fmt, size_t pos, int len, char * const arg) {
-	fmt.replace(pos, len, arg);
-	return pos + strlen(arg);
-}
+	char *end = &fmt[fmt.length()];
+	char *ptr = &fmt[pos+1];
 
-size_t format_replace(std::string &fmt, size_t pos, int len, const char * const arg) {
-	fmt.replace(pos, len, arg);
-	return pos + strlen(arg);
-}
+	if(ptr >= end)
+		return false;
 
-size_t format_replace(std::string &fmt, size_t pos, int len, const std::vector<int8_t> &v) {
 
-	stringstream ss;
-
-	ss << std::hex << std::setfill('0') << "[ ";
-
-	for(auto b : v) {
-		ss << std::setw(2) << (b & 0xff) << " ";
+	switch(*ptr++) {
+	case '0':
+		ss.fill('0');
+		break;
+	case ' ':
+		ss.fill(' ');
+		break;
+	case '-':
+		break;
+	default:
+		ptr--;
+		break;
 	}
-	ss << "]";
-	fmt.replace(pos, len, ss.str());
 
-	return pos;
+	if(ptr >= end)
+		return false;
+
+	char *endPtr;
+	int width = strtol(ptr, &endPtr, 10);
+	if(endPtr != nullptr && endPtr > ptr) {
+		ss.width(width);
+		ptr = endPtr;
+	}
+
+	if(ptr >= end)
+		return false;
+
+	char letter = *ptr++;
+	if(letter == 'x')
+		ss << hex;
+
+	// Set the format string to the remainder of the string
+	fmt = ptr;
+
+	return true;
 }
 
 
-std::string format(const std::string &fmt) {
-	std::string fcopy = fmt;
-	//percent_replace(fcopy);
+string format(const string &fmt) {
+	string fcopy = fmt;
 	return fcopy;
 }
 

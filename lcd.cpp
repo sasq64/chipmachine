@@ -75,6 +75,9 @@ enum {
 }
 
 void lcd_init() {
+
+	wiringPiSetupGpio();
+
 	pinMode(LCD_RS, OUTPUT);
 	pinMode(LCD_E, OUTPUT);
 	for(auto dp : dataPins)
@@ -86,15 +89,20 @@ void lcd_init() {
 	}
 }
 
+void lcd_print(int x, int y, const string &text) {
+	static int start [4] = { DG_LINE0, DG_LINE1, DG_LINE2, DG_LINE3 };
+	lcd_byte(SET_DGRAM | start[y] + x, LOW);
+	lcd_string(text);
+}
+
 void lcd_string(const string &text) {
 	for(auto c : text) {
 		lcd_byte(c, HIGH);
 	}
 }
 
+#ifdef TEST_LCD
 int main(int argc, char **argv) {
-
-	wiringPiSetupGpio();
 
 	lcd_init();
 	lcd_byte(SET_DGRAM | DG_LINE0, LOW);
@@ -102,3 +110,4 @@ int main(int argc, char **argv) {
 
 	return 0;
 }
+#endif
