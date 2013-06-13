@@ -14,6 +14,10 @@ WebGetter::Job::Job(const string &url, const string &targetDir) : loaded(false),
 	jobThread = thread {&Job::urlGet, this, url};
 }
 
+WebGetter::Job::~Job() {
+	jobThread.join();
+}
+
 bool WebGetter::Job::isDone() { 
 	bool l;
 	m.lock();

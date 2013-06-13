@@ -28,7 +28,6 @@ public:
 		if(i >= 0) {
 			struct zip_file *zf = zip_fopen_index(zipFile, i, 0);
 			File file(workDir + "/" + name);
-			printf("Extracting %s (%p)\n", file.getName().c_str(), zf);
 			vector<uint8_t> buffer(2048);
 			while(true) {
 				int bytes = zip_fread(zf, &buffer[0], buffer.size());

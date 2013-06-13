@@ -113,6 +113,7 @@ public:
 	}
 
 	~VicePlayer() {
+		LOGD("Viceplayer destroy");
 		psid_set_tune(-1);
 	}
 

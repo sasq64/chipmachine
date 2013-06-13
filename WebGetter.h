@@ -15,6 +15,7 @@ public:
 	class Job {
 	public:
 		Job(const std::string &url, const std::string &targetDir);
+		~Job();
 		bool isDone();
 		std::string getFile();
 	private:

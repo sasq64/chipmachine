@@ -147,7 +147,7 @@ void sleepms(uint ms) {
 }
 
 void makedir(const std::string &name) {
-	printf("Makedir '%s'\n", name.c_str());
+
 #ifdef WIN32
 	mkdir(name.c_str());
 #else

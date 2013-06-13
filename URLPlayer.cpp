@@ -22,11 +22,11 @@ URLPlayer::URLPlayer(const string &url, PlayerFactory *playerFactory) : webGette
 
 	if(protocol == "http" || protocol == "ftp") {
 		string musicUrl = protocol.append(":/").append(path);
-		urlJob = webGetter.getURL(musicUrl);
+		urlJob = unique_ptr<WebGetter::Job>(webGetter.getURL(musicUrl));
 	}
 	else {
 		File file(path);
-		currentPlayer = playerFactory->fromFile(file);
+		currentPlayer = unique_ptr<ChipPlayer>(playerFactory->fromFile(file));
 	}
 };
 
@@ -65,8 +65,8 @@ int URLPlayer::getSamples(int16_t *target, int noSamples) {
 				if(file.exists()) {
 					if(playerFactory->canHandle(file.getName())) {
 						LOGD("Trying %s\n", file.getName());
-						currentPlayer = playerFactory->fromFile(file); //new ModPlayer {file.getPtr(), file.getSize()};
-
+						//rrentPlayer = playerFactory->fromFile(file); //new ModPlayer {file.getPtr(), file.getSize()};
+						currentPlayer = unique_ptr<ChipPlayer>(playerFactory->fromFile(file));
 						for(auto cb : callbacks)
 							currentPlayer->onMeta(cb);
 

@@ -86,8 +86,8 @@ public:
 		plugins.push_back(p);
 	}
 
-	ChipPlayer *play(const string &url) {
-		return new URLPlayer {url, this};
+	unique_ptr<ChipPlayer> play(const string &url) {
+		return unique_ptr<ChipPlayer>(new URLPlayer {url, this});
 	}
 
 private:
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
 	setvbuf(stdout, NULL, _IONBF, 0);
 
 	vector<string> strings { "kalle", "bertil" };
-	vector<short> x { 0,1,2,3,999,45678};
+	vector<short> x { 0,1,2,3,999,-21345};
 	LOGD("Chipmachine starting\n");
 	LOGD("Chipmachine %% starting '%s' & '%04x' and %03d%% number %04x in hex\n", strings, x, 23, 40);
 
@@ -121,7 +121,7 @@ int main(int argc, char* argv[]) {
 #ifdef WIN32
 		sleepms(1);	
 #else
-		daemon(0, 0);
+		int rc = daemon(0, 0);
 #endif
 
 
@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
 	psys.registerPlugin(new SexyPSFPlugin {});
 	psys.registerPlugin(new GMEPlugin {});
 
-	ChipPlayer *player = nullptr; //psys.play(name);
+	unique_ptr<ChipPlayer> player = nullptr; //psys.play(name);
 
 	int frameCount = 0;
 	string songName;
@@ -236,8 +236,8 @@ int main(int argc, char* argv[]) {
 		{
 			lock_guard<mutex> guard(playMutex);
 			if(!playQueue.empty()) {
-				if(player)
-					delete player;
+				//if(player)
+				//	delete player;
 				songName = playQueue.front();
 				LOGD("Found '%s' in queue", songName);
 				player = psys.play(songName);
