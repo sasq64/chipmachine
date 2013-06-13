@@ -130,7 +130,12 @@ public:
 };
 
 VicePlugin::VicePlugin() {
+#ifdef RASPBERRYPI
+	VicePlayer::init("/opt/chipmachine/c64");
+#else
 	VicePlayer::init("c64");
+#endif
+   
 }
 
 bool VicePlugin::canHandle(const string &name) {

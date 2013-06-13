@@ -36,7 +36,7 @@
 #include <cstdlib>
 #include <unistd.h>
 
-#ifdef PI
+#ifdef RASPBERRYPI
 void lcd_init();
 void lcd_print(int x, int y, const std::string &text);
 #else
@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
 
 	mutex playMutex;
 
-	File startSongs { "/opt/chipmachine/startsongs" };
+	File startSongs { "/opt/chipmachine/startsongsX" };
 	if(startSongs.exists()) {
 		for(string s : startSongs.getLines()) {
 			playQueue.push(s);

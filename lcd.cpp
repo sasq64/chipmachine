@@ -65,14 +65,14 @@ enum {
 
 	EM_LEFT_TO_RIGHT = 0x2,
 	EM_RIGHT_TO_LEFT = 0x0
-}
+};
 
 enum {
 	DG_LINE0 = 0x00,
 	DG_LINE1 = 0x40,
 	DG_LINE2 = 0x14,
 	DG_LINE3 = 0x54
-}
+};
 
 void lcd_init() {
 
@@ -89,16 +89,16 @@ void lcd_init() {
 	}
 }
 
-void lcd_print(int x, int y, const string &text) {
-	static int start [4] = { DG_LINE0, DG_LINE1, DG_LINE2, DG_LINE3 };
-	lcd_byte(SET_DGRAM | start[y] + x, LOW);
-	lcd_string(text);
-}
-
 void lcd_string(const string &text) {
 	for(auto c : text) {
 		lcd_byte(c, HIGH);
 	}
+}
+
+void lcd_print(int x, int y, const string &text) {
+	static int start [4] = { DG_LINE0, DG_LINE1, DG_LINE2, DG_LINE3 };
+	lcd_byte(SET_DGRAM | start[y] + x, LOW);
+	lcd_string(text);
 }
 
 #ifdef TEST_LCD
