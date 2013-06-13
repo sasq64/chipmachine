@@ -13,6 +13,15 @@ public:
 	void seekTo(int song, int seconds) override;
 	std::string getMeta(const std::string &what) override;
 
+	void onMeta(Callback callback) override {
+		LOGD("Setting callback in %p", this);
+		if(currentPlayer)
+			currentPlayer->onMeta(callback);
+		else
+			callbacks.push_back(callback);
+	}
+
+
 private:
 	WebGetter webGetter;
 	ChipPlayer *currentPlayer;

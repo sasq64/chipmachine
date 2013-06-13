@@ -117,6 +117,11 @@ bool parse_format(std::stringstream &ss, std::string &fmt);
 void format_stream(std::stringstream &ss, std::string &fmt, const std::vector<int8_t> &bytes);
 void format_stream(std::stringstream &ss, std::string &fmt, const std::vector<uint8_t> &bytes);
 
+template <class T> void format_stream(std::stringstream &ss, std::string &fmt, const T *arg) {
+	if(parse_format(ss, fmt))
+		ss << arg;
+}
+
 template <class T> void format_stream(std::stringstream &ss, std::string &fmt, const T& arg) {
 	if(parse_format(ss, fmt))
 		ss << arg;

@@ -242,15 +242,18 @@ int main(int argc, char* argv[]) {
 				LOGD("Found '%s' in queue", songName);
 				player = psys.play(songName);
 
-				LOGD("Now playing: %s - %s", player->getMeta("composer"), player->getMeta("title"));
+				player->onMeta([&](const string &meta, ChipPlayer *player) {
+					if(meta == "metaend") {
+						LOGD("Now playing: %s - %s", player->getMeta("composer"), player->getMeta("title"));
+						int songs = player->getMetaInt("songs");
+						int startsong = player->getMetaInt("startsong");
 
-				int songs = player->getMetaInt("songs");
-				int startsong = player->getMetaInt("startsong");
-
-				lcd_print(0,0, player->getMeta("title"));
-				lcd_print(0,1, player->getMeta("composer"));
-				lcd_print(0,2, player->getMeta("copyright"));
-				lcd_print(0,3, format("Song %02d/%02d -- [00:00]", startsong, songs));
+						lcd_print(0,0, player->getMeta("title"));
+						lcd_print(0,1, player->getMeta("composer"));
+						lcd_print(0,2, player->getMeta("copyright"));
+						lcd_print(0,3, format("Song %02d/%02d - [00:00]", startsong, songs));
+					}
+				});
 				oldSeconds = 0;
 				playQueue.pop();
 				frameCount = 0;
@@ -265,7 +268,7 @@ int main(int argc, char* argv[]) {
 
 				int seconds = frameCount / 44100;
 				if(seconds != oldSeconds) {
-					lcd_print(0, 15, format("%02d:%02d", seconds/60, seconds%60));
+					lcd_print(15, 3, format("%02d:%02d", seconds/60, seconds%60));
 					oldSeconds = seconds;
 				}
 

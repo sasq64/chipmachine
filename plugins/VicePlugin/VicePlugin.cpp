@@ -95,6 +95,7 @@ public:
 
 	VicePlayer(const string &sidFile) {
 		int ret = psid_load_file(sidFile.c_str());
+		LOGD("Loaded %s -> %d", sidFile, ret);
 		if (ret == 0) {
 
 			int defaultSong;
@@ -105,6 +106,7 @@ public:
 			setMetaData("copyright", psid_get_copyright());
 			setMetaData("songs", songs);
 			setMetaData("startsong", defaultSong);
+			metaDataEnd();
 
 			c64_song_init();
 		}

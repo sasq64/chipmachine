@@ -27,7 +27,7 @@ PI_LIBS := -lwiringPi
 
 #GCC_VERSION := $(subst /platform-tools/,,$(dir $(shell which adb)))
 
-all :  $(TARGET)$(EXT)
+all : vice sexypsf gmeplugin modplug netlink $(TARGET)$(EXT)
 
 run :
 	./player

@@ -66,6 +66,10 @@ int URLPlayer::getSamples(int16_t *target, int noSamples) {
 					if(playerFactory->canHandle(file.getName())) {
 						LOGD("Trying %s\n", file.getName());
 						currentPlayer = playerFactory->fromFile(file); //new ModPlayer {file.getPtr(), file.getSize()};
+
+						for(auto cb : callbacks)
+							currentPlayer->onMeta(cb);
+
 					} else
 						LOGD("Can not handle %s\n", file.getName());
 				}
