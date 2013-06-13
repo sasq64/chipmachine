@@ -80,6 +80,11 @@ int URLPlayer::getSamples(int16_t *target, int noSamples) {
 	}
 	if(currentPlayer)
 		return currentPlayer->getSamples(target, noSamples);
-	sleepms(100);
+	else {
+		memset(target, 0, noSamples * 2);
+		return noSamples;
+	}
+
+	//sleepms(100);
 	return 0;
 }

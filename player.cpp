@@ -268,7 +268,7 @@ int main(int argc, char* argv[]) {
 
 				int seconds = frameCount / 44100;
 				if(seconds != oldSeconds) {
-					lcd_print(15, 3, format("%02d:%02d", seconds/60, seconds%60));
+					lcd_print(14, 3, format("%02d:%02d", seconds/60, seconds%60));
 					oldSeconds = seconds;
 				}
 
