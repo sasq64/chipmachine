@@ -5,8 +5,8 @@
 #ifdef WIN32
 #include <windows.h>
 #endif
-
 #include <unistd.h>
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -20,13 +20,17 @@ File::File() : size(-1), loaded(false), writeFP(nullptr), readFP(nullptr) {}
 File::File(const string &name) : fileName(name), size(-1), loaded(false), writeFP(nullptr), readFP(nullptr) {
 };
 
-void File::read() {		
+void File::read()  {		
 	FILE *fp = fopen(fileName.c_str(), "rb");
+	if(!fp)
+		throw file_not_found_exception{};
 	fseek(fp, 0, SEEK_END);
 	size = ftell(fp);
 	fseek(fp, 0, SEEK_SET);
 	data.reserve(size);
-	fread(&data[0], 1, size, fp);
+	int rc = fread(&data[0], 1, size, fp);
+	if(rc != size)
+		throw io_exception{};
 	fclose(fp);
 	loaded = true;
 }
@@ -49,7 +53,9 @@ vector<string> File::getLines() {
 void File::write(const uint8_t *data, int size) {
 	if(!writeFP) {
 		makedirs(fileName);
-		writeFP = fopen(fileName.c_str(), "wb");	
+		writeFP = fopen(fileName.c_str(), "wb");
+		if(!writeFP)
+			throw io_exception{"Could not open file for writing"};
 	}
 	fwrite(data, 1, size, writeFP);
 }

@@ -2,24 +2,35 @@
 #define UTILS_H
 
 #include <stdint.h>
-#include <stdio.h>
-//#include <string.h>
+#include <cstdio>
 #include <vector>
 #include <string>
 #include <sstream>
 #include <iostream>
-#include <iomanip>
 
 namespace utils {
 
 typedef unsigned int uint;
 
+class io_exception : public std::exception {
+public:
+	io_exception(const char *ptr = "IO Exception") : msg(ptr) {}
+	virtual const char *what() const throw() { return msg; }
+private:
+	const char *msg;
+};
+
+class file_not_found_exception : public std::exception {
+public:
+	virtual const char *what() const throw() { return "File not found"; }
+};
+
 class File {
 public:
 	File();
 	File(const std::string &name);
-	void read();
-	void write(const uint8_t *data, int size);
+	void read(); // throw(file_not_found_exception, io_exception);
+	void write(const uint8_t *data, int size); // throw(io_exception);
 	void close();
 
 	bool exists();

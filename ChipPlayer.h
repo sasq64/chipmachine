@@ -3,9 +3,10 @@
 
 #include "log.h"
 
-#include <string>
 #include <stdint.h>
-#include <stdio.h>
+
+#include <string>
+#include <cstdio>
 #include <unordered_map>
 #include <functional>
 #include <vector>

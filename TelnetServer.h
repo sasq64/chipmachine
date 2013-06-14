@@ -9,10 +9,7 @@
 #include <functional>
 #include <thread>
 #include <mutex>
-#include <unordered_map>
-#include <algorithm>
 #include <memory>
-#include <tuple>
 #include <exception>
 
 #include <netlink/socket.h>
@@ -21,7 +18,7 @@
 class TelnetInit;
 
 
-class TelnetServer { //: public Terminal {
+class TelnetServer {
 public:
 
 	class disconnect_excpetion : public std::exception {
@@ -29,26 +26,14 @@ public:
 		virtual const char *what() const throw() { return "Client disconnected"; }
 	};
 
-	class Session : public Terminal, public utils::Printable {
+	class Session : public Terminal {
 	public:
 
 		typedef std::function<void(Session&)> Callback;
 
-		Session(NL::Socket *socket) : socket(socket), state(NORMAL), localEcho(true), disconnected(false) {}
+		Session(NL::Socket *socket) : socket(socket), state(NORMAL), localEcho(true), disconnected(false), winWidth(-1), winHeight(-1), terminalOk(false) {}
 		Session(const Session &s) = delete;
-		Session(const Session &&s) : socket(s.socket), state(NORMAL), localEcho(true), disconnected(false) {}
-		Session& operator=(const Session &s) {
-			LOGD("Assign!\n");
-			if(socket) {
-				LOGW("Assigning to active session!");
-			}
-			socket = s.socket;
-			state = NORMAL;
-			disconnected = false;
-			localEcho = true;
-			inBuffer.resize(0);			
-			return *this;
-		}
+		Session(const Session &&s) : socket(s.socket), state(NORMAL), localEcho(true), disconnected(false), winWidth(-1), winHeight(-1), terminalOk(false) {}
 
 		char getChar() throw(disconnect_excpetion);
 		bool hasChar() const;
@@ -80,12 +65,6 @@ public:
 			sessionThread.join();
 		}
 
-		std::string toText() const override {
-			if(!socket)
-				return "{ TelnetServer::Session UNCONNECTED }";
-			return utils::format("{ TelnetServer::Session from %s:%d }", socket->hostTo(), socket->portTo());
-		}
-
 	private:
 		NL::Socket *socket;
 
@@ -106,18 +85,16 @@ public:
 		std::thread sessionThread;
 		bool localEcho;
 		bool disconnected;
+		std::string terminalType;
+		int winWidth;
+		int winHeight;
+		bool terminalOk;
 
-		void setOption(int opt, int val) {
-			LOGD("Set option %d %d", opt, val);
-			write(std::vector<int8_t>({ IAC, SB, TERMINAL_TYPE, 1, IAC, SE }));
-		}
-
-
-		void handleOptionData() {
-			LOGD("optionData %d : %d bytes", option, optionData.size());
-			optionData.resize(0);
-		}
+		void setOption(int opt, int val);
+		void handleOptionData();
 	};
+
+	// TELNETSERVER
 
 	enum {
 		IAC = -1, //ff
@@ -154,32 +131,13 @@ public:
 	void runThread();
 	void stop();
 
-	void setOnConnect(Session::Callback callback) {
-		connectCallback = callback;
-	}
-
-	Session& getSession(NL::Socket* socket) {
-
-		for(auto &s : sessions) {
-			if(s->getSocket() == socket)
-				return *s;
-		}
-		return no_session;
-	}
-
-	void removeSession(const Session &session) {
-		for(auto it = sessions.begin(); it != sessions.end(); ++it) {
-			if(it->get()->getSocket() == session.getSocket()) {
-				sessions.erase(it);
-				return;
-			}
-		}
-	}
+	void setOnConnect(Session::Callback callback);
+	Session& getSession(NL::Socket* socket);
+	void removeSession(const Session &session);
 
 private:
 
 	std::mutex telnetMutex;
-
 
 	class OnAccept : public NL::SocketGroupCmd {
 		void exec(NL::Socket* socket, NL::SocketGroup* group, void* reference) override;
