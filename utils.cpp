@@ -177,6 +177,15 @@ void makeLower(string &s) {
 		s[i] = tolower(s[i]);
 }
 
+
+// FORMAT
+
+void format_stream(std::stringstream &ss, std::string &fmt, const Printable &printable) {
+	if(parse_format(ss, fmt)) {
+		ss << printable.toText();
+	}
+}
+
 void format_stream(stringstream &ss, string &fmt, const vector<int8_t> &bytes) {
 	if(parse_format(ss, fmt)) {
 		bool first = true;

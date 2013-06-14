@@ -4,7 +4,9 @@
 #include <string>
 #include <vector>
 #include <memory>
-
+#include <queue>
+#include <thread>
+#include <chrono>
 #include <stdint.h>
 
 class Screen {
@@ -30,7 +32,7 @@ public:
 	};
 
 
-	Screen() : fgColor(-1), bgColor(-1), width(40), height(20) {
+	Screen() : fgColor(-1), bgColor(-1), width(80), height(50) {
 		resize(width, height);
 	}
 
@@ -40,6 +42,13 @@ public:
 	//virtual void write(const std::string &text) {
 	//	fragments.push_back(Fragment(x, y, color, text));
 	//}
+
+	virtual void clear() {
+		for(auto &t : grid) {
+			t.c = 0x20;
+			t.fg = t.bg = -1;
+		}
+	}
 
 	virtual void put(int x, int y, const std::string &text) {
 		//for(int yy = 0; yy<height; y++) {
@@ -168,7 +177,7 @@ private:
 		//dest.resize(sz+9);
 		//sprintf((char*)&dest[sz], "\x1b[%d;%dH", x+1, y+1);
 
-		const std::string &s = utils::format("\x1b[%d;%dH", x+1, y+1);
+		const std::string &s = utils::format("\x1b[%d;%dH", y+1, x+1);
 		dest.insert(dest.end(), s.begin(), s.end());			
 		//dest.resize(sz+strlen((char*)&dest[sz]));
 
@@ -181,6 +190,73 @@ private:
 	std::vector<int8_t> outBuffer;
 	int curX;
 	int curY;
+
+};
+
+class AnsiInput {
+public:
+	AnsiInput(Terminal &terminal) : terminal(terminal), pos(0) {}		
+
+	enum {
+		KEY_BACKSPACE = 0x7f,
+		KEY_LEFT = 256,
+		KEY_UP,
+		KEY_RIGHT,
+		KEY_DOWN
+	};
+
+	int getKey() {
+
+		std::chrono::milliseconds ms { 100 };
+
+		while(true) {
+			int rc = terminal.read(temp, temp.size());
+			if(rc > 0) {
+				LOGD("Got %d bytes", rc);
+				for(int i=0; i<rc; i++)
+					buffer.push(temp[i]);
+				temp.resize(0);
+			}
+			if(buffer.size() > 0) {
+				int8_t &c = buffer.front();
+				if(c != 0x1b) {
+					buffer.pop();
+					return c;
+				} else if(c == 0x1b && buffer.size() > 2) {
+					buffer.pop();
+					int8_t c2 = buffer.front();
+					buffer.pop();
+					int8_t c3 = buffer.front();
+					buffer.pop();
+
+					if(c2 == 0x5b) {
+						switch(c3) {
+						case 0x44:
+							return KEY_LEFT;
+							break;
+						case 0x43:
+							return KEY_RIGHT;
+							break;
+						case 0x41:
+							return KEY_UP;
+							break;
+						case 0x42:
+							return KEY_DOWN;
+							break;
+						}
+					}
+
+				}
+			}
+			std::this_thread::sleep_for(ms);
+		}
+
+	}
+private:
+	Terminal &terminal;
+	int pos;
+	std::vector<int8_t> temp;
+	std::queue<int8_t> buffer;
 
 };
 

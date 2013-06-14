@@ -43,7 +43,7 @@ void lcd_print(int x, int y, const std::string &text);
 void lcd_init() {}
 void lcd_print(int x, int y, const std::string &text) {
 	puts(text.c_str());
-	putchar('\n');
+	putchar('\r');
 }
 #endif
 
@@ -51,7 +51,6 @@ void lcd_print(int x, int y, const std::string &text) {
 typedef unsigned int uint;
 using namespace std;
 using namespace utils;
-using namespace logging;
 
 class PlayerSystem : public PlayerFactory {
 public:
@@ -82,6 +81,11 @@ public:
 		return false;
 	}
 
+	template<class T, class... Args>
+	void addPlugin(Args&& ... args) {
+		plugins.push_back(new T(args...));
+	}
+
 	void registerPlugin(ChipPlugin *p) {	
 		plugins.push_back(p);
 	}
@@ -99,23 +103,21 @@ int main(int argc, char* argv[]) {
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 
-	vector<string> strings { "kalle", "bertil" };
-	vector<short> x { 0,1,2,3,999,-21345};
-	LOGD("Chipmachine starting\n");
-	LOGD("Chipmachine %% starting '%s' & '%04x' and %03d%% number %04x in hex\n", strings, x, 23, 40);
-
 	lcd_init();
 
 	bool daemonize = false;
 	queue<string> playQueue;
+
+	volatile bool doQuit = false;
 
 	for(int i=1; i<argc; i++) {
 		if(argv[i][0] == '-') {
 			if((strcmp(argv[i], "--start-daemon") == 0) || (strcmp(argv[i], "-d") == 0)) {
 				daemonize = true;
 			}
-		} else 
+		} else {
 			playQueue.push(argv[1]);
+		}
 	}
 	if(daemonize)
 #ifdef WIN32
@@ -124,6 +126,10 @@ int main(int argc, char* argv[]) {
 		int rc = daemon(0, 0);
 #endif
 
+	logging::setOutputFile("chipmachine.log");
+	if(playQueue.size() > 0) {
+		logging::setLevel(logging::WARNING);
+	}
 
 	mutex playMutex;
 
@@ -136,10 +142,10 @@ int main(int argc, char* argv[]) {
 	}
 
 	PlayerSystem psys;
-	psys.registerPlugin(new ModPlugin {});
-	psys.registerPlugin(new VicePlugin {});
-	psys.registerPlugin(new SexyPSFPlugin {});
-	psys.registerPlugin(new GMEPlugin {});
+	psys.addPlugin<ModPlugin>();
+	psys.addPlugin<VicePlugin>();
+	psys.addPlugin<SexyPSFPlugin>();
+	psys.addPlugin<GMEPlugin>();
 
 	unique_ptr<ChipPlayer> player = nullptr; //psys.play(name);
 
@@ -181,38 +187,65 @@ int main(int argc, char* argv[]) {
 
 	telnet.setOnConnect([&](TelnetServer::Session &session) {
 
+		LOGD("New connection!");
+
 		AnsiScreen screen { session };
-		screen.setFg(2);
-		screen.put(5,5, "Chipmachine");
-		screen.setFg(4);
-		screen.put(3,3, "Chipmachine");
+		//screen.setFg(2);
+		//screen.put(5,5, "Chipmachine");
+		//screen.setFg(4);
+		//screen.put(3,3, "Chipmachine");
+		screen.put(0,0, "Chipmachine Login");
+		screen.flush();
+
+		AnsiInput input { session };
 
 		auto query = db.find();
 
 		while(true) {
 
-			char c = session.getChar();
-			LOGD("char %d\n", c);
-			if(c == 127)
-				query.removeLast();
-			else if(c >= '0' && c <= '9') {
-				string r = query.getResult()[c - '0'];
-				auto p  = split(r, "\t");
-				lock_guard<mutex>{playMutex};
-				LOGD("Pushing '%s' to queue", p[0]);
-				playQueue.push("http://swimsuitboys.com/droidsound/dl/C64Music/" + p[0]);
-			} else
-				query.addLetter(c);
-			//session.write({ '\x1b', '[', '2', 'J' }, 4);
-			session.write("\x1b[2J\x1b[%d;%dH", 1, 1);
-			session.write("[%s]\r\n\r\n", query.getString());
-			if(query.numHits() > 0) {
-				const auto &results = query.getResult();
-				int i = 0;
-				for(const auto &r : results) {
-					auto p = split(r, "\t");
-					session.write("[%d] %s - %s\r\n", i++, p[2], p[1]);
+			try {
+				//char c = session.getChar();
+				int c = input.getKey();
+				LOGD("char %d\n", c);
+				if(c == AnsiInput::KEY_BACKSPACE)
+					query.removeLast();
+				else if(c >= '0' && c <= '9') {
+					string r = query.getResult()[c - '0'];
+					auto p  = split(r, "\t");
+					lock_guard<mutex>{playMutex};
+					LOGD("Pushing '%s' to queue", p[0]);
+					playQueue.push("http://swimsuitboys.com/droidsound/dl/C64Music/" + p[0]);
+				} else if(c == 0x11) {
+					lock_guard<mutex>{playMutex};
+					session.close();
+					doQuit = true;
+					return;
+				}  else if(c == AnsiInput::KEY_LEFT) {
+					LOGD("Left pressed\n");
+				} else
+					query.addLetter(c);
+				//session.write({ '\x1b', '[', '2', 'J' }, 4);
+				//session.write("\x1b[2J\x1b[%d;%dH", 1, 1);
+				screen.put(0,0, query.getString());
+				//session.write("[%s]\r\n\r\n", query.getString());
+				if(query.numHits() > 0) {
+					screen.clear();
+					screen.put(0,0, query.getString());
+					const auto &results = query.getResult();
+					int i = 0;					
+					for(const auto &r : results) {
+						auto p = split(r, "\t");
+						//session.write("[%d] %s - %s\r\n", i++, p[2], p[1]);
+						screen.put(1, i+2, format("[%02d] %s - %s", i, p[2], p[1]));
+						i++;
+						if(i > 38)
+							break;
+					}
 				}
+				screen.flush();
+			} catch (TelnetServer::disconnect_excpetion &e) {
+				LOGD(e.what());
+				return;
 			}
 
 			/*session.write("\r\n>> ");
@@ -233,6 +266,12 @@ int main(int argc, char* argv[]) {
 	vector<int16_t> buffer(bufSize);
 	int oldSeconds = -1;
 	while(true) {
+
+		if(doQuit) {
+			telnet.stop();
+			return 0;
+		}
+
 		{
 			lock_guard<mutex> guard(playMutex);
 			if(!playQueue.empty()) {

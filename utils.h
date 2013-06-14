@@ -1,9 +1,9 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <stdio.h>
 #include <stdint.h>
-#include <string.h>
+#include <stdio.h>
+//#include <string.h>
 #include <vector>
 #include <string>
 #include <sstream>
@@ -60,62 +60,19 @@ bool endsWith(const std::string &name, const std::string &ext);
 void makeLower(std::string &s);
 
 
-void percent_replace(std::string &x, size_t pos);
+// FORMAT
 
-/*
-size_t format_replace(std::string &fmt, size_t pos, int len, const std::string &arg);
-size_t format_replace(std::string &fmt, size_t pos, int len, const char * const arg);
-size_t format_replace(std::string &fmt, size_t pos, int len, char * const arg);
-size_t format_replace(std::string &fmt, size_t pos, int len, const std::vector<int8_t> &bytes);
+class Printable {
+public:
+	virtual std::string toText() const = 0;
+};
 
-template<class T>
-size_t format_replace(std::string &fmt, size_t pos, int len, const T &arg) {
-	std::string s = std::to_string((long long)arg);
-	fmt.replace(pos, len, s);
-	return pos + s.length();
-}
-
-template <class T>
-size_t format_inplace(std::string &fmt, size_t pos, const T& arg) {
-	//size_t pos = 0;
-	while(pos < fmt.length()) {
-		pos = fmt.find_first_of('%', pos);
-		if(pos == std::string::npos)
-			return -1;
-		if(fmt[pos+1] != '%')
-			break;
-		fmt.replace(pos, 2, "%");
-		pos += 1;
-	}
-	switch(fmt[pos+1]) {
-	case '0': {
-		//int size = fmt[pos+2] - '0';
-		pos = format_replace(fmt, pos, 4, arg);
-		break;
-	}
-	case 's':
-		pos = format_replace(fmt, pos, 2, arg);
-		return pos;
-	case 'd':
-		pos = format_replace(fmt, pos, 2, arg);
-		return pos;
-	}
-	return -2;
-}
-
-template <class A, class... B>
-size_t format_inplace(std::string &fmt, size_t pos, A head, B... tail)
-{
-	pos = format_inplace(fmt, pos, head);
-	pos = format_inplace(fmt, pos, tail...);
-	return pos;
-}
-*/
 
 bool parse_format(std::stringstream &ss, std::string &fmt);
 
 void format_stream(std::stringstream &ss, std::string &fmt, const std::vector<int8_t> &bytes);
 void format_stream(std::stringstream &ss, std::string &fmt, const std::vector<uint8_t> &bytes);
+void format_stream(std::stringstream &ss, std::string &fmt, const Printable &printable);
 
 template <class T> void format_stream(std::stringstream &ss, std::string &fmt, const T *arg) {
 	if(parse_format(ss, fmt))
@@ -129,7 +86,6 @@ template <class T> void format_stream(std::stringstream &ss, std::string &fmt, c
 
 template <class T> void format_stream(std::stringstream &ss, std::string &fmt, const std::vector<T>& arg) {
 	if(parse_format(ss, fmt)) {
-		//ss << std::hex << std::setfill('0') << "[ ";
 		bool first = true;
 		int w = ss.width();
 		for(auto b : arg) {
@@ -138,13 +94,12 @@ template <class T> void format_stream(std::stringstream &ss, std::string &fmt, c
 			ss << b;
 			first = false;
 		}
-
 	}
 }
 
 
 template <class A, class... B>
-void format_stream(std::stringstream &ss, std::string &fmt, A head, B... tail)
+void format_stream(std::stringstream &ss, std::string &fmt, const A &head, const B& ... tail)
 {
 	format_stream(ss, fmt, head);
 	format_stream(ss, fmt, tail...);
@@ -156,21 +111,19 @@ std::string format(const std::string &fmt, const T& arg) {
 	std::stringstream ss;
 	format_stream(ss, fcopy, arg);
 	ss << fcopy;
-	//percent_replace(fcopy, pos);
 	return ss.str();  
 }
 
 std::string format(const std::string &fmt);
 
-template <class A, class... B> std::string format(const std::string &fmt, A head, B... tail)
+template <class A, class... B> std::string format(const std::string &fmt, const A &head, const B& ... tail)
 {
 	std::string fcopy = fmt;
 	std::stringstream ss;
 	format_stream(ss, fcopy, head);
 	format_stream(ss, fcopy, tail...);
 	ss << fcopy;
-	//percent_replace(fcopy, pos);
-	return ss.str(); //fcopy;
+	return ss.str();
 }
 
 

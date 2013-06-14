@@ -6,19 +6,21 @@
 
 using namespace std;
 using namespace utils;
-using namespace logging;
 
-const unsigned SERVER_PORT = 5000;
 
 void TelnetServer::OnAccept::exec(NL::Socket* socket, NL::SocketGroup* group, void* reference) {
 	TelnetServer *ts = static_cast<TelnetServer*>(reference);
 	NL::Socket* c = socket->accept();
 	group->add(c);
 	LOGD("Connection from %s:%d\n", c->hostTo(), c->portTo());
-	ts->sessions.emplace_back(c);
-	Session &session = ts->sessions.back();
+
+	ts->sessions.push_back(make_shared<Session>(c));
+
+	LOGD("Now %d active sessions", ts->sessions.size());
+
+	shared_ptr<Session> session = ts->sessions.back();
 	if(ts->connectCallback) {
-		session.startThread(ts->connectCallback);
+		session->startThread(ts->connectCallback);
 	}
 }
 
@@ -27,25 +29,26 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 	TelnetServer *ts = static_cast<TelnetServer*>(reference);
 	auto &session = ts->getSession(socket);
 
-	int len = socket->read(&ts->buffer[0], 256);
-	ts->buffer.resize(len);
+	int len = socket->read(&ts->buffer[0], 32);
+	//ts->buffer.resize(len);
 	LOGD("Read %d bytes [%02x]\n", len, ts->buffer);
-	session.handleIndata(ts->buffer);
+	session.handleIndata(ts->buffer, len);
 }
 
 
 void TelnetServer::OnDisconnect::exec(NL::Socket* socket, NL::SocketGroup* group, void* reference) {
 	group->remove(socket);
-	log("Connection from %s disconnected\n", socket->hostTo());
+	LOGD("Connection from %s disconnected\n", socket->hostTo());
 
 	TelnetServer *ts = static_cast<TelnetServer*>(reference);
 	auto &session = ts->getSession(socket);
 	session.close();
-
-
+	ts->removeSession(session);
 	delete socket;
+	session.join();
 }
 
+// Dummy class to make sure NL:init() is called before the socketServer is created
 class TelnetInit {
 public:
 	TelnetInit() {
@@ -59,12 +62,12 @@ private:
 
 bool TelnetInit::inited = false;
 
-TelnetServer::TelnetServer(int port) : init(new TelnetInit()), no_session(nullptr), socketServer(port) {
+TelnetServer::TelnetServer(int port) : init(new TelnetInit()), no_session(nullptr), socketServer(port), doQuit(false) {
 
 	delete init;
 	init = nullptr;
 
-	buffer.resize(256);
+	buffer.resize(32);
 
 	group.setCmdOnAccept(&onAccept);
 	group.setCmdOnRead(&onRead);
@@ -73,23 +76,38 @@ TelnetServer::TelnetServer(int port) : init(new TelnetInit()), no_session(nullpt
 }
 
 void TelnetServer::run() {
-	while(true) {
-		group.listen(2000, this);
+	while(!doQuit) {
+		group.listen(500, this);
+		for(auto &session : sessions) {
+			if(!session->valid()) {
+				LOGD("Removing invalid session");
+				removeSession(*session.get());
+				break;
+			}
+		}
 	}
+}
+
+void TelnetServer::stop() {
+	telnetMutex.lock();
+	doQuit = true;
+	telnetMutex.unlock();
+	mainThread.join();
 }
 
 void TelnetServer::runThread() {
 	mainThread = thread {&TelnetServer::run, this};
 }
 
-void TelnetServer::Session::handleIndata(vector<int8_t> &buffer) {
+void TelnetServer::Session::handleIndata(vector<int8_t> &buffer, int len) {
 
 	inMutex.lock();
 
 	int start = inBuffer.size();
 
 
-	for(int8_t b : buffer) {
+	for(int i=0; i<len; i++) {
+		int8_t b = buffer[i];
 
 		if(b < 0 || b == 13 || state != NORMAL) {
 			switch(state) {
@@ -171,20 +189,27 @@ void TelnetServer::Session::write(const string &text) {
 	socket->send(text.c_str(), text.length());
 }
 
-void TelnetServer::Session::handleIndata(vector<int8_t> &buffer);
+//void TelnetServer::Session::handleIndata(vector<int8_t> &buffer);
 
 int TelnetServer::Session::read(std::vector<int8_t> &data, int len) {
 	inMutex.lock();
-	data.insert(data.end(), inBuffer.begin(), inBuffer.end());
-	inBuffer.resize(0);
+	int rc = inBuffer.size();
+	if(rc > 0) {
+		data.insert(data.end(), inBuffer.begin(), inBuffer.end());
+		inBuffer.resize(0);
+	}
 	inMutex.unlock();
-	return len;
+	return rc;
 }
 
 
-char TelnetServer::Session::getChar() {
+char TelnetServer::Session::getChar() throw(disconnect_excpetion) {
 	chrono::milliseconds ms { 100 };
 	while(true) {
+
+		if(disconnected)
+			throw disconnect_excpetion{};
+
 		inMutex.lock();
 		if(inBuffer.size() > 0)
 			break;
@@ -205,12 +230,12 @@ bool TelnetServer::Session::hasChar() const {
 	return rc;
 }
 
-string TelnetServer::Session::getLine() {
+string TelnetServer::Session::getLine() throw(disconnect_excpetion) {
 	chrono::milliseconds ms { 100 };
 	while(true) {
 
-		//if(closeMe)
-		//	return "";
+		if(disconnected)
+			throw disconnect_excpetion{};
 
 		inMutex.lock();
 		auto f = find(inBuffer.begin(), inBuffer.end(), LF);
@@ -225,7 +250,8 @@ string TelnetServer::Session::getLine() {
 
 			return line;
 		}
-		inMutex.unlock();		
+		inMutex.unlock();
+
 		this_thread::sleep_for(ms);
 	}
 
@@ -233,14 +259,16 @@ string TelnetServer::Session::getLine() {
 
 void TelnetServer::Session::close() {
 	//closeMe = true;
-	sessionThread.join();
+	disconnected = true;
+	socket = nullptr;
 }
 
 
 void TelnetServer::Session::startThread(Session::Callback callback) {
 
-	write(vector<int8_t>({ IAC, WILL, ECHO }));
-	write(vector<int8_t>({ IAC, WILL, SUPRESS_GO_AHEAD }));
+	write(vector<int8_t>({ IAC, DO, TERMINAL_TYPE }));
+	//write(vector<int8_t>({ IAC, WILL, ECHO }));
+	//write(vector<int8_t>({ IAC, WILL, SUPRESS_GO_AHEAD }));
 
 	sessionThread = thread(callback, std::ref(*this));
 }

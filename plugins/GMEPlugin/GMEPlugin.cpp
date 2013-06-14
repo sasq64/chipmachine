@@ -17,7 +17,7 @@ public:
 		if(!err) {
 		   	gme_info_t* track0;
 		    //gme_info_t* track1;
-			err = gme_track_info(emu, &track0, 0);
+			gme_track_info(emu, &track0, 0);
 			//int track_count = gme_track_count(emu);
 		}
 
@@ -46,7 +46,7 @@ public:
 
 	virtual void seekTo(int song, int seconds) override {
 		if(song >= 0) {
-			gme_err_t err = gme_start_track(emu, song);
+			/* gme_err_t err = */ gme_start_track(emu, song);
 			started = true;
 			//gme_info_t* track;
 			//err = gme_track_info(info->emu, &track, tune);

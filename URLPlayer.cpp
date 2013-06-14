@@ -3,6 +3,8 @@
 #include "Archive.h"
 #include "log.h"
 
+#include <cstring>
+
 using namespace std;
 using namespace utils;
 using namespace logging;
