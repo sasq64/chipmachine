@@ -4,11 +4,12 @@
 #include <unordered_map>
 
 class sqlite3;
+class SongDatabase;
 
 class IncrementalQuery {
 public:
 
-	IncrementalQuery(sqlite3 *db) : db(db), searchLimit(40) {}
+	IncrementalQuery(sqlite3 *db, SongDatabase *sdb) : db(db), sdb(sdb), searchLimit(40) {}
 
 	void addLetter(char c);
 	void removeLast();
@@ -19,6 +20,7 @@ private:
 	void search();
 
 	sqlite3 *db;
+	SongDatabase *sdb;
 	unsigned int searchLimit;
 	std::vector<char> query;
 	std::vector<std::string> result;
@@ -26,13 +28,15 @@ private:
 
 class SongDatabase {
 public:
+
 	SongDatabase(const std::string &name);
 	void generateIndex();
 	IncrementalQuery find() {
-		return IncrementalQuery(db);
+		return IncrementalQuery(db, this);
 	}
 
 	void search(const char *query);
+	void search(const std::string &query, std::vector<std::string> &result, int searchLimit);
 private:
 
 	void addSubStrings(const char *words, std::unordered_map<std::string, std::vector<int>> &stringMap, int index);

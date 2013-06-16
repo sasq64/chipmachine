@@ -36,7 +36,10 @@ int IncrementalQuery::numHits() const {
 }
 
 void IncrementalQuery::search() {
-	sqlite3_stmt *s;
+
+	sdb->search(string(&query[0], query.size()), result, searchLimit);
+
+/*	sqlite3_stmt *s;
 	char temp[128] = "%%";
 	//sprintf(temp, "%%%s%%", &query[0]);
 	int sz = query.size();
@@ -71,7 +74,7 @@ void IncrementalQuery::search() {
 			if(result.size() >= searchLimit)
 				break;
 		}
-	}
+	}*/
 }
 
 SongDatabase::SongDatabase(const string &name) {
@@ -85,9 +88,11 @@ SongDatabase::SongDatabase(const string &name) {
 void SongDatabase::addSubStrings(const char *words, unordered_map<string, std::vector<int>> &stringMap, int index) {
 	//auto parts = ansplit(title)
 	const char *ptr = words;
+	char tl[4];
+	tl[3] = 0;
 	unsigned int sl = strlen(words);
 	if(sl >= 3) {
-		for(unsigned int i=0; i<sl-2; i++) {
+		for(unsigned int i=0; i<sl; i++) {
 			char c = words[i];
 			const char *pc = &words[i];
 			if(!isalnum(c)) {
@@ -95,10 +100,13 @@ void SongDatabase::addSubStrings(const char *words, unordered_map<string, std::v
 				continue;
 			}
 
-			if(pc - ptr == 3) {
+			if(pc - ptr == 2) {
 				// TODO: 3 letters could be encoded to one unsigned short
-				string tl = string(ptr, 3);
-				makeLower(tl);
+				//string tl = string(ptr, 3);
+				//makeLower(tl);
+				tl[0] = tolower(ptr[0]);
+				tl[1] = tolower(ptr[1]);
+				tl[2] = tolower(ptr[2]);
 				stringMap[tl].push_back(index);
 				ptr++;
 			}
@@ -121,7 +129,7 @@ void SongDatabase::generateIndex() {
 	LOGD("Result '%d'\n", rc);
 	if(rc == SQLITE_OK) {
 		int count = 0;
-		int maxTotal = 3;
+		//int maxTotal = 3;
 		int cindex = 0;
 		while(count < 100000) {
 			count++;
@@ -157,6 +165,51 @@ void SongDatabase::generateIndex() {
 	}
 }
 
+
+void SongDatabase::search(const string &query, vector<string> &result, int searchLimit) {
+
+	result.resize(0);
+	if(query.size() < 3)
+		return;
+	string t = string(query, 0, 3);
+	makeLower(t);
+
+	LOGD("Checking '%s/%s' among %d+%d sub strings", query, t, titleMap.size(), composerMap.size());
+
+	const auto &tv = titleMap[t];
+	const auto &cv = composerMap[t];
+	LOGD("Searching %d candidates", cv.size());
+	for(int index : cv) {
+		string composer = composers[index].first;
+		makeLower(composer);
+		if(composer.find(query) != string::npos) {
+			int title_index = composers[index].second;
+			while(true) {
+				auto title = titles[title_index];
+				if(title.second != index)
+					break;
+				//LOGD("%s / %s", title.first, composers[index].first);
+				result.push_back(format(".\t%s\t%s\t", title.first, composers[index].first));
+				title_index++;
+				if(result.size() >= searchLimit)
+					break;
+			}
+		}
+	}
+
+	LOGD("Searching %d candidates", tv.size());
+	for(int index : tv) {
+		string title = titles[index].first;
+		makeLower(title);
+		if(title.find(query) != string::npos) {
+			result.push_back(format(".\t%s\t%s\t", titles[index].first, composers[titles[index].second].first));
+			//LOGD("%s / %s", titles[index].first, composers[titles[index].second].first);
+		}
+		if(result.size() >= searchLimit)
+			break;
+	}
+}
+
 void SongDatabase::search(const char *query) {
 
 	if(strlen(query) < 3)
@@ -166,14 +219,30 @@ void SongDatabase::search(const char *query) {
 	makeLower(t);
 
 	const auto &tv = titleMap[t];
+	const auto &cv = composerMap[t];
+	LOGD("Searching %d candidates", cv.size());
+	for(int index : cv) {
+		string composer = composers[index].first;
+		makeLower(composer);
+		if(composer.find(query) != string::npos) {
+			int title_index = composers[index].second;
+			while(true) {
+				auto title = titles[title_index];
+				if(title.second != index)
+					break;
+				LOGD("%s / %s", title.first, composers[index].first);
+				title_index++;
+			}
+		}
+	}
 
 	LOGD("Searching %d candidates", tv.size());
-	for(auto index : tv) {
+	for(int index : tv) {
 		string title = titles[index].first;
 		makeLower(title);
 		if(title.find(query) != string::npos) {
 
-			LOGD("%s - %s", titles[index].first, composers[titles[index].second].first);
+			LOGD("%s / %s", titles[index].first, composers[titles[index].second].first);
 		}
 	}
 

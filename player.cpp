@@ -157,8 +157,8 @@ int main(int argc, char* argv[]) {
 
 	SongDatabase db { "hvsc.db" };
 
-	//db.generateIndex();
-	//db.search("ghost");
+	db.generateIndex();
+	//db.search("rob");
 	//return 0;
 
 	TelnetServer telnet { 12345 };
