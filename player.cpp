@@ -22,7 +22,7 @@
 
 #include "Archive.h"
 
-#include "SongDb.cpp"
+#include "SongDb.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -156,6 +156,10 @@ int main(int argc, char* argv[]) {
 	string songName;
 
 	SongDatabase db { "hvsc.db" };
+
+	//db.generateIndex();
+	//db.search("ghost");
+	//return 0;
 
 	TelnetServer telnet { 12345 };
 
