@@ -65,6 +65,10 @@ public:
 			sessionThread.join();
 		}
 
+		void echo(bool on) {
+			localEcho = on;
+		}
+
 	private:
 		NL::Socket *socket;
 

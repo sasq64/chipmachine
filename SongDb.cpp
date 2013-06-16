@@ -14,7 +14,8 @@ public:
 	}
 
 	void addLetter(char c) {		
-		query.push_back(c);		
+		query.push_back(c);	
+		//parts = utils::split(query, " ");	
 		if(query.size() > 2) {
 			search();
 		}
@@ -94,6 +95,35 @@ public:
 
 		};
 	}
+#if 0
+	void generateIndex() {
+		sqlite3_stmt *s;
+		const char *tail;
+
+		int rc = sqlite3_prepare_v2(db, "select PATH,TITLE,COMPOSER,METADATA from SONGS;", -1, &s, &tail);
+		LOGD("Result '%d'\n", rc);
+		if(rc == SQLITE_OK) {
+			int count = 0;
+			while(count < 100) {
+				int ok = sqlite3_step(s);
+				if(ok == SQLITE_ROW) {
+					const char *path = (const char *)sqlite3_column_text(s, 0);
+					const char *title = (const char *)sqlite3_column_text(s, 1);
+					const char *composer = (const char *)sqlite3_column_text(s, 2);
+					const char *metadata = (const char *)sqlite3_column_text(s, 3);
+
+					for(int i=0; i<strlen(title)-2; i++) {
+						string tl = string(&title[i], 3);
+						tlmap[tl] = tlmap[tl] + 1;
+					}
+
+				} else if(ok == SQLITE_DONE) {
+					break;
+				}
+			}
+		}
+	}
+#endif
 	// Simple search. Checks if TITLE or COMPOSER contains 'pattern'
 	//string [] query(const string &pattern, int limit = 100) {
 	//}

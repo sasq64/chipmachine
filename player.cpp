@@ -42,8 +42,8 @@ void lcd_print(int x, int y, const std::string &text);
 #else
 void lcd_init() {}
 void lcd_print(int x, int y, const std::string &text) {
-	puts(text.c_str());
-	putchar('\r');
+	//puts(text.c_str());
+	//putchar('\r');
 }
 #endif
 
@@ -107,6 +107,9 @@ int main(int argc, char* argv[]) {
 
 	bool daemonize = false;
 	queue<string> playQueue;
+	int subSong = 0;
+	int totalSongs = 0;
+	int currentSong = 0;
 
 	volatile bool doQuit = false;
 
@@ -188,7 +191,7 @@ int main(int argc, char* argv[]) {
 	telnet.setOnConnect([&](TelnetServer::Session &session) {
 
 		LOGD("New connection!");
-
+		session.echo(false);
 		AnsiScreen screen { session };
 		//screen.setFg(2);
 		//screen.put(5,5, "Chipmachine");
@@ -221,11 +224,18 @@ int main(int argc, char* argv[]) {
 					doQuit = true;
 					return;
 				}  else if(c == AnsiInput::KEY_LEFT) {
-					LOGD("Left pressed\n");
-				} else
+					lock_guard<mutex>{playMutex};
+					if(subSong > 0)
+						subSong--;
+				}  else if(c == AnsiInput::KEY_RIGHT) {
+					lock_guard<mutex>{playMutex};
+					if(subSong < totalSongs-1)
+						subSong++;
+				} else if(c >=0x21)
 					query.addLetter(c);
 				//session.write({ '\x1b', '[', '2', 'J' }, 4);
 				//session.write("\x1b[2J\x1b[%d;%dH", 1, 1);
+				screen.put(0,0,"                       ");
 				screen.put(0,0, query.getString());
 				//session.write("[%s]\r\n\r\n", query.getString());
 				if(query.numHits() > 0) {
@@ -284,19 +294,25 @@ int main(int argc, char* argv[]) {
 				player->onMeta([&](const string &meta, ChipPlayer *player) {
 					if(meta == "metaend") {
 						LOGD("Now playing: %s - %s", player->getMeta("composer"), player->getMeta("title"));
-						int songs = player->getMetaInt("songs");
+						totalSongs = player->getMetaInt("songs");
 						int startsong = player->getMetaInt("startsong");
+						subSong = currentSong = startsong;
 
 						lcd_print(0,0, player->getMeta("title"));
 						lcd_print(0,1, player->getMeta("composer"));
 						lcd_print(0,2, player->getMeta("copyright"));
-						lcd_print(0,3, format("Song %02d/%02d - [00:00]", startsong, songs));
+						lcd_print(0,3, format("Song %02d/%02d - [00:00]", subSong, totalSongs));
 					}
 				});
 				oldSeconds = 0;
 				playQueue.pop();
 				frameCount = 0;
 			}
+			if(subSong != currentSong) {
+				player->seekTo(subSong);
+				currentSong = subSong;
+			}
+
 		}
 
 		if(player) {

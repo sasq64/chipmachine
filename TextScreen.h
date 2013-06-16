@@ -109,7 +109,7 @@ protected:
 
 class AnsiScreen : public Screen {
 public:
-	AnsiScreen(Terminal &terminal) : Screen(), terminal(terminal), curX(0), curY(0) {
+	AnsiScreen(Terminal &terminal) : Screen(), terminal(terminal), curX(-1), curY(-1) {
 		outBuffer = { '\x1b', '[', '2', 'J' };
 		//sprintf((char*)&outBuffer[0], "\x1b""2J");
 	};
@@ -133,6 +133,7 @@ public:
 					if(t0.fg != t1.fg || t0.bg != t1.bg)
 						setColor(dest, t1.fg, t1.bg);
 					putChar(dest, t1.c);
+					t0 = t1;
 				}
 			}
 		}
