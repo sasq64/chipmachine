@@ -212,11 +212,22 @@ void SongDatabase::search(const string &query, vector<string> &result, int searc
 
 void SongDatabase::search(const char *query) {
 
-	if(strlen(query) < 3)
+	//if(strlen(query) < 3)
+	//	return;
+
+	auto parts = split(query, " ");
+	for(auto &p : parts) {
+		makeLower(p);
+	}
+	sort(parts.begin(), parts.end(), [](const string &a, const string &b) {
+		return a.length() > b.length();
+	});
+
+	if(parts[0].length() < 3)
 		return;
 
-	string t = string(query, 3);
-	makeLower(t);
+	string t = string(parts[0], 3);
+	//makeLower(t);
 
 	const auto &tv = titleMap[t];
 	const auto &cv = composerMap[t];
@@ -224,15 +235,22 @@ void SongDatabase::search(const char *query) {
 	for(int index : cv) {
 		string composer = composers[index].first;
 		makeLower(composer);
-		if(composer.find(query) != string::npos) {
-			int title_index = composers[index].second;
-			while(true) {
-				auto title = titles[title_index];
-				if(title.second != index)
-					break;
-				LOGD("%s / %s", title.first, composers[index].first);
-				title_index++;
+		bool found = true;
+		for(p : parts) {
+			if(composer.find(p) == string::npos) {
+				found = false;
+				break;
 			}
+		}
+		if(!found)
+			break;
+		int title_index = composers[index].second;
+		while(true) {
+			auto title = titles[title_index];
+			if(title.second != index)
+				break;
+			LOGD("%s / %s", title.first, composers[index].first);
+			title_index++;
 		}
 	}
 
