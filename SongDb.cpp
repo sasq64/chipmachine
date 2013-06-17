@@ -47,8 +47,8 @@ void IncrementalQuery::search() {
 
 	auto parts = split(q, " ");
 
-	if(oldParts.size() == 0 || oldParts[0] != parts[0]) {
-		sdb->search(parts[0], firstResult, searchLimit);
+	if(oldParts.size() == 0 || string(oldParts[0], 0, 3) != string(parts[0], 0, 3)) {
+		sdb->search(string(parts[0], 0, 3), firstResult, searchLimit);
 	}
 	oldParts = parts;
 
@@ -193,44 +193,35 @@ void SongDatabase::generateIndex() {
 void SongDatabase::search(const string &query, vector<string> &result, unsigned int searchLimit) {
 
 	result.resize(0);
-	if(query.size() < 3)
-		return;
-	string t = string(query, 0, 3);
-	makeLower(t);
+	//if(query.size() < 3)
+	//	return;
+	//string t = string(query, 0, 3);
+	//makeLower(t);
 
-	LOGD("Checking '%s/%s' among %d+%d sub strings", query, t, titleMap.size(), composerMap.size());
+	LOGD("Checking '%s' among %d+%d sub strings", query, titleMap.size(), composerMap.size());
 
-	const auto &tv = titleMap[t];
-	const auto &cv = composerMap[t];
+	const auto &tv = titleMap[query];
+	const auto &cv = composerMap[query];
 
 	LOGD("Searching %d candidates", tv.size());
 	for(int index : tv) {
-		string title = titles[index].first;
-		makeLower(title);
-		if(title.find(query) != string::npos) {
-			result.push_back(format("%s\t%s\t%d", titles[index].first, composers[titles[index].second].first, index));
-			//LOGD("%s / %s", titles[index].first, composers[titles[index].second].first);
-		}
+		result.push_back(format("%s\t%s\t%d", titles[index].first, composers[titles[index].second].first, index));
 		if(result.size() >= searchLimit)
 			break;
 	}
 
 	LOGD("Searching %d candidates", cv.size());
 	for(int index : cv) {
-		string composer = composers[index].first;
-		makeLower(composer);
-		if(composer.find(query) != string::npos) {
-			int title_index = composers[index].second;
-			while(true) {
-				auto title = titles[title_index];
-				if(title.second != index)
-					break;
-				//LOGD("%s / %s", title.first, composers[index].first);
-				result.push_back(format("%s\t%s\t%d", title.first, composers[index].first, title_index));
-				title_index++;
-				if(result.size() >= searchLimit)
-					break;
-			}
+		int title_index = composers[index].second;
+		while(true) {
+			auto title = titles[title_index];
+			if(title.second != index)
+				break;
+			//LOGD("%s / %s", title.first, composers[index].first);
+			result.push_back(format("%s\t%s\t%d", title.first, composers[index].first, title_index));
+			title_index++;
+			if(result.size() >= searchLimit)
+				break;
 		}
 	}
 }
