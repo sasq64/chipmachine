@@ -6,6 +6,7 @@
 #include "utils.h"
 
 #include <cstring>
+#include <algorithm>
 
 using namespace std;
 using namespace utils;
@@ -46,6 +47,9 @@ void IncrementalQuery::search() {
 	string q = string(&query[0], query.size());
 
 	auto parts = split(q, " ");
+	// Remove empty strings
+	parts.erase(remove_if(parts.begin(), parts.end(), [&](const string &a) { return a.size() == 0; }), parts.end());
+	LOGD("Parts: [%s]", parts);
 
 	if(oldParts.size() == 0 || string(oldParts[0], 0, 3) != string(parts[0], 0, 3)) {
 		sdb->search(string(parts[0], 0, 3), firstResult, searchLimit);
@@ -57,12 +61,8 @@ void IncrementalQuery::search() {
 		string rc = r;
 		makeLower(rc);
 		bool found = true;
-		for(unsigned int i=1; i<parts.size(); i++) {
-
-			if(parts[i].size() == 0)
-				continue;
-
-			if(rc.find(parts[i]) == string::npos) {
+		for(auto p : parts) {
+			if(rc.find(p) == string::npos) {
 				found = false;
 				break;
 			}
@@ -187,6 +187,23 @@ void SongDatabase::generateIndex() {
 		}
 	}
 	LOGD("%d titles by %d composer generated %d + %d 3 letter indexes\n", titles.size(), composers.size(), titleMap.size(), composerMap.size());
+}
+
+static const vector<const string>> t9array { "", "", "abc", "def", "ghi", "jkl", "mno", "prqs", "tuv", "wxyz" };
+
+vector<string> makeT9(const string &numbers) {
+
+
+	for(auto s : numbers) {
+		for(letters : n) {
+		}
+	}
+}
+
+void SongDatabase::t9search(const string &query, vector<string> &result, unsigned int searchLimit) {
+
+
+
 }
 
 

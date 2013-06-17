@@ -30,9 +30,9 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 	TelnetServer *ts = static_cast<TelnetServer*>(reference);
 	auto &session = ts->getSession(socket);
 
-	int len = socket->read(&ts->buffer[0], 32);
+	int len = socket->read(&ts->buffer[0], 128);
 	//ts->buffer.resize(len);
-	LOGD("Read %d bytes [%02x]\n", len, ts->buffer);
+	LOGD("Read %d bytes [%02x]\n", len, make_slice(ts->buffer, 0, len));
 	session.handleIndata(ts->buffer, len);
 }
 
@@ -67,7 +67,7 @@ TelnetServer::TelnetServer(int port) : init(new TelnetInit()), no_session(nullpt
 	delete init;
 	init = nullptr;
 
-	buffer.resize(32);
+	buffer.resize(128);
 
 	group.setCmdOnAccept(&onAccept);
 	group.setCmdOnRead(&onRead);

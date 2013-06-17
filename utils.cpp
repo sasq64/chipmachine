@@ -205,7 +205,7 @@ void format_stream(stringstream &ss, string &fmt, const vector<int8_t> &bytes) {
 	}
 }
 
-void format_stream(stringstream &ss, string &fmt, const vector<uint8_t> &bytes) {
+void format_stream(stringstream &ss, string &fmt, const slice<vector<int8_t>::const_iterator> &bytes) {
 	if(parse_format(ss, fmt)) {
 		bool first = true;
 		int w = ss.width();
@@ -217,7 +217,6 @@ void format_stream(stringstream &ss, string &fmt, const vector<uint8_t> &bytes) 
 		}
 	}
 }
-
 
 bool parse_format(stringstream &ss, string &fmt) {
 

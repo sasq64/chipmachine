@@ -72,6 +72,31 @@ void makedirs(const std::string &name);
 bool endsWith(const std::string &name, const std::string &ext);
 void makeLower(std::string &s);
 
+// SLICE
+
+
+template <class InputIterator> class slice {
+public:
+	slice(InputIterator start, InputIterator stop) : start(start), stop(stop) {}
+
+	InputIterator begin() const {
+		return start;
+	}
+
+	InputIterator end() const {
+		return stop;
+		//return const_iterator(*this, end);
+	}
+private:
+	InputIterator start;
+	InputIterator stop;
+
+};
+
+template <class T> slice<typename T::const_iterator> make_slice(T &vec, int start, int len) {
+	return slice<typename T::const_iterator>(vec.begin() + start, vec.begin() + start + len);
+}
+
 
 // FORMAT
 
@@ -84,8 +109,23 @@ public:
 bool parse_format(std::stringstream &ss, std::string &fmt);
 
 void format_stream(std::stringstream &ss, std::string &fmt, const std::vector<int8_t> &bytes);
-void format_stream(std::stringstream &ss, std::string &fmt, const std::vector<uint8_t> &bytes);
+//void format_stream(std::stringstream &ss, std::string &fmt, const std::vector<uint8_t> &bytes);
+//void format_stream(std::stringstream &ss, std::string &fmt, const slice<int8_t> &bytes);
+void format_stream(std::stringstream &ss, std::string &fmt, const slice<std::vector<int8_t>::const_iterator> &bytes);
 void format_stream(std::stringstream &ss, std::string &fmt, const Printable &printable);
+
+template <class T> void format_stream(std::stringstream &ss, std::string &fmt, const slice<T> &arg) {
+if(parse_format(ss, fmt)) {
+		bool first = true;
+		int w = ss.width();
+		for(auto b : arg) {
+			if(!first) ss << " ";
+			ss.width(w);
+			ss << b;
+			first = false;
+		}
+	}
+}
 
 template <class T> void format_stream(std::stringstream &ss, std::string &fmt, const T *arg) {
 	if(parse_format(ss, fmt))
