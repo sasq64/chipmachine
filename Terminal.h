@@ -1,7 +1,8 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
-
+#include <vector>
+#include <stdint.h>
 
 class Terminal {
 
@@ -10,6 +11,7 @@ public:
 
 	virtual int write(const std::vector<Char> &source, int len) = 0;
 	virtual int read(std::vector<Char> &target, int len) = 0;
+
 };
 
 

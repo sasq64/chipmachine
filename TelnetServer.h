@@ -69,6 +69,9 @@ public:
 			localEcho = on;
 		}
 
+		int getWidth() { return winWidth; }
+		int getHeight() { return winHeight; }
+
 	private:
 		NL::Socket *socket;
 

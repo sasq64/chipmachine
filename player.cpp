@@ -110,6 +110,8 @@ int main(int argc, char* argv[]) {
 	int subSong = 0;
 	int totalSongs = 0;
 	int currentSong = 0;
+	string songTitle;
+	string songComposer;
 
 	volatile bool doQuit = false;
 
@@ -212,49 +214,66 @@ int main(int argc, char* argv[]) {
 
 			try {
 				//char c = session.getChar();
-				int c = input.getKey();
-				LOGD("char %d\n", c);
-				if(c == AnsiInput::KEY_BACKSPACE)
-					query.removeLast();
-				else if(c >= '0' && c <= '9') {
-					string r = query.getResult()[c - '0'];
-					auto p  = split(r, "\t");
+				int c = input.getKey(500);
+
+				{
 					lock_guard<mutex>{playMutex};
-					LOGD("Pushing '%s' to queue", p[0]);
-					playQueue.push("http://swimsuitboys.com/droidsound/dl/C64Music/" + p[0]);
-				} else if(c == 0x11) {
-					lock_guard<mutex>{playMutex};
-					session.close();
-					doQuit = true;
-					return;
-				}  else if(c == AnsiInput::KEY_LEFT) {
-					lock_guard<mutex>{playMutex};
-					if(subSong > 0)
-						subSong--;
-				}  else if(c == AnsiInput::KEY_RIGHT) {
-					lock_guard<mutex>{playMutex};
-					if(subSong < totalSongs-1)
-						subSong++;
-				} else if(c >=0x21)
-					query.addLetter(c);
-				//session.write({ '\x1b', '[', '2', 'J' }, 4);
-				//session.write("\x1b[2J\x1b[%d;%dH", 1, 1);
-				screen.put(0,0,"                       ");
-				screen.put(0,0, query.getString());
-				//session.write("[%s]\r\n\r\n", query.getString());
-				if(query.numHits() > 0) {
-					screen.clear();
-					screen.put(0,0, query.getString());
-					const auto &results = query.getResult();
-					int i = 0;					
-					for(const auto &r : results) {
-						auto p = split(r, "\t");
-						//session.write("[%d] %s - %s\r\n", i++, p[2], p[1]);
-						screen.put(1, i+2, format("[%02d] %s - %s", i, p[2], p[1]));
-						i++;
-						if(i > 38)
-							break;
+					int seconds = frameCount / 44100;
+					screen.put(0, 0, format("%s - %s", songComposer, songTitle));
+					screen.put(0, 1, format("Song %02d/%02d - [%02d:%02d]", subSong, totalSongs, seconds/60, seconds%60));
+
+					if(c == AnsiInput::KEY_TIMEOUT) {
+						screen.flush();
+						continue;
 					}
+
+					LOGD("char %d\n", c);
+					switch(c) {
+						case AnsiInput::KEY_BACKSPACE:
+						query.removeLast();
+						break;
+					case AnsiInput::KEY_ESCAPE:
+						query.clear();
+						break;
+					case 0x11:
+						session.close();
+						doQuit = true;
+						return;
+					case AnsiInput::KEY_LEFT:
+						if(subSong > 0)
+							subSong--;
+						continue;
+					case AnsiInput::KEY_RIGHT:
+						if(subSong < totalSongs-1)
+							subSong++;
+						continue;
+					default:
+						if(c >= '0' && c <= '9') {
+							string r = query.getFull(c - '0');
+							LOGD("RESULT: %s", r);
+							auto p  = split(r, "\t");
+							LOGD("Pushing '%s' to queue", p[2]);
+							playQueue.push("http://swimsuitboys.com/droidsound/dl/C64Music/" + p[2]);
+						} else if(c >=0x20) {
+							query.addLetter(c);
+						} 
+					}
+				}
+
+				screen.clear();
+				screen.put(0,3,">                       ");
+				screen.put(1,3, query.getString());
+
+				const auto &results = query.getResult();
+				int i = 0;
+				int h = session.getHeight();
+				if(h < 0) h = 40;
+				for(const auto &r : results) {
+					auto p = split(r, "\t");
+					screen.put(1, i+4, format("[%02d] %s - %s", i, p[1], p[0]));
+					i++;
+					if(i >= h-4)
+						break;
 				}
 				screen.flush();
 			} catch (TelnetServer::disconnect_excpetion &e) {
@@ -302,6 +321,9 @@ int main(int argc, char* argv[]) {
 						int startsong = player->getMetaInt("startsong");
 						subSong = currentSong = startsong;
 
+						songTitle = player->getMeta("title");
+						songComposer = player->getMeta("composer");
+
 						lcd_print(0,0, player->getMeta("title"));
 						lcd_print(0,1, player->getMeta("composer"));
 						lcd_print(0,2, player->getMeta("copyright"));
@@ -315,6 +337,7 @@ int main(int argc, char* argv[]) {
 			if(subSong != currentSong) {
 				player->seekTo(subSong);
 				currentSong = subSong;
+				frameCount = 0;
 			}
 
 		}

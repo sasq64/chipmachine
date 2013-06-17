@@ -25,6 +25,8 @@ public:
 	virtual const char *what() const throw() { return "File not found"; }
 };
 
+#define THROW(e, args...) throw e(args, __FILE__, __LINE__)
+
 class File {
 public:
 	File();
