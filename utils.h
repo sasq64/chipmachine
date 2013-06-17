@@ -31,6 +31,12 @@ class File {
 public:
 	File();
 	File(const std::string &name);
+	~File() {
+		if(readFP)
+			fclose(readFP);
+		if(writeFP)
+			fclose(writeFP);
+	}
 	void read(); // throw(file_not_found_exception, io_exception);
 	void write(const uint8_t *data, int size); // throw(io_exception);
 	void close();

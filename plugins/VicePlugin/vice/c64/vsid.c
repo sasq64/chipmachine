@@ -282,6 +282,15 @@ static void c64io_init(void)
     sid_d700_list_item = io_source_register(&sid_d700_device);
 }
 
+static void c64io_shutdown(void) {
+    /*
+    io_source_unregister(sid_d400_list_item);
+    io_source_unregister(sid_d420_list_item);
+    io_source_unregister(sid_d500_list_item);
+    io_source_unregister(sid_d600_list_item);
+    io_source_unregister(sid_d700_list_item);*/
+}
+
 /* ------------------------------------------------------------------------ */
 
 /* C64-specific resource initialization.  This is called before initializing
@@ -310,6 +319,8 @@ void machine_resources_shutdown(void)
     video_resources_shutdown();
     c64_resources_shutdown();
     sound_resources_shutdown();
+
+    c64io_shutdown();
 }
 
 /* C64-specific command-line option initialization.  */
@@ -449,6 +460,8 @@ void machine_specific_shutdown(void)
     if (!console_mode) {
         vsid_ui_close();
     }
+
+    c64io_shutdown();
 }
 
 void machine_handle_pending_alarms(int num_write_cycles)

@@ -74,10 +74,15 @@ void IncrementalQuery::search() {
 
 SongDatabase::SongDatabase(const string &name) {
 	db = nullptr;
-	int rc = sqlite3_open(name.c_str(), &db);
-	if(rc != SQLITE_OK) {		
-		THROW(database_exception, name.c_str());
+	int rc = sqlite3_open(name.c_str(), &db);//, SQLITE_READONLY, NULL);
+	if(rc != SQLITE_OK) {	
+		throw database_exception(format("%s: %s", name, sqlite3_errstr(rc)).c_str());
 	};
+}
+
+SongDatabase::~SongDatabase() {
+	if(db)
+		sqlite3_close(db);
 }
 
 void SongDatabase::addSubStrings(const char *words, unordered_map<string, std::vector<int>> &stringMap, int index) {
@@ -130,19 +135,22 @@ string IncrementalQuery::getFull(int pos) {
 	int rc = sqlite3_prepare_v2(db, "SELECT title, composer, path, metadata FROM songs WHERE _id == ?", -1, &s, &tail);
 	LOGD("Result '%d'\n", rc);
 	if(rc != SQLITE_OK)
-		THROW(database_exception, "Select failed");
+		throw database_exception("Select failed");
 	sqlite3_bind_int(s, 1, id);
 	int ok = sqlite3_step(s);
+	
 	if(ok == SQLITE_ROW) {
 		const char *title = (const char *)sqlite3_column_text(s, 0);
 		const char *composer = (const char *)sqlite3_column_text(s, 1);
 		const char *path = (const char *)sqlite3_column_text(s, 2);
 		const char *metadata = (const char *)sqlite3_column_text(s, 3);
+		sqlite3_finalize(s);
 		return format("%s\t%s\t%s\t%s", title, composer, path, metadata);
 	} else {
+		sqlite3_finalize(s);
 		throw not_found_exception();
 	}
-	return "";
+	//return "";
 }
 
 void SongDatabase::generateIndex() {
@@ -154,7 +162,7 @@ void SongDatabase::generateIndex() {
 	int rc = sqlite3_prepare_v2(db, "SELECT title, composer FROM songs;", -1, &s, &tail);
 	LOGD("Result '%d'\n", rc);
 	if(rc != SQLITE_OK)
-		THROW(database_exception, "Select failed");
+		throw database_exception("Select failed");
 
 	int count = 0;
 	//int maxTotal = 3;
@@ -186,16 +194,20 @@ void SongDatabase::generateIndex() {
 			break;
 		}
 	}
+
+	sqlite3_finalize(s);
+
 	LOGD("%d titles by %d composer generated %d + %d 3 letter indexes\n", titles.size(), composers.size(), titleMap.size(), composerMap.size());
 }
-
+/*
 static const vector<const string>> t9array { "", "", "abc", "def", "ghi", "jkl", "mno", "prqs", "tuv", "wxyz" };
 
 vector<string> makeT9(const string &numbers) {
 
-
 	for(auto s : numbers) {
-		for(letters : n) {
+		int n = atoi(s.c_str());
+		for(auto letters : t9array[n]) {
+
 		}
 	}
 }
@@ -205,7 +217,7 @@ void SongDatabase::t9search(const string &query, vector<string> &result, unsigne
 
 
 }
-
+*/
 
 void SongDatabase::search(const string &query, vector<string> &result, unsigned int searchLimit) {
 

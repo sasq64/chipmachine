@@ -137,8 +137,12 @@ VicePlugin::VicePlugin() {
 	VicePlayer::init("/opt/chipmachine/c64");
 #else
 	VicePlayer::init("c64");
-#endif
-   
+#endif   
+}
+
+VicePlugin::~VicePlugin() {
+	LOGD("VicePlugin destroy");
+	machine_shutdown();
 }
 
 bool VicePlugin::canHandle(const string &name) {

@@ -10,7 +10,7 @@ class ChipPlayer;
 class VicePlugin : public ChipPlugin {
 public:
 	VicePlugin();
-	~VicePlugin();
+	virtual ~VicePlugin();
 	virtual bool canHandle(const std::string &name) override;
 	virtual ChipPlayer *fromFile(const std::string &fileName) override;
 };

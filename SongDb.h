@@ -8,9 +8,8 @@ class SongDatabase;
 
 class database_exception : public std::exception {
 public:
-	database_exception(const char *txt, const char *file, int line) {
-		LOGD("%s %d", file, line);
-		msg = utils::format("Database exception: '%s' in %s:%d", txt, file, line);		
+	database_exception(const char *txt) {
+		msg = txt;
 	}
 	virtual const char *what() const throw() { return msg.c_str(); }
 private:
@@ -52,6 +51,7 @@ class SongDatabase {
 public:
 
 	SongDatabase(const std::string &name);
+	~SongDatabase();
 	void generateIndex();
 	IncrementalQuery find() {
 		return IncrementalQuery(db, this);

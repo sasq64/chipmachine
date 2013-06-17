@@ -2,7 +2,7 @@
 #define TELNET_SERVER_H
 
 #include "utils.h"
-#include "terminal.h"
+#include "Terminal.h"
 
 #include <string>
 #include <vector>

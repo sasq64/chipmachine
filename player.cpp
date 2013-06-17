@@ -60,7 +60,7 @@ public:
 		makeLower(name);
 		LOGD("Handling %s\n", name);
 
-		for(auto *plugin : plugins) {
+		for(auto &plugin : plugins) {
 			if(plugin->canHandle(name))
 				return plugin->fromFile(file.getName());
 		}
@@ -74,7 +74,7 @@ public:
 
 		LOGD("Factory checking: %s\n", lname);
 
-		for(auto *plugin : plugins) {
+		for(auto &plugin : plugins) {
 			if(plugin->canHandle(lname))
 				return true;
 		}
@@ -83,19 +83,19 @@ public:
 
 	template<class T, class... Args>
 	void addPlugin(Args&& ... args) {
-		plugins.push_back(new T(args...));
+		plugins.push_back(unique_ptr<ChipPlugin>(new T(args...)));
 	}
 
-	void registerPlugin(ChipPlugin *p) {	
-		plugins.push_back(p);
-	}
+	//void registerPlugin(ChipPlugin *p) {	
+	//	plugins.push_back(p);
+	//}
 
 	unique_ptr<ChipPlayer> play(const string &url) {
 		return unique_ptr<ChipPlayer>(new URLPlayer {url, this});
 	}
 
 private:
-	vector<ChipPlugin*> plugins;
+	vector<unique_ptr<ChipPlugin>> plugins;
 };
 
 
@@ -128,7 +128,8 @@ int main(int argc, char* argv[]) {
 #ifdef WIN32
 		sleepms(1);	
 #else
-		int rc = daemon(0, 0);
+	if(daemon(0, 0) != 0)
+		throw std::exception();
 #endif
 
 	logging::setOutputFile("chipmachine.log");
@@ -158,52 +159,15 @@ int main(int argc, char* argv[]) {
 	string songName;
 
 	SongDatabase db { "hvsc.db" };
-
 	db.generateIndex();
-	//db.search("rob");
-	//return 0;
 
 	TelnetServer telnet { 12345 };
-
-/*
-
-	telnet.addCommand("play", [&](TelnetServer::Session &session, const vector<string> &args) {
-		//printf("Play '%s'\n", args[1].c_str());
-		{ lock_guard<playMutex>;
-			playQueue.push(args[1]);
-		}
-	});
-
-	telnet.addCommand("go", [&](TelnetServer::Session &session, const vector<string> &args) {
-		int song = atoi(args[1].c_str());
-		if(player && song >= 0) {
-			player->seekTo(song);
-			session.write("Setting song %d\r\n", song);
-		}
-	});
-
-	telnet.addCommand("status", [&](TelnetServer::Session &session, const vector<string> &args) {
-		if(player) {
-			session.write("Playing '%s' for %d seconds\r\n", songName, frameCount / 44100);
-		} else {
-			session.write("Nothing playing\r\n");
-		}
-	}); */
-
-	//telnet.onData([&](TelnetServer::Session &session) {
-	//});
-
-
 	telnet.setOnConnect([&](TelnetServer::Session &session) {
 
 		LOGD("New connection!");
 		session.echo(false);
 		AnsiScreen screen { session };
-		//screen.setFg(2);
-		//screen.put(5,5, "Chipmachine");
-		//screen.setFg(4);
-		//screen.put(3,3, "Chipmachine");
-		screen.put(0,0, "Chipmachine Login");
+		screen.put(0,0, "Chipmachine starting");
 		screen.flush();
 
 		AnsiInput input { session };
@@ -298,6 +262,7 @@ int main(int argc, char* argv[]) {
 	int bufSize = 4096;
 	vector<int16_t> buffer(bufSize);
 	int oldSeconds = -1;
+
 	while(true) {
 
 		if(doQuit) {

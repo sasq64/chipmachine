@@ -130,7 +130,7 @@ int sysfile_init(const char *emu_id)
 
 void sysfile_shutdown(void)
 {
-    lib_free(default_path);
+    //lib_free(default_path);
     lib_free(expanded_system_path);
 }
 

@@ -7,6 +7,8 @@ class ChipPlayer;
 
 class ChipPlugin {
 public:
+	virtual ~ChipPlugin() {};
+
 	virtual bool canHandle(const std::string &name) = 0;
 	virtual ChipPlayer *fromFile(const std::string &fileName) = 0;
 };
