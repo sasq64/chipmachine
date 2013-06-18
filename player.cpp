@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
 
 		LOGD("New connection!");
 		session.echo(false);
-		AnsiScreen screen { session };
+		PetsciiScreen screen { session };
 		screen.put(0,0, "Chipmachine starting");
 		screen.flush();
 

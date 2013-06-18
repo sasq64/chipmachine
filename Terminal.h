@@ -12,6 +12,10 @@ public:
 	virtual int write(const std::vector<Char> &source, int len) = 0;
 	virtual int read(std::vector<Char> &target, int len) = 0;
 
+	virtual int getWidth() const { return -1; }
+	virtual int getHeight() const { return -1; }
+	virtual std::string getTermType() const { return ""; }
+
 };
 
 

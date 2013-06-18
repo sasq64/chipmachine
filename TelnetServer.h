@@ -69,8 +69,9 @@ public:
 			localEcho = on;
 		}
 
-		int getWidth() { return winWidth; }
-		int getHeight() { return winHeight; }
+		virtual int getWidth() const override { return winWidth; }
+		virtual int getHeight() const override { return winHeight; }
+		virtual std::string getTermType() const override { return terminalType; }
 
 	private:
 		NL::Socket *socket;

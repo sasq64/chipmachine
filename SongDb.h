@@ -21,7 +21,7 @@ public:
 	virtual const char *what() const throw() { return "Not found exception"; }
 };
 
-#define THROW(e, args...) throw e(args, __FILE__, __LINE__)
+//#define THROW(e, args...) throw e(args, __FILE__, __LINE__)
 
 class IncrementalQuery {
 public:

@@ -106,8 +106,21 @@ private:
 
 class PetsciiScreen : public Screen {
 public:
-	PetsciiScreen(Terminal &terminal) : Screen(terminal) {}
+	PetsciiScreen(Terminal &terminal) : Screen(terminal), curX(-1), curY(-1) {
+		outBuffer = { 19, 14 };
+	}
 	virtual int update(std::vector<int8_t> &dest);
+	virtual void put(int x, int y, const std::string &text);
+
+private:
+
+	void setColor(std::vector<int8_t> &dest, int fg, int bg);
+	void putChar(std::vector<int8_t> &dest, char c);
+	void smartGoto(std::vector<int8_t> &dest, int x, int y);
+	
+	std::vector<int8_t> outBuffer;
+	int curX;
+	int curY;
 };
 
 class AnsiInput {
