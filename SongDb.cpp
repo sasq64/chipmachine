@@ -144,8 +144,11 @@ string IncrementalQuery::getFull(int pos) {
 		const char *composer = (const char *)sqlite3_column_text(s, 1);
 		const char *path = (const char *)sqlite3_column_text(s, 2);
 		const char *metadata = (const char *)sqlite3_column_text(s, 3);
+
+		//LOGD("Result %s %s %s\n", title, composer, path);
+		string r = format("%s\t%s\t%s\t%s", title, composer, path, metadata);
 		sqlite3_finalize(s);
-		return format("%s\t%s\t%s\t%s", title, composer, path, metadata);
+		return r;
 	} else {
 		sqlite3_finalize(s);
 		throw not_found_exception();
@@ -167,7 +170,7 @@ void SongDatabase::generateIndex() {
 	int count = 0;
 	//int maxTotal = 3;
 	int cindex = 0;
-	while(count < 100000) {
+	while(count < 1000000) {
 		count++;
 		int ok = sqlite3_step(s);
 		if(ok == SQLITE_ROW) {

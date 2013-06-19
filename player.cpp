@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
 	int frameCount = 0;
 	string songName;
 
-	SongDatabase db { "hvsc.db" };
+	SongDatabase db { "modland.db" };
 	db.generateIndex();
 
 	TelnetServer telnet { 12345 };
@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
 
 		LOGD("New connection!");
 		session.echo(false);
-		PetsciiScreen screen { session };
+		AnsiScreen screen { session };
 		screen.put(0,0, "Chipmachine starting");
 		screen.flush();
 
@@ -216,8 +216,13 @@ int main(int argc, char* argv[]) {
 							string r = query.getFull(c - '0');
 							LOGD("RESULT: %s", r);
 							auto p  = split(r, "\t");
+							for(int i = 0; i<p[2].length(); i++) {
+								if(p[2][i] == '\\')
+									p[2][i] = '/';
+							}
 							LOGD("Pushing '%s' to queue", p[2]);
-							playQueue.push("http://swimsuitboys.com/droidsound/dl/C64Music/" + p[2]);
+							playQueue.push("ftp://modland.ziphoid.com/pub/modules/" + p[2]);
+							//playQueue.push("http://swimsuitboys.com/droidsound/dl/C64Music/" + p[2]);
 						} else if(c >=0x20) {
 							query.addLetter(c);
 						} 
