@@ -21,18 +21,20 @@ File::File(const string &name) : fileName(name), size(-1), loaded(false), writeF
 };
 
 void File::read()  {		
-	FILE *fp = fopen(fileName.c_str(), "rb");
-	if(!fp)
-		throw file_not_found_exception{};
-	fseek(fp, 0, SEEK_END);
-	size = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-	data.reserve(size);
-	int rc = fread(&data[0], 1, size, fp);
-	if(rc != size)
-		throw io_exception{};
-	fclose(fp);
-	loaded = true;
+	if(!loaded) {
+		FILE *fp = fopen(fileName.c_str(), "rb");
+		if(!fp)
+			throw file_not_found_exception{};
+		fseek(fp, 0, SEEK_END);
+		size = ftell(fp);
+		fseek(fp, 0, SEEK_SET);
+		data.reserve(size);
+		int rc = fread(&data[0], 1, size, fp);
+		if(rc != size)
+			throw io_exception{};
+		fclose(fp);
+		loaded = true;
+	}
 }
 
 vector<string> File::getLines() {
@@ -40,7 +42,7 @@ vector<string> File::getLines() {
 	close();
 	if(!loaded)
 		read();
-	string source { reinterpret_cast<char*>(&data[0]), size };
+	string source { reinterpret_cast<char*>(&data[0]), (unsigned int)size };
 	stringstream ss(source);
 	string to;
 
@@ -58,6 +60,16 @@ void File::write(const uint8_t *data, int size) {
 			throw io_exception{"Could not open file for writing"};
 	}
 	fwrite(data, 1, size, writeFP);
+}
+
+void File::write(const string &data) {
+	if(!writeFP) {
+		makedirs(fileName);
+		writeFP = fopen(fileName.c_str(), "wb");
+		if(!writeFP)
+			throw io_exception{"Could not open file for writing"};
+	}
+	fwrite(data.c_str(), 1, data.length(), writeFP);
 }
 
 void File::close() {
@@ -275,6 +287,8 @@ bool parse_format(stringstream &ss, string &fmt) {
 	char letter = *ptr++;
 	if(letter == 'x')
 		ss << hex;
+	else
+		ss << dec;
 
 	// Set the format string to the remainder of the string
 	fmt = ptr;
@@ -290,3 +304,67 @@ string format(const string &fmt) {
 
 
 }
+
+
+#ifdef UNIT_TEST
+
+#include "catch.hpp"
+
+TEST_CASE("utils::File", "File operations") {
+
+	using namespace utils;
+	using namespace std;
+
+	// Delete to be safe
+	std::remove("temp.text");
+
+	// File
+	File file { "temp.text" };
+
+	REQUIRE(file.getName() == "temp.text");
+
+	file.write("First line\nSecond line");
+	file.close();
+	REQUIRE(file.exists());
+	REQUIRE(file.getSize() > 5);
+	REQUIRE(file.getSize() < 50);
+
+	file = File { "temp.text" };
+
+	file.read();
+	REQUIRE(file.getPtr() != NULL);
+
+	vector<string> lines = file.getLines();
+
+	REQUIRE(lines.size() == 2);
+
+	file.remove();
+
+	REQUIRE(!file.exists());
+
+}
+	// 
+
+TEST_CASE("utils::format", "format operations") {
+
+	using namespace utils;
+	using namespace std;
+
+	int a = 20;
+	const char *b = "test";
+	string c = "case";
+
+	string res = format("%x %03x %s %d %s", a, a, b, a, c);
+	REQUIRE(res == "14 014 test 20 case");
+
+	vector<int> v { 128, 129, 130, 131 };
+	res = format("%02x", v);
+	REQUIRE(res == "80 81 82 83");
+
+	auto s = make_slice(v, 1, 2);
+	res = format("%02x", s);
+	REQUIRE(res == "81 82");
+}
+
+#endif
+

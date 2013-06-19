@@ -139,15 +139,15 @@ void TelnetServer::Session::handleIndata(vector<int8_t> &buffer, int len) {
 			case NORMAL:
 				if(b == IAC)
 					state = FOUND_IAC;
-				else if(b == CR)
+				else if(b == CR) {
+					inBuffer.push_back(CR);
 					state = CR_READ;
+				}
 				break;
 			case CR_READ:
-				if(b == 0 || b == 10) {
-					inBuffer.push_back(CR);
+				if(b == 0) {
 					inBuffer.push_back(LF);
 				} else {
-					inBuffer.push_back(CR);
 					inBuffer.push_back(b);
 				}
 				state = NORMAL;
@@ -272,14 +272,16 @@ string TelnetServer::Session::getLine() throw(disconnect_excpetion) {
 			throw disconnect_excpetion{};
 
 		inMutex.lock();
-		auto f = find(inBuffer.begin(), inBuffer.end(), LF);
+		auto f = find(inBuffer.begin(), inBuffer.end(), CR);
 		if(f != inBuffer.end()) {
 			string line = string(inBuffer.begin(), f);
 			inBuffer.erase(inBuffer.begin(), ++f);
+			if(inBuffer.size() > 0 && inBuffer[0] == LF)
+				inBuffer.erase(inBuffer.begin());
 			inMutex.unlock();
 
-			if(line[line.length()-1] == CR)
-				line.pop_back();
+			//if(line[line.length()-1] == CR)
+			//	line.pop_back();
 				//line.resize(line.length()-1);
 
 			return line;

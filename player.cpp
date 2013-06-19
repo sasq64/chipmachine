@@ -166,7 +166,8 @@ int main(int argc, char* argv[]) {
 
 		LOGD("New connection!");
 		session.echo(false);
-		PetsciiScreen screen { session };
+		AnsiScreen screen { session };
+		screen.flush();
 		screen.put(0,0, "Chipmachine starting");
 		screen.flush();
 
@@ -228,10 +229,10 @@ int main(int argc, char* argv[]) {
 				screen.put(0,3,">                       ");
 				screen.put(1,3, query.getString());
 
-				const auto &results = query.getResult();
 				int i = 0;
 				int h = session.getHeight();
 				if(h < 0) h = 40;
+				const auto &results = query.getResult(0, h);
 				for(const auto &r : results) {
 					auto p = split(r, "\t");
 					screen.put(1, i+4, format("[%02d] %s - %s", i, p[1], p[0]));

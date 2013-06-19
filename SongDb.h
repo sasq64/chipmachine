@@ -26,13 +26,13 @@ public:
 class IncrementalQuery {
 public:
 
-	IncrementalQuery(sqlite3 *db, SongDatabase *sdb) : db(db), sdb(sdb), searchLimit(10000) {}
+	IncrementalQuery(sqlite3 *db, SongDatabase *sdb) : db(db), sdb(sdb), searchLimit(10000), lastStart(-1), lastSize(-1) {}
 
 	void addLetter(char c);
 	void removeLast();
 	void clear();
 	const std::string getString();
-	const std::vector<std::string> &getResult() const;
+	const std::vector<std::string> &getResult(int start, int size);
 	int numHits() const;
 	std::string getFull(int pos);
 private:
@@ -43,8 +43,11 @@ private:
 	unsigned int searchLimit;
 	std::vector<char> query;
 	std::vector<std::string> oldParts;
-	std::vector<std::string> firstResult;
-	std::vector<std::string> finalResult;
+	std::vector<int> firstResult;
+	std::vector<int> finalResult;
+	std::vector<std::string> textResult;
+	int lastStart;
+	int lastSize;
 };
 
 class SongDatabase {
@@ -58,14 +61,18 @@ public:
 	}
 
 	void search(const char *query);
-	void search(const std::string &query, std::vector<std::string> &result, unsigned int searchLimit);
+	void search(const std::string &query, std::vector<int> &result, unsigned int searchLimit);
+
+	const std::string &getTitle(int index) { return titles[index].first; }
+	const std::string &getComposer(int index) { return composers[titles[index].second].first; }
+
 private:
 
-	void addSubStrings(const char *words, std::unordered_map<std::string, std::vector<int>> &stringMap, int index);
+	void addSubStrings(const char *words, std::unordered_map<uint16_t, std::vector<int>> &stringMap, int index);
 	sqlite3 *db;
 
-	std::unordered_map<std::string, std::vector<int>> titleMap;
-	std::unordered_map<std::string, std::vector<int>> composerMap;
+	std::unordered_map<uint16_t, std::vector<int>> titleMap;
+	std::unordered_map<uint16_t, std::vector<int>> composerMap;
 	std::vector<std::pair<std::string, int>> titles;
 	std::vector<std::pair<std::string, int>> composers;
 

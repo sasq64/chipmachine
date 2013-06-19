@@ -58,7 +58,7 @@ public:
 protected:
 
 	struct Tile {
-		Tile(char c = ' ', int fg = -1, int bg = -1) : fg(fg), bg(bg), c(c) {}
+		Tile(int c = ' ', int fg = -1, int bg = -1) : fg(fg), bg(bg), c(c) {}
 		bool operator==(const Tile &o) const {
    			return (fg == o.fg && bg == o.bg && c == o.c);
   		}
@@ -68,7 +68,7 @@ protected:
 
 		int fg;
 		int bg;
-		char c;
+		int c;
 	};
 
 	Terminal &terminal;
@@ -98,7 +98,7 @@ private:
 	void putChar(std::vector<int8_t> &dest, char c);
 	void smartGoto(std::vector<int8_t> &dest, int x, int y);
 	
-	std::vector<int8_t> outBuffer;
+	std::vector<uint8_t> outBuffer;
 	int curX;
 	int curY;
 
@@ -107,10 +107,10 @@ private:
 class PetsciiScreen : public Screen {
 public:
 	PetsciiScreen(Terminal &terminal) : Screen(terminal), curX(-1), curY(-1) {
-		outBuffer = { 19, 14 };
+		outBuffer = { 147, 19, 14 };
 	}
-	virtual int update(std::vector<int8_t> &dest);
-	virtual void put(int x, int y, const std::string &text);
+	virtual int update(std::vector<int8_t> &dest) override;
+	virtual void put(int x, int y, const std::string &text) override;
 
 private:
 
@@ -118,7 +118,7 @@ private:
 	void putChar(std::vector<int8_t> &dest, char c);
 	void smartGoto(std::vector<int8_t> &dest, int x, int y);
 	
-	std::vector<int8_t> outBuffer;
+	std::vector<uint8_t> outBuffer;
 	int curX;
 	int curY;
 };
@@ -139,6 +139,31 @@ public:
 	};
 
 	int getKey(int timeout = -1);
+
+private:
+	Terminal &terminal;
+	int pos;
+	std::vector<int8_t> temp;
+	std::queue<int8_t> buffer;
+
+};
+
+class PetsciiInput {
+public:
+	PetsciiInput(Terminal &terminal) : terminal(terminal), pos(0) {}		
+
+	enum {
+		KEY_ESCAPE = 0x1b,
+		KEY_BACKSPACE = 0x7f,
+		KEY_LEFT = 256,
+		KEY_UP,
+		KEY_RIGHT,
+		KEY_DOWN,
+
+		KEY_TIMEOUT = 0xffff
+	};
+
+	int getKey(int timeout = -1);	
 
 private:
 	Terminal &terminal;

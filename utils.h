@@ -1,7 +1,9 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <sys/stat.h>
 #include <stdint.h>
+#include <typeinfo.h>
 #include <cstdio>
 #include <vector>
 #include <string>
@@ -39,17 +41,30 @@ public:
 	}
 	void read(); // throw(file_not_found_exception, io_exception);
 	void write(const uint8_t *data, int size); // throw(io_exception);
+	void write(const std::string &text);
 	void close();
 
 	bool exists();
 	uint8_t *getPtr();
 	const std::string &getName() const { return fileName; }
-	int getSize() const { return size; }
+	int getSize() const { 
+		if(size < 0) {
+			struct stat ss;
+			if(stat(fileName.c_str(), &ss) != 0)
+				throw io_exception("Could not stat file");
+			size = ss.st_size;
+		}
+		return size;
+	}
 	std::vector<std::string> getLines();
+	void remove() {
+		if(std::remove(fileName.c_str()) != 0)
+			throw io_exception("Could not delete file");
+	}
 private:
 	std::string fileName;
 	std::vector<uint8_t> data;
-	uint size;
+	mutable int size;
 	bool loaded;
 	FILE *writeFP;
 	FILE *readFP;
@@ -80,7 +95,6 @@ void makeLower(std::string &s);
 
 // SLICE
 
-
 template <class InputIterator> class slice {
 public:
 	slice(InputIterator start, InputIterator stop) : start(start), stop(stop) {}
@@ -93,6 +107,7 @@ public:
 		return stop;
 		//return const_iterator(*this, end);
 	}
+
 private:
 	InputIterator start;
 	InputIterator stop;
@@ -102,6 +117,86 @@ private:
 template <class T> slice<typename T::const_iterator> make_slice(T &vec, int start, int len) {
 	return slice<typename T::const_iterator>(vec.begin() + start, vec.begin() + start + len);
 }
+
+// VAR
+
+class illegal_conversion_exception : public std::exception {
+public:
+	virtual const char *what() const throw() { return "Illegal conversion"; }
+};
+
+class Holder {
+public:
+	virtual const std::type_info& getType() = 0;
+	virtual void *getValue() = 0;
+};
+
+template <class T> class VHolder : public Holder {
+public:
+	VHolder(const T &t) : value(t) {}
+
+	virtual const std::type_info &getType() {
+		return typeid(value);
+	}
+
+	virtual void *getValue() {
+		return (void*)&value;
+	}
+
+private:
+	T value;
+};
+
+template <> class VHolder<const char *> : public Holder {
+public:
+	VHolder(const char *t) : value(t) {
+	}
+
+	virtual const std::type_info &getType() {
+		return typeid(value);
+	}
+
+	virtual void *getValue() {
+		return (void*)&value;
+	}
+
+private:
+	std::string value;
+};
+
+
+class var {
+public:
+	template <class T> var(T t) {
+		holder = new VHolder<T>(t);
+	}
+
+	operator int() {
+		if(holder->getType() == typeid(int)) {
+			return *((int*)holder->getValue());
+		} else if(holder->getType() == typeid(std::string) || holder->getType() == typeid(std::string)) {
+			const std::string &s = *((std::string*)holder->getValue());
+			char *endptr = nullptr;
+			int i = strtol(s.c_str(), &endptr, 0);
+			if(endptr == nullptr || *endptr == 0)
+				return i;
+		}
+		throw illegal_conversion_exception();
+	}
+
+	operator std::string() {
+		if(holder->getType() == typeid(std::string)) {
+			return *((std::string*)holder->getValue());
+		} else if(holder->getType() == typeid(int)) {
+			int i = *((int*)holder->getValue());
+			return std::to_string(i);
+		}
+		throw illegal_conversion_exception();	
+	}
+
+private:
+	Holder *holder;
+};
 
 
 // FORMAT
