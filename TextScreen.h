@@ -19,7 +19,7 @@ public:
 
 extern DummyTerminal dummyTerminal;
 
-class Screen {
+class Console {
 public:
 
 	enum Color {
@@ -41,21 +41,54 @@ public:
 		CYAN //6
 	};
 
+	enum {
+		KEY_ESCAPE = 0x1b,
+		KEY_BACKSPACE = 0x7f,
+		KEY_LEFT = 256,
+		KEY_UP,
+		KEY_RIGHT,
+		KEY_DOWN,
+		KEY_PAGEUP,
+		KEY_PAGEDOWN,
+		KEY_HOME,
+		KEY_END,
+		KEY_ENTER,
+		KEY_TAB,
 
-	Screen(Terminal &terminal = dummyTerminal) : terminal(terminal), fgColor(-1), bgColor(-1), width(80), height(50) {
+		KEY_F1,
+		KEY_F2,
+		KEY_F3,
+		KEY_F4,
+
+		KEY_TIMEOUT = 0xffff
+	};
+
+
+	Console(Terminal &terminal = dummyTerminal) : terminal(terminal), fgColor(-1), bgColor(-1), width(80), height(50) {
+		int w = terminal.getWidth();
+		int h = terminal.getHeight();
+		if(w > 0) width = w;
+		if(h > 0) height = h;
 		resize(width, height);
 	}
+
+	virtual int getKey(int timeout);
 
 	virtual void clear();
 	virtual void put(int x, int y, const std::string &text);
 	virtual void setFg(int fg) { fgColor = fg; }
 	virtual void setBg(int bg) { bgColor = bg; }
 	virtual void resize(int w, int h);
-
-	virtual int update(std::vector<int8_t>&) = 0;
+	virtual int update(std::vector<uint8_t>&);
 	virtual void flush();
+	virtual void putChar(std::vector<uint8_t> &dest, char c);
 
 protected:
+
+	virtual void impl_color(std::vector<uint8_t> &dest, int fg, int bg) = 0;
+	virtual void impl_gotoxy(std::vector<uint8_t> &dest, int x, int y) = 0;
+	virtual int impl_handlekey(std::queue<uint8_t> &buffer) = 0;
+	virtual void impl_clear(std::vector<uint8_t> &dest) = 0;
 
 	struct Tile {
 		Tile(int c = ' ', int fg = -1, int bg = -1) : fg(fg), bg(bg), c(c) {}
@@ -73,6 +106,9 @@ protected:
 
 	Terminal &terminal;
 
+	std::vector<uint8_t> outBuffer;
+	std::queue<uint8_t> inBuffer;
+
 	std::vector<Tile> grid;
 	std::vector<Tile> oldGrid;
 
@@ -82,119 +118,49 @@ protected:
 	int width;
 	int height;
 
-};
-
-class AnsiScreen : public Screen {
-public:
-	AnsiScreen(Terminal &terminal) : Screen(terminal), curX(-1), curY(-1) {
-		outBuffer = { '\x1b', '[', '2', 'J' };
-	};
-
-	virtual int update(std::vector<int8_t> &dest);
-
-private:
-
-	void setColor(std::vector<int8_t> &dest, int fg, int bg);
-	void putChar(std::vector<int8_t> &dest, char c);
-	void smartGoto(std::vector<int8_t> &dest, int x, int y);
-	
-	std::vector<uint8_t> outBuffer;
 	int curX;
 	int curY;
 
+	int pos;
 };
 
-class PetsciiScreen : public Screen {
+class AnsiConsole : public Console {
 public:
-	PetsciiScreen(Terminal &terminal) : Screen(terminal), curX(-1), curY(-1) {
+	AnsiConsole(Terminal &terminal) : Console(terminal) {
+		outBuffer = { '\x1b', '[', '2', 'J' };
+	};
+
+private:
+
+	virtual void impl_color(std::vector<uint8_t> &dest, int fg, int bg) override;
+	virtual void impl_gotoxy(std::vector<uint8_t> &dest, int x, int y) override;
+	virtual int impl_handlekey(std::queue<uint8_t> &buffer) override;
+	virtual void impl_clear(std::vector<uint8_t> &dest) override;
+
+};
+
+class PetsciiConsole : public Console {
+public:
+	PetsciiConsole(Terminal &terminal) : Console(terminal) {
 		outBuffer = { 147, 19, 14 };
 	}
-	virtual int update(std::vector<int8_t> &dest) override;
 	virtual void put(int x, int y, const std::string &text) override;
 
 private:
 
-	void setColor(std::vector<int8_t> &dest, int fg, int bg);
-	void putChar(std::vector<int8_t> &dest, char c);
-	void smartGoto(std::vector<int8_t> &dest, int x, int y);
-	
-	std::vector<uint8_t> outBuffer;
-	int curX;
-	int curY;
-};
-
-class AnsiInput {
-public:
-	AnsiInput(Terminal &terminal) : terminal(terminal), pos(0) {}		
-
-	enum {
-		KEY_ESCAPE = 0x1b,
-		KEY_BACKSPACE = 0x7f,
-		KEY_LEFT = 256,
-		KEY_UP,
-		KEY_RIGHT,
-		KEY_DOWN,
-		KEY_PAGEUP,
-		KEY_PAGEDOWN,
-
-
-		KEY_TIMEOUT = 0xffff
-	};
-
-	int getKey(int timeout = -1);
-
-private:
-	Terminal &terminal;
-	int pos;
-	std::vector<int8_t> temp;
-	std::queue<int8_t> buffer;
-
-};
-
-class PetsciiInput {
-public:
-	PetsciiInput(Terminal &terminal) : terminal(terminal), pos(0) {}		
-
-	enum {
-		KEY_ESCAPE = 0x1b,
-		KEY_BACKSPACE = 0x7f,
-		KEY_LEFT = 256,
-		KEY_UP,
-		KEY_RIGHT,
-		KEY_DOWN,
-		KEY_PAGEUP,
-		KEY_PAGEDOWN,
-
-		KEY_TIMEOUT = 0xffff
-	};
-
-	int getKey(int timeout = -1);	
-
-private:
-	Terminal &terminal;
-	int pos;
-	std::vector<int8_t> temp;
-	std::queue<int8_t> buffer;
-
+	virtual void impl_color(std::vector<uint8_t> &dest, int fg, int bg);
+	virtual void impl_gotoxy(std::vector<uint8_t> &dest, int x, int y);
+	virtual int impl_handlekey(std::queue<uint8_t> &buffer);
+	virtual void impl_clear(std::vector<uint8_t> &dest) override {};
 };
 
 class Editor {
 public:
-	Editor(std::shared_ptr<Screen> screen) : screen(screen) {}
-	virtual void put(std::vector<int8_t> &data) = 0;
+	Editor(std::shared_ptr<Console> screen) : screen(screen) {}
+	virtual void put(std::vector<uint8_t> &data) = 0;
 private:
-	std::shared_ptr<Screen> screen;
+	std::shared_ptr<Console> screen;
 };
 
-
-class LineEditor : public Editor {
-public:
-	void update() {
-		//auto &buffer = session.getBuffer();
-		//for(auto &b : buffer {
-		//}
-	}
-
-};
 
 #endif // TEXT_SCREEN_H

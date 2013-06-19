@@ -41,7 +41,7 @@ public:
 
 		void putChar(int c);
 
-		int write(const std::vector<int8_t> &data, int len = -1) override;
+		int write(const std::vector<uint8_t> &data, int len = -1) override;
 		void write(const std::string &text);
 		template <class... A> void write(const std::string &fmt, A... args) {
 			std::string s = utils::format(fmt, args...);
@@ -52,10 +52,10 @@ public:
 
 	//private
 
-		int read(std::vector<int8_t> &data, int len = -1) override;
+		int read(std::vector<uint8_t> &data, int len = -1) override;
 
 		NL::Socket *getSocket() const { return socket; }
-		void handleIndata(std::vector<int8_t> &buffer, int len);
+		void handleIndata(std::vector<uint8_t> &buffer, int len);
 
 		void startThread(Callback callback);
 
@@ -86,9 +86,9 @@ public:
 		};
 
 		State state;
-		int8_t option;
-		std::vector<int8_t> optionData;
-		std::vector<int8_t> inBuffer;
+		uint8_t option;
+		std::vector<uint8_t> optionData;
+		std::vector<uint8_t> inBuffer;
 		mutable std::mutex inMutex;
 		std::thread sessionThread;
 		bool localEcho;
@@ -105,22 +105,22 @@ public:
 	// TELNETSERVER
 
 	enum {
-		IAC = -1, //ff
-		DONT = -2, //fe
-		DO = -3, //fd
-		WONT = -4, //fc
-		WILL = -5,	 //fb
-		SB = -6,
-		GA = -7,
-		EL = -8,
-		EC = -9,
-		AYT = -10,
-		AO = -11,
-		IP = -12,
-		BRK = -13,
-		DM = -14,
-		NOP = -15,
-		SE = -16,
+		IAC = 0xff, //ff
+		DONT = 0xfe, //fe
+		DO = 0xfd, //fd
+		WONT = 0xfc, //fc
+		WILL = 0xfb,	 //fb
+		SB = 0xfa,
+		GA = 0xf9,
+		EL = 0xf8,
+		EC = 0xf7,
+		AYT = 0xf6,
+		AO = 0xf5,
+		IP = 0xf4,
+		BRK = 0xf3,
+		DM = 0xf2,
+		NOP = 0xf1,
+		SE = 0xf0,
 
 		LF = 10,
 		CR = 13
@@ -171,7 +171,7 @@ private:
 	NL::SocketGroup group;
 	std::thread mainThread;
 	Session::Callback connectCallback;
-	std::vector<int8_t> buffer;
+	std::vector<uint8_t> buffer;
 	std::vector<std::shared_ptr<Session>> sessions;
 	bool doQuit;
 };

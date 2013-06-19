@@ -217,6 +217,19 @@ void format_stream(stringstream &ss, string &fmt, const vector<int8_t> &bytes) {
 	}
 }
 
+void format_stream(stringstream &ss, string &fmt, const vector<uint8_t> &bytes) {
+	if(parse_format(ss, fmt)) {
+		bool first = true;
+		int w = ss.width();
+		for(auto b : bytes) {
+			if(!first) ss << " ";
+			ss.width(w);
+			ss << (b & 0xff);
+			first = false;
+		}
+	}
+}
+
 void format_stream(stringstream &ss, string &fmt, const slice<vector<int8_t>::const_iterator> &bytes) {
 	if(parse_format(ss, fmt)) {
 		bool first = true;
@@ -229,6 +242,20 @@ void format_stream(stringstream &ss, string &fmt, const slice<vector<int8_t>::co
 		}
 	}
 }
+
+void format_stream(stringstream &ss, string &fmt, const slice<vector<uint8_t>::const_iterator> &bytes) {
+	if(parse_format(ss, fmt)) {
+		bool first = true;
+		int w = ss.width();
+		for(auto b : bytes) {
+			if(!first) ss << " ";
+			ss.width(w);
+			ss << (b & 0xff);
+			first = false;
+		}
+	}
+}
+
 
 bool parse_format(stringstream &ss, string &fmt) {
 

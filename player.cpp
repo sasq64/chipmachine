@@ -158,19 +158,20 @@ int main(int argc, char* argv[]) {
 	int frameCount = 0;
 	string songName;
 
+	LOGI("Opening database");
 	SongDatabase db { "modland.db" };
 	db.generateIndex();
+	LOGI("Index generated");
 
 	TelnetServer telnet { 12345 };
 	telnet.setOnConnect([&](TelnetServer::Session &session) {
 
 		LOGD("New connection!");
 		session.echo(false);
-		AnsiScreen screen { session };
-		screen.put(0,0, "Chipmachine starting");
+		AnsiConsole screen { session };
 		screen.flush();
-
-		AnsiInput input { session };
+		//screen.put(0,0, "Chipmachine starting");
+		//screen.flush();
 
 		auto query = db.find();
 		int marker = 0;
@@ -179,7 +180,7 @@ int main(int argc, char* argv[]) {
 
 			try {
 				//char c = session.getChar();
-				int c = input.getKey(500);
+				int c = screen.getKey(500);
 				int h = session.getHeight();
 
 				{
@@ -190,17 +191,17 @@ int main(int argc, char* argv[]) {
 					screen.put(0, 0, format("%s - %s", songComposer, songTitle));
 					screen.put(0, 1, format("Song %02d/%02d - [%02d:%02d]", subSong+1, totalSongs, seconds/60, seconds%60));
 
-					if(c == AnsiInput::KEY_TIMEOUT) {
+					if(c == Console::KEY_TIMEOUT) {
 						screen.flush();
 						continue;
 					}
 
 					LOGD("char %d\n", c);
 					switch(c) {
-						case AnsiInput::KEY_BACKSPACE:
+						case Console::KEY_BACKSPACE:
 						query.removeLast();
 						break;
-					case AnsiInput::KEY_ESCAPE:
+					case Console::KEY_ESCAPE:
 						query.clear();
 						break;
 					case 13:
@@ -220,23 +221,23 @@ int main(int argc, char* argv[]) {
 						session.close();
 						doQuit = true;					
 						return;
-					case AnsiInput::KEY_DOWN:
+					case Console::KEY_DOWN:
 						marker++;
 						break;
-					case AnsiInput::KEY_PAGEUP:
+					case Console::KEY_PAGEUP:
 						marker -= (h-5);
 						break;
-					case AnsiInput::KEY_PAGEDOWN:
+					case Console::KEY_PAGEDOWN:
 						marker += (h-5);
 						break;
-					case AnsiInput::KEY_UP:
+					case Console::KEY_UP:
 						marker--;
 						break;
-					case AnsiInput::KEY_LEFT:
+					case Console::KEY_LEFT:
 						if(subSong > 0)
 							subSong--;
 						continue;
-					case AnsiInput::KEY_RIGHT:
+					case Console::KEY_RIGHT:
 						if(subSong < totalSongs-1)
 							subSong++;
 						continue;

@@ -124,7 +124,7 @@ void TelnetServer::removeSession(const Session &session) {
 
 // TELNETSESSION
 
-void TelnetServer::Session::handleIndata(vector<int8_t> &buffer, int len) {
+void TelnetServer::Session::handleIndata(vector<uint8_t> &buffer, int len) {
 
 	inMutex.lock();
 
@@ -132,9 +132,9 @@ void TelnetServer::Session::handleIndata(vector<int8_t> &buffer, int len) {
 
 
 	for(int i=0; i<len; i++) {
-		int8_t b = buffer[i];
+		uint8_t b = buffer[i];
 
-		if(b < 0 || b == 13 || state != NORMAL) {
+		if(b >= SE || b == 13 || state != NORMAL) {
 			switch(state) {
 			case NORMAL:
 				if(b == IAC)
@@ -153,7 +153,7 @@ void TelnetServer::Session::handleIndata(vector<int8_t> &buffer, int len) {
 				state = NORMAL;
 				break;
 			case FOUND_IAC:
-				if(b < 0 && b >= SE) {
+				if(b >= SE) {
 					option = b;
 					state = OPTION;
 					break;
@@ -203,11 +203,11 @@ void TelnetServer::Session::handleIndata(vector<int8_t> &buffer, int len) {
 void TelnetServer::Session::putChar(int c) {	
 	if(disconnected)
 		throw disconnect_excpetion{};
-	write({(char)c}, 1);
+	write({(uint8_t)c}, 1);
 }
 
 
-int TelnetServer::Session::write(const vector<int8_t> &data, int len) {
+int TelnetServer::Session::write(const vector<uint8_t> &data, int len) {
 	if(disconnected)
 		throw disconnect_excpetion{};
 	if(len == -1) len = data.size();
@@ -221,9 +221,9 @@ void TelnetServer::Session::write(const string &text) {
 	socket->send(text.c_str(), text.length());
 }
 
-//void TelnetServer::Session::handleIndata(vector<int8_t> &buffer);
+//void TelnetServer::Session::handleIndata(vector<uint8_t> &buffer);
 
-int TelnetServer::Session::read(std::vector<int8_t> &data, int len) {
+int TelnetServer::Session::read(std::vector<uint8_t> &data, int len) {
 	if(disconnected)
 		throw disconnect_excpetion{};
 	inMutex.lock();
@@ -303,7 +303,7 @@ void TelnetServer::Session::close() {
 
 void TelnetServer::Session::startThread(Session::Callback callback) {
 
-	write(vector<int8_t>({ IAC, DO, TERMINAL_TYPE }));
+	write(vector<uint8_t>({ IAC, DO, TERMINAL_TYPE }));
 
 	sessionThread = thread(callback, std::ref(*this));
 }
@@ -312,16 +312,16 @@ void TelnetServer::Session::setOption(int opt, int val) {
 	LOGD("Set option %d %d", opt, val);
 	if(opt == WILL) {
 		if(val == TERMINAL_TYPE) {
-			write(std::vector<int8_t>({ IAC, SB, TERMINAL_TYPE, 1, IAC, SE }));
+			write(std::vector<uint8_t>({ IAC, SB, TERMINAL_TYPE, 1, IAC, SE }));
 			if(!terminalOk) {
-				write(vector<int8_t>({ IAC, WILL, ECHO }));
-				write(vector<int8_t>({ IAC, WILL, SUPRESS_GO_AHEAD }));
-				write(vector<int8_t>({ IAC, DO, WINDOW_SIZE }));
+				write(vector<uint8_t>({ IAC, WILL, ECHO }));
+				write(vector<uint8_t>({ IAC, WILL, SUPRESS_GO_AHEAD }));
+				write(vector<uint8_t>({ IAC, DO, WINDOW_SIZE }));
 				terminalOk = true;
 			}
 		}
 		else if(val == WINDOW_SIZE) 
-			write(std::vector<int8_t>({ IAC, SB, WINDOW_SIZE, 1, IAC, SE }));
+			write(std::vector<uint8_t>({ IAC, SB, WINDOW_SIZE, 1, IAC, SE }));
 	}
 }
 

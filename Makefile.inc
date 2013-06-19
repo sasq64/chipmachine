@@ -60,7 +60,6 @@ else
 endif
 
 
-LD := $(PREFIX)g++$(GCC_VERSION)
 
 ifndef CC
 CC := $(PREFIX)gcc$(GCC_VERSION)
@@ -69,6 +68,8 @@ endif
 ifndef CXX
 CXX := $(PREFIX)g++$(GCC_VERSION)
 endif
+
+LD := $(CXX)
 
 AR := ar
 AS := $(PREFIX)as

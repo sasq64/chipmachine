@@ -131,7 +131,7 @@ TEST_CASE("db::index", "Generate index") {
 	db.generateIndex();
 
 	string search_string = "tune tel fre";
-	vector<int> results { 0, 0, 2931, 2681, 2681, 2681, 524, 10, 10, 1, 1, 1 };
+	vector<int> results { 155, 1, 2928, 2678, 2678, 1938, 524, 11, 11, 1, 1, 1 };
 	IncrementalQuery q = db.find();
 	int i = 0;
 	for(char c : search_string) {		
@@ -169,7 +169,7 @@ TEST_CASE("db::find", "Search Benchmark") {
 
 	vector<IncrementalQuery> iqs;
 
-	for(int i=0; i<250; i++) {
+	for(int i=0; i<25; i++) {
 		iqs.push_back(db.find());
 	}
 

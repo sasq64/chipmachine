@@ -3,7 +3,7 @@
 
 #include <sys/stat.h>
 #include <stdint.h>
-#include <typeinfo.h>
+#include <typeinfo>
 #include <cstdio>
 #include <vector>
 #include <string>
@@ -210,9 +210,9 @@ public:
 bool parse_format(std::stringstream &ss, std::string &fmt);
 
 void format_stream(std::stringstream &ss, std::string &fmt, const std::vector<int8_t> &bytes);
-//void format_stream(std::stringstream &ss, std::string &fmt, const std::vector<uint8_t> &bytes);
-//void format_stream(std::stringstream &ss, std::string &fmt, const slice<int8_t> &bytes);
+void format_stream(std::stringstream &ss, std::string &fmt, const std::vector<uint8_t> &bytes);
 void format_stream(std::stringstream &ss, std::string &fmt, const slice<std::vector<int8_t>::const_iterator> &bytes);
+void format_stream(std::stringstream &ss, std::string &fmt, const slice<std::vector<uint8_t>::const_iterator> &bytes);
 void format_stream(std::stringstream &ss, std::string &fmt, const Printable &printable);
 
 template <class T> void format_stream(std::stringstream &ss, std::string &fmt, const slice<T> &arg) {

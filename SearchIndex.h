@@ -5,7 +5,7 @@
 class SearchProvider {
 public:
 	// Search for a string, return indexes of hits
-	virtual int search(const std::string &word, std::vector<int> &result, unsigned int searchLimit);
+	virtual int search(const std::string &word, std::vector<int> &result, unsigned int searchLimit) = 0;
 	// Lookup internal string for index
 	virtual std::string getString(int index) = 0;
 	// Get full data, may require SQL query
