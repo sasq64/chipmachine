@@ -13,6 +13,7 @@ extern "C" {
 #include "sound.h"
 #include "sysfile.h"
 
+
 void psid_play(short *buf, int size);
 const char *psid_get_name();
 const char *psid_get_author();
@@ -24,6 +25,8 @@ int psid_tunes(int* default_tune);
 #include "VicePlugin.h"
 #include "../../ChipPlayer.h"
 #include "../../utils.h"
+
+#include <set>
 
 using namespace std;
 using namespace utils;
@@ -124,7 +127,7 @@ public:
 
 	virtual void seekTo(int song, int seconds) override {
 		if(song >= 0) {
-			psid_set_tune(song);
+			psid_set_tune(song+1);
     		c64_song_init();
 		}
 	}
@@ -145,8 +148,14 @@ VicePlugin::~VicePlugin() {
 	machine_shutdown();
 }
 
-bool VicePlugin::canHandle(const string &name) {
-	return endsWith(name, ".sid");
+static const set<string> ext { ".sid", ".psid", ".rsid" , ".2sid" };
+
+bool VicePlugin::canHandle(const std::string &name) {
+	for(string x : ext) {
+		if(utils::endsWith(name, x))
+			return true;
+	}
+	return false;
 }
 
 ChipPlayer *VicePlugin::fromFile(const std::string &fileName) {

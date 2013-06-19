@@ -455,6 +455,13 @@ int AnsiInput::getKey(int timeout) {
 						return KEY_UP;
 					case 0x42:
 						return KEY_DOWN;
+					case 0x35:
+						buffer.pop();
+						return KEY_PAGEUP;
+					case 0x36:
+						buffer.pop();
+						return KEY_PAGEDOWN;
+						
 					}
 				}
 

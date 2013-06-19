@@ -9,7 +9,7 @@ TARGET := test
 MODULES := ziplib netlink/src
 LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lz
 LDFLAGS := -Wl,-Map -Wl,mapfile -Lplugins/SexyPSFPlugin -Lplugins/VicePlugin -Lplugins/ModPlugin -Lplugins/GMEPlugin
-OBJS := catch.o TelnetServer.o TextScreen.o WebGetter.o URLPlayer.o Archive.o utils.o log.o SongDb.o sqlite3/sqlite3.o
+OBJS := catch.o TelnetServer.o TextScreen.o WebGetter.o URLPlayer.o Archive.o utils.o log.o SongDb.o SearchIndex.o sqlite3/sqlite3.o
 
 WIN_CFLAGS := $(WIN_CFLAGS) -static -Icurl/include -DWIN32
 WIN_LIBS := -lwinmm -lcurldll -lws2_32

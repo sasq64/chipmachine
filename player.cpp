@@ -115,8 +115,8 @@ int main(int argc, char* argv[]) {
 
 	volatile bool doQuit = false;
 
-	for(int i=1; i<argc; i++) {
-		if(argv[i][0] == '-') {
+	for(int i=1; i<argc; i++) 
+{		if(argv[i][0] == '-') {
 			if((strcmp(argv[i], "--start-daemon") == 0) || (strcmp(argv[i], "-d") == 0)) {
 				daemonize = true;
 			}
@@ -173,18 +173,22 @@ int main(int argc, char* argv[]) {
 		AnsiInput input { session };
 
 		auto query = db.find();
-
+		int marker = 0;
+		int start = 0;
 		while(true) {
 
 			try {
 				//char c = session.getChar();
 				int c = input.getKey(500);
+				int h = session.getHeight();
 
 				{
 					lock_guard<mutex>{playMutex};
+
+
 					int seconds = frameCount / 44100;
 					screen.put(0, 0, format("%s - %s", songComposer, songTitle));
-					screen.put(0, 1, format("Song %02d/%02d - [%02d:%02d]", subSong, totalSongs, seconds/60, seconds%60));
+					screen.put(0, 1, format("Song %02d/%02d - [%02d:%02d]", subSong+1, totalSongs, seconds/60, seconds%60));
 
 					if(c == AnsiInput::KEY_TIMEOUT) {
 						screen.flush();
@@ -199,10 +203,35 @@ int main(int argc, char* argv[]) {
 					case AnsiInput::KEY_ESCAPE:
 						query.clear();
 						break;
+					case 13:
+					case 10: {
+						string r = query.getFull(marker-start);
+						LOGD("RESULT: %s", r);
+						auto p  = split(r, "\t");
+						for(size_t i = 0; i<p[2].length(); i++) {
+							if(p[2][i] == '\\')
+								p[2][i] = '/';
+						}
+						LOGD("Pushing '%s' to queue", p[2]);
+						playQueue.push("ftp://modland.ziphoid.com/pub/modules/" + p[2]);
+						break;
+					}
 					case 0x11:
 						session.close();
-						doQuit = true;
+						doQuit = true;					
 						return;
+					case AnsiInput::KEY_DOWN:
+						marker++;
+						break;
+					case AnsiInput::KEY_PAGEUP:
+						marker -= (h-5);
+						break;
+					case AnsiInput::KEY_PAGEDOWN:
+						marker += (h-5);
+						break;
+					case AnsiInput::KEY_UP:
+						marker--;
+						break;
 					case AnsiInput::KEY_LEFT:
 						if(subSong > 0)
 							subSong--;
@@ -212,7 +241,7 @@ int main(int argc, char* argv[]) {
 							subSong++;
 						continue;
 					default:
-						if(c >= '0' && c <= '9') {
+						/*if(c >= '0' && c <= '9') {
 							string r = query.getFull(c - '0');
 							LOGD("RESULT: %s", r);
 							auto p  = split(r, "\t");
@@ -223,23 +252,32 @@ int main(int argc, char* argv[]) {
 							LOGD("Pushing '%s' to queue", p[2]);
 							playQueue.push("ftp://modland.ziphoid.com/pub/modules/" + p[2]);
 							//playQueue.push("http://swimsuitboys.com/droidsound/dl/C64Music/" + p[2]);
-						} else if(c >=0x20) {
+						} else */ if(c >=0x20) {
 							query.addLetter(c);
 						} 
 					}
 				}
 
+				if(marker < 0) marker = 0;
+
+				if(marker < start)
+					start = marker;
+				if(marker > start+h-4)
+					start = marker;
+
 				screen.clear();
 				screen.put(0,3,">                       ");
 				screen.put(1,3, query.getString());
 
+				screen.put(0, marker-start+4, "!");
+
 				int i = 0;
-				int h = session.getHeight();
+				
 				if(h < 0) h = 40;
-				const auto &results = query.getResult(0, h);
+				const auto &results = query.getResult(start, h);
 				for(const auto &r : results) {
 					auto p = split(r, "\t");
-					screen.put(1, i+4, format("[%02d] %s - %s", i, p[1], p[0]));
+					screen.put(1, i+4, format("%03d. %s - %s", start+i, p[1], p[0]));
 					i++;
 					if(i >= h-4)
 						break;
@@ -297,7 +335,7 @@ int main(int argc, char* argv[]) {
 						lcd_print(0,0, player->getMeta("title"));
 						lcd_print(0,1, player->getMeta("composer"));
 						lcd_print(0,2, player->getMeta("copyright"));
-						lcd_print(0,3, format("Song %02d/%02d - [00:00]", subSong, totalSongs));
+						lcd_print(0,3, format("Song %02d/%02d - [00:00]", subSong+1, totalSongs));
 					}
 				});
 				oldSeconds = 0;

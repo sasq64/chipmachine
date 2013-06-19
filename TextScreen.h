@@ -134,6 +134,9 @@ public:
 		KEY_UP,
 		KEY_RIGHT,
 		KEY_DOWN,
+		KEY_PAGEUP,
+		KEY_PAGEDOWN,
+
 
 		KEY_TIMEOUT = 0xffff
 	};
@@ -159,6 +162,8 @@ public:
 		KEY_UP,
 		KEY_RIGHT,
 		KEY_DOWN,
+		KEY_PAGEUP,
+		KEY_PAGEDOWN,
 
 		KEY_TIMEOUT = 0xffff
 	};

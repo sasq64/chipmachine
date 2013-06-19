@@ -9,7 +9,7 @@ namespace logging {
 
 using namespace std;
 
-static LogLevel defaultLevel = DEBUG;
+LogLevel defaultLevel = DEBUG;
 static FILE *logFile = nullptr;
 
 void log(const std::string &text) {

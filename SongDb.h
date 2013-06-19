@@ -3,6 +3,8 @@
 #include <vector>
 #include <unordered_map>
 
+#include "SearchIndex.h"
+
 class sqlite3;
 class SongDatabase;
 
@@ -21,60 +23,41 @@ public:
 	virtual const char *what() const throw() { return "Not found exception"; }
 };
 
-//#define THROW(e, args...) throw e(args, __FILE__, __LINE__)
 
-class IncrementalQuery {
-public:
-
-	IncrementalQuery(sqlite3 *db, SongDatabase *sdb) : db(db), sdb(sdb), searchLimit(10000), lastStart(-1), lastSize(-1) {}
-
-	void addLetter(char c);
-	void removeLast();
-	void clear();
-	const std::string getString();
-	const std::vector<std::string> &getResult(int start, int size);
-	int numHits() const;
-	std::string getFull(int pos);
-private:
-	void search();
-
-	sqlite3 *db;
-	SongDatabase *sdb;
-	unsigned int searchLimit;
-	std::vector<char> query;
-	std::vector<std::string> oldParts;
-	std::vector<int> firstResult;
-	std::vector<int> finalResult;
-	std::vector<std::string> textResult;
-	int lastStart;
-	int lastSize;
-};
-
-class SongDatabase {
+class SongDatabase : public SearchProvider {
 public:
 
 	SongDatabase(const std::string &name);
 	~SongDatabase();
 	void generateIndex();
 	IncrementalQuery find() {
-		return IncrementalQuery(db, this);
+		return IncrementalQuery(this);
 	}
 
-	void search(const char *query);
-	void search(const std::string &query, std::vector<int> &result, unsigned int searchLimit);
+	int search(const std::string &query, std::vector<int> &result, unsigned int searchLimit);
 
-	const std::string &getTitle(int index) { return titles[index].first; }
-	const std::string &getComposer(int index) { return composers[titles[index].second].first; }
+	std::string getString(int index) {
+		return utils::format("%s\t%s\t%d", getTitle(index), getComposer(index), index);
+	}
+
+	std::string getTitle(int index) { 
+		return titleIndex.getString(index);
+	}
+	std::string getComposer(int index) {
+		return composerIndex.getString(titleToComposer[index]);
+	}
+
+	void addSubStrings(const std::string &words, std::unordered_map<uint16_t, std::vector<int>> &stringMap, int index);
+
+	virtual std::string getFullString(int index) override;
 
 private:
 
-	void addSubStrings(const char *words, std::unordered_map<uint16_t, std::vector<int>> &stringMap, int index);
 	sqlite3 *db;
 
-	std::unordered_map<uint16_t, std::vector<int>> titleMap;
-	std::unordered_map<uint16_t, std::vector<int>> composerMap;
-	std::vector<std::pair<std::string, int>> titles;
-	std::vector<std::pair<std::string, int>> composers;
-
+	SearchIndex composerIndex;
+	SearchIndex titleIndex;
+	std::vector<int> titleToComposer;
+	std::vector<int> composerToTitle;
 };
 

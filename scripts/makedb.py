@@ -84,7 +84,7 @@ def make_modland(name):
 	dbc = db.cursor()
 
 	try :
-		dbc.execute('create table songs (_id INTEGER PRIMARY KEY, path TEXT, title TEXT, composer TEXT, metadata TEXT)')
+		dbc.execute('create table songs2 (_id INTEGER PRIMARY KEY, path TEXT, title TEXT, composer TEXT, metadata TEXT)')
 #		dbc.execute('create index nameidx on songs (name)')
 #		dbc.execute('create table songs (_id INTEGER PRIMARY KEY, name TEXT, author INTEGER, game INTEGER, type INTEGER)')
 #		dbc.execute('create table types (_id INTEGER PRIMARY KEY, tname TEXT)')
@@ -119,13 +119,17 @@ def make_modland(name):
 
 		type = parts[0]
 		author = parts[1]
-		game = 'NONE'
+		#game = 'NONE'
+
+		if author == "- unknown" :
+			author = "<?>" ;
 
 		if len(parts) == 3 :
-			name = parts[2]
-		elif len(parts) == 4 :
-			game = parts[2]
-			name = parts[3]
+			#name = parts[2]
+			name = os.path.splitext(parts[2])[0]
+		elif len(parts) == 4 :			
+			#game = parts[2]
+			name = parts[2] + " (" + os.path.splitext(parts[3])[0] + ")";
 
 		#elif len(parts) == 5 :
 		#	author = author + ' ' + parts[2]
@@ -136,7 +140,6 @@ def make_modland(name):
 			raise Exception('Unknown format')
 
 
-		name = os.path.splitext(name)[0]
 		
 		try:
 #			if types.has_key(type) :
@@ -162,13 +165,18 @@ def make_modland(name):
 #			
 #			dbc.execute('insert into songs values (null, ?,?,?,?)', (name, aid, gid, tid))
 			#print name, author, game, type
-			dbc.execute('insert into songs values (null, ?,?,?,?)', (data, name, author, "")) #"FORMAT='" + type + "'"))
+			dbc.execute('insert into songs2 values (null, ?,?,?,?)', (data, name, author, "")) #"FORMAT='" + type + "'"))
 		except :
-			print "Could not insert ",name, type, game, author
+			print "Could not insert ",data, name, author
 			raise
 	
 	db.commit();
-		
+	dbc.execute('PRAGMA temp_store = MEMORY;');
+	dbc.execute('create table songs (_id INTEGER PRIMARY KEY, path TEXT, title TEXT, composer TEXT, metadata TEXT)')
+	dbc.execute('insert into songs (path,title,composer,metadata) select path,title,composer,metadata from songs2 order by composer');
+	dbc.execute('drop table songs2');
+
+	db.commit();
 	
 if __name__ == "__main__":
 	main(sys.argv[1:])
