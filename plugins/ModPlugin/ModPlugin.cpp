@@ -48,7 +48,7 @@ private:
 	//private unordered_map<string, string>;
 };
 
-static const set<string> ext { ".mod", ".xm", ".s3m" , ".okt", ".it" };
+static const set<string> ext { ".mod", ".xm", ".s3m" , ".okt", ".it", ".ft" };
 
 bool ModPlugin::canHandle(const std::string &name) {
 	for(string x : ext) {

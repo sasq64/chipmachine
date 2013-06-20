@@ -93,6 +93,12 @@ void makedirs(const std::string &name);
 bool endsWith(const std::string &name, const std::string &ext);
 void makeLower(std::string &s);
 
+std::string path_basename(const std::string &name);
+std::string path_directory(const std::string &name);
+std::string path_filename(const std::string &name);
+std::string path_extention(const std::string &name);
+
+
 // SLICE
 
 template <class InputIterator> class slice {

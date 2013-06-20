@@ -166,12 +166,22 @@ int main(int argc, char* argv[]) {
 	TelnetServer telnet { 12345 };
 	telnet.setOnConnect([&](TelnetServer::Session &session) {
 
-		LOGD("New connection!");
 		session.echo(false);
-		AnsiConsole screen { session };
-		screen.flush();
-		//screen.put(0,0, "Chipmachine starting");
-		//screen.flush();
+		
+		unique_ptr<Console> console;
+		string termType = session.getTermType();
+		LOGD("New connection, TERMTYPE '%s'", termType);
+		if(termType.length() > 0) {
+			console = unique_ptr<Console>(new AnsiConsole { session });
+		} else {
+			console = unique_ptr<Console>(new PetsciiConsole { session });
+		}
+		console->flush();
+		//console->put(0,0, "Chipmachine starting");
+		//console->flush();
+		//console->clear();
+		console->setFg(Console::GREEN);
+		console->setBg(Console::BLACK);
 
 		auto query = db.find();
 		int marker = 0;
@@ -180,23 +190,37 @@ int main(int argc, char* argv[]) {
 
 			try {
 				//char c = session.getChar();
-				int c = screen.getKey(500);
-				int h = session.getHeight();
-
+				int c = console->getKey(500);
+				int h = console->getHeight();
 				{
 					lock_guard<mutex>{playMutex};
 
 
 					int seconds = frameCount / 44100;
-					screen.put(0, 0, format("%s - %s", songComposer, songTitle));
-					screen.put(0, 1, format("Song %02d/%02d - [%02d:%02d]", subSong+1, totalSongs, seconds/60, seconds%60));
+
+					console->setBg(Console::PINK);
+
+					console->fill(0,0, console->getWidth(), 2);
+
+					if(songTitle.length())
+						console->put(0, 0, format("%s - %s", songComposer, songTitle));
+					else
+						console->put(0, 0, "<Nothing playing>");
+					console->put(0, 1, format("Song %02d/%02d - [%02d:%02d]", subSong+1, totalSongs, seconds/60, seconds%60));
+					console->setBg(Console::BLACK);
+					console->setFg(Console::WHITE);
+					console->put(0,2,">                       ");
+					console->setFg(Console::YELLOW);
+					console->put(1,2, query.getString());
+					console->moveCursor(1 + query.getString().length(), 2);
 
 					if(c == Console::KEY_TIMEOUT) {
-						screen.flush();
+						console->flush();
 						continue;
 					}
 
-					LOGD("char %d\n", c);
+					LOGD("char %d\n", (int)c);
+
 					switch(c) {
 						case Console::KEY_BACKSPACE:
 						query.removeLast();
@@ -204,6 +228,7 @@ int main(int argc, char* argv[]) {
 					case Console::KEY_ESCAPE:
 						query.clear();
 						break;
+					case Console::KEY_ENTER:
 					case 13:
 					case 10: {
 						string r = query.getFull(marker-start);
@@ -242,18 +267,7 @@ int main(int argc, char* argv[]) {
 							subSong++;
 						continue;
 					default:
-						/*if(c >= '0' && c <= '9') {
-							string r = query.getFull(c - '0');
-							LOGD("RESULT: %s", r);
-							auto p  = split(r, "\t");
-							for(int i = 0; i<p[2].length(); i++) {
-								if(p[2][i] == '\\')
-									p[2][i] = '/';
-							}
-							LOGD("Pushing '%s' to queue", p[2]);
-							playQueue.push("ftp://modland.ziphoid.com/pub/modules/" + p[2]);
-							//playQueue.push("http://swimsuitboys.com/droidsound/dl/C64Music/" + p[2]);
-						} else */ if(c >=0x20) {
+						if(isalnum(c) || c == ' ') {
 							query.addLetter(c);
 						} 
 					}
@@ -265,25 +279,29 @@ int main(int argc, char* argv[]) {
 					start = marker;
 				if(marker > start+h-4)
 					start = marker;
+				
+				console->setFg(Console::GREEN);
 
-				screen.clear();
-				screen.put(0,3,">                       ");
-				screen.put(1,3, query.getString());
+				console->fill(0, 3, console->getWidth(), console->getHeight()-3);
 
-				screen.put(0, marker-start+4, "!");
-
+				console->setFg(Console::LIGHT_BLUE);
+				console->put(0, marker-start+3, "!");
+				console->setFg(Console::GREEN);
 				int i = 0;
 				
 				if(h < 0) h = 40;
 				const auto &results = query.getResult(start, h);
 				for(const auto &r : results) {
 					auto p = split(r, "\t");
-					screen.put(1, i+4, format("%03d. %s - %s", start+i, p[1], p[0]));
+					console->put(1, i+3, format("%03d. %s - %s", start+i, p[1], p[0]));
 					i++;
-					if(i >= h-4)
+					if(i >= h-3)
 						break;
 				}
-				screen.flush();
+
+				//console->moveCursor(query.getString().length()+1,3);
+
+				console->flush();
 			} catch (TelnetServer::disconnect_excpetion &e) {
 				LOGD(e.what());
 				return;
@@ -323,6 +341,9 @@ int main(int argc, char* argv[]) {
 				LOGD("Found '%s' in queue", songName);
 				player = psys.play(songName);
 
+				songTitle = "";
+				songComposer = "";
+
 				player->onMeta([&](const string &meta, ChipPlayer *player) {
 					if(meta == "metaend") {
 						LOGD("Now playing: %s - %s", player->getMeta("composer"), player->getMeta("title"));
@@ -348,7 +369,6 @@ int main(int argc, char* argv[]) {
 				currentSong = subSong;
 				frameCount = 0;
 			}
-
 		}
 
 		if(player) {

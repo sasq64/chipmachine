@@ -31,9 +31,9 @@ public:
 
 		typedef std::function<void(Session&)> Callback;
 
-		Session(NL::Socket *socket) : socket(socket), state(NORMAL), localEcho(true), disconnected(false), winWidth(-1), winHeight(-1), terminalOk(false) {}
+		Session(NL::Socket *socket) : socket(socket), state(NORMAL), localEcho(true), disconnected(false), winWidth(-1), winHeight(-1), termExplored(false) {}
 		Session(const Session &s) = delete;
-		Session(const Session &&s) : socket(s.socket), state(NORMAL), localEcho(true), disconnected(false), winWidth(-1), winHeight(-1), terminalOk(false) {}
+		Session(const Session &&s) : socket(s.socket), state(NORMAL), localEcho(true), disconnected(false), winWidth(-1), winHeight(-1), termExplored(false) {}
 
 		char getChar() throw(disconnect_excpetion);
 		bool hasChar() const;
@@ -69,9 +69,9 @@ public:
 			localEcho = on;
 		}
 
-		virtual int getWidth() const override { return winWidth; }
-		virtual int getHeight() const override { return winHeight; }
-		virtual std::string getTermType() const override { return terminalType; }
+		virtual int getWidth() const override;
+		virtual int getHeight() const override;
+		virtual std::string getTermType() const override;
 
 	private:
 		NL::Socket *socket;
@@ -96,7 +96,7 @@ public:
 		std::string terminalType;
 		int winWidth;
 		int winHeight;
-		bool terminalOk;
+		mutable bool termExplored;
 
 		void setOption(int opt, int val);
 		void handleOptionData();

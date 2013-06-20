@@ -293,6 +293,30 @@ string TelnetServer::Session::getLine() throw(disconnect_excpetion) {
 
 }
 
+int TelnetServer::Session::getWidth() const  { 
+	return winWidth;
+}
+int TelnetServer::Session::getHeight() const  {
+	return winHeight;
+}
+std::string TelnetServer::Session::getTermType() const  { 
+	chrono::milliseconds ms { 100 };
+	int delay = 8;
+	while(true) {
+		if(disconnected)
+			throw disconnect_excpetion{};
+		if(termExplored)
+			return terminalType;
+		inMutex.lock();
+		inMutex.unlock();
+		this_thread::sleep_for(ms);
+		if(delay-- == 0) {
+			termExplored = true;
+		}
+	}
+}
+
+
 void TelnetServer::Session::close() {
 	//closeMe = true;
 	disconnected = true;
@@ -304,7 +328,6 @@ void TelnetServer::Session::close() {
 void TelnetServer::Session::startThread(Session::Callback callback) {
 
 	write(vector<uint8_t>({ IAC, DO, TERMINAL_TYPE }));
-
 	sessionThread = thread(callback, std::ref(*this));
 }
 
@@ -313,11 +336,11 @@ void TelnetServer::Session::setOption(int opt, int val) {
 	if(opt == WILL) {
 		if(val == TERMINAL_TYPE) {
 			write(std::vector<uint8_t>({ IAC, SB, TERMINAL_TYPE, 1, IAC, SE }));
-			if(!terminalOk) {
+			if(!termExplored) {
 				write(vector<uint8_t>({ IAC, WILL, ECHO }));
 				write(vector<uint8_t>({ IAC, WILL, SUPRESS_GO_AHEAD }));
 				write(vector<uint8_t>({ IAC, DO, WINDOW_SIZE }));
-				terminalOk = true;
+				termExplored = true;
 			}
 		}
 		else if(val == WINDOW_SIZE) 

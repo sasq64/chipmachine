@@ -20,7 +20,7 @@ public:
 extern DummyTerminal dummyTerminal;
 
 class Console {
-public:
+public:	
 
 	enum Color {
 		WHITE, //15
@@ -64,12 +64,12 @@ public:
 	};
 
 
-	Console(Terminal &terminal = dummyTerminal) : terminal(terminal), fgColor(-1), bgColor(-1), width(80), height(50) {
-		int w = terminal.getWidth();
+	Console(Terminal &terminal = dummyTerminal) : terminal(terminal), fgColor(-1), bgColor(-1), width(40), height(24) {
+		/*int w = terminal.getWidth();
 		int h = terminal.getHeight();
 		if(w > 0) width = w;
 		if(h > 0) height = h;
-		resize(width, height);
+		resize(width, height);*/
 	}
 
 	virtual int getKey(int timeout);
@@ -79,16 +79,22 @@ public:
 	virtual void setFg(int fg) { fgColor = fg; }
 	virtual void setBg(int bg) { bgColor = bg; }
 	virtual void resize(int w, int h);
-	virtual int update(std::vector<uint8_t>&);
 	virtual void flush();
-	virtual void putChar(std::vector<uint8_t> &dest, char c);
+	virtual void putChar(char c);
+	virtual void moveCursor(int x, int y);
+	virtual void fill(int x, int y, int width, int height);
+
+	int getWidth() { return width; }
+	int getHeight() { return height; }
 
 protected:
 
-	virtual void impl_color(std::vector<uint8_t> &dest, int fg, int bg) = 0;
-	virtual void impl_gotoxy(std::vector<uint8_t> &dest, int x, int y) = 0;
-	virtual int impl_handlekey(std::queue<uint8_t> &buffer) = 0;
-	virtual void impl_clear(std::vector<uint8_t> &dest) = 0;
+	// Functions that needs to be implemented by real console implementations
+
+	virtual void impl_color(int fg, int bg) = 0;
+	virtual void impl_gotoxy(int x, int y) = 0;
+	virtual int impl_handlekey() = 0;
+	virtual void impl_clear() = 0;
 
 	struct Tile {
 		Tile(int c = ' ', int fg = -1, int bg = -1) : fg(fg), bg(bg), c(c) {}
@@ -106,10 +112,16 @@ protected:
 
 	Terminal &terminal;
 
+	// Outgoing raw data to the terminal
 	std::vector<uint8_t> outBuffer;
+
+	// Incoming raw data from the terminal
 	std::queue<uint8_t> inBuffer;
 
+	// The contents of the screen after next flush.
 	std::vector<Tile> grid;
+	// The contents on the screen now. The difference is used to
+	// send characters to update the console.
 	std::vector<Tile> oldGrid;
 
 	int fgColor;
@@ -118,40 +130,40 @@ protected:
 	int width;
 	int height;
 
+	// The current REAL cursor position on the console
 	int curX;
 	int curY;
 
-	int pos;
 };
 
 class AnsiConsole : public Console {
 public:
 	AnsiConsole(Terminal &terminal) : Console(terminal) {
-		outBuffer = { '\x1b', '[', '2', 'J' };
+		resize(width, height);
 	};
 
-private:
+protected:
 
-	virtual void impl_color(std::vector<uint8_t> &dest, int fg, int bg) override;
-	virtual void impl_gotoxy(std::vector<uint8_t> &dest, int x, int y) override;
-	virtual int impl_handlekey(std::queue<uint8_t> &buffer) override;
-	virtual void impl_clear(std::vector<uint8_t> &dest) override;
+	virtual void impl_color(int fg, int bg) override;
+	virtual void impl_gotoxy(int x, int y) override;
+	virtual int impl_handlekey() override;
+	virtual void impl_clear() override;
 
 };
 
 class PetsciiConsole : public Console {
 public:
 	PetsciiConsole(Terminal &terminal) : Console(terminal) {
-		outBuffer = { 147, 19, 14 };
+		resize(width, height);
 	}
 	virtual void put(int x, int y, const std::string &text) override;
 
-private:
+protected:
 
-	virtual void impl_color(std::vector<uint8_t> &dest, int fg, int bg);
-	virtual void impl_gotoxy(std::vector<uint8_t> &dest, int x, int y);
-	virtual int impl_handlekey(std::queue<uint8_t> &buffer);
-	virtual void impl_clear(std::vector<uint8_t> &dest) override {};
+	virtual void impl_color(int fg, int bg) override;
+	virtual void impl_gotoxy(int x, int y) override;
+	virtual int impl_handlekey() override;
+	virtual void impl_clear() override;
 };
 
 class Editor {

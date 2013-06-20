@@ -35,20 +35,43 @@ static int petsciiTable[] = {
 	0xF135,0xF136,0x2518,0xF137,0x2592
 };
 
+static vector<uint8_t> petsciiColors = { 5, 28, 30, 31, 129, 144, 149, 150, 151, 152, 153, 154, 155, 156, 158, 159 };
+
 DummyTerminal dummyTerminal;
 
 void Console::clear() {
 	for(auto &t : grid) {
 		t.c = 0x20;
-		t.fg = t.bg = -1;
+		t.fg = t.bg = BLACK;
 	}
-	//impl_clear();
+	for(auto &t : oldGrid) {
+		t.c = 0x20;
+		t.fg = t.bg = BLACK;
+	}
+	impl_clear();
+	curX = curY = 0;
+}
+
+void Console::fill(int x, int y, int w, int h) {
+	for(int yy = y; yy < y + h; yy++)
+		for(int xx = x; xx < x + w; xx++) {
+			Tile &t = grid[xx + width * yy];
+			if(fgColor >= 0) t.fg = fgColor;
+			if(bgColor >= 0) t.bg = bgColor;
+			t.c = 0x20;
+		}
 }
 
 void Console::put(int x, int y, const string &text) {
+	if(y >= height)
+		return;
 	for(unsigned int i=0; i<text.length(); i++) {
+
+		if(x+i >= width)
+			return;
+
 		Tile &t = grid[(x+i) + y * width];
-		//LOGD("put to %d %d",x+i,y);			
+		//LOGD("put to %d %d",x+i,y);	
 		t.c = text[i];
 		if(fgColor >= 0)
 			t.fg = fgColor;
@@ -63,18 +86,10 @@ void Console::resize(int w, int h) {
 	LOGD("Resize");
 	grid.resize(w*h);
 	oldGrid.resize(w*h);
-
 	clear();
 }
 
 void Console::flush() {
-	vector<uint8_t> temp;
-	int rc = update(temp);
-	if(rc > 0)
-		terminal.write(temp, rc);
-}
-
-int Console::update(std::vector<uint8_t> &dest) {
 
 	int w = terminal.getWidth();
 	int h = terminal.getHeight();
@@ -82,12 +97,12 @@ int Console::update(std::vector<uint8_t> &dest) {
 		resize(w, h);
 	}
 
-	int orgSize = dest.size();
+	int saveX = curX;
+	int saveY = curY;
 
-	if(outBuffer.size() > 0) {
-		dest.insert(dest.end(), outBuffer.begin(), outBuffer.end());
-		outBuffer.resize(0);
-	}
+	int curFg = fgColor;
+	int curBg = bgColor;
+
 	//LOGD("update");
 	for(int y = 0; y<height; y++) {
 		for(int x = 0; x<width; x++) {
@@ -95,28 +110,56 @@ int Console::update(std::vector<uint8_t> &dest) {
 			Tile &t1 = grid[x+y*width];
 			if(t0 != t1) {
 				//LOGD("diff in %d %d",x,y);			
-				if(curY != y or curX != x)
-					impl_gotoxy(dest, x, y);
-				if(t0.fg != t1.fg || t0.bg != t1.bg)
-					impl_color(dest, t1.fg, t1.bg);
-				putChar(dest, t1.c);
+				if(curY != y or curX != x) {
+					impl_gotoxy(x, y);
+					curX = x;
+					curY = y;
+				}
+				if(t0.fg != t1.fg || t1.fg != curFg || t0.bg != t1.bg || t1.bg != curBg) {
+					impl_color(t1.fg, t1.bg);
+					curFg = t1.fg;
+					curBg = t1.bg;
+				}
+				putChar(t1.c);
 				t0 = t1;
 			}
 		}
 	}
 
-	return dest.size() - orgSize;
+	if(curFg != fgColor || curBg != bgColor) {
+		impl_color(fgColor, bgColor);
+	}
+
+	impl_gotoxy(saveX, saveY);
+	curX = saveX;
+	curY = saveY;
+
+	if(outBuffer.size() > 0) {
+		LOGD("OUTBYTES: [%02x]", outBuffer);
+		terminal.write(outBuffer, outBuffer.size());
+		outBuffer.resize(0);
+	}
 
 }
 
-void Console::putChar(vector<uint8_t> &dest, char c) {
+void Console::putChar(char c) {
 	//LOGD("putchar %02x", c);
-	dest.push_back(c);
+	outBuffer.push_back(c);
 	curX++;
 	if(curX > width) {
 		curX -= width;
 		curY++;
 	}
+}
+
+void Console::moveCursor(int x, int y) {
+	impl_gotoxy(x, y);
+	if(outBuffer.size() > 0) {
+		terminal.write(outBuffer, outBuffer.size());
+		outBuffer.resize(0);
+	}
+	curX = x;
+	curY = y;
 }
 
 int Console::getKey(int timeout) {
@@ -137,7 +180,7 @@ int Console::getKey(int timeout) {
 		}
 		if(inBuffer.size() > 0) {
 			LOGD("Size %d", inBuffer.size());
-			return impl_handlekey(inBuffer);
+			return impl_handlekey();
 		}
 
 		std::this_thread::sleep_for(ms);
@@ -152,37 +195,35 @@ int Console::getKey(int timeout) {
 
 // ANSIS
 
-void AnsiConsole::impl_color(vector<uint8_t> &dest, int fg, int bg) {
+void AnsiConsole::impl_color(int fg, int bg) {
 	const string &s = utils::format("\x1b[%dm", fg + 30);
-	dest.insert(dest.end(), s.begin(), s.end());			
+	outBuffer.insert(outBuffer.end(), s.begin(), s.end());			
 };
 
-void AnsiConsole::impl_clear(vector<uint8_t> &dest) {
+void AnsiConsole::impl_clear() {
 	for(auto x : vector<uint8_t> { '\x1b', '[', '2', 'J' })
-		dest.push_back(x);
+		outBuffer.push_back(x);
 }
 
 
-void AnsiConsole::impl_gotoxy(vector<uint8_t> &dest, int x, int y) {
+void AnsiConsole::impl_gotoxy(int x, int y) {
 	// Not so smart for now
 	const string &s = utils::format("\x1b[%d;%dH", y+1, x+1);
-	dest.insert(dest.end(), s.begin(), s.end());			
-	curX = x;
-	curY = y;
+	outBuffer.insert(outBuffer.end(), s.begin(), s.end());
 }
 
-int AnsiConsole::impl_handlekey(queue<uint8_t> &buffer) {
-	uint8_t c = buffer.front();
-	buffer.pop();
+int AnsiConsole::impl_handlekey() {
+	uint8_t c = inBuffer.front();
+	inBuffer.pop();
 	if(c != 0x1b) {	
 		LOGD("Normal key %d", (int)c);	
 		return c;
 	} else {
-		if(buffer.size() > 0) {
-			uint8_t c2 = buffer.front();
-			buffer.pop();
-			uint8_t c3 = buffer.front();
-			buffer.pop();
+		if(inBuffer.size() > 0) {
+			uint8_t c2 = inBuffer.front();
+			inBuffer.pop();
+			uint8_t c3 = inBuffer.front();
+			inBuffer.pop();
 
 			if(c2 == 0x5b || c2 == 0x4f) {
 				switch(c3) {
@@ -195,10 +236,10 @@ int AnsiConsole::impl_handlekey(queue<uint8_t> &buffer) {
 				case 0x42:
 					return KEY_DOWN;
 				case 0x35:
-					buffer.pop();
+					inBuffer.pop();
 					return KEY_PAGEUP;
 				case 0x36:
-					buffer.pop();
+					inBuffer.pop();
 					return KEY_PAGEDOWN;
 					
 				}
@@ -212,7 +253,14 @@ int AnsiConsole::impl_handlekey(queue<uint8_t> &buffer) {
 // PETSCII
 
 void PetsciiConsole::put(int x, int y, const std::string &text) {
+	if(y >= height)
+		return;
+
 	for(unsigned int i=0; i<text.length(); i++) {
+
+		if(x+i >= width)
+			return;
+
 		Tile &t = grid[(x+i) + y * width];
 		t.c = text[i];
 
@@ -227,39 +275,62 @@ void PetsciiConsole::put(int x, int y, const std::string &text) {
 	}
 }
 
-void PetsciiConsole::impl_color(vector<uint8_t> &dest, int fg, int bg) {
-
+void PetsciiConsole::impl_color(int fg, int bg) {
+	if(bg == -1)
+		exit(0);
+	if(bg != BLACK) {
+		outBuffer.push_back(18);
+		outBuffer.push_back(petsciiColors[bg]);
+	} else {
+		outBuffer.push_back(146);
+		outBuffer.push_back(petsciiColors[fg]);
+	}
 }
-void PetsciiConsole::impl_gotoxy(vector<uint8_t> &dest, int x, int y) {
+
+void PetsciiConsole::impl_clear() {
+	outBuffer.push_back(147);
+}
+
+void PetsciiConsole::impl_gotoxy(int x, int y) {
 
 	while(y > curY) {
-		dest.push_back(17);
+		outBuffer.push_back(17);
 		curY++;
 	}
 	while(y < curY) {
-		dest.push_back(145);
+		outBuffer.push_back(145);
 		curY--;
 	}
 	while(x > curX) {
-		dest.push_back(29);
+		outBuffer.push_back(29);
 		curX++;
 	}
 	while(x < curX) {
-		dest.push_back(157);
+		outBuffer.push_back(157);
 		curX--;
 	}
-
-	curX = x;
-	curY = y;
 }
 
-int PetsciiConsole::impl_handlekey(queue<uint8_t> &buffer) {
-	int k = buffer.front();
-	if(k >= 0x20)
+int PetsciiConsole::impl_handlekey() {
+	int k = inBuffer.front();
+	inBuffer.pop();
+	switch(k) {
+	case 13 :
+		return KEY_ENTER;
+	case 20 :
+		return KEY_BACKSPACE;
+	case 17 :
+		return KEY_DOWN;
+	case 145 :
+		return KEY_UP;
+	}
+	if(k >= 0x20) 
 		k = petsciiTable[k-0x20];
-	buffer.pop();
 	return k;
 }
+
+
+
 
 #ifdef UNIT_TEST
 
