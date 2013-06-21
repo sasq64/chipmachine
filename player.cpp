@@ -183,6 +183,11 @@ int main(int argc, char* argv[]) {
 		console->setFg(Console::GREEN);
 		console->setBg(Console::BLACK);
 
+		console->setFg(Console::WHITE);
+		console->put(0,2,">");
+		console->setFg(Console::YELLOW);
+		console->moveCursor(1, 2);
+
 		auto query = db.find();
 		int marker = 0;
 		int start = 0;
@@ -208,9 +213,8 @@ int main(int argc, char* argv[]) {
 						console->put(0, 0, "<Nothing playing>");
 					console->put(0, 1, format("Song %02d/%02d - [%02d:%02d]", subSong+1, totalSongs, seconds/60, seconds%60));
 					console->setBg(Console::BLACK);
-					console->setFg(Console::WHITE);
-					console->put(0,2,">");
-
+					console->setFg(Console::YELLOW);
+					console->flush();
 					if(c == Console::KEY_TIMEOUT) {
 						console->flush();
 						continue;
@@ -270,9 +274,9 @@ int main(int argc, char* argv[]) {
 					}
 				}
 
-				if(marker < 0) marker = 0;
 				if(marker >= query.numHits())
 					marker = query.numHits()-1;
+				if(marker < 0) marker = 0;
 
 				if(marker < start)
 					start = marker;
@@ -304,6 +308,7 @@ int main(int argc, char* argv[]) {
 						break;
 				}
 
+				//console->setFg(Console::YELLOW);
 				//console->moveCursor(query.getString().length()+1,3);
 
 				console->flush();

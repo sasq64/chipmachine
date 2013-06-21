@@ -100,8 +100,8 @@ void Console::flush() {
 	int saveX = curX;
 	int saveY = curY;
 
-	int saveFg = fgColor;
-	int saveBg = bgColor;
+	//int saveFg = fgColor;
+	//int saveBg = bgColor;
 
 	//LOGD("update");
 	for(int y = 0; y<height; y++) {
@@ -126,9 +126,11 @@ void Console::flush() {
 		}
 	}
 
-	//if(curFg != fgColor || curBg != bgColor) {
-	//	impl_color(fgColor, bgColor);
-	//}
+	if(curFg != fgColor || curBg != bgColor) {
+		impl_color(fgColor, bgColor);
+		curFg = fgColor;
+		curBg = bgColor;
+	}
 
 	impl_gotoxy(saveX, saveY);
 	curX = saveX;
