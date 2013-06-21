@@ -64,7 +64,7 @@ public:
 	};
 
 
-	Console(Terminal &terminal = dummyTerminal) : terminal(terminal), fgColor(-1), bgColor(-1), width(40), height(24) {
+	Console(Terminal &terminal = dummyTerminal) : terminal(terminal), fgColor(-1), bgColor(-1), width(40), height(24), curFg(-1), curBg(-1) {
 		/*int w = terminal.getWidth();
 		int h = terminal.getHeight();
 		if(w > 0) width = w;
@@ -133,6 +133,10 @@ protected:
 	// The current REAL cursor position on the console
 	int curX;
 	int curY;
+
+	// The current REAL colors of the console (cursor)
+	int curFg;
+	int curBg;
 
 };
 

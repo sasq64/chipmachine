@@ -100,8 +100,8 @@ void Console::flush() {
 	int saveX = curX;
 	int saveY = curY;
 
-	int curFg = fgColor;
-	int curBg = bgColor;
+	int saveFg = fgColor;
+	int saveBg = bgColor;
 
 	//LOGD("update");
 	for(int y = 0; y<height; y++) {
@@ -115,7 +115,7 @@ void Console::flush() {
 					curX = x;
 					curY = y;
 				}
-				if(t0.fg != t1.fg || t1.fg != curFg || t0.bg != t1.bg || t1.bg != curBg) {
+				if(t1.fg != curFg || t1.bg != curBg) {
 					impl_color(t1.fg, t1.bg);
 					curFg = t1.fg;
 					curBg = t1.bg;
@@ -126,9 +126,9 @@ void Console::flush() {
 		}
 	}
 
-	if(curFg != fgColor || curBg != bgColor) {
-		impl_color(fgColor, bgColor);
-	}
+	//if(curFg != fgColor || curBg != bgColor) {
+	//	impl_color(fgColor, bgColor);
+	//}
 
 	impl_gotoxy(saveX, saveY);
 	curX = saveX;
@@ -146,7 +146,7 @@ void Console::putChar(char c) {
 	//LOGD("putchar %02x", c);
 	outBuffer.push_back(c);
 	curX++;
-	if(curX > width) {
+	if(curX >= width) {
 		curX -= width;
 		curY++;
 	}
@@ -293,20 +293,32 @@ void PetsciiConsole::impl_clear() {
 
 void PetsciiConsole::impl_gotoxy(int x, int y) {
 
+	if(curX - x > x) {
+		outBuffer.push_back(0x8d);
+		if(curBg != BLACK) {
+			curFg = curBg;
+			curBg = BLACK;
+		}
+		curX=0;
+		curY++;	
+	}
+
 	while(y > curY) {
-		outBuffer.push_back(17);
+		outBuffer.push_back(0x11);
 		curY++;
 	}
 	while(y < curY) {
-		outBuffer.push_back(145);
+		outBuffer.push_back(0x91);
 		curY--;
 	}
+
 	while(x > curX) {
-		outBuffer.push_back(29);
+		outBuffer.push_back(0x1d);
 		curX++;
 	}
+
 	while(x < curX) {
-		outBuffer.push_back(157);
+		outBuffer.push_back(0x9d);
 		curX--;
 	}
 }

@@ -209,10 +209,7 @@ int main(int argc, char* argv[]) {
 					console->put(0, 1, format("Song %02d/%02d - [%02d:%02d]", subSong+1, totalSongs, seconds/60, seconds%60));
 					console->setBg(Console::BLACK);
 					console->setFg(Console::WHITE);
-					console->put(0,2,">                       ");
-					console->setFg(Console::YELLOW);
-					console->put(1,2, query.getString());
-					console->moveCursor(1 + query.getString().length(), 2);
+					console->put(0,2,">");
 
 					if(c == Console::KEY_TIMEOUT) {
 						console->flush();
@@ -231,7 +228,7 @@ int main(int argc, char* argv[]) {
 					case Console::KEY_ENTER:
 					case 13:
 					case 10: {
-						string r = query.getFull(marker-start);
+						string r = query.getFull(marker+start);
 						LOGD("RESULT: %s", r);
 						auto p  = split(r, "\t");
 						for(size_t i = 0; i<p[2].length(); i++) {
@@ -274,12 +271,20 @@ int main(int argc, char* argv[]) {
 				}
 
 				if(marker < 0) marker = 0;
+				if(marker >= query.numHits())
+					marker = query.numHits()-1;
 
 				if(marker < start)
 					start = marker;
 				if(marker > start+h-4)
 					start = marker;
 				
+				console->put(1,2,"                       ");
+
+				console->setFg(Console::YELLOW);
+				console->put(1,2, query.getString());
+				console->moveCursor(1 + query.getString().length(), 2);
+
 				console->setFg(Console::GREEN);
 
 				console->fill(0, 3, console->getWidth(), console->getHeight()-3);
