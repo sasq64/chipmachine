@@ -1,0 +1,90 @@
+ <:---:><:---:><:---:><:---:><:---:><:---:><:---:><:---:><:---:><:---:><:---:>
+ >                                                                           <
+ <   Another release from  S Y N E R G Y,    Synthetic Energy Productions    >
+ >                                                                           <
+ <:---:>FantaZY<:---:><:---:><:---:><:---:><:---:><:---:><:---:>21Dec97<:---:>
+
+
+
+                    Product:  Eagleplayerp/Delitracker External Player
+
+                Player name:  Darius Zendeh player (old MarkII SoundSystem)
+
+                    Version:  1.3
+
+        Ripping & Coding by:  FantaZY of Synergy  (Stephen Mifsud)
+
+       Module format played:  o  Darius Zendeh mods with subsongs
+                              o  Darius Zendeh mods without subsongs
+			o  Old Darius Zendeh mods
+
+                 Mod prefix:  DZ.
+
+             Module sources:  D.Z. with subsongs mods..:  Only in R-Type I
+                                                          game level music
+
+                              D.Z. single mods........ :  Crash & Burn
+                                                          RSI MegaDemo Loader
+                                                          R-Type I Hiscore/
+                                                          Game complete mods
+
+                              D.Z. old format mods...  :  Very rare! Found
+                                                          just one mod from
+                                                          Threat's cracktro
+
+      Official Release date:  26/Dec/97   (St.Stephen's day!!!)
+
+          Released first at:  "Exotica Tunes" web page by BuZz and Vital
+                              of MaNiaCs at www.solace.mh.se/~dice/exotica
+
+
+    Player info and history:  Darius Zendeh modules are thought to be and old
+			prototype of the actual MARK II editor. This old
+			version was coded by the composer himself -
+			Darius Zendeh.
+
+                              MARK II Sound System, an imporoved and released
+                              editor, was then created by Andreas Scholl (and
+                              little by Darius Zendeh) and was then published
+                              by Cachet Software. The new MARK II modules are
+                              reckognizable by the .ZADS89. text string about
+                              $220-$320 bytes from the module start, and this
+			can be played by MARK_II noteplayer Deliplayer.
+			Since this editor was released (by Cachet Soft-
+			ware), many modules are found in this format.
+
+
+                  Functions:  Subsongs, Tempo, Mod type identification.
+
+             Future Updates:  Volume and balance control.
+
+                 Known bugs:  If you stop the mod and click on next/prev
+                              song, noise can be generated. ( no crashes
+                              though :) )
+
+
+
+
+         Contact FantaZY at:  TeknoLogik@technologist.com
+                              www.marz-kreations.com
+
+FantaZY favourite web sites:  SynerGY productions.........
+
+                                    - http://wkweb4.cableinet.co.uk/Synapse
+
+                              Exotica tunes megastore.....
+                                    - http://www.solace.mh.se/~dice/exotica
+
+                              BEEJ Amiga music Rip site...
+                                    - http://homepages.enterprise.net/beej/
+
+               Greetings to:  Darkness & Synapse of SynerGY
+                              Buzz, Vital, Solknight, zeg, perplexer...
+                              Mop of Essence
+
+
+ <:---:><:---:><:---:><:---:><:---:><:---:><:---:><:---:><:---:><:---:><:---:>
+ >                                                                           <
+ <   Another release from  S Y N E R G Y,    Synthetic Energy Productions    >
+ >                                                                           <
+ <:---:>FantaZY<:---:><:---:><:---:><:---:><:---:><:---:><:---:>21Dec97<:---:>

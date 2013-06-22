@@ -1,0 +1,59 @@
+Ideas of things to do for UADE 2:
+
+2007-05-16: Add --mtune=native and --march=native configure check for GCC 4.2+
+2006-04-12: A configure solution for audacious/xmms: launch an xterm with
+	    $EDITOR for uade.conf. (shd)
+2006-04-12: 'uade123 --song-conf --foo --bar foo' should make a record to
+	    song.conf with given settings.
+	    UPDATE:
+		--learn-options
+		--learn-auto-gain
+	    To learn properly, song specific options have to be ignored. (shd)
+2006-04-09: Merge all compatibility functions into ossupport.h. (shd)
+2006-01-19: Fix eagleplayer and song specific configurations for xmms plugin
+	    (shd)
+2006-01-10: Implement uade:// prefixed scanning into XMMS and Audacious
+	    plugins (shd)
+2006-01-09: Remember manually toggled postprocessing settings (alankila)
+2006-01-04: Write a tool to truncate overly long modules. (shd)
+2005-12-14: Generate a content db of uade rsync collection. (shd)
+2005-12-07: Add dangerous malloc to test amifilemagic. (shd)
+2005-12-07: Remove postprocessing.[ch]. Use only effects.[ch]. (shd)
+2005-12-05: Interesting error message: Can not open module:
+	    /svu/chip/./ahx/Opaque 1/AHX.Happy Vibes... It seems it can not
+	    open files whose name end in whitespace.. (shd)
+2005-11-06: System call book keeping for sound core (shd)
+2005-10-10: Volume level normalization based on the database (grue)
+2005-07-31: Song length database format. Contains following information:
+		* Subsong lengths and volume levels
+		* MD5 content checksum
+		* File length
+		* Mark information as static
+		* Maybe: advisory file name, comment
+	    (shd)
+2005-07-20: force timeout even if playtime is known (ave)
+2005-07-12: convert asmone source code in sound core to gnu assembler format
+	    (shd)
+2005-07-12: rewrite parts of the sound core in C, and cross-compile with a
+	    68k gcc. (shd)
+2005-07-12: rewrite src/amifilemagic.c. It should be much cleaner. (shd)
+2005-07-11: sync tool to update song length database (grue)
+
+
+DONE:
+2006-01-19: Fix use of GTK_ENABLE_BROKEN features in audacious plugin. (mld)
+2006-01-12: Make accumulation interpolator the default setting
+2005-12-23: Add subsong text "[x/x]" into XMMS plugin scroller / playlist text
+	    (ave)
+2005-12-23: Add 16x16 hexdump for XMMS file info (ave)
+2005-12-06: Support all variables of uade.conf in XMMS plugin. (shd)
+2005-12-06: Write amiga decruncher tool, and make filemagic notify about using
+	    that tool. Relevant formats are SQSH, power packer, and lha. (shd)
+2005-11-28: XMMS plugin must not end prematurely. Wait for data to have been
+	    actually played (rather than written) before stopping.
+2005-07-22: command line interaction for seeking and skipping songs (shd)
+2005-07-20: fast forward seeking + GUI support (ave)
+2005-07-17: start audio output from simulator to the client after sound core
+	    has initialized the player plugin. currently the simulator
+	    writes zero audio samples during the initialization in sound core.
+	    (shd)

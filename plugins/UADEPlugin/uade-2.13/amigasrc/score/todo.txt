@@ -1,0 +1,115 @@
+UNDONE
+======
+
+2005-12-15: DTP_Interrupt must have priority over DTP_StartInt (shd)
+
+2005-11-05: Things to do for interrupts:
+	   - Timer.device support should use ciaa.resource or vblank server,
+	     but this is a low priority change because afaik only
+	     Defender of the Crown depends on this, and it works already.
+	   - Make player interrupt selectable from frontend: CIA-A, CIA-B or
+	     VBI. After this frontends can add workarounds for black listed
+	     songs.
+	   - Move vblank player interrupt calls to a real VBI.
+	   - Check subsong change interrupt handling.
+	   - Remove or fix CIA interrupt remove functions. 'DTP_Stop_Int'
+	     depends on this.
+
+older:
+        - implement epg_GetModuleInfo() (some tfmx player used it)
+
+	- check AllocVec() (med player calls it many times)
+
+	- implement some utility.library() functions:
+		    SDivMod32()  -$96
+		    SMult32()    -$8A
+		    UDivMod32()	 -$9C
+
+        - fake audio.device (Maxtrax)
+
+	- MaxTrack: RemIntServer()
+		    DTP_Check1()
+		    pal/ntsc flag in gfxbase, see vss player note
+		    execbase+$12, LIB_VERSION: short, set to less than 36.
+		    CloseDevice()
+		    maybe uses Eaglebase -$96??? Is this file requester? 
+		     ->(could be possible, maxtrax has a single file and
+		        two file song+smpl filefomrat, iirc -- mld)
+		    Exec CopyMem
+		    Exec ReplyMsg
+
+	- vss player: gfxbase: gb_DisplayFlags => PAL, not NTSC
+			       $ce + gfxbase == $14 (short)
+
+        - implement ahi.device (digibooster pro)
+
+	- fix dtg_FileArrayPTR & dtg_PathArrayPTR (MaxTrax, Mline)
+
+	- see turrican2 song 4 (factory): gives audio int that is not handled
+
+	- exec_openlibrary and perhaps other functions:
+		cmp.l #'dos.',(a1) may fail on 68000
+
+	- rename all interrupt vectors and registers to some symbol values
+
+	- try to see if some warning issues have been solved
+
+	- extend playername field to 32+ chars
+
+	- remove module/player/authorname fields (useless to preserve
+	  those)
+
+	- FindTask(0) should return something bogus.. (med player)
+	  Also Face the music eagleplayer. works??
+
+	- AllocSignal() face the music eagleplayer. works??
+
+	- face the music eagleplayer is very odd..
+
+	- optimize stop #$2000 by 1 instruction (cmp.l (a0),d0 ; beq)
+
+	- exec.library cause() should do interrupt queuing (shd)
+
+	- timer.device handles IORequests improperly. Seconds field should
+	  also be handled, not just the microseconds field. Also, timing
+	  computations on NTSC lead to wrong results. (shd)
+
+DONE
+====
+	- Eagleplayer function: Modulechange
+Songend can probl. get a boost when ep_modulechange  would work. I know e.g.
+that David Whittaker replayer is supporting songend by patching the actual DW
+music internally to support songend.
+
+	- rename trap vector constants to TRAP_VECTOR_x
+
+	- move.l 4.w,a6
+	  move.b #50,$212(a6) ; ExecBase->VBlankFrequency
+	  (some players check this: like med player by kinnunen)
+
+	- clean up sound core booting process
+
+	- clear extra space in hunks
+
+	- should we do move #$2000,intreq+custom after jsr (a0) in ciabint()?
+	  this would stop new interrupts coming before the old one is done..
+	  see ems player (paananen's mixing routine)
+	  answer: NO
+
+	- music maker issues noticed:
+		- DTP_Config() should be called before DTP_Check() according
+		  to MusicMaker8.a
+		- DTP_ExtLoad() should be called before DTP_Check() according
+		  to MusicMaker8.a
+	  (shd)
+
+	- prepare audio interrupt system for unexpected interrupts:
+	  intena + intreq are set but int vector is not set
+
+2005-11-05:
+        - CIA-A / CIA-B unified solution
+	- try to make all interrupt systems as same as possible
+	  - ciab_addint is stupid:
+	    after it is called only the other cia-b timer is on, but we may
+	    want to have both timers on.. see cust.blueangel69
+

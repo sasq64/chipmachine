@@ -1,0 +1,146 @@
+General Instructions for Installing UADE
+========================================
+
+*** 1. Dependencies ***
+
+Compiling and running UADE requires some libraries depending on which
+frontends you want to use:
+
+ Frontend name  | Type           	| Dependencies
+ -----------------------------------------------------------------------
+ uade123        | Command line   	| libao: http://www.xiph.org/ao/
+ xmms		| XMMS plugin	 	| XMMS
+ audacious	| Audacious plugin	| Audacious:
+					| http:/audacious-media-player.org
+ uadefs         | Amiga to WAV filesys. | FUSE, uade123
+
+ - pkg-config is required for detecting libao, audacious and fuse in the
+   configure script. This dependency can be hacked away for specific
+   platforms.
+
+ - sed is required for creating Makefiles in the configure script
+
+ - The default shell /bin/sh should be more or less compatible with Bash
+
+*** 2. Compiling and installation ***
+
+The installation process has 3 or 4 steps.
+
+(1) ./configure
+(2) make
+(3) make soundcheck (optional phase)
+(4) make install (possibly run as root user)
+
+Longer explanations of these steps follow:
+
+(1) ./configure
+
+  Look at which frontends will be compiled in. In the good case you will see:
+
+  uade123                                 : yes
+  XMMS plugin                             : yes
+  .. other frontends
+
+
+  You have the possibility of using many options, such as disabling possible
+  frontends (methods for using uadecore through various systems such as the
+  command line and XMMS). See ./configure --help for options. Some of the
+  more important options are:
+
+	--prefix
+	--user
+
+  --user makes uade to be installed into users ~/.uade2/ directory, but of
+  course you may issue --prefix=$HOME/something to achieve the same effect.
+
+  It is possible to leavy any uade frontend or even uadecore compiled so that
+  packing for distributions is faster and easier. Important options for
+  distribution packagers are:
+
+	--package-prefix
+	--without-audacious
+	--without-uadecore
+	--without-uade123
+	--without-uadefs
+	--without-xmms
+
+(2) make
+
+  This will build all the components that were configured.
+
+(3) make soundcheck
+
+  You should hear sound if uade123 was compiled in and it works. If uade123
+  was not compiled, you may still have success with other frontends such as
+  the XMMS plugin. uade123 is only the command line player tool.
+
+(4) make install
+
+  This will install the software. If --user was used the uadecore and frontends
+  are installed into ~/.uade2/.
+
+
+*** 3. Notes on GNU/Linux distributions ***
+
+3.1 Gentoo
+
+To install necessary dependencies for Gentoo, execute:
+
+	emerge -u libao		(the dependency for uade123)
+	emerge -u xmms
+	emerge -u audacious
+
+3.2 Debian and Ubuntu
+
+In Debian/Ubuntu, the required libraries can be downloaded by:
+
+uade123:
+	apt-get install libao-dev
+XMMS plugin:
+        apt-get install xmms-dev
+Audacious plugin:
+	apt-get install audacious-dev (get a mirror from
+	                               audacious-mediaplayer.org)
+uadefs:
+	apt-get install libfuse-dev
+
+*** 4. Notes on Solaris ***
+
+ - Change configure scripts #!/bin/sh to #!/bin/bash
+ - Change reference of floorf() function in src/audio.c to floor()
+ - Use gmake instead of make
+ - Add #include <sys/time.h> into src/unixatomic.c
+
+*** 5. Notes on Mac OS X ***
+ - Install libao and pkg-config from MacPorts (http://www.macports.org)
+
+ - If compiling the XMMS plugin fails, either
+	* use --without-xmms for the configure script
+   or try a hack:
+	* Remove line
+	    $(OBJCOPY) -G get_iplugin_info $@
+	  from src/frontends/xmms/Makefile after you have run the
+	  configure script. This work-around can be useful if the compilation
+	  fails with following kind of error:
+
+	    objcopy -G get_iplugin_info libuade2.so
+	    objcopy: styJDS31: Invalid operation
+	    make[1]: *** [libuade2.so] Error 1
+	    make: *** [xmmsplugin] Error 2 
+
+*** 5. Notes on Cygwin ***
+
+- Run Cygwin setup and install the following binary packages:
+  gcc-core, libao2, libao-devel, make and pkg-config
+
+- During compilation you may see hundreds of warnings like this:
+  Warning: .stabs: description field '1399a' too big, try a different
+  debug format; they can safely be ignored.
+
+Limitations of Cygwin builds:
+
+- UNIX<->Windows path conversion is not always reliable causing
+  multifile songs to fail. Use of UNIX paths negates this problem.
+
+- The binary version of libao produces a lot of debug output when using
+  the winmm driver

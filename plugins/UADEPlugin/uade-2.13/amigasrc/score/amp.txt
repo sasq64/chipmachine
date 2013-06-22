@@ -1,0 +1,31 @@
+
+EP_InitAmplifier specifies a function which should be called from amplifier_init.
+It does following:
+
+	lea Audstruct0,a0     * N x as_sizeof sized structures (N specified in AudTagliste)
+	EPAMB_AudioInts (flag)
+	move.l #AudioINT,AS_Int(a0)
+	AS_Int(a0) is a structure which contains a pointer to an interrupt handler
+	...
+	lea AudTagliste,a0
+	move.l	a0,EPG_Amplifiertaglist(a5)
+
+	returns  0 on success
+	        -1 on failure
+
+AudTagliste
+	dc.l	EPAMT_Numstructs,2
+	dc.l	EPAMT_Audiostructs,Audstruct0
+	dc.l	EPAMT_Flags
+NPFlags	dc.l	0		* important flags:
+				* EPAMB_Direct (expect this)
+				* EPAMB_8Bit (expect this)
+				* EPAMB_8BitUnsigned (warning)
+				* EPAMB_16Bit (warning)
+				* EPAMB_AudioInts (this is tricky. not used always.
+				* give a warning)
+				* EPAMB_ChipRam (ignore this)
+				* EPAMB_WaitForStruct (give a big warning)
+	dc.l    TAG_DONE,0
+
+Audstruct0	ds.b	as_sizeof*4

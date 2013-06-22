@@ -1,0 +1,3 @@
+Some things left to do with MusicMaker[48]:
+
+ - single file module support (open up IFF file to grab 'ip' and 'sdata' parts)

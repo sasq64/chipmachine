@@ -1,0 +1,7 @@
+If some of the MDDs you try to play, sound "overdriven"/"distorted", it
+is probl. because  they seem to use 9bit samples (instead of the ususal 8bit),
+which are supposed to be played with a 14bit mixing genie for the default
+amiga hardware.
+
+Sorry, but those MMDs are currently not supported by the current replayer
+code.

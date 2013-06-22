@@ -1,0 +1,60 @@
+Short:    EaglePlayer "Musicline 4V" external replayer
+Author:   John Carehag & Wanted Team
+Uploader: Don Adan <DonAdan@wp.pl>
+Version:  1
+Type:     mus/play
+
+This is a different version of the external "Musicline 4V" replay for
+EaglePlayer 1.54/2.00+.
+
+Version 1
+
+Features:
+
+- Analyzer
+- Voices
+- SampleInfo with SampleSaver (EP 2.00+ only)
+- Balance
+- ModuleInfo with Position Counter
+- Volume
+- SongEnd
+- SubSong
+- LoadFast
+- special Amplifier version (EP 2.00+ only)
+
+Notes:
+
+1. The "Musicline" soundformat was created by Conny Cyréus, Christian Cyréus,
+   John Carehag and Jimmy Fredriksson. For more information, visit:
+
+   http://www.musicline.org
+
+2. This player will only play/recognise Musicline 4-voice tunes!!!
+   For Musicline 8-voice songs use the "Musicline 8V" player (EP_Musicline8V.lha).
+
+3. The loaded module must always be at least as many bytes long as the
+   calculated size. This is why some modules will give you an error
+   with this player.
+
+4. Some tunes (especially if using synth samples and a tempo higher than
+   125 BPM) need lots of CPU power. Not all songs can be heard correctly
+   on MC68000 Amigas. MC68000 owners can use EP 1.54, this is the fastest
+   Amiga player.
+
+5. If a module contains both 4-voice and 8-voice songs, it's better to disable
+   the "Musicline 8V" player in the EP Manager menu due to double recognition
+   problems.
+
+6. ModuleInfo works/looks better for EaglePlayer 1.54 because EaglePlayer
+   2.00+ doesn't refresh the ModuleInfo screen.
+
+7. You can choose your preferred player version for use with EP 2.00+.
+
+8. You can get the latest versions of Wanted Team products from:
+
+   http://amiga.emucamp.com/wt/wt.html
+
+Special greetings go to
+
+- John Carehag for help
+- Jean-Charles Meyrignac for help

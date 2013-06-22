@@ -1,0 +1,40 @@
+
+ems v6 player
+-------------
+
+	player:			Sean Connolly
+	audio mixing routines:	Jarno "s3mplay" Paananen
+	timer handling:		Kari-Pekka "hippoplayer" Koljonen
+
+Adapted for uade / eagleplayer by Heikki Orsila <heikki.orsila@iki.fi>.
+
+This player should work on a real amiga, but at least it works on uade;)
+
+Format of the configuration file is:
+1st line: mixing mode (MONO = 1 STEREO = 2 SURROUND = 3 REAL = 4 STEREO14 = 5)
+2nd line: mixing rate (default 22050)
+3rd line: volume boost (in range 0-8)
+
+Default is:
+2
+22050
+0
+
+2 implies stereo, 22050 is mixing rate in Hz, 0 is volume boost.
+
+If you have a fast machine you may want to use:
+5
+28000
+0
+
+5 implies 14-bit stereo.
+
+Also, try volume boost values.
+
+
+Note on source code:
+clear text ems player source will appear once we get explicit permission to
+give it's source to anyone. We have permission to give the source to anyone
+who wants to port it. (permission from sean connolly)
+
+shd / uade team on Jan 2003

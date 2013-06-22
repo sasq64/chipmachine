@@ -1,0 +1,48 @@
+COMMONMODULES = unixatomic.o uadeipc.o amifilemagic.o \
+	eagleplayer.o unixwalkdir.o effects.o \
+	uadecontrol.o uadeconf.o md5.o \
+	ossupport.o songdb.o songinfo.o vplist.o support.o
+
+PLAYERHEADERS = ../common/eagleplayer.h ../common/uadeconf.h ../common/uadeconfstructure.h ../common/uadestate.h ../common/support.h ../../include/uadeconfig.h ../../include/uadeutils.h ../../include/unixatomic.h ../../include/ossupport.h ../../include/unixsupport.h ../../include/uadeipc.h
+
+amifilemagic.o:	../common/amifilemagic.c ../common/amifilemagic.h $(PLAYERHEADERS)
+	$(CC) $(CFLAGS) -c $<
+
+eagleplayer.o:	../common/eagleplayer.c ../common/amifilemagic.h ../common/songdb.h $(PLAYERHEADERS)
+	$(CC) $(CFLAGS) -c $<
+
+effects.o:	../common/effects.c ../common/effects.h
+	$(CC) $(CFLAGS) -c $<
+
+md5.o:	../common/md5.c ../common/md5.h
+	$(CC) $(CFLAGS) -c $<
+
+ossupport.o:	../../ossupport.c ../../include/ossupport.h ../../include/unixsupport.h ../../include/uadeipc.h
+	$(CC) $(CFLAGS) -c $<
+
+songdb.o:	../common/songdb.c ../common/songdb.h ../common/md5.h $(PLAYERHEADERS)
+	$(CC) $(CFLAGS) -c $<
+
+songinfo.o:	../common/songinfo.c ../common/songinfo.h ../common/amifilemagic.h $(PLAYERHEADERS)
+	$(CC) $(CFLAGS) -c $<
+
+uadeconf.o:	../common/uadeconf.c $(PLAYERHEADERS)
+	$(CC) $(CFLAGS) -c $<
+
+uadecontrol.o:	../common/uadecontrol.c ../common/uadecontrol.h $(PLAYERHEADERS)
+	$(CC) $(CFLAGS) -c $<
+
+uadeipc.o:	../../uadeipc.c ../../include/uadeipc.h ../../include/uadeutils.h
+	$(CC) $(CFLAGS) -c $<
+
+unixatomic.o:	../../unixatomic.c ../../include/unixatomic.h
+	$(CC) $(CFLAGS) -c $<
+
+unixwalkdir.o:	../common/unixwalkdir.c ../common/unixwalkdir.h
+	$(CC) $(CFLAGS) -c $<
+
+vplist.o:	../common/vplist.c ../common/vplist.h
+	$(CC) $(CFLAGS) -c $<
+
+support.o:	../common/support.c ../common/support.h ../../include/ossupport.h ../../include/unixsupport.h
+	$(CC) $(CFLAGS) -c $<

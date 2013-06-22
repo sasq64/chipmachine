@@ -1,0 +1,552 @@
+\documentclass{article}
+\usepackage{graphicx}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+\begin{document}
+
+\title{UADE 2.xx design specification}
+\author{Heikki Orsila $<$heikki.orsila@iki.fi$>$}
+\date{}
+\maketitle
+
+\section{Introduction}
+
+UADE (\emph{Unix Amiga Delitracker Emulator}) plays various
+Amiga music formats by hardware and software emulation.
+Approximately 200 formats are known to work more or less properly.
+
+Despite
+considerable performance requirements of emulating hardware and software,
+UADE requires only approximately $5$\% CPU resources with a current
+(2006-01-01) computer system ($2.0$ GHz AMD64).
+
+The full system consists of $4$ layers shown in Figure
+\ref{fig:layers}. The frontend layer handles all user-interface and high-level
+control issues. The frontend relays user-induced commands for the emulator.
+The emulator is programmed to emulate a reduced Amiga 500 model and load
+boot software and data for it. The Amiga model is called reduced because 
+it lacks
+functionality of some peripheral devices and custom graphics chips. It only
+needs to run MC68000 software to produce sound through Amigas audio
+chip. The loaded software consists of 2 two components, which are the sound
+core (\emph{score}) and some eagleplayer plugin. The loaded data is a song to
+be played by the eagleplayer plugin.
+The emulated machine is booted after this.
+Boot procedure starts execution from the score, which initializes emulated
+hardware and setups an environment that contains some essential features
+from AmigaOS and Eagleplayer APIs.
+The score executes the eagleplayer plugin to play the music with the data
+that was loaded. The eagleplayer plugin can load additional
+data files from the native host operating system if required.
+
+This document explains internal issues between the frontend and the emulator.
+Interaction between the emulated and native software is not documented.
+ 
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{layers.eps}
+\caption{UADE software layers}
+\label{fig:layers}
+\end{figure}
+
+\section{History}
+
+UADE 1.xx (2000-04-09) was written to be a stand-alone program without
+consideration to implementing many different user interfaces
+(\emph{frontends}) for it. There was
+no internal structure to implement different frontends easily, which
+became rapidly a big problem because users requested many different kinds
+of interfaces. By much
+hacking some kind of pseudo-interface was created to facilitate following
+frontends:
+\begin{itemize}
+  \item Beep Media Player
+  \item MorphOS shell without interaction
+  \item Unix shell without interaction
+  \item Unix shell with small interaction
+  \item XMMS plugin
+\end{itemize}
+
+To force the separation of user interface and effective functionality,
+UADE 2.00 (2006-01-01) removed all the user interface code from the
+emulator part (\emph{uadecore}).
+
+\section{Message-passing protocol}
+In UADE 2.xx the emulator (uadecore) became an independent process without
+any user interfaces. Any frontend, or client, that wants to use its services
+must communicate with the uadecore by using a token-passing based messaging
+protocol. The protocol is of course implemented by interprocess communication
+(IPC).
+
+The basic idea of the protocol is that the frontend is the client
+who issues commands for the server (uadecore). Uadecore may not send any
+commands at all. Uadecore only sends replies to commands issued by the
+client. Also, the client never replies anything back to the
+uadecore.
+
+The communication protocol is based on the concept of
+\emph{tokens}. Only the party that has a token (there is only one) may
+send messages. Messages are either commands or replies. Client sends
+messages and uadecore sends replies. Both of them have to send the token back
+sometimes. The party that doesn't have the token must reply to all commands
+sent by the other party.
+
+Initially the client has the token so it may send commands for the uadecore.
+
+\subsection{Messaging protocol commands}
+
+The messaging protocol has following commands which are only sent by
+the client. There is an exception, however. The uadecore may send a
+\emph{token}-command, but it is not really considered a command.
+All the commands can be found from the file \mbox{src/include/uadeipc.h}.
+
+\begin{description}
+\item [Config] command is used to pass a file name of the emulation
+configuration file for the uadecore. The file is named \emph{uaerc}.
+
+\item [Score] command is used to pass file name of a binary run-time in M68k
+machine language for the uadecore. The binary run-time is called
+\emph{score} or \emph{sound core}. The sound core contains implementations of
+\emph{Eagleplayer} and \emph{AmigaOS} APIs.
+
+\item [Player] command is used to pass a file name of a binary player plugin
+in M68k machine language for the uadecore. This is also called an
+\emph{Eagleplayer plugin}.
+
+\item [Module] command is used to pass a file name of a song to be played
+for the uadecore.
+
+\item [Read] command is used to request more sound data from the uadecore.
+
+\item [Reboot] command is used to halt playback synthesis of uadecore.
+
+\item [Set subsong] command is used to set the initial subsong for playback.
+
+\item [Ignore check] command is not necessary (will be documented later,
+if ever).
+\item [Song end not possible] command is not necessary.
+\item [Set ntsc] command is not necessary.
+\item [Filter] command is used to select between A500, A1200 or no filter
+  emulation.
+\item [Set frequency] command is used to set sample rate for output.
+\item [Set resampling mode] command is not necessary.
+\item [Speed hack] command is not necessary.
+\item [Change subsong] command is not necessary.
+\item [Activate debugger] command is not necessary.
+
+\item [Token] command is used to pass back the token for the other party.
+\end{description}
+
+\subsection{Messaging protocol replies for commands}
+
+Messages are answered by following replies.
+All the replies can be found from the file \mbox{src/include/uadeipc.h}.
+
+\begin{description}
+\item [MSG] reply is just any random text string message that the client should
+know. Could be spam, blackmailing, empty threats or last words of a dying
+process.
+\item [Can't play] reply is issued by the uadecore if it is not able to play
+a given triplet of score, player and module.
+\item [Can play] reply is issued by the uadecore if it can play a given
+triplet of score, player and module.
+\item [Song end] reply is issued by the uadecore to indicate that playback
+has ended.
+\item [Subsong info] is issued by the uadecore when it knows the amount of
+subsongs contained in the song. This happens a short while after playback
+has started, or usually during the first fraction of a second since
+playback has been started.
+\item [Player name] is a reply containing the human (geek?) readable player
+name that is decoded by the eagleplayer plugin,
+\item [Module name] is a reply containing the human readable form of the
+module name decoded by the eagleplayer plugin.
+\item [Format name] is a reply containing the human readable form
+of the song format that is being played.
+\item [Data] reply is issued by the uadecore to pass synthesized sample
+data back to the client. This is a reply for the \emph{read}-command.
+\end{description}.
+
+\subsection{Message format}
+All messages are sent as finite sized byte sequences. Each message begins
+with a header shown in Table \ref{tab:message_header}.
+\textbf{msgtype} field is simply an unsigned 32-bit integer in a packed
+binary structure. The integer is sent in network byte-order aka big-endian
+format. All integers are sent in big-endian format.
+The \textbf{size} field is 32-bit length of the bytes coming after the header
+(which is in big-endian format).
+Notice the use of C99 empty record in a structure (excuse the annoying GCC
+feature there that forces the structure to be tightly packed) called
+\textbf{data}. \textbf{data} has zero
+size and thus the whole message size in memory is $8 + size$ bytes. The
+full size must not be over $4096$ bytes, and thus \textbf{size} can be
+at most $4088$.
+
+There are 3 types of messages: short messages, string messages and custom
+messages. Each follow the given low-level format but the contents differs.
+
+Messages C language definition is:
+\begin{verbatim}
+struct uade_msg {
+  uint32_t msgtype;
+  uint32_t size;
+  uint8_t data[];
+} __attribute__((packed));
+\end{verbatim}
+
+
+\begin{table}
+\begin{center}
+\caption{Messages header}
+\label{tab:message_header}
+\begin{tabular}{|r|l|}
+\hline
+\textbf{uint32\_t} & msgtype (big-endian) \\
+\hline
+\textbf{uint32\_t} & size (big-endian)\\
+\hline
+\textbf{uint8\_t[]} & data \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsubsection{Short message}
+
+Short message has the value $0$ in \textbf{size} field implying that there is
+no special payload with the message. Sending a token, for example, is such
+a message. Short messages are sent with \textbf{uade\_send\_short\_message}
+and received with \textbf{uade\_receive\_short\_message}. The structure
+of short message is shown in Table \ref{tab:short_message}.
+Table \ref{tab:short_messages} shows all short messages.
+
+\begin{table}
+\begin{center}
+\caption{Short message}
+\label{tab:short_message}
+\begin{tabular}{|r|l|}
+\hline
+\textbf{uint32\_t} & msgtype\\
+\hline
+\textbf{uint32\_t} & 0 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}
+\begin{center}
+\caption{Short messages}
+\label{tab:short_messages}
+\begin{tabular}{|r|l|}
+\hline
+Command & Activate debugger\\
+\hline
+Command & Ignore check\\
+\hline
+Command & Reboot \\
+\hline
+Command & Song end not possible \\
+\hline
+Command & Speed hack \\
+\hline
+Command & Token \\
+\hline
+Reply & Can play\\
+\hline
+Reply & Can't play\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsubsection{String message}
+
+String message is a message containing one zero-terminated text string.
+A string message is sent by \textbf{uade\_send\_string} and received by
+\textbf{uade\_receive\_string}. Table \ref{tab:string_message} shows
+the structure of a string message. Table \ref{tab:string_messages} shows
+all string messages.
+
+\begin{table}
+\begin{center}
+\caption{String message}
+\label{tab:string_message}
+\begin{tabular}{|r|l|}
+\hline
+\textbf{uint32\_t} & msgtype\\
+\hline
+\textbf{uint32\_t} & $x + 1$, where \textbf{x} is the number of letters.\\
+\hline
+\textbf{uint8\_t[]} & $x + 1$ bytes.\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}
+\begin{center}
+\caption{String messages}
+\label{tab:string_messages}
+\begin{tabular}{|r|l|}
+\hline
+Command & Config\\
+\hline
+Command & Module\\
+\hline
+Command & Player\\
+\hline
+Command & Score\\
+\hline
+Command & Set resampling mode\\
+\hline
+Reply & Format name\\
+\hline
+Reply & Module name\\
+\hline
+Reply & MSG\\
+\hline
+Reply & Player name\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsubsection{Custom message}
+
+Custom message is any kind of message which is not short or string message.
+We quickly present all different custom messages in following tables.
+
+Table \ref{tab:reply_data} shows format of sound data reply.
+Table \ref{tab:reply_subsong_info} shows format of subsong info reply.
+Table \ref{tab:reply_song_end} shows format of song end reply.
+Table \ref{tab:command_read} shows format of read command.
+Table \ref{tab:command_filter} shows format of filter command.
+Table \ref{tab:command_set_frequency} shows format of set frequency command.
+Table \ref{tab:command_subsong} shows format of subsong commands
+which are set subsong and change subsong.
+
+\begin{table}
+\begin{center}
+\caption{Data reply message}
+\label{tab:reply_data}
+\begin{tabular}{|r|l|}
+\hline
+\textbf{uint32\_t} & Reply: Data \\
+\hline
+\textbf{uint32\_t} & $x$, where \textbf{x} is the number of sample
+data bytes.\\
+\hline
+\textbf{uint8\_t[]} & $x$ sample data bytes. The format is 16-bit interleaved\\
+& PCM stereo (big-endian).\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}
+\begin{center}
+\caption{Subsong info reply message}
+\label{tab:reply_subsong_info}
+\begin{tabular}{|r|l|}
+\hline
+\textbf{uint32\_t} & Reply: Subsong info \\
+\hline
+\textbf{uint32\_t} & 12\\
+\hline
+\textbf{uint32\_t} & Minimum subsong (big-endian)\\
+\hline
+\textbf{uint32\_t} & Maximum subsong (big-endian)\\
+\hline
+\textbf{uint32\_t} & Current subsong (big-endian)\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}
+\begin{center}
+\caption{Song end reply message}
+\label{tab:reply_song_end}
+\begin{tabular}{|r|l|}
+\hline
+\textbf{uint32\_t} & Reply: Song end\\
+\hline
+\textbf{uint32\_t} & $8 + x + 1$, where \textbf{x} is length of an explanation string.\\
+\hline
+\textbf{uint32\_t} & Number of bytes of sample data valid in the next data reply (big-endian)\\
+\hline
+\textbf{uint32\_t} & Unintentional end: 0 or 1. 0 means unintentional.\\
+ & 1 means an error resulted into the song end. (big-endian)\\
+\hline
+\textbf{uint8\_t[]} & $x + 1$ bytes containing a textual reason for song end.\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}
+\begin{center}
+\caption{Read command}
+\label{tab:command_read}
+\begin{tabular}{|r|l|}
+\hline
+\textbf{uint32\_t} & Command: Read\\
+\hline
+\textbf{uint32\_t} & 4\\
+\hline
+\textbf{uint32\_t} & Number of bytes of sample data to be read (big-endian)\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}
+\begin{center}
+\caption{Filter command}
+\label{tab:command_filter}
+\begin{tabular}{|r|l|}
+\hline
+\textbf{uint32\_t} & Command: Filter\\
+\hline
+\textbf{uint32\_t} & 8\\
+\hline
+\textbf{uint32\_t} & Filter type. See \mbox{src/include/amigafilter.h} for values (big-endian).\\
+\hline
+\textbf{uint32\_t} & $2x+y$, where \textbf{x} means whether or not filter state should be forced\\
+ & and \textbf{y} is filter state to be set. Both $x$ and $y$ are either 0 or 1. (big-endian)\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}
+\begin{center}
+\caption{Frequency command}
+\label{tab:command_set_frequency}
+\begin{tabular}{|r|l|}
+\hline
+\textbf{uint32\_t} & Command: Set frequency\\
+\hline
+\textbf{uint32\_t} & 4\\
+\hline
+\textbf{uint32\_t} & Sample rate (big-endian)\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}
+\begin{center}
+\caption{Subsong command}
+\label{tab:command_subsong}
+\begin{tabular}{|r|l|}
+\hline
+\textbf{uint32\_t} & Command: change subsong or set subsong\\
+\hline
+\textbf{uint32\_t} & 4\\
+\hline
+\textbf{uint32\_t} & New subsong number (big-endian).\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\section{Interaction example}
+
+To illustrate the dialog between client and server, look at the following log
+between uade123 and uadecore:
+\begin{verbatim}
+<This is done once during client startup>
+uade123: sending string 1 (command: config)
+
+<Here begins play back of new song. this is done for each song.>
+uade123: sending string 2 (command: score)
+uade123: sending string 3 (command: player)
+uade123: sending string 4 (command: module)
+uade123: sending message 16 (token pass)
+
+<Now the uadecore is pondering whether or not the thing can be played>
+uadecore: sending message 19 (reply: can play)
+uadecore: sending message 16 (token pass back)
+
+<It's okay to play, so send some additional commands for uadecore>
+uade123: sending message 11 (command: filter. not needed.)
+uade123: sending string 12 (command: interpolation. not needed.)
+
+<Then start audio synthesis by issuing read command>
+uade123: sending message 5 (command: read)
+uade123: sending message 16 (token pass)
+
+<uadecore starts to synthesize and floods back messages>
+uadecore: sending string 17 (reply: message. don't care.)
+uadecore: sending string 22 (reply: player name back. don't care.)
+uadecore: sending string 23 (reply: module name back. don't care.)
+uadecore: sending message 21 (reply: subsong info)
+uadecore: sending string 17 (reply: birthday congratulation message)
+uadecore: sending message 25 (reply: data)
+uadecore: sending message 25 (reply: data)
+uadecore: sending message 16 (token back as all the requested data has been sent)
+
+<Okay, the first round of messages was good. Next read then..>
+uade123: sending message 5 (command: read. 2nd one actually.)
+uade123: sending message 16 (token pass)
+uadecore: sending message 25 (reply: data)
+uadecore: sending message 25 (replay: data)
+...
+\end{verbatim}
+
+Based on that log and previous explanation of messages, you should be able
+to write an independent frontend by doing little reverse-engineering into
+uade headers. More specifically, you need following information:
+\begin{itemize}
+\item Message type numbers (see \mbox{src/include/uadeipc.h})
+\item Filter setting codes (see \mbox{src/include/amigafilter.h})
+\item something else you will find out..
+\end{itemize}
+
+Figure \ref{fig:playloop} shows play loop interaction from client
+perspective. That is, song initialization has already happened which means
+that uadecore configuration, score, player and module names and other
+options have been sent already.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.25]{play_loop_state_diagram.eps}
+\caption{Play loop interaction from client (frontend) perspective}
+\label{fig:playloop}
+\end{figure}
+
+\section{Portability considerations}
+
+Language requirements:
+\begin{itemize}
+\item Limited C99 compiler that has:
+  \begin{itemize}
+  \item Anonymous initializers for structures: \mbox{struct foo bar = (struct foo) \{.x = y\};}
+  \item Portable integer types from stdint.h.
+  \end{itemize}
+\end{itemize}
+
+Architecture specific parts that need to be implemented:
+\begin{itemize}
+\item User-interface (frontend)
+\item IPC between a frontend and the emulator
+  may have to implemented. The unixipc.c module implements the IPC for UNIX
+  systems. The interface for IPC is generic and an implementation must
+  follow ipcsupport.h headers. However, the interface can be changed if it
+  causes too much problems for some system.
+\end{itemize}
+
+Other issues:
+\begin{itemize}
+\item File modes of C fopen() calls. Windows systems have binary and
+  non-binary modes which is different to UNIX systems. UNIX systems only
+  have the binary mode. Some fopen() calls may open files without the ``b''
+  flag which means non-binary mode for Windows. As a result there may be
+  data corrupt when reading binary files such as eagleplayer plugins. Please
+  check that all fopen calls have the ``b'' flag set.
+\end{itemize}
+
+\end{document}

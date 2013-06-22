@@ -1,0 +1,87 @@
+The following people have made contributions to the UAE source code (in no
+particular order):
+
+Miscellaneous code contributions:
+  - Alessandro Bissacco: X Windows mouse auto-calibration, battclock
+    emulation, original smart update, blitter optimization and various
+    bugfixes
+  - Hannu Rummukainen: Floppy write emulation
+  - Andre Beck: Made the X support much faster by using MIT-SHM extensions.
+    (Not bad for a 10 minute hack, Andre!)
+  - Ed Hanway: Wrote the unixfs.device. Improvements to the X support (cursor 
+    blanking, etc.), run time options. He also sent me a copy of his own 
+    (unfinished) Amiga emulator...
+  - Denis Sablic: Misc. bugfixes, several runtime options
+  - Marcus Sundberg: X11 and transdisk improvements, bugfixes, AF and MME
+    sound system support
+  - Samuel Devulder: LOW_BANDWIDTH option for X, dithering code, transparent
+    decompression code
+  - Stefan Reinauer: fixed battclock for KS >1.3; AutoConfig/fastmem support,
+    parallel port support, serial port support
+  - Marco Nelissen: fixed bugs in CIA, copper & sprite code
+  - Thierry Lescot: Win95 keyboard support for SVGAlib
+  - Bruno Coste: Better keyboard support for X
+  - Oliver Moehrke: Patch for assigns in filesys.c
+  - Per Olofssen: Swedish keyboard for X
+  - Tristan Cavelier: French keyboard for X
+  - Ruben Martinez: Spanish keyboard for X
+  - Olivier Raoul: some CPU optimizations
+  - Markus Gietzen: begun work on gfxlib replacement
+  - Christian Schmitt: worked on gfxlib replacement; new X user interface
+  - Herman ten Brugge: most of the 68020 emulation; 68881 emulation.
+  - Tauno Taipaleenmaki: uae.library and support programs (uae_control)
+  - Michael Krause: Module search function for the debugger, gtk UI
+    improvements
+  - Kai Kollmorgen: XFree86/DGA extension support
+  - Stefan Ropke: transdisk improvements
+  - Joanne Dow: transdisk bug/compilation fixes
+  - Rodney Hester: transdisk/transrom improvements
+  - Volker Zota: improved Tk GUI
+  - David Varley: bug fixes
+  - Christian Schmitt: serial port support
+  - Brian King: Picasso96 support
+  - Holger Jakob: debugger cheat search
+  - Philippe Gerin: fixed a bug in the CPU emulator
+  - Jake Hamby: bug fixes
+  - Toni Wilen: AGA patches
+  - Mathias Ortmann: BSD socket support.
+  - Patrick Ohly: timehack; SCSI support
+
+System specific fixes/ports (some of the fixes for various Unices are no
+longer present, though, since we now use autoconf):
+  - Markus Gietzen: SGI
+  - Ed Hanway: SGI
+  - Marcus Sundberg: DEC Alpha
+  - Samuel Mackrill: AIX/RS6000
+  - Dirk Vangestel: SunOS
+  - Thorsten Frueauf: NetBSD
+  - Ernesto Corvi: Mac port
+  - Gustavo Goedert: DOS port
+  - Peter Remmers, Tim Gunn, Nemo Pohle and Michael Sontheimer: Additional 
+    code for the DOS port
+  - Christian Bauer: BeBox port
+  - Patrick Hanevold: Additional code for BeBox port
+  - Ian Stephenson: NeXT port
+  - Olaf 'Olsen' Barthel: Original Amiga port
+  - Samuel Devulder: Lots of new code for the Amiga port
+  - Krister Bergman: XFree86/OS2 port
+  - Manfred Thole: Solaris sound
+  - Paul Kienitz, Brian King and Mathias Ortmann contributed different
+    ports to Win32. The current one was mainly done by Mathias Ortmann and
+    Brian King.
+  - Peter Teichmann: Acorn RISC PC port
+  - Christian Schmitt, Stefan Reinauer: Linux/GGI port.
+  - Krister Walfridsson: BSD patches
+  - Holger Jakob: Amiga/PPC code
+  - Ari Heikkinen: SGI sound
+
+Miscellaneous other contributions:
+  - Brett Eden: rewrote DOS port documentation, provides many bugreports
+  - Paolo Besser, Fulvio Leonardi: Italian documentation
+  - Chris Hames: helped with info about the serial port.
+  - Tomasz Sienicki: Polish documentation
+  - Jonas Holm Pileborg: Swedish documentation
+
+Please let me know whether it's OK to include your email address here,
+especially if you have made a large contribution that people may have
+questions about. Also, let me know if I have forgotten to include you.

@@ -1,0 +1,346 @@
+Summary of MaxTrax Link Module Functions and Variables
+Copyright ©1991-93 Talin (David Joiner) and Joe Pearce.
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Library General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+02111-1307 USA.
+
+Contact information:
+The Wyrmkeep Entertainment Co.
+Attn: Joe Pearce
+P. O. Box 1585
+Costa Mesa, CA 92628-1585
+www.wyrmkeep.com
+
+===========================================================================
+
+InitMusicTagList
+
+	WORD InitMusicTagList(ULONG scores,struct TagList *tlist)(d0,a0)
+
+	This function initializes the MaxTrax music driver. A vertical blank
+handler is installed, but the audio device is not allocated. Space for the
+given number of scores is allocated. This function must be called before 
+making any other calls to the music driver. This is a replacement for 
+NewInitMusic.
+ 	The tag list parameter is used to set other parameters of the music 
+driver. The only current tag understood is MAXTRAX_VBLANKFREQ. This allows
+the programmer to override the driver's use of SysBase->VBlankFrequency to
+determine the vertical blank frequency. This important under Kickstart 3.0,
+where the user can easily generate displays that don't match the SysBase
+value. Here is an example that sets MAXTRAX_VBLANKFREQ for a 
+Workbench-based program under KS 2.0/3.0:
+ 
+	struct TagList tags[2];
+	struct ViewExtra *ve;
+	ULONG ilock;
+
+	ilock = LockIBase(0);
+	ve = (struct ViewExtra *)GfxLookUp(&IntuitionBase->ViewLord);
+	tags[0].ti_Tag = MAXTRAX_VBLANKFREQ;
+	tags[0].ti_Data = 1000000000 / ((ULONG)ve->Monitor->total_colorclocks
+		* 280 * (ULONG)ve->Monitor->total_rows);
+	tags[1].ti_Tag = TAG_DONE;
+	UnlockIBase(ilock);
+
+	if (InitMusicTagList(24,tags) != MEV_ERR_NONE) goto error;
+
+Note that this function's tag parsing code is very primative. It does not
+handle any special cases such as TAG_IGNORE, TAG_SKIP or TAG_MORE.
+
+
+NewInitMusic
+
+	WORD NewInitMusic(ULONG scores)(d0)
+
+	This function initializes the MaxTrax music driver. A vertical blank
+handler is installed, but the audio device is not allocated. Space for the
+given number of scores is allocated. This function must be called before 
+making any other calls to the music driver. If NewInitMusic or InitMusic has
+already been called previously, the function does nothing. NewInitMusic 
+returns zero if everything was properly initialized, else it returns an 
+error code.
+
+
+InitMusic [Obsolete]
+
+	WORD InitMusic(void)
+
+	This function is equalivant to NewInitMusic(8). Please use NewInitMusic
+or InitMusicTagList instead.
+
+
+FreeMusic
+
+	void FreeMusic(void)
+
+	This function stop any music if playing, unloads any song file, frees 
+the audio device if allocated, disinstalls the vertical blank handler and 
+frees all other resources. FreeMusic can be called even if NewInitMusic or 
+InitMusic was never called or failed.
+
+
+OpenMusic
+
+	WORD OpenMusic(void)
+
+	This function allocates the audio device and initializes all data to
+their default values. OpenMusic is not normally called by a program (since
+other functions like PlaySong will call it when necessary), but it can be
+called to make sure that the audio device is available. OpenMusic returns
+zero if everything was properly initialized, else it returns an error code.
+
+
+CloseMusic
+
+	void CloseMusic(void)
+
+	This function stops any music playing and frees the audio device.
+
+
+LoadPerf
+
+	BOOL LoadPerf(char *name,ULONG mode)(a0/d0)
+
+	This function loads the MaxTrax song file given by name. The song file
+can either be loaded completely (mode = PERF_ALL), or only the score
+(mode = PERF_SCORE) or samples (mode = PERF_SAMPLES) can be loaded. Any 
+previously loaded song file is unloaded via UnloadPerf using the same mode.
+LoadPerf returns TRUE if it succeeds, otherwise it returns FALSE. 
+
+
+UnloadPerf
+
+	void UnloadPerf(ULONG mode)(d0)
+
+	This functions unloads a song file. It can unload all or part of the
+song file in the same way as LoadPerf. UnloadPerf calls CloseMusic, so this
+function can be used to free up most of the drivers resources, but still 
+leaving the driver installed.
+
+
+PlaySong
+
+	BOOL PlaySong(ULONG which)(d0)
+
+	Starts playing a song. If the song has markers in it, the which 
+parameter can be used to start the song at any such marker. The start of 
+the song is considered marker 0, while the first marker is 1, etc. The 
+function returns TRUE if everything went well and the song is playing, 
+else is returns FALSE. 
+
+
+LoopSong
+
+	BOOL LoopSong(ULONG which)(d0)
+
+	Starts playing a song with looping. This functions acts just like 
+PlaySong, except that when the songs ends it will loop back to the 
+beginning and continue.
+
+
+AdvanceSong
+
+	BOOL AdvanceSong(ULONG count)(d0)
+
+	The allows a currently playing song to advance count markers and 
+continue playing from there. If the end of the song is reached, the search
+for markers continues at the beginning of the song. Note that the start of
+the song is considered a marker too. Returns TRUE if even thing went 
+properly, else returns FALSE (usually because there was no song playing).
+
+
+StopSong
+
+	void StopSong(void)
+
+	Stops the currently playing song, but remembers where it stopped.
+
+
+ContinueSong
+
+	void ContinueSong(void)
+
+	Restarts the current song from the point at which is was stopped by
+StopSong.
+
+
+SelectScore
+
+	BOOL SelectScore(ULONG which)(d0)
+
+	If a MaxTrax song file has more than one sequence in it, this function
+can be used to select which sequence will become the next song to play.
+Returns TRUE if the sequence number was valid, else returns FALSE.
+
+
+SetTempo
+
+	void SetTempo(ULONG tempo)(d0)
+
+	This function allows a program to directly change the tempo of a song,
+allowing for various effects. The tempo value is the same as that which 
+appears in Music-X but shifted over left by four. So to get a tempo of 100,
+you would use SetTempo(100 << 4).
+
+
+GetTempo
+
+	LONG GetTempo(void)
+
+	This function returns the tempo of the currently playing song. The
+tempo value is the same as that which appears in Music-X but shifted over
+left by four.
+
+
+SetAudioFilter
+
+	void SetAudioFilter(BOOL state)(d0)
+
+	This functions allows a program to directly turn on or off the Amiga's
+audio filter. Note that this function does nothing on an Amiga 1000 -- 
+the filter is always on in that model Amiga.
+
+
+GetAudioFilter
+
+	LONG GetAudioFilter(void)
+
+	This functions returns the current state of the Amiga's audio filter.
+Note that this function does nothing on an Amiga 1000.
+
+
+SyncSong
+
+	void SyncSong(struct Task *task,ULONG signal)(a0/d0)
+
+	It is possible to synchronize with a song by using synchronization 
+events in a song and this function. To set up for synchronization, call 
+this function with the address of a task to signal and what signal mask 
+(not signal bit) to use. When a synchronization event occurs, the task will
+be signalled and the task can check the MaxTrax structure to see which 
+synchronization event occurred (see MaxTrax structure description below).
+To stop synchronization, call SyncSong with a NULL value for task.
+
+
+PlayNote
+
+	LONG PlayNote(ULONG note,ULONG patch,ULONG duration,ULONG volume,
+		ULONG pan) (d0/d1/d2/d3/d4)
+
+	This function allows a program to directly playing a note. This could
+be used to play a sound effect designed as a standard instrument or the 
+playing of a short theme. Notes played take priority over notes being 
+played by from a song. The parameters are the MIDI note number, the patch
+number to play, the duration in milliseconds, the MIDI volume, and whether
+the note should be played on the left side (0) or the right side (1). If
+the note was successfully played, a MaxTrax sound ID will be returned. This
+value can be used to check on the note's status. If something went wrong,
+a zero is returned. Also, while any note is playing via this function, the
+flag value MUSIC_PLAYNOTE in the MaxTraxInfo structure will be set.
+
+
+CheckNote
+
+	LONG CheckNote(LONG id)(d0)
+
+	The functions determines if a note played via PlayNote with the given
+ID number is still playing. It returns zero if the note has stopped, else
+it returns something other than zero.
+
+
+PlaySound
+
+	LONG PlaySound(void *sample,LONG length,ULONG volume,ULONG period,
+		ULONG flags)(a0/d0/d1/d2/d3)
+
+    This function allows a program to play a sampled sound. The sound will
+take priority over any notes being played, even if they where played by 
+PlayNote. The parameters are a pointer to the sample (in chip ram), the 
+length of the sample in bytes, the Amiga volume to use, the sample period, 
+and flags for controlling stereo and looping. By setting values in the 
+flags parameter, the sample can be played on  either the left side (1), 
+right side (2), stereo (3). Also, you can force MaxTrax to displace any 
+notes playing on the side specified by OR'ing in the value MUST_HAVE_SIDE
+(8). To loop the sample, OR in the value SOUND_LOOP (4) and the number
+times to loop shifted left by 8 into the flags parameter. See the macro
+PS_LOOPCNT in "maxtrax.h" for an example. The loop count can be from 1 to
+255, or 0 to indicate infinite looping. Note that MaxTrax does not handle
+the loading of sampled sounds. If the sound was successfully played, a 
+MaxTrax sound ID will be returned. This value can be used to check on or 
+stop the sound prematurely. If something went wrong, a zero is returned.
+
+StopSound
+
+	void StopSound(LONG id)(d0)
+
+	This function stops a playing sampled sound, with the given ID number
+that was returned by PlaySound. If the sound given by the ID has stopped
+playing, this function does nothing.
+
+
+CheckSound
+
+    LONG CheckSound(LONG id)(d0)
+
+    The functions determines if the sampled sound with the given ID number
+is still playing. It returns zero if the sound has stopped, else it returns
+something other than zero.
+
+
+MaxTrax Structure
+
+    struct MaxTraxInfo {
+        UWORD   TotalScores;    /* total number of scores   */
+        UBYTE   Volume;         /* programmatic volume      */
+        UBYTE   SyncValue;      /* last sync value          */
+        UBYTE   Flags;          /* communication flags      */
+        UBYTE   Changed;        /* set to 1 for change      */
+        APTR    OpenFunc;       /* open MaxTrax file        */
+        APTR    ReadFunc;       /* read from MaxTrax file   */
+        APTR    CloseFunc;      /* close MaxTrax file       */
+    } maxtrax;
+
+    #define MUSIC_PLAYING   (1<<0)  /* events being handled */
+    #define MUSIC_SILENT    (1<<2)  /* no voices playing    */
+    #define MUSIC_VELOCITY  (1<<3)  /* handle attack vel    */
+    #define MUSIC_LOOP      (1<<4)  /* loop the song        */
+    #define MUSIC_PLAYNOTE  (1<<5)  /* a PlayNote playing   */
+
+    The only global structure in MaxTrax is the MaxTraxInfo structure
+labeled maxtrax. This can be referenced in C as
+
+    extern struct MaxTraxInfo maxtrax;
+
+or in assembler as
+
+    xref _maxtrax
+
+Some of the values in the structure are read-only. These are the
+TotalScores in the currently loaded MaxTrax song file and the SyncValue
+of the last synchronization event. In addition all the bits in flags other
+than MUSIC_VELOCITY are read-only. The Volume value and the MUSIC_VELOCITY
+value are both readable and writable. The Volume value is the global volume
+of the player and ranges from 0 (no sound) to 64 (maximum sound). The 
+MUSIC_VELOCITY bit indicates whether note attack velocity is being 
+processed. A program can alter these values and then notify the player that
+a change has occurred by setting the Changed value to 1. The three function
+vectors can be used to override MaxTrax's standard functions to open, read
+and close a MaxTrax file. These can be patched by the application after 
+calling InitMusicTagList or NewInitMusic. This would allow MaxTrax to use a
+compressed file by letting the applcation handle decompression. These 
+functions are called via registers exactly like the DOS library functions 
+Open(), Read() and Close(). All registers except a0, a1, d0 and d1 must be 
+preserved. The default vectors call the DOS library functions.
+
