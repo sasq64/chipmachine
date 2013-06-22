@@ -14,6 +14,8 @@ namespace utils {
 
 typedef unsigned int uint;
 
+const char path_separator = '/';
+
 class io_exception : public std::exception {
 public:
 	io_exception(const char *ptr = "IO Exception") : msg(ptr) {}

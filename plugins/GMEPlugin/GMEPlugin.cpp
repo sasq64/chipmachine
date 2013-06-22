@@ -19,6 +19,15 @@ public:
 		    //gme_info_t* track1;
 			gme_track_info(emu, &track0, 0);
 			//int track_count = gme_track_count(emu);
+
+			setMetaData("title", track0->game);
+			setMetaData("composer", track0->author);
+			setMetaData("copyright", track0->copyright);
+			setMetaData("length", track0->length);
+			setMetaData("songTitle", track0->song);
+			setMetaData("songs", gme_track_count(emu));
+			metaDataEnd();
+
 		}
 
 
@@ -46,6 +55,10 @@ public:
 
 	virtual void seekTo(int song, int seconds) override {
 		if(song >= 0) {
+			gme_info_t* track;
+			gme_track_info(emu, &track, song);
+			setMetaData("songTitle", track->song);
+
 			/* gme_err_t err = */ gme_start_track(emu, song);
 			started = true;
 			//gme_info_t* track;
@@ -62,14 +75,10 @@ private:
 	bool started;
 };
 
-static const set<string> ext = { ".spc", ".gym", ".nsf", ".nsfe", ".gbs", ".ay", ".sap", ".vgm", ".vgz", ".hes", ".kss" };
+static const set<string> supported_ext = { "spc", "gym", "nsf", "nsfe", "gbs", "ay", "sap", "vgm", "vgz", "hes", "kss" };
 
 bool GMEPlugin::canHandle(const std::string &name) {
-	for(string x : ext) {
-		if(utils::endsWith(name, x))
-			return true;
-	}
-	return false;
+	return supported_ext.count(utils::path_extention(name)) > 0;
 }
 
 ChipPlayer *GMEPlugin::fromFile(const std::string &name) {

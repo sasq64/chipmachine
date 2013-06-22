@@ -36,6 +36,30 @@ static int petsciiTable[] = {
 };
 
 static vector<uint8_t> petsciiColors = { 5, 28, 30, 31, 129, 144, 149, 150, 151, 152, 153, 154, 155, 156, 158, 159 };
+/*
+	enum Color {
+		WHITE, //15
+		RED, //1
+		GREEN, //2
+		BLUE,//4
+		ORANGE,
+		BLACK, //0
+		BROWN,
+		PINK, //9
+		DARK_GREY, //8
+		GREY,
+		LIGHT_GREEN, //10
+		LIGHT_BLUE, //12
+		LIGHT_GREY, //7
+		PURPLE, //5
+		YELLOW,//3
+		CYAN //6
+	};
+*/
+
+static int ansiColors[] = { 15, 1, 2, 4, 11, 0, 13, 9, 8, 14, 10, 12, 7, 5, 3, 6 };
+//static int ansiColorsBg[] = {};
+
 
 DummyTerminal dummyTerminal;
 
@@ -65,7 +89,7 @@ void Console::fill(int x, int y, int w, int h) {
 void Console::put(int x, int y, const string &text) {
 	if(y >= height)
 		return;
-	for(unsigned int i=0; i<text.length(); i++) {
+	for(int i=0; i<(int)text.length(); i++) {
 
 		if(x+i >= width)
 			return;
@@ -198,7 +222,12 @@ int Console::getKey(int timeout) {
 // ANSIS
 
 void AnsiConsole::impl_color(int fg, int bg) {
-	const string &s = utils::format("\x1b[%dm", fg + 30);
+
+	int af = ansiColors[fg] % 8;
+	int ab = ansiColors[bg] % 8;
+
+	LOGD("## BG %d\n", ab);
+	const string &s = utils::format("\x1b[%d;%dm", af + 30, ab + 40);
 	outBuffer.insert(outBuffer.end(), s.begin(), s.end());			
 };
 

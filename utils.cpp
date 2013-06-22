@@ -1,6 +1,7 @@
 #include <sys/stat.h>
 
 #include "utils.h"
+#include "log.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -194,6 +195,49 @@ void makeLower(string &s) {
 	for(uint i=0; i<s.length(); i++)
 		s[i] = tolower(s[i]);
 }
+
+string path_basename(const string &name) {
+	size_t slashPos = name.rfind(path_separator);
+	if(slashPos == string::npos)
+		slashPos = 0;
+	else
+		slashPos++;
+	size_t dotPos = name.rfind('.');
+	//LOGD("%s : %d %d", name, slashPos, dotPos);
+	if(dotPos == string::npos || dotPos < slashPos)
+		return name.substr(slashPos);
+	return name.substr(slashPos, dotPos-slashPos);
+}
+
+string path_directory(const string &name) {
+	size_t slashPos = name.rfind(path_separator);
+	if(slashPos == string::npos)
+		slashPos = 0;
+	return name.substr(0, slashPos);
+}
+
+string path_filename(const string &name) {
+	size_t slashPos = name.rfind(path_separator);
+	if(slashPos == string::npos)
+		slashPos = 0;
+	else
+		slashPos++;
+	return name.substr(slashPos);
+}
+
+string path_extention(const string &name) {
+	size_t dotPos = name.rfind('.');
+	size_t slashPos = name.rfind(path_separator);
+	if(slashPos == string::npos)
+		slashPos = 0;
+	else
+		slashPos++;
+	if(dotPos == string::npos || dotPos < slashPos)
+		return "";
+	return name.substr(dotPos+1);
+
+}
+
 
 
 // FORMAT
@@ -391,6 +435,30 @@ TEST_CASE("utils::format", "format operations") {
 	auto s = make_slice(v, 1, 2);
 	res = format("%02x", s);
 	REQUIRE(res == "81 82");
+}
+
+TEST_CASE("utils::path", "Path name operations") {
+
+	using namespace utils;
+	using namespace std;
+
+	const string test1 = "c:/path/to/my/file.ext";
+	const string test2 = "file.ext.gz";
+	const string test3 = "/my/pa.th/";
+
+	REQUIRE(path_basename(test1) == "file");
+	REQUIRE(path_directory(test1) == "c:/path/to/my");
+	REQUIRE(path_filename(test1) == "file.ext");
+	REQUIRE(path_extention(test1) == "ext");
+
+	REQUIRE(path_extention(test2) == "gz");
+	REQUIRE(path_basename(test2) == "file.ext");
+
+	REQUIRE(path_directory(test2) == "");
+	REQUIRE(path_filename(test3) == "");
+	REQUIRE(path_extention(test3) == "");
+	REQUIRE(path_basename(test3) == "");
+	REQUIRE(path_directory(test3) == "/my/pa.th");
 }
 
 #endif

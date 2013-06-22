@@ -203,6 +203,7 @@ int main(int argc, char* argv[]) {
 
 					int seconds = frameCount / 44100;
 
+					console->setFg(Console::WHITE);
 					console->setBg(Console::PINK);
 
 					console->fill(0,0, console->getWidth(), 2);
@@ -351,7 +352,7 @@ int main(int argc, char* argv[]) {
 				LOGD("Found '%s' in queue", songName);
 				player = psys.play(songName);
 
-				songTitle = "";
+				songTitle = path_basename(songName);
 				songComposer = "";
 
 				player->onMeta([&](const string &meta, ChipPlayer *player) {
