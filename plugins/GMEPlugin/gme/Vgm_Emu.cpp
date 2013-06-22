@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu 0.6.0. http://www.slack.net/~ant/
 
 #include "Vgm_Emu.h"
 
@@ -36,8 +36,7 @@ Vgm_Emu::Vgm_Emu()
 	
 	set_silence_lookahead( 1 ); // tracks should already be trimmed
 	
-	static equalizer_t const eq = { -14.0, 80 };
-	set_equalizer( eq );
+	set_equalizer( make_equalizer( -14.0, 80 ) );
 }
 
 Vgm_Emu::~Vgm_Emu() { }
@@ -208,6 +207,8 @@ gme_type_t const gme_vgm_type = &gme_vgm_type_;
 
 static gme_type_t_ const gme_vgz_type_ = { "Sega SMS/Genesis", 1, &new_vgm_emu, &new_vgm_file, "VGZ", 1 };
 gme_type_t const gme_vgz_type = &gme_vgz_type_;
+
+
 // Setup
 
 void Vgm_Emu::set_tempo_( double t )

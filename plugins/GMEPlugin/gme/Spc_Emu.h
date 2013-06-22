@@ -1,6 +1,6 @@
 // Super Nintendo SPC music file emulator
 
-// Game_Music_Emu 0.5.5
+// Game_Music_Emu 0.6.0
 #ifndef SPC_EMU_H
 #define SPC_EMU_H
 
@@ -48,7 +48,7 @@ public:
 	
 public:
 	// deprecated
-	Music_Emu::load;
+	using Music_Emu::load;
 	blargg_err_t load( header_t const& h, Data_Reader& in ) // use Remaining_Reader
 			{ return load_remaining_( &h, sizeof h, in ); }
 	byte const* trailer() const; // use track_info()

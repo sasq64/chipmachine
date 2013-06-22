@@ -1,6 +1,6 @@
 // Common interface to game music file loading and information
 
-// Game_Music_Emu 0.5.5
+// Game_Music_Emu 0.6.0
 #ifndef GME_FILE_H
 #define GME_FILE_H
 
@@ -11,6 +11,7 @@
 
 // Error returned if file is wrong type
 //extern const char gme_wrong_file_type []; // declared in gme.h
+
 struct gme_type_t_
 {
 	const char* system;         /* name of system this music file type is generally for */

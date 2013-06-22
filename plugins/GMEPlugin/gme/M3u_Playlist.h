@@ -1,6 +1,6 @@
 // M3U playlist file parser, with support for subtrack information
 
-// Game_Music_Emu 0.5.5
+// Game_Music_Emu 0.6.0
 #ifndef M3U_PLAYLIST_H
 #define M3U_PLAYLIST_H
 

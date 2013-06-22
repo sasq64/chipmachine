@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu 0.6.0. http://www.slack.net/~ant/
 
 #include "Gym_Emu.h"
 
@@ -163,6 +163,7 @@ static Music_Emu* new_gym_file() { return BLARGG_NEW Gym_File; }
 
 static gme_type_t_ const gme_gym_type_ = { "Sega Genesis", 1, &new_gym_emu, &new_gym_file, "GYM", 0 };
 gme_type_t const gme_gym_type = &gme_gym_type_;
+
 // Setup
 
 blargg_err_t Gym_Emu::set_sample_rate_( long sample_rate )

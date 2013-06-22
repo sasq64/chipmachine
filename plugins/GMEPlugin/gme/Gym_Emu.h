@@ -1,7 +1,7 @@
 // Sega Genesis/Mega Drive GYM music file emulator
 // Includes with PCM timing recovery to improve sample quality.
 
-// Game_Music_Emu 0.5.5
+// Game_Music_Emu 0.6.0
 #ifndef GYM_EMU_H
 #define GYM_EMU_H
 
@@ -34,7 +34,7 @@ public:
 	
 public:
 	// deprecated
-	Music_Emu::load;
+	using Music_Emu::load;
 	blargg_err_t load( header_t const& h, Data_Reader& in ) // use Remaining_Reader
 			{ return load_remaining_( &h, sizeof h, in ); }
 	enum { gym_rate = 60 }; 

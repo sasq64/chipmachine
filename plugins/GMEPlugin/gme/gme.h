@@ -1,12 +1,14 @@
 /* Game music emulator library C interface (also usable from C++) */
 
-/* Game_Music_Emu 0.5.5 */
+/* Game_Music_Emu 0.6.0 */
 #ifndef GME_H
 #define GME_H
 
 #ifdef __cplusplus
 	extern "C" {
 #endif
+
+#define GME_VERSION 0x000600 /* 1 byte major, 1 byte minor, 1 byte patch-level */
 
 /* Error string returned by library functions, or NULL if no error (success) */
 typedef const char* gme_err_t;
@@ -76,7 +78,6 @@ void gme_free_info( gme_info_t* );
 
 struct gme_info_t
 {
-	
 	/* times in milliseconds; -1 if unknown */
 	int length;			/* total length, if file specifies it */
 	int intro_length;	/* length of song up to looping section */
@@ -91,7 +92,7 @@ struct gme_info_t
 	/* empty string ("") if not available */
 	const char* system;
 	const char* game;
-    const char* song;
+	const char* song;
 	const char* author;
 	const char* copyright;
 	const char* comment;
@@ -129,6 +130,7 @@ voices, 0 unmutes them all, 0x01 mutes just the first voice, etc. */
 void gme_mute_voices( Music_Emu*, int muting_mask );
 
 /* Frequency equalizer parameters (see gme.txt) */
+/* Implementers: If modified, also adjust Music_Emu::make_equalizer as needed */
 typedef struct gme_equalizer_t
 {
 	double treble; /* -50.0 = muffled, 0 = flat, +5.0 = extra-crisp */
@@ -145,6 +147,7 @@ void gme_set_equalizer( Music_Emu*, gme_equalizer_t const* eq );
 
 /* Enables/disables most accurate sound emulation options */
 void gme_enable_accuracy( Music_Emu*, int enabled );
+
 
 /******** Game music types ********/
 
@@ -171,6 +174,7 @@ gme_type_t gme_type( Music_Emu const* );
 /* Pointer to array of all music types, with NULL entry at end. Allows a player linked
 to this library to support new music types without having to be updated. */
 gme_type_t const* gme_type_list();
+
 /* Name of game system for this music file type */
 const char* gme_type_system( gme_type_t );
 

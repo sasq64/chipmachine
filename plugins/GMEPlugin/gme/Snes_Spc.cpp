@@ -1,6 +1,6 @@
 // SPC emulation support: init, sample buffering, reset, SPC loading
 
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu 0.6.0. http://www.slack.net/~ant/
 
 #include "Snes_Spc.h"
 

@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu 0.6.0. http://www.slack.net/~ant/
 
 #include "Nsfe_Emu.h"
 
@@ -299,6 +299,7 @@ static Music_Emu* new_nsfe_file() { return BLARGG_NEW Nsfe_File; }
 
 static gme_type_t_ const gme_nsfe_type_ = { "Nintendo NES", 0, &new_nsfe_emu, &new_nsfe_file, "NSFE", 1 };
 gme_type_t const gme_nsfe_type = &gme_nsfe_type_;
+
 
 blargg_err_t Nsfe_Emu::load_( Data_Reader& in )
 {

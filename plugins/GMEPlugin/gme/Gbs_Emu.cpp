@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu 0.6.0. http://www.slack.net/~ant/
 
 #include "Gbs_Emu.h"
 
@@ -18,8 +18,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA */
 
 #include "blargg_source.h"
 
-Gbs_Emu::equalizer_t const Gbs_Emu::handheld_eq   = { -47.0, 2000 };
-Gbs_Emu::equalizer_t const Gbs_Emu::headphones_eq = {   0.0,  300 };
+Gbs_Emu::equalizer_t const Gbs_Emu::handheld_eq   =
+	Music_Emu::make_equalizer( -47.0, 2000 );
+Gbs_Emu::equalizer_t const Gbs_Emu::headphones_eq =
+	Music_Emu::make_equalizer( 0.0, 300 );
 
 Gbs_Emu::Gbs_Emu()
 {
@@ -39,8 +41,7 @@ Gbs_Emu::Gbs_Emu()
 	set_max_initial_silence( 21 );
 	set_gain( 1.2 );
 	
-	static equalizer_t const eq = { -1.0, 120 };
-	set_equalizer( eq );
+	set_equalizer( make_equalizer( -1.0, 120 ) );
 }
 
 Gbs_Emu::~Gbs_Emu() { }
@@ -101,6 +102,7 @@ static Music_Emu* new_gbs_file() { return BLARGG_NEW Gbs_File; }
 
 static gme_type_t_ const gme_gbs_type_ = { "Game Boy", 0, &new_gbs_emu, &new_gbs_file, "GBS", 1 };
 gme_type_t const gme_gbs_type = &gme_gbs_type_;
+
 // Setup
 
 blargg_err_t Gbs_Emu::load_( Data_Reader& in )
@@ -211,10 +213,7 @@ blargg_err_t Gbs_Emu::start_track_( int track )
 	for ( int i = 0; i < (int) sizeof sound_data; i++ )
 		apu.write_register( 0, i + apu.start_addr, sound_data [i] );
 	
-	
-	
 	unsigned load_addr = get_le16( header_.load_addr );
-	
 	rom.set_addr( load_addr );
 	cpu::rst_base = load_addr;
 	

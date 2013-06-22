@@ -1,6 +1,6 @@
 // SNES SPC-700 APU emulator
 
-// Game_Music_Emu 0.5.5
+// Game_Music_Emu 0.6.0
 #ifndef SNES_SPC_H
 #define SNES_SPC_H
 

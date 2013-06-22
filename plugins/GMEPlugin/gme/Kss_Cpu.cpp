@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu 0.6.0. http://www.slack.net/~ant/
 
 /*
 Last validated with zexall 2006.11.14 2:19 PM
@@ -839,8 +839,9 @@ possibly_out_of_time:
 //////////////////////////////////////// CB prefix
 	{
 	case 0xCB:
-		//unsigned data2;
-		//data2 = instr [1];
+		unsigned data2;
+		data2 = instr [1];
+		(void) data2; // TODO is this the same as data in all cases?
 		pc++;
 		switch ( data )
 		{

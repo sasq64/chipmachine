@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu 0.6.0. http://www.slack.net/~ant/
 
 #include "Music_Emu.h"
 
@@ -24,7 +24,8 @@ int const silence_threshold = 0x10;
 long const fade_block_size = 512;
 int const fade_shift = 8; // fade ends with gain at 1.0 / (1 << fade_shift)
 
-Music_Emu::equalizer_t const Music_Emu::tv_eq = { -8.0, 180 };
+Music_Emu::equalizer_t const Music_Emu::tv_eq =
+	Music_Emu::make_equalizer( -8.0, 180 );
 
 void Music_Emu::clear_track_vars()
 {
@@ -219,6 +220,7 @@ blargg_err_t Music_Emu::skip( long count )
 	
 	return 0;
 }
+
 blargg_err_t Music_Emu::skip_( long count )
 {
 	// for long skip, mute sound
@@ -403,8 +405,8 @@ blargg_err_t Gme_Info_::set_sample_rate_( long )            { return 0; }
 void         Gme_Info_::pre_load()                          { Gme_File::pre_load(); } // skip Music_Emu
 void         Gme_Info_::post_load_()                        { Gme_File::post_load_(); } // skip Music_Emu
 void         Gme_Info_::set_equalizer_( equalizer_t const& ){ check( false ); }
-void         Gme_Info_::mute_voices_( int )                 { check( false ); }
 void         Gme_Info_::enable_accuracy_( bool )            { check( false ); }
+void         Gme_Info_::mute_voices_( int )                 { check( false ); }
 void         Gme_Info_::set_tempo_( double )                { }
 blargg_err_t Gme_Info_::start_track_( int )                 { return "Use full emulator for playback"; }
 blargg_err_t Gme_Info_::play_( long, sample_t* )            { return "Use full emulator for playback"; }

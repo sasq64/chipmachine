@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu 0.6.0. http://www.slack.net/~ant/
 
 #include "Hes_Emu.h"
 
@@ -134,6 +134,8 @@ static Music_Emu* new_hes_file() { return BLARGG_NEW Hes_File; }
 
 static gme_type_t_ const gme_hes_type_ = { "PC Engine", 256, &new_hes_emu, &new_hes_file, "HES", 1 };
 gme_type_t const gme_hes_type = &gme_hes_type_;
+
+
 // Setup
 
 blargg_err_t Hes_Emu::load_( Data_Reader& in )

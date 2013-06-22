@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu 0.6.0. http://www.slack.net/~ant/
 
 #include "Ay_Emu.h"
 
@@ -118,6 +118,7 @@ static Music_Emu* new_ay_file() { return BLARGG_NEW Ay_File; }
 
 static gme_type_t_ const gme_ay_type_ = { "ZX Spectrum", 0, &new_ay_emu, &new_ay_file, "AY", 1 };
 gme_type_t const gme_ay_type = &gme_ay_type_;
+
 // Setup
 
 blargg_err_t Ay_Emu::load_mem_( byte const* in, long size )

@@ -1,8 +1,8 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu 0.6.0. http://www.slack.net/~ant/
 
 #include "Music_Emu.h"
-#include "gme_types.h"
 
+#include "gme_types.h"
 #if !GME_DISABLE_STEREO_DEPTH
 #include "Effects_Buffer.h"
 #endif
@@ -63,6 +63,7 @@ BLARGG_EXPORT gme_type_t const* gme_type_list()
 #endif
         0
     };
+
 	return gme_type_list_;
 }
 
@@ -356,7 +357,7 @@ BLARGG_EXPORT void      gme_set_equalizer  ( Music_Emu* me, gme_equalizer_t cons
 
 BLARGG_EXPORT void gme_equalizer( Music_Emu const* me, gme_equalizer_t* out )
 {
-	gme_equalizer_t e = { };
+	gme_equalizer_t e = gme_equalizer_t(); // Default-init all fields to 0.0f
 	e.treble = me->equalizer().treble;
 	e.bass   = me->equalizer().bass;
 	*out = e;

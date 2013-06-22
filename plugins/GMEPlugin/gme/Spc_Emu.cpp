@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu 0.6.0. http://www.slack.net/~ant/
 
 #include "Spc_Emu.h"
 
@@ -261,7 +261,6 @@ blargg_err_t Spc_Emu::set_sample_rate_( long sample_rate )
 	return 0;
 }
 
-	
 void Spc_Emu::enable_accuracy_( bool b )
 {
 	Music_Emu::enable_accuracy_( b );
@@ -320,7 +319,8 @@ blargg_err_t Spc_Emu::skip_( long count )
 	
 	// TODO: shouldn't skip be adjusted for the 64 samples read afterwards?
 	
-	if ( count > 0 ) {
+	if ( count > 0 )
+	{
 		RETURN_ERR( apu.skip( count ) );
 		filter.clear();
 	}

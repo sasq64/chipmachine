@@ -1,4 +1,4 @@
-// Game_Music_Emu 0.5.5. http://www.slack.net/~ant/
+// Game_Music_Emu 0.6.0. http://www.slack.net/~ant/
 
 #include "Kss_Emu.h"
 
@@ -103,6 +103,8 @@ static Music_Emu* new_kss_file() { return BLARGG_NEW Kss_File; }
 
 static gme_type_t_ const gme_kss_type_ = { "MSX", 256, &new_kss_emu, &new_kss_file, "KSS", 0x03 };
 gme_type_t const gme_kss_type = &gme_kss_type_;
+
+
 // Setup
 
 void Kss_Emu::update_gain()
