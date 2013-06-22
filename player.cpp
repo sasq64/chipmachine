@@ -303,7 +303,11 @@ int main(int argc, char* argv[]) {
 				const auto &results = query.getResult(start, h);
 				for(const auto &r : results) {
 					auto p = split(r, "\t");
+					int index = atoi(p[2].c_str());
+					if(db.getFormat(index) == 0x11)
+						console->setFg(Console::LIGHT_BLUE);
 					console->put(1, i+3, format("%03d. %s - %s", start+i, p[1], p[0]));
+					console->setFg(Console::GREEN);
 					i++;
 					if(i >= h-3)
 						break;

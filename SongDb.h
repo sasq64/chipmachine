@@ -47,6 +47,10 @@ public:
 		return composerIndex.getString(titleToComposer[index]);
 	}
 
+	int getFormat(int index) {
+		return formats[index];
+	}
+
 	void addSubStrings(const std::string &words, std::unordered_map<uint16_t, std::vector<int>> &stringMap, int index);
 
 	virtual std::string getFullString(int index) override;
@@ -59,5 +63,6 @@ private:
 	SearchIndex titleIndex;
 	std::vector<int> titleToComposer;
 	std::vector<int> composerToTitle;
+	std::vector<uint8_t> formats;
 };
 

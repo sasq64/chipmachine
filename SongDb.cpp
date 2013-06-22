@@ -57,6 +57,40 @@ string SongDatabase::getFullString(int id) {
 	}
 	//return "";
 }
+enum {
+	UNKNOWN,
+	C64_SID,
+	TRACKER_ANY = 0x10,
+	TRACKER_MOD,
+	TRACKER_XM,
+	TRACKER_S3M,
+	TRACKER_FT,
+
+	GM_ANY = 0x30,
+	GM_NES,
+	GM_SNES,
+	GM_GAMEBOY,
+
+	AUDIO_ANY = 0x50,
+
+	AMI_ANY = 0x80,
+	AMI_TFMX,
+	AMI_CUSTOM,
+	AMI_FC,
+};
+
+
+
+unordered_map<string, int> formatMap {
+	{ "sid", C64_SID },
+	{ "mod", TRACKER_MOD },
+	{ "xm", TRACKER_XM },
+	{ "s3m", TRACKER_S3M },
+	{ "nsf", GM_NES },
+	{ "smc", GM_SNES },
+	{ "gbs", GM_GAMEBOY }
+};	
+
 
 void SongDatabase::generateIndex() {
 
@@ -64,7 +98,7 @@ void SongDatabase::generateIndex() {
 	const char *tail;
 	char oldComposer[256] = "";
 
-	int rc = sqlite3_prepare_v2(db, "SELECT title, composer FROM songs;", -1, &s, &tail);
+	int rc = sqlite3_prepare_v2(db, "SELECT title, composer, path FROM songs;", -1, &s, &tail);
 	LOGD("Result '%d'\n", rc);
 	if(rc != SQLITE_OK)
 		throw database_exception("Select failed");
@@ -78,6 +112,12 @@ void SongDatabase::generateIndex() {
 		if(ok == SQLITE_ROW) {
 			const char *title = (const char *)sqlite3_column_text(s, 0);
 			const char *composer = (const char *)sqlite3_column_text(s, 1);
+			const char *path = (const char *)sqlite3_column_text(s, 2);
+
+			string ext = path_extention(path);
+			int fmt = formatMap[ext];
+			formats.push_back(fmt);
+
 
 			int tindex = titleIndex.add(title);
 
@@ -131,7 +171,7 @@ TEST_CASE("db::index", "Generate index") {
 	db.generateIndex();
 
 	string search_string = "tune tel fre";
-	vector<int> results { 155, 1, 2928, 2678, 2678, 1938, 524, 11, 11, 1, 1, 1 };
+	vector<int> results { 155, 1, 2944, 2694, 2694, 1954, 524, 11, 11, 1, 1, 1 };
 	IncrementalQuery q = db.find();
 	int i = 0;
 	for(char c : search_string) {		
@@ -169,7 +209,7 @@ TEST_CASE("db::find", "Search Benchmark") {
 
 	vector<IncrementalQuery> iqs;
 
-	for(int i=0; i<25; i++) {
+	for(int i=0; i<100; i++) {
 		iqs.push_back(db.find());
 	}
 
