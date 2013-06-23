@@ -4,9 +4,8 @@ OBJDIR=obj/
 TARGET=libuade
 EXT := .a
 
-SRCDIR := uade-2.13/src/
-UADE =
-FE = frontends/common/
+UADE = uade-2.13/src/
+FE = $(UADE)frontends/common/
 
 OBJS := \
 	$(FE)amifilemagic.o \
@@ -18,36 +17,20 @@ OBJS := \
 	$(FE)uadeconf.o \
 	$(FE)uadecontrol.o \
 	$(FE)vplist.o \
+	$(FE)songinfo.o \
 	$(UADE)unixatomic.o \
-	$(UADE)audio.o \
-	$(UADE)cfgfile.o \
-	$(UADE)cia.o \
-	$(UADE)compiler.o \
-	$(UADE)cpudefs.o \
-	$(UADE)cpuemu.o \
-	$(UADE)cpustbl.o \
-	$(UADE)custom.o \
-	$(UADE)debug.o \
-	$(UADE)fpp.o \
-	$(UADE)main.o \
-	$(UADE)md-support.o \
-	$(UADE)memory.o \
-	$(UADE)missing.o \
-	$(UADE)newcpu.o \
-	$(UADE)readcpu.o \
-	$(UADE)sd-sound.o \
-	$(UADE)simpleipc.o \
-	$(UADE)simplesupport.o \
-	$(UADE)sinctable.o \
-	$(UADE)text_scope.o \
-	$(UADE)uade.o \
 	$(UADE)uadeipc.o \
-	$(UADE)uademain.o 
+	$(UADE)ossupport.o \
+	libuade.o \
+	UADEPlugin.o
+
+
+	#uadesimple libuade.o audio.o unixatomic.o uadeipc.o amifilemagic.o eagleplayer.o unixwalkdir.o effects.o 
+	#uadecontrol.o uadeconf.o md5.o ossupport.o songdb.o songinfo.o vplist.o support.o 
 
 CFLAGS := \
-	-I$(SRCDIR)include \
-	-I$(SRCDIR)frontends/include \
-	-I$(SRCDIR)frontends/include/uade \
-	-I$(SRCDIR)$(FE)
+	-I$(UADE)include \
+	-I$(UADE)frontends/include \
+	-I$(FE)
 
 include ../../Makefile.inc

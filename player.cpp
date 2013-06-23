@@ -10,6 +10,7 @@
 #include "VicePlugin.h"
 #include "SexyPSFPlugin.h"
 #include "GMEPlugin.h"
+#include "UADEPlugin.h"
 
 #include "TelnetServer.h"
 #include "TextScreen.h"
@@ -152,6 +153,7 @@ int main(int argc, char* argv[]) {
 	psys.addPlugin<VicePlugin>();
 	psys.addPlugin<SexyPSFPlugin>();
 	psys.addPlugin<GMEPlugin>();
+	psys.addPlugin<UADEPlugin>();
 
 	unique_ptr<ChipPlayer> player = nullptr; //psys.play(name);
 

@@ -3,12 +3,12 @@ include settings.mk
 
 OBJDIR := obj/
 CFLAGS := -g -Wall -I. -Iinclude -Iplugins/SexyPSFPlugin
-CFLAGS := $(CFLAGS) -Inetlink/include -Isqlite3 -Iplugins/VicePlugin -Iplugins/ModPlugin -Iplugins/GMEPlugin
+CFLAGS := $(CFLAGS) -Inetlink/include -Isqlite3 -Iplugins/VicePlugin -Iplugins/ModPlugin -Iplugins/GMEPlugin -Iplugins/UADEPlugin
 
 TARGET := player
 MODULES := ziplib netlink/src
-LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lz
-LDFLAGS := -Wl,-Map -Wl,mapfile -Lplugins/SexyPSFPlugin -Lplugins/VicePlugin -Lplugins/ModPlugin -Lplugins/GMEPlugin
+LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -luade -lz
+LDFLAGS := -Wl,-Map -Wl,mapfile -Lplugins/SexyPSFPlugin -Lplugins/VicePlugin -Lplugins/ModPlugin -Lplugins/GMEPlugin -Lplugins/UADEPlugin
 OBJS := player.o TelnetServer.o TextScreen.o SongDb.o SearchIndex.o WebGetter.o URLPlayer.o Archive.o utils.o log.o sqlite3/sqlite3.o
 
 WIN_CFLAGS := $(WIN_CFLAGS) -static -Icurl/include -DWIN32
@@ -27,7 +27,7 @@ PI_LIBS := -lwiringPi
 
 #GCC_VERSION := $(subst /platform-tools/,,$(dir $(shell which adb)))
 
-all : vice sexypsf gmeplugin modplug netlink $(TARGET)$(EXT)
+all : vice sexypsf gmeplugin modplug uadeplugin netlink $(TARGET)$(EXT)
 
 run :
 	./player
@@ -53,5 +53,8 @@ sexypsf :
 
 gmeplugin :
 	make -C plugins/GMEPlugin
+
+uadeplugin :
+	make -C plugins/UADEPlugin
 
 include Makefile.inc
