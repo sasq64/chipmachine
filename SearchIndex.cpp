@@ -210,14 +210,58 @@ void IncrementalQuery::search() {
 	}
 }
 
+#include <iconv.h>
+
+bool SearchIndex::transInited = false;
+std::vector<uint8_t> SearchIndex::to7bit(256);
+std::vector<uint8_t> SearchIndex::to7bitlow(256);
+
+void SearchIndex::initTrans() {
+	transInited = true;
+	iconv_t fd = iconv_open("ASCII//TRANSLIT", "ISO_8859-1");
+	if(fd >= 0) {
+
+		uint8_t in[2];
+		in[1] = 0;
+		uint8_t out[4];
+
+		for(int i=0; i<256; i++) {
+			in[0] = i;
+			char *inptr = (char*)&in;
+			char *outptr = (char*)&out;
+			size_t inleft = 1;
+			size_t outleft = 4;
+			*outptr = ' ';
+			int rc = iconv(fd, &inptr, &inleft, &outptr, &outleft);
+			if(4-outleft > 1) {
+				if(!isalpha(out[0]))
+					out[0] = out[1];
+			}
+			to7bit[i] = out[0];
+			to7bitlow[i] = tolower(out[0]);
+		}
+		LOGD("[%02x]", to7bit);
+		LOGD("%s", string((char*)&to7bit[1], 0, 255));
+		//printf("%02x\n", (int)outdata[0xe4]);
+		//printf("%02x\n", (int)outdata[0xe5]);
+		iconv_close(fd);
+	}
+}
+
 void SearchIndex::simplify(string &s) {
+
+	if(!transInited) {
+		initTrans();
+	}
+
 	for(unsigned int i=0; i<s.length(); i++) {
 		char &c = s[i];
 		if(c == '-' || c == '\'') {
 			s.erase(i, 1);
 			i--;
 		} else
-			c = tolower(c);
+			c = to7bitlow[c&0xff];
+			//c = tolower(c);
 	}
 }
 
@@ -278,9 +322,15 @@ int SearchIndex::add(const string &str) {
 	string tl;
 	bool wordAdded = true;
 
+	if(!transInited) {
+		initTrans();
+	}
+
 	for(char c : str) {
 		if(c == '-' || c == '\'')
 			continue;
+
+		c = to7bitlow[c&0xff];
 
 		if(!isalnum(c)) {
 			if(!wordAdded) {
@@ -296,7 +346,7 @@ int SearchIndex::add(const string &str) {
 			continue;
 		}
 		wordAdded = false;
-		tl.push_back(tolower(c));
+		tl.push_back(c);
 
 		if(tl.size() == 3) {
 			uint16_t code = tlcode(tl.c_str());

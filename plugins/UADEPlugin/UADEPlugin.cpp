@@ -19,16 +19,27 @@ using namespace std;
 
 class UADEPlayer : public ChipPlayer {
 public:
-	UADEPlayer(string fileName) {
-		play_song(fileName.c_str());	
+	UADEPlayer() : valid(false){
+	}
+
+	bool load(string fileName) {
+		if(play_song(fileName.c_str()) == 1) {
+			valid = true;
+		} 
+		return valid;
+
 	}
 
 	~UADEPlayer() override {
-		exit_song();
+		if(valid)
+			exit_song();
 	}
 
 	virtual int getSamples(int16_t *target, int noSamples) override {
-		return get_samples((uint8_t*)target, noSamples * 2) / 2;
+		int rc = get_samples((uint8_t*)target, noSamples * 2);
+		if(rc > 0)
+			return rc/2;
+		return rc;
 	}
 
 	virtual void seekTo(int song, int seconds) {	
@@ -40,6 +51,7 @@ public:
 	//}
 
 private:
+	bool valid;
 	//ModPlugFile *mod;
 	//private unordered_map<string, string>;
 };
@@ -60,7 +72,12 @@ bool UADEPlugin::canHandle(const std::string &name) {
 
 ChipPlayer *UADEPlugin::fromFile(const std::string &fileName) {
 //	utils::File file { fileName };
-	return new UADEPlayer { fileName };
+	auto *player = new UADEPlayer();
+	if(!player->load(fileName)) {
+		delete player;
+		player = nullptr;
+	}
+	return player;
 };
 
 UADEPlugin::UADEPlugin() {

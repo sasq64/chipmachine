@@ -100,6 +100,7 @@ std::string path_directory(const std::string &name);
 std::string path_filename(const std::string &name);
 std::string path_extention(const std::string &name);
 
+std::string utf8_encode(const std::string &s);
 
 // SLICE
 

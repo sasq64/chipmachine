@@ -281,7 +281,7 @@ blargg_err_t Gzip_File_Reader::open( const char* path )
 	
 	RETURN_ERR( get_gzip_eof( path, &size_ ) );
 	
-	file_ = gzopen( path, "rb" );
+	file_ = (void*)gzopen( path, "rb" );
 	if ( !file_ )
 		return "Couldn't open file";
 	
@@ -290,13 +290,13 @@ blargg_err_t Gzip_File_Reader::open( const char* path )
 
 long Gzip_File_Reader::size() const { return size_; }
 
-long Gzip_File_Reader::read_avail( void* p, long s ) { return gzread( file_, p, s ); }
+long Gzip_File_Reader::read_avail( void* p, long s ) { return gzread( (gzFile)file_, p, s ); }
 
-long Gzip_File_Reader::tell() const { return gztell( file_ ); }
+long Gzip_File_Reader::tell() const { return gztell( (gzFile)file_ ); }
 
 blargg_err_t Gzip_File_Reader::seek( long n )
 {
-	if ( gzseek( file_, n, SEEK_SET ) >= 0 )
+	if ( gzseek( (gzFile)file_, n, SEEK_SET ) >= 0 )
 		return 0;
 	if ( n > size_ )
 		return eof_error;
@@ -307,7 +307,7 @@ void Gzip_File_Reader::close()
 {
 	if ( file_ )
 	{
-		gzclose( file_ );
+		gzclose( (gzFile)file_ );
 		file_ = 0;
 	}
 }

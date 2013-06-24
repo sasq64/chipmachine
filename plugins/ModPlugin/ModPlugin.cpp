@@ -21,6 +21,8 @@ public:
 		ModPlug_SetSettings(&settings);
 		mod = ModPlug_Load(data, size);
 
+		setMetaData("length", ModPlug_GetLength(mod) / 1000);
+
 		//metaData[ChipPlayer::LENGTH] = to_string(ModPlug_GetLength() / 1000));
 		//metaData[ChipPlayer::TITLE] = ModPlug_GetName(mod);
 	}
@@ -38,25 +40,14 @@ public:
 			ModPlug_Seek(mod, seconds * 1000);
 	}
 
-	//virtual unordered_map<string, string> getMetaData() {
-	//	return metaData;
-	//}
-
-
 private:
 	ModPlugFile *mod;
-	//private unordered_map<string, string>;
 };
 
-static const set<string> ext { ".mod", ".xm", ".s3m" , ".okt", ".it", ".ft" };
+static const set<string> supported_ext { "mod", "xm", "s3m" , "okt", "it", "ft" };
 
 bool ModPlugin::canHandle(const std::string &name) {
-	for(string x : ext) {
-		if(utils::endsWith(name, x))
-			return true;
-	}
-	return false;
-	//utils::endsWith(name, ".mod") || utils::endsWith(name, ".xm");
+	return supported_ext.count(utils::path_extention(name)) > 0;
 }
 
 ChipPlayer *ModPlugin::fromFile(const std::string &fileName) {

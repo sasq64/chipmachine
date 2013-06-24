@@ -41,6 +41,8 @@
 
 #include "Fifo.h"
 
+//#include "../../log.h"
+
 int uade_song_end_trigger;
 
 static char uadename[PATH_MAX];
@@ -49,7 +51,7 @@ static void cleanup(void);
 void init_uade();
 int play_song(const char *name);
 int play();
-void exit_song();
+int exit_song();
 
 
 //struct play_state {
@@ -266,7 +268,7 @@ int play_song(const char *name) {
 	if (ret) {
 		if (ret == UADECORE_INIT_ERROR) {
 			uade_unalloc_song(&state);
-			//goto cleanup;
+			return 0;
 
 		} else if (ret == UADECORE_CANT_PLAY) {
 			debug(state.config.verbose, "Uadecore refuses to play the song.\n");
@@ -275,11 +277,22 @@ int play_song(const char *name) {
 		}
 
 		fprintf(stderr, "Unknown error from uade_song_initialization()\n");
-		exit(1);
+		return 0;
 	}
+
+	fprintf(stderr, "Setting up song\n");
 
 	uade_effect_reset_internals();
 
+
+	left = 0;
+	what_was_left = 0;
+
+	subsong_end = 0;
+	//next_song = 0;
+	tailbytes = 0;
+
+  	subsong_bytes = 0;
 	bytes_per_second = UADE_BYTES_PER_FRAME * state.config.frequency;
 	controlstate = UADE_S_STATE;
 
@@ -291,9 +304,54 @@ int play_song(const char *name) {
 	return 1;
 }
 
-void exit_song() {
+static int wait_token() {
+	do
+	{
+		int ret = uade_receive_message(um, sizeof(space), ipc);
+		if(ret < 0)
+		{
+			fprintf(stderr, "\nCan not receive events (TOKEN) from uade.\n");
+			return 0;
+		}
+		if (ret == 0)
+		{
+			fprintf(stderr, "\nEnd of input after reboot.\n");
+			return 0;
+		}
+	} while (um->msgtype != UADE_COMMAND_TOKEN);
+	return 1;
+}
+
+int exit_song() {
+
+	fprintf(stderr, "Ending UADE song");
+
 	uade_unalloc_song(&state);
 	uade_song_end_trigger = 0;
+
+	if(controlstate == UADE_R_STATE)
+		wait_token();
+
+	fprintf(stderr, "close2\n");
+	if(uade_send_short_message(UADE_COMMAND_REBOOT, ipc))
+	{
+		fprintf(stderr, "\nCan not send reboot\n");
+		return;
+	}
+	fprintf(stderr, "close3\n");
+    if (uade_send_short_message(UADE_COMMAND_TOKEN, ipc))
+	{
+		fprintf(stderr, "\nCan not send token\n");
+		return;
+	}
+ 	fprintf(stderr, "close4\n");
+
+	wait_token();
+
+	controlstate = UADE_S_STATE;
+
+
+	/*
   do {
 	int ret = uade_receive_message(um, sizeof(space), ipc);
 	if (ret < 0) {
@@ -306,13 +364,13 @@ void exit_song() {
 	}
   } while (um->msgtype != UADE_COMMAND_TOKEN);
 
-  tprintf("\n");
+  tprintf("\n"); */
   return 0;
 }
 
-void cleanup(void) {
-	audio_close();
-}
+//void cleanup(void) {
+	//audio_close();
+//}
 
 static int new_subsong = -1;
 void set_song(int song) {

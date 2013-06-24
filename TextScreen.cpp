@@ -35,6 +35,27 @@ static int petsciiTable[] = {
 	0xF135,0xF136,0x2518,0xF137,0x2592
 };
 
+
+
+static uint8_t c64pal [] = {
+	0xFF, 0xFF, 0xFF, // WHITE
+	0x68, 0x37, 0x2B, // RED
+	0x58, 0x8D, 0x43, // GREEN
+	0x35, 0x28, 0x79, // BLUE
+	0x6F, 0x4F, 0x25, // ORANGE
+	0x00, 0x00, 0x00, // BLACK
+	0x43, 0x39, 0x00, // BROWN
+	0x9A, 0x67, 0x59, // LIGHT_READ
+	0x44, 0x44, 0x44, // DARK_GREY
+	0x6C, 0x6C, 0x6C, // GREY
+	0x9A, 0xD2, 0x84, // LIGHT_GREEN
+	0x6C, 0x5E, 0xB5, // LIGHT_BLUE
+	0x95, 0x95, 0x95, // LIGHT_GREY
+	0x6F, 0x3D, 0x86, // PURPLE
+	0xB8, 0xC7, 0x6F, // YELLOW
+	0x70, 0xA4, 0xB2, // CYAN
+};
+
 static vector<uint8_t> petsciiColors = { 5, 28, 30, 31, 129, 144, 149, 150, 151, 152, 153, 154, 155, 156, 158, 159 };
 /*
 	enum Color {
@@ -61,7 +82,8 @@ static int ansiColors[] = { 15, 1, 2, 4, 11, 0, 13, 9, 8, 14, 10, 12, 7, 5, 3, 6
 //static int ansiColorsBg[] = {};
 
 
-DummyTerminal dummyTerminal;
+
+LocalTerminal localTerminal;
 
 void Console::clear() {
 	for(auto &t : grid) {
@@ -96,7 +118,8 @@ void Console::put(int x, int y, const string &text) {
 
 		Tile &t = grid[(x+i) + y * width];
 		//LOGD("put to %d %d",x+i,y);	
-		t.c = text[i];
+		t.c = (Char)(text[i] & 0xff);
+		impl_translate(t.c);
 		if(fgColor >= 0)
 			t.fg = fgColor;
 		if(bgColor >= 0)
@@ -168,9 +191,8 @@ void Console::flush() {
 
 }
 
-void Console::putChar(char c) {
-	//LOGD("putchar %02x", c);
-	outBuffer.push_back(c);
+void Console::putChar(Char c) {
+	outBuffer.push_back(c & 0xff);
 	curX++;
 	if(curX >= width) {
 		curX -= width;
@@ -221,13 +243,48 @@ int Console::getKey(int timeout) {
 
 // ANSIS
 
+AnsiConsole::AnsiConsole(Terminal &terminal) : Console(terminal) {
+	resize(width, height);
+	for(int i=0; i<16; i++) {
+		uint8_t *p = &c64pal[i*3];
+		const string &s = utils::format("\x1b]4;%d;#%02x%02x%02x\x07", 160 + i, p[0], p[1], p[2]);
+		outBuffer.insert(outBuffer.end(), s.begin(), s.end());
+	}
+};
+
+
+void AnsiConsole::putChar(Char c) {
+
+	if(c <= 0x7f)
+		outBuffer.push_back(c);
+	else {
+
+		outBuffer.push_back(0xC0 | (c >> 6));
+		outBuffer.push_back(0x80 | (c & 0x3F));
+		int l = outBuffer.size();
+		LOGD("Translated %02x to %02x %02x", c, (int)outBuffer[l-2], (int)outBuffer[l-1]);
+	}
+
+	curX++;
+	if(curX >= width) {
+		curX -= width;
+		curY++;
+	}
+}
+
+
 void AnsiConsole::impl_color(int fg, int bg) {
 
-	int af = ansiColors[fg] % 8;
-	int ab = ansiColors[bg] % 8;
+	int af = ansiColors[fg];
+	int ab = ansiColors[bg];
 
-	LOGD("## BG %d\n", ab);
-	const string &s = utils::format("\x1b[%d;%dm", af + 30, ab + 40);
+	//LOGD("## BG %d\n", ab);
+	//const string &s = utils::format("\x1b[%d;%d%sm", af + 30, ab + 40, hl ? ";1" : "");
+	const string &s = utils::format("\x1b[38;5;%d;48;5;%dm", af, ab);//fg+160, bg+160);
+
+	//uint8_t *fp = &c64pal[fg*3];
+	//uint8_t *bp = &c64pal[bg*3];
+	//const string &s = utils::format("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm", fp[0], fp[1], fp[2], bp[0], bp[1], bp[2]);
 	outBuffer.insert(outBuffer.end(), s.begin(), s.end());			
 };
 
@@ -283,27 +340,11 @@ int AnsiConsole::impl_handlekey() {
 
 // PETSCII
 
-void PetsciiConsole::put(int x, int y, const std::string &text) {
-	if(y >= height)
-		return;
+void PetsciiConsole::impl_translate(Char &c) {
 
-	for(unsigned int i=0; i<text.length(); i++) {
-
-		if(x+i >= width)
-			return;
-
-		Tile &t = grid[(x+i) + y * width];
-		t.c = text[i];
-
-		int *pc = std::find(begin(petsciiTable), end(petsciiTable), t.c);
-		if(pc != end(petsciiTable))
-			t.c = (pc - petsciiTable + 0x20);
-
-		if(fgColor >= 0)
-			t.fg = fgColor;
-		if(bgColor >= 0)
-			t.bg = bgColor;
-	}
+	int *pc = std::find(begin(petsciiTable), end(petsciiTable), c);
+	if(pc != end(petsciiTable))
+		c = (pc - petsciiTable + 0x20);
 }
 
 void PetsciiConsole::impl_color(int fg, int bg) {
@@ -372,7 +413,9 @@ int PetsciiConsole::impl_handlekey() {
 	return k;
 }
 
-
+Console *createLocalConsole() {
+	return new AnsiConsole(localTerminal);
+}
 
 
 #ifdef UNIT_TEST

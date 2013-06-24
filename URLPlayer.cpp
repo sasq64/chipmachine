@@ -69,8 +69,11 @@ int URLPlayer::getSamples(int16_t *target, int noSamples) {
 						LOGD("Trying %s\n", file.getName());
 						//rrentPlayer = playerFactory->fromFile(file); //new ModPlayer {file.getPtr(), file.getSize()};
 						currentPlayer = unique_ptr<ChipPlayer>(playerFactory->fromFile(file));
-						for(auto cb : callbacks)
-							currentPlayer->onMeta(cb);
+						if(currentPlayer != nullptr) {
+							for(auto cb : callbacks)
+								currentPlayer->onMeta(cb);
+						} else
+							LOGD("%s failed to initialize\n", file.getName());
 
 					} else
 						LOGD("Can not handle %s\n", file.getName());
