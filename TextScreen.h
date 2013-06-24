@@ -11,13 +11,13 @@
 #include <chrono>
 #include <stdint.h>
 
-class DummyTerminal : public Terminal {
+class LocalTerminal : public Terminal {
 public:
-	virtual int write(const std::vector<Char> &source, int len) { return -1; }
-	virtual int read(std::vector<Char> &target, int len) { return -1; }
+	virtual int write(const std::vector<Char> &source, int len) { return fwrite(&source[0], 1, len, stdout); }
+	virtual int read(std::vector<Char> &target, int len) { return fread(&target[0], 1, len, stdin); }
 };
 
-extern DummyTerminal dummyTerminal;
+extern LocalTerminal localTerminal;
 
 class Console {
 public:	
@@ -63,8 +63,10 @@ public:
 		KEY_TIMEOUT = 0xffff
 	};
 
+	typedef uint16_t Char;
 
-	Console(Terminal &terminal = dummyTerminal) : terminal(terminal), fgColor(-1), bgColor(-1), width(40), height(24), curFg(-1), curBg(-1) {
+
+	Console(Terminal &terminal) : terminal(terminal), fgColor(-1), bgColor(-1), width(40), height(24), curFg(-1), curBg(-1) {
 		/*int w = terminal.getWidth();
 		int h = terminal.getHeight();
 		if(w > 0) width = w;
@@ -80,7 +82,7 @@ public:
 	virtual void setBg(int bg) { bgColor = bg; }
 	virtual void resize(int w, int h);
 	virtual void flush();
-	virtual void putChar(char c);
+	virtual void putChar(Char c);
 	virtual void moveCursor(int x, int y);
 	virtual void fill(int x, int y, int width, int height);
 
@@ -95,9 +97,10 @@ protected:
 	virtual void impl_gotoxy(int x, int y) = 0;
 	virtual int impl_handlekey() = 0;
 	virtual void impl_clear() = 0;
+	virtual void impl_translate(Char &c) {}
 
 	struct Tile {
-		Tile(int c = ' ', int fg = -1, int bg = -1) : fg(fg), bg(bg), c(c) {}
+		Tile(Char c = ' ', int fg = -1, int bg = -1) : fg(fg), bg(bg), c(c) {}
 		bool operator==(const Tile &o) const {
    			return (fg == o.fg && bg == o.bg && c == o.c);
   		}
@@ -107,7 +110,7 @@ protected:
 
 		int fg;
 		int bg;
-		int c;
+		Char c;
 	};
 
 	Terminal &terminal;
@@ -140,11 +143,13 @@ protected:
 
 };
 
+Console *createLocalConsole();
+
 class AnsiConsole : public Console {
 public:
-	AnsiConsole(Terminal &terminal) : Console(terminal) {
-		resize(width, height);
-	};
+	AnsiConsole(Terminal &terminal);
+
+	void putChar(Char c);
 
 protected:
 
@@ -152,6 +157,7 @@ protected:
 	virtual void impl_gotoxy(int x, int y) override;
 	virtual int impl_handlekey() override;
 	virtual void impl_clear() override;
+	//virtual void impl_translate(Char &c) override;
 
 };
 
@@ -160,7 +166,6 @@ public:
 	PetsciiConsole(Terminal &terminal) : Console(terminal) {
 		resize(width, height);
 	}
-	virtual void put(int x, int y, const std::string &text) override;
 
 protected:
 
@@ -168,6 +173,7 @@ protected:
 	virtual void impl_gotoxy(int x, int y) override;
 	virtual int impl_handlekey() override;
 	virtual void impl_clear() override;
+	virtual void impl_translate(Char &c) override;
 };
 
 class Editor {

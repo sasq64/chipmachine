@@ -60,6 +60,13 @@ public:
 
 private:
 
+	static void initTrans();
+
+	static bool transInited;
+	static std::vector<uint8_t> to7bit;
+	static std::vector<uint8_t> to7bitlow;
+
+
 
 	// Maps coded 3-letters to a list of indexes
 	std::unordered_map<uint16_t, std::vector<int>> stringMap;

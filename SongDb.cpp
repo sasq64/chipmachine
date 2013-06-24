@@ -9,12 +9,16 @@
 #include <algorithm>
 #include <set>
 
+#include <iconv.h>
+
 using namespace std;
 using namespace utils;
 
 
 SongDatabase::SongDatabase(const string &name) {
 	db = nullptr;
+
+
 	int rc = sqlite3_open(name.c_str(), &db);//, SQLITE_READONLY, NULL);
 	if(rc != SQLITE_OK) {	
 		throw database_exception(format("%s: %s", name, sqlite3_errstr(rc)).c_str());
@@ -58,8 +62,8 @@ string SongDatabase::getFullString(int id) {
 	//return "";
 }
 enum {
-	UNKNOWN,
-	C64_SID,
+	UNKNOWN = 0,
+	C64_SID = 1,
 	TRACKER_ANY = 0x10,
 	TRACKER_MOD,
 	TRACKER_XM,
@@ -73,7 +77,7 @@ enum {
 	GM_SNES,
 	GM_GAMEBOY,
 	GM_VGM,
-	GM_END = 0x3f,
+	GM_END = 0x4f,
 
 	AUDIO_ANY = 0x50,
 
@@ -89,12 +93,15 @@ enum {
 
 unordered_map<string, int> formatMap {
 	{ "sid", C64_SID },
+	{ "rsid", C64_SID },
+	{ "psid", C64_SID },
 	{ "mod", TRACKER_MOD },
 	{ "xm", TRACKER_XM },
 	{ "it", TRACKER_IT },
 	{ "s3m", TRACKER_S3M },
 	{ "nsf", GM_NES },
 	{ "smc", GM_SNES },
+	{ "spc", GM_SNES },
 	{ "gbs", GM_GAMEBOY },
 	{ "vgz", GM_VGM },
 	{ "ahx", AMI_AHX },

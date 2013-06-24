@@ -98,6 +98,169 @@ private:
 	vector<unique_ptr<ChipPlugin>> plugins;
 };
 
+	queue<string> playQueue;
+	int subSong = 0;
+	int totalSongs = 0;
+	int currentSong = 0;
+	string songTitle;
+	string songComposer;
+	mutex playMutex;
+	int frameCount = 0;
+	string songName;
+
+
+
+void launchConsole(Console &console, SongDatabase &db) {
+
+	console.flush();
+	console.setFg(Console::GREEN);
+	console.setBg(Console::BLACK);
+
+	console.setFg(Console::WHITE);
+	console.put(0,2,">");
+	console.setFg(Console::YELLOW);
+	console.moveCursor(1, 2);
+
+	auto query = db.find();
+	int marker = 0;
+	int start = 0;
+	while(true) {
+
+		LOGD("Loop");
+
+		//char c = session.getChar();
+		int c = console.getKey(500);
+		int h = console.getHeight();
+		{
+			lock_guard<mutex>{playMutex};
+
+
+			int seconds = frameCount / 44100;
+
+			console.setFg(Console::WHITE);
+			console.setBg(Console::PINK);
+
+			console.fill(0,0, console.getWidth(), 2);
+
+			if(songTitle.length())
+				console.put(0, 0, format("%s - %s", songComposer, songTitle));
+			else
+				console.put(0, 0, "<Nothing playing>");
+			console.put(0, 1, format("Song %02d/%02d - [%02d:%02d]", subSong+1, totalSongs, seconds/60, seconds%60));
+			console.setBg(Console::BLACK);
+			console.setFg(Console::YELLOW);
+			console.flush();
+			if(c == Console::KEY_TIMEOUT) {
+				console.flush();
+				continue;
+			}
+
+			LOGD("char %d\n", (int)c);
+
+			switch(c) {
+				case Console::KEY_BACKSPACE:
+				query.removeLast();
+				break;
+			case Console::KEY_ESCAPE:
+				query.clear();
+				break;
+			case Console::KEY_ENTER:
+			case 13:
+			case 10: {
+				string r = query.getFull(marker);
+				LOGD("RESULT: %s", r);
+				auto p  = split(r, "\t");
+				for(size_t i = 0; i<p[2].length(); i++) {
+					if(p[2][i] == '\\')
+						p[2][i] = '/';
+				}
+				LOGD("Pushing '%s' to queue", p[2]);
+				playQueue.push("ftp://modland.ziphoid.com/pub/modules/" + p[2]);
+				break;
+			}
+			case 0x11:
+				//session.close();
+				//doQuit = true;
+				return;
+			case Console::KEY_DOWN:
+				marker++;
+				break;
+			case Console::KEY_PAGEUP:
+				marker -= (h-5);
+				break;
+			case Console::KEY_PAGEDOWN:
+				marker += (h-5);
+				break;
+			case Console::KEY_UP:
+				marker--;
+				break;
+			case Console::KEY_LEFT:
+				if(subSong > 0)
+					subSong--;
+				continue;
+			case Console::KEY_RIGHT:
+				if(subSong < totalSongs-1)
+					subSong++;
+				continue;
+			default:
+				if(isalnum(c) || c == ' ') {
+					query.addLetter(c);
+				} 
+			}
+		}
+
+		if(marker >= query.numHits())
+			marker = query.numHits()-1;
+		if(marker < 0) marker = 0;
+
+		if(marker < start)
+			start = marker;
+		if(marker > start+h-4)
+			start = marker;
+		
+		console.put(1,2,"                       ");
+
+		console.setFg(Console::YELLOW);
+		console.put(1,2, query.getString());
+		console.moveCursor(1 + query.getString().length(), 2);
+
+		console.setFg(Console::GREEN);
+
+		console.fill(0, 3, console.getWidth(), console.getHeight()-3);
+
+		console.setFg(Console::LIGHT_BLUE);
+		console.put(0, marker-start+3, "!");
+		console.setFg(Console::GREEN);
+		int i = 0;
+		
+		if(h < 0) h = 40;
+		const auto &results = query.getResult(start, h);
+		for(const auto &r : results) {
+			auto p = split(r, "\t");
+			int index = atoi(p[2].c_str());
+			int fmt = db.getFormat(index);
+			if(fmt >= 0x10 && fmt <= 0x2f) {
+				if(fmt == 0x11)
+					console.setFg(Console::LIGHT_GREY);
+				else
+					console.setFg(Console::GREY);
+			} else if(fmt >= 0x30 && fmt <= 0x4f) {
+				console.setFg(Console::ORANGE);
+			} else if(fmt == 1)
+				console.setFg(Console::LIGHT_BLUE);
+
+			console.put(1, i+3, format("%s - %s", p[1], p[0]));
+			console.setFg(Console::GREEN);
+			i++;
+			if(i >= h-3)
+				break;
+		}
+
+		console.flush();
+	}
+
+}
+
 
 int main(int argc, char* argv[]) {
 
@@ -106,12 +269,6 @@ int main(int argc, char* argv[]) {
 	lcd_init();
 
 	bool daemonize = false;
-	queue<string> playQueue;
-	int subSong = 0;
-	int totalSongs = 0;
-	int currentSong = 0;
-	string songTitle;
-	string songComposer;
 
 	volatile bool doQuit = false;
 
@@ -137,7 +294,6 @@ int main(int argc, char* argv[]) {
 		logging::setLevel(logging::WARNING);
 	}
 
-	mutex playMutex;
 
 	File startSongs { "/opt/chipmachine/startsongsX" };
 	if(startSongs.exists()) {
@@ -154,9 +310,6 @@ int main(int argc, char* argv[]) {
 	psys.addPlugin<GMEPlugin>();
 
 	unique_ptr<ChipPlayer> player = nullptr; //psys.play(name);
-
-	int frameCount = 0;
-	string songName;
 
 	LOGI("Opening database");
 	SongDatabase db { "modland.db" };
@@ -176,160 +329,13 @@ int main(int argc, char* argv[]) {
 		} else {
 			console = unique_ptr<Console>(new PetsciiConsole { session });
 		}
-		console->flush();
-		//console->put(0,0, "Chipmachine starting");
-		//console->flush();
-		//console->clear();
-		console->setFg(Console::GREEN);
-		console->setBg(Console::BLACK);
 
-		console->setFg(Console::WHITE);
-		console->put(0,2,">");
-		console->setFg(Console::YELLOW);
-		console->moveCursor(1, 2);
-
-		auto query = db.find();
-		int marker = 0;
-		int start = 0;
-		while(true) {
-
-			try {
-				//char c = session.getChar();
-				int c = console->getKey(500);
-				int h = console->getHeight();
-				{
-					lock_guard<mutex>{playMutex};
-
-
-					int seconds = frameCount / 44100;
-
-					console->setFg(Console::WHITE);
-					console->setBg(Console::PINK);
-
-					console->fill(0,0, console->getWidth(), 2);
-
-					if(songTitle.length())
-						console->put(0, 0, format("%s - %s", songComposer, songTitle));
-					else
-						console->put(0, 0, "<Nothing playing>");
-					console->put(0, 1, format("Song %02d/%02d - [%02d:%02d]", subSong+1, totalSongs, seconds/60, seconds%60));
-					console->setBg(Console::BLACK);
-					console->setFg(Console::YELLOW);
-					console->flush();
-					if(c == Console::KEY_TIMEOUT) {
-						console->flush();
-						continue;
-					}
-
-					LOGD("char %d\n", (int)c);
-
-					switch(c) {
-						case Console::KEY_BACKSPACE:
-						query.removeLast();
-						break;
-					case Console::KEY_ESCAPE:
-						query.clear();
-						break;
-					case Console::KEY_ENTER:
-					case 13:
-					case 10: {
-						string r = query.getFull(marker+start);
-						LOGD("RESULT: %s", r);
-						auto p  = split(r, "\t");
-						for(size_t i = 0; i<p[2].length(); i++) {
-							if(p[2][i] == '\\')
-								p[2][i] = '/';
-						}
-						LOGD("Pushing '%s' to queue", p[2]);
-						playQueue.push("ftp://modland.ziphoid.com/pub/modules/" + p[2]);
-						break;
-					}
-					case 0x11:
-						session.close();
-						doQuit = true;					
-						return;
-					case Console::KEY_DOWN:
-						marker++;
-						break;
-					case Console::KEY_PAGEUP:
-						marker -= (h-5);
-						break;
-					case Console::KEY_PAGEDOWN:
-						marker += (h-5);
-						break;
-					case Console::KEY_UP:
-						marker--;
-						break;
-					case Console::KEY_LEFT:
-						if(subSong > 0)
-							subSong--;
-						continue;
-					case Console::KEY_RIGHT:
-						if(subSong < totalSongs-1)
-							subSong++;
-						continue;
-					default:
-						if(isalnum(c) || c == ' ') {
-							query.addLetter(c);
-						} 
-					}
-				}
-
-				if(marker >= query.numHits())
-					marker = query.numHits()-1;
-				if(marker < 0) marker = 0;
-
-				if(marker < start)
-					start = marker;
-				if(marker > start+h-4)
-					start = marker;
-				
-				console->put(1,2,"                       ");
-
-				console->setFg(Console::YELLOW);
-				console->put(1,2, query.getString());
-				console->moveCursor(1 + query.getString().length(), 2);
-
-				console->setFg(Console::GREEN);
-
-				console->fill(0, 3, console->getWidth(), console->getHeight()-3);
-
-				console->setFg(Console::LIGHT_BLUE);
-				console->put(0, marker-start+3, "!");
-				console->setFg(Console::GREEN);
-				int i = 0;
-				
-				if(h < 0) h = 40;
-				const auto &results = query.getResult(start, h);
-				for(const auto &r : results) {
-					auto p = split(r, "\t");
-					int index = atoi(p[2].c_str());
-					if(db.getFormat(index) == 0x11)
-						console->setFg(Console::LIGHT_BLUE);
-					console->put(1, i+3, format("%03d. %s - %s", start+i, p[1], p[0]));
-					console->setFg(Console::GREEN);
-					i++;
-					if(i >= h-3)
-						break;
-				}
-
-				//console->setFg(Console::YELLOW);
-				//console->moveCursor(query.getString().length()+1,3);
-
-				console->flush();
-			} catch (TelnetServer::disconnect_excpetion &e) {
-				LOGD(e.what());
-				return;
-			}
-
-			/*session.write("\r\n>> ");
-			auto line = session.getLine();
-			auto args = split(line);
-			if(args[0] == "play") {
-				lock_guard<mutex>{playMutex};
-				//LOGD("Pushing '%s' to queue", st.getString(1));
-				playQueue.push(args[1]);
-			} */
+		try {
+			launchConsole(*console.get(), db);
+			exit(0);
+		} catch (TelnetServer::disconnect_excpetion &e) {
+			LOGD(e.what());
+			return;
 		}
 	});
 
@@ -339,6 +345,21 @@ int main(int argc, char* argv[]) {
 	int bufSize = 4096;
 	vector<int16_t> buffer(bufSize);
 	int oldSeconds = -1;
+
+#if 0
+	logging::setLevel(logging::OFF);
+	//ioctl(0, KDSKBMODE, K_RAW);
+	DWORD input_mode, output_mode;
+	if(GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &input_mode) == TRUE) {
+		printf("Starting console mode\n");
+		sleepms(500);
+		SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), input_mode & 
+			~( ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | /* ENABLE_PROCESSED_INPUT | */ ENABLE_WINDOW_INPUT));
+	}
+
+	Console *console = createLocalConsole();
+	thread localThread(launchConsole, console, std::ref(db));
+#endif
 
 	while(true) {
 

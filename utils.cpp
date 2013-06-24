@@ -238,7 +238,18 @@ string path_extention(const string &name) {
 
 }
 
-
+string utf8_encode(const string &s) {
+	string out;
+	for(const auto &c : s) {
+		if(c <= 0x7f)
+			out.push_back(c);
+		else {
+			out.push_back(0xC0 | (c >> 6));
+			out.push_back(0x80 | (c & 0x3F));
+		}
+	}
+	return out;
+}
 
 // FORMAT
 

@@ -11,7 +11,7 @@
 
 
 		dc.b	"************ Pitch Commands ************",10,10
-		dc.b	"Num/       Effect Name       /  Syntax
+		dc.b	"Num/       Effect Name       /  Syntax"
 		dc.b	"00  -----",10
 		dc.b	"01  SlideUp                   xy = 00-FF",10
 		dc.b	"02  SlideDown                 xy = 00-FF",10
