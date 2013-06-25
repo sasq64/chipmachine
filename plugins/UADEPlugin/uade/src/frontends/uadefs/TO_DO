@@ -1,0 +1,4 @@
+uadefs "to do" list:
+
+2010-02-17: uadefs leaks uade zombies and socket file descriptors possibly (vital)
+2010-02-17: uadefs memory leak (vital)

@@ -1,0 +1,31 @@
+LIBDIR = {PACKAGEPREFIX}{LIBDIR}
+INCLUDEDIR = {PACKAGEPREFIX}{INCLUDEDIR}
+PKGCONFIGDIR = {PACKAGEPREFIX}{PKGCONFIGDIR}
+SHAREDSUFFIX = {SHAREDSUFFIX}
+
+AR = {AR}
+CC = {CC}
+CFLAGS = -Wall -O2 -I../include -I../common -fPIC -shared {SHAREDLIBRARYFLAGS} {DEBUGFLAGS} {ARCHFLAGS} {BENCODETOOLSFLAGS}
+CLIBS = {ARCHLIBS} -lm -lbencodetools
+
+all:	libuade.$(SHAREDSUFFIX) libuade.a
+
+%.o:	%.c
+	$(CC) $(CFLAGS) -c $<
+
+include ../common/Makefile.common
+
+libuade.$(SHAREDSUFFIX):	$(COMMONMODULES)
+	$(CC) {SHAREDNAMEFLAG} {SHAREDFLAG} -o $@ $(CLIBS) $(COMMONMODULES)
+
+libuade.a:	$(COMMONMODULES)
+	$(AR) rcs $@ $(COMMONMODULES)
+
+install:	libuade.$(SHAREDSUFFIX)
+	mkdir -p "$(INCLUDEDIR)"/uade "$(LIBDIR)" "$(PKGCONFIGDIR)"
+	install -m 644 $< "$(LIBDIR)"/
+	install -m 644 ../include/uade/options.h ../include/uade/uade.h "$(INCLUDEDIR)"/uade/
+	install -m 644 ../../../libuade.pc "$(PKGCONFIGDIR)"/
+
+clean:	
+	rm -f *.o *.so *.a

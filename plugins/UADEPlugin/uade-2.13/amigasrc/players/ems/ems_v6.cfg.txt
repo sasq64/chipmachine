@@ -1,4 +1,0 @@
-format of the configuration file is:
-1st line: mixing mode (MONO = 1 STEREO = 2 SURROUND = 3 REAL = 4 STEREO14 = 5)
-2nd line: mixing rate (default 22050)
-3rd line: volume boost (in range 0-8)

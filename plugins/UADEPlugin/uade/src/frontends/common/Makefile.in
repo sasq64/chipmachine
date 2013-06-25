@@ -1,0 +1,17 @@
+AR = {AR}
+CC = {CC}
+CFLAGS = -Wall -O2 -I../include -I../common {DEBUGFLAGS} {ARCHFLAGS} {BENCODETOOLSFLAGS}
+CLIBS = {ARCHLIBS} -lm -lbencodetools
+
+all:	libuade.a
+
+%.o:	%.c
+	$(CC) $(CFLAGS) -c $<
+
+include ../common/Makefile.common
+
+libuade.a: $(COMMONMODULES)
+	$(AR) rcs $@ $(COMMONMODULES)
+
+clean:	
+	rm -f *.o *.a

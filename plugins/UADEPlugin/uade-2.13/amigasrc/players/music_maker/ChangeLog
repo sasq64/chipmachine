@@ -1,9 +1,0 @@
-2005.03.20: Initial public version
-        - add BSD clause with copyright claim (shd)
-        - remove old address (shd)
-        - remove obsolete copyright statements (shd)
-        - increase maximum filename length (shd)
-        - rename local labels to be asmone compatible (shd)
-        - add a special uade hack to speedup initialization of modules (shd)
-          (see function uade_time_critical_on) (shd)
-

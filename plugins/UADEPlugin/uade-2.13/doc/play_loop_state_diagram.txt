@@ -1,4 +1,0 @@
-
-To do:
-
- - Full textual explanation of the protocol
