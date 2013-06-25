@@ -26,9 +26,10 @@ OBJS := $(FE)unixatomic.o \
 	$(FE)vparray.o \
 	$(FE)support.o \
 	$(FE)fifo.o \
-	uade/compat/strlrep.o \
+	bencode.o \
 	UADEPlugin.o
 
+#	uade/compat/strlrep.o \
 
 	#$(FE)amifilemagic.o \
 	#$(FE)eagleplayer.o \

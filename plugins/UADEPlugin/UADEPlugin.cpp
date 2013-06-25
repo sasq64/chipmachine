@@ -40,6 +40,7 @@ public:
 	~UADEPlayer() override {
 		//if(valid)
 		//	exit_song();
+	   uade_stop(state);
 	}
 
 	virtual int getSamples(int16_t *target, int noSamples) override {
