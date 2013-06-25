@@ -309,7 +309,9 @@ int main(int argc, char* argv[]) {
 	psys.addPlugin<VicePlugin>();
 	psys.addPlugin<SexyPSFPlugin>();
 	psys.addPlugin<GMEPlugin>();
+#ifndef WIN32
 	psys.addPlugin<UADEPlugin>();
+#endif
 
 	unique_ptr<ChipPlayer> player = nullptr; //psys.play(name);
 

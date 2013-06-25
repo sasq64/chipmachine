@@ -8,7 +8,8 @@ UADE = uade/src/
 FE = $(UADE)frontends/common/
 
 
-OBJS := $(FE)unixatomic.o \
+OBJS := UADEPlugin.o \
+	$(FE)unixatomic.o \
 	$(FE)uadeipc.o \
 	$(FE)amifilemagic.o \
 	$(FE)eagleplayer.o \
@@ -26,8 +27,7 @@ OBJS := $(FE)unixatomic.o \
 	$(FE)vparray.o \
 	$(FE)support.o \
 	$(FE)fifo.o \
-	bencode.o \
-	UADEPlugin.o
+	bencode.o
 
 #	uade/compat/strlrep.o \
 

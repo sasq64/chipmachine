@@ -6,6 +6,7 @@ TOP_MAKEFILE = $(firstword $(MAKEFILE_LIST))
 ifeq ($(OS),Windows_NT)
 	MODULES := $(MODULES) $(WIN_MODULES)
 	OBJS := $(OBJS) $(WIN_OBJS)
+	XDEPENDS := $(XDEPENDS) $(WIN_XDEPENDS)
 	CFLAGS := $(CFLAGS) $(WIN_CFLAGS) -DWIN32
 	LIBS := $(LIBS) $(WIN_LIBS)
 	LDFLAGS := $(LDFLAGS) $(WIN_LDFLAGS)
@@ -23,6 +24,7 @@ else
     ifeq ($(UNAME_S),Linux)
 	    MODULES := $(MODULES) $(LINUX_MODULES)
 	    OBJS := $(OBJS) $(LINUX_OBJS)
+	    XDEPENDS := $(XDEPENDS) $(LINUX_XDEPENDS)
 	    CFLAGS := $(CFLAGS) $(LINUX_CFLAGS) -DLINUX
 		LIBS := $(LIBS) $(LINUX_LIBS)
 		LDFLAGS := $(LDFLAGS) $(LINUX_LDFLAGS)
@@ -37,6 +39,7 @@ else
     ifeq ($(UNAME_N),raspberrypi)
 	    MODULES := $(MODULES) $(PI_MODULES)
 	    OBJS := $(OBJS) $(PI_OBJS)
+	    XDEPENDS := $(XDEPENDS) $(PI_XDEPENDS)
 	    CFLAGS := $(CFLAGS) $(PI_CFLAGS) -DRASPBERRYPI
 		LIBS := $(LIBS) $(PI_LIBS)
 		LDFLAGS := $(LDFLAGS) $(PI_LDFLAGS)    
@@ -94,7 +97,9 @@ MODULEOBJS := $(subst $(SRCDIR),,$(MO))
 
 OBJFILES := $(addprefix $(OBJDIR), $(subst ../,,$(OBJS)) $(MODULEOBJS))
 
-start_rule : $(XDEPENDS) $(TARGETDIR) $(OBJFILES) $(TARGETDIR)$(TARGET)$(EXT)
+DEPS := $(XDEPENDS) $(DEPS)
+
+start_rule : $(TARGETDIR) $(OBJFILES) $(TARGETDIR)$(TARGET)$(EXT)
 
 -include $(OBJFILES:.o=.d)
 
