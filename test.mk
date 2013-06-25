@@ -2,56 +2,61 @@
 include settings.mk
 
 OBJDIR := testobj/
-CFLAGS := -g -Wall -I. -Iinclude -Iplugins/SexyPSFPlugin -DUNIT_TEST
-CFLAGS := $(CFLAGS) -Inetlink/include -Isqlite3 -Iplugins/VicePlugin -Iplugins/ModPlugin -Iplugins/GMEPlugin
+SRCDIR := src/
+CFLAGS := -g -Wall  -DUNIT_TEST
+INCLUDES := netlink/include sqlite3 plugins/VicePlugin plugins/ModPlugin plugins/GMEPlugin plugins/UADEPlugin plugins/SexyPSFPlugin
 
 TARGET := test
 MODULES := ziplib netlink/src
 LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lz
 LDFLAGS := -Wl,-Map -Wl,mapfile -Lplugins/SexyPSFPlugin -Lplugins/VicePlugin -Lplugins/ModPlugin -Lplugins/GMEPlugin
+LDFLAGS := -Wl,-Map -Wl,mapfile -Lsrc/plugins/SexyPSFPlugin -Lsrc/plugins/VicePlugin -Lsrc/plugins/ModPlugin -Lsrc/plugins/GMEPlugin -Lsrc/plugins/UADEPlugin
 OBJS := catch.o TelnetServer.o TextScreen.o WebGetter.o URLPlayer.o Archive.o utils.o log.o SongDb.o SearchIndex.o sqlite3/sqlite3.o
 
 WIN_CFLAGS := $(WIN_CFLAGS) -static -Icurl/include -DWIN32
-WIN_LIBS := -lwinmm -lcurldll -lws2_32
+WIN_LIBS := -lwinmm -lcurldll -lws2_32 -liconv
 WIN_LDFLAGS := -Lcurl/lib -static
 WIN_OBJS := AudioPlayerWindows.o
 WIN_CC := gcc
 WIN_CXX := g++
 
 LINUX_CFLAGS := $(LINUX_CFLAGS) `curl-config --cflags`
-LINUX_LIBS := -lasound `curl-config --libs`
+LINUX_LIBS := -luade -lasound `curl-config --libs`
 LINUX_OBJS := AudioPlayerLinux.o
 
 PI_OBJS := lcd.o
-PI_LIBS := -lwiringPi
+PI_LIBS := -luade -lwiringPi
 
-#GCC_VERSION := $(subst /platform-tools/,,$(dir $(shell which adb)))
 
-all : vice sexypsf gmeplugin modplug netlink $(TARGET)$(EXT)
+XDEPENDS := modplug vice sexypsf gmeplugin
+PI_XDEPENDS := uadeplugin
+LINUX_XDEPENDS = uadeplugin
+
+all : start_rule
 
 run :
-	./player
+	./test
 
 cleanall : clean
-	make -f netlink.mk clean
-	make -C plugins/VicePlugin clean
-	make -C plugins/SexyPSFPlugin clean
-	make -C plugins/ModPlugin clean
-
-
-netlink :
-	make -f netlink.mk
+	make -C src/plugins/VicePlugin clean
+	make -C src/plugins/SexyPSFPlugin clean
+	make -C src/plugins/ModPlugin clean
+	make -C src/plugins/GMEPlugin
+	make -C src/plugins/UADEPlugin
 
 modplug :
-	make -C plugins/ModPlugin
+	make -C src/plugins/ModPlugin
 
 vice :
-	make -C plugins/VicePlugin
+	make -C src/plugins/VicePlugin
 
 sexypsf :
-	make -C plugins/SexyPSFPlugin
+	make -C src/plugins/SexyPSFPlugin
 
 gmeplugin :
-	make -C plugins/GMEPlugin
+	make -C src/plugins/GMEPlugin
+
+uadeplugin :
+	make -C src/plugins/UADEPlugin
 
 include Makefile.inc
