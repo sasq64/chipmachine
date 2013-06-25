@@ -27,7 +27,8 @@ OBJS := UADEPlugin.o \
 	$(FE)vparray.o \
 	$(FE)support.o \
 	$(FE)fifo.o \
-	bencode.o
+	uade/compat/strlrep.o \
+	bencodetools/bencode.o
 
 #	uade/compat/strlrep.o \
 
