@@ -227,7 +227,7 @@ TEST_CASE("db::find", "Search Benchmark") {
 
 	vector<IncrementalQuery> iqs;
 
-	for(int i=0; i<100; i++) {
+	for(int i=0; i<20; i++) {
 		iqs.push_back(db.find());
 	}
 

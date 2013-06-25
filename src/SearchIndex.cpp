@@ -183,7 +183,7 @@ void IncrementalQuery::search() {
 	finalResult.resize(0);
 
 	for(auto &index : firstResult) {
-		//string rc = r;		
+		//string rc = r;
 		//makeLower(rc);
 		bool found = true;
 		//for(auto p : parts) {
@@ -216,6 +216,9 @@ bool SearchIndex::transInited = false;
 std::vector<uint8_t> SearchIndex::to7bit(256);
 std::vector<uint8_t> SearchIndex::to7bitlow(256);
 
+static char conv[256];
+static char *convptr = &conv[128];
+
 void SearchIndex::initTrans() {
 	transInited = true;
 	iconv_t fd = iconv_open("ASCII//TRANSLIT", "ISO_8859-1");
@@ -239,8 +242,19 @@ void SearchIndex::initTrans() {
 			}
 			to7bit[i] = out[0];
 			to7bitlow[i] = tolower(out[0]);
+			if(to7bitlow[i] == '-' || to7bitlow[i] == '\'')
+				to7bitlow[i] = 0;
+
+			if(i < 128) 
+				conv[i+128] = to7bitlow[i];
+			else
+				conv[i-128] = to7bitlow[i];
+
 		}
-		LOGD("[%02x]", to7bit);
+		convptr = &conv[128];
+		vector<uint8_t> temp(256);
+		memcpy(&temp[0], conv, 256);
+		LOGD("[%02x]", temp);
 		LOGD("%s", string((char*)&to7bit[1], 0, 255));
 		//printf("%02x\n", (int)outdata[0xe4]);
 		//printf("%02x\n", (int)outdata[0xe5]);
@@ -253,15 +267,14 @@ void SearchIndex::simplify(string &s) {
 	if(!transInited) {
 		initTrans();
 	}
-
-	for(unsigned int i=0; i<s.length(); i++) {
-		char &c = s[i];
-		if(c == '-' || c == '\'') {
+	char *p = const_cast<char*>(s.c_str());
+	while(*p) {
+		if(*p != convptr[*p]) {
+			int i = p - s.c_str();
 			s.erase(i, 1);
-			i--;
-		} else
-			c = to7bitlow[c&0xff];
-			//c = tolower(c);
+			p = const_cast<char*>(s.c_str());
+		}
+		p++;
 	}
 }
 
@@ -275,7 +288,6 @@ unsigned int SearchIndex::tlcode(const char *s) {
 	}
 	return l;
 }
-
 
 int SearchIndex::search(const string &q, vector<int> &result, unsigned int searchLimit) {
 
@@ -299,13 +311,16 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 		result = tv;
 	} else {
 
+		BMSearch bms { query } ;
+
 		for(int index : tv) {
 			string s = strings[index];
-			simplify(s);
-			if(s.find(query) != string::npos) {
+			simplify(s);			
+			if(bms.search(s.c_str(), s.length())) {
+			//if(s.find(query) != string::npos) {
 				result.push_back(index);
-				if(result.size() >= searchLimit)
-					break;
+				//if(result.size() >= searchLimit)
+				//	break;
 			}
 		}
 	}
