@@ -108,7 +108,7 @@ public:
 			setMetaData("composer", psid_get_author());
 			setMetaData("copyright", psid_get_copyright());
 			setMetaData("songs", songs);
-			setMetaData("startsong", defaultSong);
+			setMetaData("startsong", defaultSong-1);
 			metaDataEnd();
 
 			c64_song_init();

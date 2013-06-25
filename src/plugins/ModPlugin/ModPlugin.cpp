@@ -22,6 +22,7 @@ public:
 		mod = ModPlug_Load(data, size);
 
 		setMetaData("length", ModPlug_GetLength(mod) / 1000);
+		int type = ModPlug_GetModuleType(mod);
 
 		//metaData[ChipPlayer::LENGTH] = to_string(ModPlug_GetLength() / 1000));
 		//metaData[ChipPlayer::TITLE] = ModPlug_GetName(mod);

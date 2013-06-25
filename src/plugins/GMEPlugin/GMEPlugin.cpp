@@ -25,6 +25,7 @@ public:
 			setMetaData("copyright", track0->copyright);
 			setMetaData("length", track0->length);
 			setMetaData("songTitle", track0->song);
+			setMetaData("format", track0->system);
 			setMetaData("songs", gme_track_count(emu));
 			metaDataEnd();
 

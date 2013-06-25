@@ -184,7 +184,7 @@ void Console::flush() {
 	curY = saveY;
 
 	if(outBuffer.size() > 0) {
-		LOGD("OUTBYTES: [%02x]", outBuffer);
+		//LOGD("OUTBYTES: [%02x]", outBuffer);
 		terminal.write(outBuffer, outBuffer.size());
 		outBuffer.resize(0);
 	}

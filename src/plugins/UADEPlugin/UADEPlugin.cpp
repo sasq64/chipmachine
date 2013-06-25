@@ -35,6 +35,7 @@ public:
 			setMetaData("length", songInfo->duration);
 			setMetaData("title", songInfo->modulename);
 			setMetaData("format", songInfo->formatname);
+			metaDataEnd();
 
 			valid = true;
 		} 
@@ -59,7 +60,7 @@ public:
 	}
 
 	virtual void seekTo(int song, int seconds) {
-		uade_seek(UADE_SEEK_SUBSONG_RELATIVE, seconds, song + songInfo->subsongs.min, state);
+		uade_seek(UADE_SEEK_SUBSONG_RELATIVE, 0, song + songInfo->subsongs.min, state);
 		//set_song(song);	
 	}
 

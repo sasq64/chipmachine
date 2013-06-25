@@ -105,6 +105,7 @@ private:
 	int currentSong = 0;
 	string songTitle;
 	string songComposer;
+	string songFormat;
 	mutex playMutex;
 	int frameCount = 0;
 	string songName;
@@ -127,8 +128,6 @@ void launchConsole(Console &console, SongDatabase &db) {
 	int start = 0;
 	while(true) {
 
-		LOGD("Loop");
-
 		//char c = session.getChar();
 		int c = console.getKey(500);
 		int h = console.getHeight();
@@ -143,11 +142,11 @@ void launchConsole(Console &console, SongDatabase &db) {
 
 			console.fill(0,0, console.getWidth(), 2);
 
-			if(songTitle.length())
+			if(songTitle.length()) {
 				console.put(0, 0, format("%s - %s", songComposer, songTitle));
-			else
+			} else
 				console.put(0, 0, "<Nothing playing>");
-			console.put(0, 1, format("Song %02d/%02d - [%02d:%02d]", subSong+1, totalSongs, seconds/60, seconds%60));
+			console.put(0, 1, format("Song %02d/%02d - [%02d:%02d] %s", subSong+1, totalSongs, seconds/60, seconds%60, songFormat));
 			console.setBg(Console::BLACK);
 			console.setFg(Console::YELLOW);
 			console.flush();
@@ -393,6 +392,7 @@ int main(int argc, char* argv[]) {
 
 						songTitle = player->getMeta("title");
 						songComposer = player->getMeta("composer");
+						songFormat = player->getMeta("format");
 
 						lcd_print(0,0, player->getMeta("title"));
 						lcd_print(0,1, player->getMeta("composer"));

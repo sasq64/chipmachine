@@ -216,9 +216,6 @@ bool SearchIndex::transInited = false;
 std::vector<uint8_t> SearchIndex::to7bit(256);
 std::vector<uint8_t> SearchIndex::to7bitlow(256);
 
-static char conv[256];
-static char *convptr = &conv[128];
-
 void SearchIndex::initTrans() {
 	transInited = true;
 	iconv_t fd = iconv_open("ASCII//TRANSLIT", "ISO_8859-1");
@@ -244,18 +241,8 @@ void SearchIndex::initTrans() {
 			to7bitlow[i] = tolower(out[0]);
 			if(to7bitlow[i] == '-' || to7bitlow[i] == '\'')
 				to7bitlow[i] = 0;
-
-			if(i < 128) 
-				conv[i+128] = to7bitlow[i];
-			else
-				conv[i-128] = to7bitlow[i];
-
 		}
-		convptr = &conv[128];
-		vector<uint8_t> temp(256);
-		memcpy(&temp[0], conv, 256);
-		LOGD("[%02x]", temp);
-		LOGD("%s", string((char*)&to7bit[1], 0, 255));
+		//LOGD("%s", string((char*)&to7bitlow[1], 0, 255));
 		//printf("%02x\n", (int)outdata[0xe4]);
 		//printf("%02x\n", (int)outdata[0xe5]);
 		iconv_close(fd);
@@ -267,12 +254,13 @@ void SearchIndex::simplify(string &s) {
 	if(!transInited) {
 		initTrans();
 	}
-	char *p = const_cast<char*>(s.c_str());
+	unsigned char *p = (unsigned char*)(s.c_str());
+	unsigned char *conv = &to7bitlow[0];
 	while(*p) {
-		if(*p != convptr[*p]) {
-			int i = p - s.c_str();
+		if(!(*p = conv[*p])) {
+			int i = p - (unsigned char*)s.c_str();
 			s.erase(i, 1);
-			p = const_cast<char*>(s.c_str());
+			p = (unsigned char*)(s.c_str());
 		}
 		p++;
 	}
@@ -311,13 +299,13 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 		result = tv;
 	} else {
 
-		BMSearch bms { query } ;
+		//BMSearch bms { query } ;
 
 		for(int index : tv) {
 			string s = strings[index];
 			simplify(s);			
-			if(bms.search(s.c_str(), s.length())) {
-			//if(s.find(query) != string::npos) {
+			//if(bms.search(s.c_str(), s.length())) {
+			if(s.find(query) != string::npos) {
 				result.push_back(index);
 				//if(result.size() >= searchLimit)
 				//	break;
