@@ -1,4 +1,4 @@
-include ../../settings.mk
+include ../../../settings.mk
 
 OBJDIR=obj/
 TARGET=libsexypsfplugin
@@ -15,4 +15,4 @@ CFLAGS := $(CFLAGS) -Isexypsf -DPSS_STYLE=1
 
 LDLIBS := -lz
 
-include ../../Makefile.inc
+include ../../../Makefile.inc

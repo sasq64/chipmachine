@@ -1,4 +1,4 @@
-include ../../settings.mk
+include ../../../settings.mk
 
 OBJDIR=obj/
 TARGET=libviceplugin
@@ -159,4 +159,4 @@ CFLAGS := $(CFLAGS) -Wall -I. $(INCLUDES)
 
 #LINUX_CFLAGS := -Doverride=""
 
-include ../../Makefile.inc
+include ../../../Makefile.inc

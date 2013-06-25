@@ -1,4 +1,4 @@
-include ../../settings.mk
+include ../../../settings.mk
 
 OBJDIR=obj/
 TARGET=libgmeplugin
@@ -8,4 +8,4 @@ MODULES := gme
 OBJS := GMEPlugin.o
 CFLAGS := $(CFLAGS) -Wall -I. -DBLARGG_LITTLE_ENDIAN -DHAVE_ZLIB_H 
 
-include ../../Makefile.inc
+include ../../../Makefile.inc

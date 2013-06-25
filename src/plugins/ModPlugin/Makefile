@@ -1,4 +1,4 @@
-include ../../settings.mk
+include ../../../settings.mk
 
 OBJDIR=obj/
 TARGET=libmodplugin
@@ -8,4 +8,4 @@ MODULES := modplug
 OBJS := ModPlugin.o
 CFLAGS := $(CFLAGS) -Wall -I.
 
-include ../../Makefile.inc
+include ../../../Makefile.inc

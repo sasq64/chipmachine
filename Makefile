@@ -1,15 +1,18 @@
 
 include settings.mk
 
+SRCDIR := src/
 OBJDIR := obj/
-CFLAGS := -g -Wall -I. -Iinclude -Iplugins/SexyPSFPlugin
-CFLAGS := $(CFLAGS) -Inetlink/include -Isqlite3 -Iplugins/VicePlugin -Iplugins/ModPlugin -Iplugins/GMEPlugin -Iplugins/UADEPlugin
+CFLAGS := -g -Wall 
+#-I. -Iinclude -Iplugins/SexyPSFPlugin
+#CFLAGS := $(CFLAGS) -Inetlink/include -Isqlite3 -Iplugins/VicePlugin -Isrc/plugins/ModPlugin -Iplugins/GMEPlugin -Iplugins/UADEPlugin
+
+INCLUDES := netlink/include sqlite3 plugins/VicePlugin plugins/ModPlugin plugins/GMEPlugin plugins/UADEPlugin plugins/SexyPSFPlugin
 
 TARGET := player
 MODULES := ziplib netlink/src
 LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lz
-# -liconv
-LDFLAGS := -Wl,-Map -Wl,mapfile -Lplugins/SexyPSFPlugin -Lplugins/VicePlugin -Lplugins/ModPlugin -Lplugins/GMEPlugin -Lplugins/UADEPlugin
+LDFLAGS := -Wl,-Map -Wl,mapfile -Lsrc/plugins/SexyPSFPlugin -Lsrc/plugins/VicePlugin -Lsrc/plugins/ModPlugin -Lsrc/plugins/GMEPlugin -Lsrc/plugins/UADEPlugin
 OBJS := player.o TelnetServer.o TextScreen.o SongDb.o SearchIndex.o WebGetter.o URLPlayer.o Archive.o utils.o log.o sqlite3/sqlite3.o
 
 WIN_CFLAGS := $(WIN_CFLAGS) -static -Icurl/include -DWIN32
@@ -28,7 +31,7 @@ PI_LIBS := -luade -lwiringPi
 
 #GCC_VERSION := $(subst /platform-tools/,,$(dir $(shell which adb)))
 
-XDEPENDS := netlink modplug vice sexypsf gmeplugin
+XDEPENDS := modplug vice sexypsf gmeplugin
 PI_XDEPENDS := uadeplugin
 LINUX_XDEPENDS = uadeplugin
 
@@ -38,28 +41,29 @@ run :
 	./player
 
 cleanall : clean
-	make -f netlink.mk clean
-	make -C plugins/VicePlugin clean
-	make -C plugins/SexyPSFPlugin clean
-	make -C plugins/ModPlugin clean
+	make -C src/plugins/VicePlugin clean
+	make -C src/plugins/SexyPSFPlugin clean
+	make -C src/plugins/ModPlugin clean
+	make -C src/plugins/GMEPlugin
+	make -C src/plugins/UADEPlugin
 
-netlink :
-	make -f netlink.mk
+#netlink :
+#	make -f netlink.mk
 
 modplug :
-	make -C plugins/ModPlugin
+	make -C src/plugins/ModPlugin
 
 vice :
-	make -C plugins/VicePlugin
+	make -C src/plugins/VicePlugin
 
 sexypsf :
-	make -C plugins/SexyPSFPlugin
+	make -C src/plugins/SexyPSFPlugin
 
 gmeplugin :
-	make -C plugins/GMEPlugin
+	make -C src/plugins/GMEPlugin
 
 uadeplugin :
-	make -C plugins/UADEPlugin
+	make -C src/plugins/UADEPlugin
 
 include Makefile.inc
 
