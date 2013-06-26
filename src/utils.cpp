@@ -97,7 +97,7 @@ vector<string> split(const string &s, const string &delim) {
 	char *ptr = temp;
 	strcpy(temp, s.c_str());
 	while(true) {
-		char *arg = strtok_r(ptr, delim.c_str(), &temp);			
+		char *arg = strtok(ptr, delim.c_str());			
 		if(arg) {
 			args.push_back(string(arg));
 		} else

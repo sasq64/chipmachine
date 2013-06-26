@@ -3,6 +3,8 @@
 #include "../../ChipPlayer.h"
 #include "../../utils.h"
 
+#include <string.h>
+
 #include <sc68/sc68.h>
 #include <sc68/msg68.h>
 extern "C" {
