@@ -10,6 +10,7 @@
 #include "VicePlugin.h"
 #include "SexyPSFPlugin.h"
 #include "GMEPlugin.h"
+#include "SC68Plugin.h"
 #include "UADEPlugin.h"
 
 #include "TelnetServer.h"
@@ -238,7 +239,7 @@ void launchConsole(Console &console, SongDatabase &db) {
 		for(const auto &r : results) {
 			auto p = split(r, "\t");
 			if(p.size() < 3) {
-				//LOGD("Illegal result line '%s' -> [%s]", r, p);
+				LOGD("Illegal result line '%s' -> [%s]", r, p);
 			} else {
 				int index = atoi(p[2].c_str());
 				int fmt = db.getFormat(index);
@@ -311,6 +312,7 @@ int main(int argc, char* argv[]) {
 	psys.addPlugin<VicePlugin>();
 	psys.addPlugin<SexyPSFPlugin>();
 	psys.addPlugin<GMEPlugin>();
+	psys.addPlugin<SC68Plugin>("sc68data");
 #ifndef WIN32
 	psys.addPlugin<UADEPlugin>();
 #endif

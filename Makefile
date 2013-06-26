@@ -7,12 +7,12 @@ CFLAGS := -g -Wall
 #-I. -Iinclude -Iplugins/SexyPSFPlugin
 #CFLAGS := $(CFLAGS) -Inetlink/include -Isqlite3 -Iplugins/VicePlugin -Isrc/plugins/ModPlugin -Iplugins/GMEPlugin -Iplugins/UADEPlugin
 
-INCLUDES := netlink/include sqlite3 plugins/VicePlugin plugins/ModPlugin plugins/GMEPlugin plugins/UADEPlugin plugins/SexyPSFPlugin
+INCLUDES := netlink/include sqlite3 plugins/VicePlugin plugins/ModPlugin plugins/GMEPlugin plugins/UADEPlugin plugins/SC68Plugin plugins/SexyPSFPlugin
 
 TARGET := player
 MODULES := ziplib netlink/src utils
-LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lz
-LDFLAGS := -Wl,-Map -Wl,mapfile -Lsrc/plugins/SexyPSFPlugin -Lsrc/plugins/VicePlugin -Lsrc/plugins/ModPlugin -Lsrc/plugins/GMEPlugin -Lsrc/plugins/UADEPlugin
+LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lsc68plugin -lz
+LDFLAGS := -Wl,-Map -Wl,mapfile -Lsrc/plugins/SexyPSFPlugin -Lsrc/plugins/VicePlugin -Lsrc/plugins/ModPlugin -Lsrc/plugins/GMEPlugin -Lsrc/plugins/SC68Plugin -Lsrc/plugins/UADEPlugin
 OBJS := player.o TelnetServer.o TextScreen.o SongDb.o SearchIndex.o WebGetter.o URLPlayer.o Archive.o utils.o log.o sqlite3/sqlite3.o
 
 WIN_CFLAGS := $(WIN_CFLAGS) -static -Icurl/include -DWIN32
