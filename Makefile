@@ -44,8 +44,8 @@ cleanall : clean
 	make -C src/plugins/VicePlugin clean
 	make -C src/plugins/SexyPSFPlugin clean
 	make -C src/plugins/ModPlugin clean
-	make -C src/plugins/GMEPlugin
-	make -C src/plugins/UADEPlugin
+	make -C src/plugins/GMEPlugin clean
+	make -C src/plugins/UADEPlugin clean
 
 #netlink :
 #	make -f netlink.mk

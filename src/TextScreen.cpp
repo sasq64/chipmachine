@@ -174,7 +174,8 @@ void Console::flush() {
 	}
 
 	if(curFg != fgColor || curBg != bgColor) {
-		impl_color(fgColor, bgColor);
+		if(fgColor >= 0 && bgColor >= 0)
+			impl_color(fgColor, bgColor);
 		curFg = fgColor;
 		curBg = bgColor;
 	}
@@ -340,6 +341,23 @@ int AnsiConsole::impl_handlekey() {
 
 // PETSCII
 
+void PetsciiConsole::putChar(Char c) {
+	if(curX == 39) {
+		outBuffer.push_back(DEL);
+		outBuffer.push_back(c & 0xff);
+		outBuffer.push_back(LEFT);
+		outBuffer.push_back(INS);
+		// NOTE: We don't handle the case where char 38 and 39 have different colors!
+		outBuffer.push_back(grid[curY*width+38].c & 0xff);
+	} else {
+		outBuffer.push_back(c & 0xff);
+		curX++;
+		if(curX >= width) {
+			curX -= width;
+			curY++;
+	}	}
+}
+
 void PetsciiConsole::impl_translate(Char &c) {
 
 	int *pc = std::find(begin(petsciiTable), end(petsciiTable), c);
@@ -351,10 +369,10 @@ void PetsciiConsole::impl_color(int fg, int bg) {
 	if(bg == -1)
 		exit(0);
 	if(bg != BLACK) {
-		outBuffer.push_back(18);
+		outBuffer.push_back(RVS_ON);
 		outBuffer.push_back(petsciiColors[bg]);
 	} else {
-		outBuffer.push_back(146);
+		outBuffer.push_back(RVS_OFF);
 		outBuffer.push_back(petsciiColors[fg]);
 	}
 }
@@ -366,7 +384,7 @@ void PetsciiConsole::impl_clear() {
 void PetsciiConsole::impl_gotoxy(int x, int y) {
 
 	if(curX - x > x) {
-		outBuffer.push_back(0x8d);
+		outBuffer.push_back(SHIFT_RETURN);
 		if(curBg != BLACK) {
 			curFg = curBg;
 			curBg = BLACK;
@@ -376,21 +394,21 @@ void PetsciiConsole::impl_gotoxy(int x, int y) {
 	}
 
 	while(y > curY) {
-		outBuffer.push_back(0x11);
+		outBuffer.push_back(DOWN);
 		curY++;
 	}
 	while(y < curY) {
-		outBuffer.push_back(0x91);
+		outBuffer.push_back(UP);
 		curY--;
 	}
 
 	while(x > curX) {
-		outBuffer.push_back(0x1d);
+		outBuffer.push_back(RIGHT);
 		curX++;
 	}
 
 	while(x < curX) {
-		outBuffer.push_back(0x9d);
+		outBuffer.push_back(LEFT);
 		curX--;
 	}
 }
@@ -444,13 +462,19 @@ public:
 TEST_CASE("console::basic", "Console") {
 
 	TestTerminal terminal;
-	AnsiConsole console { terminal };
+	PetsciiConsole console { terminal };
 
 	//1b 5b 32 4a 1b 5b 32 3b 32 48  74 65 73 74 69 6e 67
-
-	console.put(1,1, "testing");
+	console.setFg(Console::WHITE);
+	console.setBg(Console::BLACK);
+	console.put(37,1, "abcdefghijk");
+	console.put(0, 3, "ABCDEFGH");
 	console.flush();
-	LOGD("%02x", terminal.outBuffer);
+	string s = utils::format("[%02x]\n", terminal.outBuffer);
+	printf(s.c_str());
+
+
+	REQUIRE(true);
 
 }
 

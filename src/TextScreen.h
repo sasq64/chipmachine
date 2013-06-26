@@ -163,9 +163,31 @@ protected:
 
 class PetsciiConsole : public Console {
 public:
+
+	enum {
+		STOP = 3,
+		WHITE = 5,
+		DOWN = 0x11,
+		RVS_ON = 0x12,
+		HOME = 0x13,
+		DEL = 0x14,
+		RIGHT = 0x1d,
+		RUN = 131,
+		F1 = 133,
+		SHIFT_RETURN = 0x8d,
+		UP = 0x91,
+		RVS_OFF = 0x92,
+		CLEAR = 0x93,
+		INS = 0x94,
+		LEFT = 0x9d
+	};
+
+
 	PetsciiConsole(Terminal &terminal) : Console(terminal) {
 		resize(width, height);
 	}
+
+	virtual void putChar(Char c);
 
 protected:
 

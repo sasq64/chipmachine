@@ -169,7 +169,7 @@ void launchConsole(Console &console, SongDatabase &db) {
 			case 10: {
 				string r = query.getFull(marker);
 				LOGD("RESULT: %s", r);
-				auto p  = split(r, "\t");
+				auto p  = utils::split(r, "\t");
 				for(size_t i = 0; i<p[2].length(); i++) {
 					if(p[2][i] == '\\')
 						p[2][i] = '/';
@@ -237,20 +237,24 @@ void launchConsole(Console &console, SongDatabase &db) {
 		const auto &results = query.getResult(start, h);
 		for(const auto &r : results) {
 			auto p = split(r, "\t");
-			int index = atoi(p[2].c_str());
-			int fmt = db.getFormat(index);
-			if(fmt >= 0x10 && fmt <= 0x2f) {
-				if(fmt == 0x11)
-					console.setFg(Console::LIGHT_GREY);
-				else
-					console.setFg(Console::GREY);
-			} else if(fmt >= 0x30 && fmt <= 0x4f) {
-				console.setFg(Console::ORANGE);
-			} else if(fmt == 1)
-				console.setFg(Console::LIGHT_BLUE);
+			if(p.size() < 3) {
+				LOGD("Illegal result line '%s' -> [%s]", r, p);
+			} else {
+				int index = atoi(p[2].c_str());
+				int fmt = db.getFormat(index);
+				if(fmt >= 0x10 && fmt <= 0x2f) {
+					if(fmt == 0x11)
+						console.setFg(Console::LIGHT_GREY);
+					else
+						console.setFg(Console::GREY);
+				} else if(fmt >= 0x30 && fmt <= 0x4f) {
+					console.setFg(Console::ORANGE);
+				} else if(fmt == 1)
+					console.setFg(Console::LIGHT_BLUE);
 
-			console.put(1, i+3, format("%s - %s", p[1], p[0]));
-			console.setFg(Console::GREEN);
+				console.put(1, i+3, format("%s - %s", p[1], p[0]));
+				console.setFg(Console::GREEN);
+			}
 			i++;
 			if(i >= h-3)
 				break;
@@ -319,7 +323,7 @@ int main(int argc, char* argv[]) {
 	db.generateIndex();
 	LOGI("Index generated");
 
-	TelnetServer telnet { 12345 };
+	TelnetServer telnet { 23 };
 	telnet.setOnConnect([&](TelnetServer::Session &session) {
 
 		session.echo(false);

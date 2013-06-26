@@ -183,7 +183,7 @@ void IncrementalQuery::search() {
 	finalResult.resize(0);
 
 	for(auto &index : firstResult) {
-		//string rc = r;
+		//string rc = r;		
 		//makeLower(rc);
 		bool found = true;
 		//for(auto p : parts) {
@@ -239,10 +239,9 @@ void SearchIndex::initTrans() {
 			}
 			to7bit[i] = out[0];
 			to7bitlow[i] = tolower(out[0]);
-			if(to7bitlow[i] == '-' || to7bitlow[i] == '\'')
-				to7bitlow[i] = 0;
 		}
-		//LOGD("%s", string((char*)&to7bitlow[1], 0, 255));
+		LOGD("[%02x]", to7bit);
+		LOGD("%s", string((char*)&to7bit[1], 0, 255));
 		//printf("%02x\n", (int)outdata[0xe4]);
 		//printf("%02x\n", (int)outdata[0xe5]);
 		iconv_close(fd);
@@ -254,15 +253,15 @@ void SearchIndex::simplify(string &s) {
 	if(!transInited) {
 		initTrans();
 	}
-	unsigned char *p = (unsigned char*)(s.c_str());
-	unsigned char *conv = &to7bitlow[0];
-	while(*p) {
-		if(!(*p = conv[*p])) {
-			int i = p - (unsigned char*)s.c_str();
+
+	for(unsigned int i=0; i<s.length(); i++) {
+		char &c = s[i];
+		if(c == '-' || c == '\'') {
 			s.erase(i, 1);
-			p = (unsigned char*)(s.c_str());
-		}
-		p++;
+			i--;
+		} else
+			c = to7bitlow[c&0xff];
+			//c = tolower(c);
 	}
 }
 
@@ -276,6 +275,7 @@ unsigned int SearchIndex::tlcode(const char *s) {
 	}
 	return l;
 }
+
 
 int SearchIndex::search(const string &q, vector<int> &result, unsigned int searchLimit) {
 
@@ -299,16 +299,13 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 		result = tv;
 	} else {
 
-		//BMSearch bms { query } ;
-
 		for(int index : tv) {
 			string s = strings[index];
-			simplify(s);			
-			//if(bms.search(s.c_str(), s.length())) {
+			simplify(s);
 			if(s.find(query) != string::npos) {
 				result.push_back(index);
-				//if(result.size() >= searchLimit)
-				//	break;
+				if(result.size() >= searchLimit)
+					break;
 			}
 		}
 	}
