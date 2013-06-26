@@ -116,6 +116,10 @@ private:
 ///////////////////
 
 void IncrementalQuery::addLetter(char c) {
+	if(c == ' ') {
+		if(query.size() == 0 || query.back() == ' ')
+			return;
+	}
 	query.push_back(c);	
 	if(query.size() > 0) {
 		search();

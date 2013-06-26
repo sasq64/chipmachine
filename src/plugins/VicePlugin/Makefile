@@ -136,7 +136,8 @@ OBJS := \
     overrides/vicii/vicii-draw.o \
     overrides/video/video.o
 
-INCLUDES := \
+INC := \
+	-I../.. \
 	-Icommon \
 	-Icommon/readline \
     -Ivice \
@@ -155,7 +156,7 @@ INCLUDES := \
     -Ivice/vicii \
     -Ivice/rtc
 
-CFLAGS := $(CFLAGS) -Wall -I. $(INCLUDES)
+CFLAGS := $(CFLAGS) -Wall -I. $(INC)
 
 #LINUX_CFLAGS := -Doverride=""
 

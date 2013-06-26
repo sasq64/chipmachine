@@ -1,10 +1,10 @@
-#include "log.h"
+#include <utils/log.h>
 
 #include "ChipPlugin.h"
 #include "ChipPlayer.h"
 #include "URLPlayer.h"
 
-#include "utils.h"
+#include <utils/utils.h>
 
 #include "ModPlugin.h"
 #include "VicePlugin.h"
@@ -168,15 +168,17 @@ void launchConsole(Console &console, SongDatabase &db) {
 			case Console::KEY_ENTER:
 			//case 13:
 			case 10: {
-				string r = query.getFull(marker);
-				LOGD("RESULT: %s", r);
-				auto p  = utils::split(r, "\t");
-				for(size_t i = 0; i<p[2].length(); i++) {
-					if(p[2][i] == '\\')
-						p[2][i] = '/';
+				if(query.numHits() > 0) {
+					string r = query.getFull(marker);
+					LOGD("RESULT: %s", r);
+					auto p  = utils::split(r, "\t");
+					for(size_t i = 0; i<p[2].length(); i++) {
+						if(p[2][i] == '\\')
+							p[2][i] = '/';
+					}
+					LOGD("Pushing '%s' to queue", p[2]);
+					playQueue.push("ftp://modland.ziphoid.com/pub/modules/" + p[2]);
 				}
-				LOGD("Pushing '%s' to queue", p[2]);
-				playQueue.push("ftp://modland.ziphoid.com/pub/modules/" + p[2]);
 				break;
 			}
 			case 0x11:
@@ -187,9 +189,11 @@ void launchConsole(Console &console, SongDatabase &db) {
 				marker++;
 				break;
 			case Console::KEY_PAGEUP:
+			case Console::KEY_F1:
 				marker -= (h-5);
 				break;
 			case Console::KEY_PAGEDOWN:
+			case Console::KEY_F7:
 				marker += (h-5);
 				break;
 			case Console::KEY_UP:

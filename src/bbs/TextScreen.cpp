@@ -419,12 +419,20 @@ int PetsciiConsole::impl_handlekey() {
 	switch(k) {
 	case 13 :
 		return KEY_ENTER;
-	case 20 :
+	case DEL :
 		return KEY_BACKSPACE;
-	case 17 :
+	case DOWN :
 		return KEY_DOWN;
-	case 145 :
+	case UP :
 		return KEY_UP;
+	case LEFT :
+		return KEY_LEFT;
+	case RIGHT :
+		return KEY_RIGHT;
+	default:
+		if(k >= F1 && k <= F7) {
+			return KEY_F1 + k - F1;
+		}
 	}
 	if(k >= 0x20) 
 		k = petsciiTable[k-0x20];

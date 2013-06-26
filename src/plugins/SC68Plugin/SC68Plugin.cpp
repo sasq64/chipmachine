@@ -1,7 +1,7 @@
 
 #include "SC68Plugin.h"
 #include "../../ChipPlayer.h"
-#include "../../utils.h"
+#include <utils/utils.h>
 
 #include <string.h>
 

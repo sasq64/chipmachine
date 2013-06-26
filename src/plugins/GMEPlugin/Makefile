@@ -6,6 +6,6 @@ EXT=.a
 
 MODULES := gme
 OBJS := GMEPlugin.o
-CFLAGS := $(CFLAGS) -Wall -I. -DBLARGG_LITTLE_ENDIAN -DHAVE_ZLIB_H 
+CFLAGS := $(CFLAGS) -Wall -I. -I../.. -DBLARGG_LITTLE_ENDIAN -DHAVE_ZLIB_H 
 
 include ../../../Makefile.inc

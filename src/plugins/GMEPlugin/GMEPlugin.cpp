@@ -1,7 +1,7 @@
 
 #include "GMEPlugin.h"
 #include "../../ChipPlayer.h"
-#include "../../utils.h"
+#include <utils/utils.h>
 
 #include "gme/gme.h"
 

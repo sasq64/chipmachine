@@ -53,6 +53,7 @@ OBJS := UADEPlugin.o \
 	#uadecontrol.o uadeconf.o md5.o ossupport.o songdb.o songinfo.o vplist.o support.o 
 
 CFLAGS := \
+	-I../.. \
 	-I/usr/local/include \
 	-I$(UADE)include \
 	-I$(UADE)frontends/include \

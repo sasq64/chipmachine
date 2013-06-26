@@ -2,7 +2,7 @@
 #include "ModPlugin.h"
 #include "modplug.h"
 #include "../../ChipPlayer.h"
-#include "../../utils.h"
+#include <utils/utils.h>
 
 #include <set>
 #include <unordered_map>
