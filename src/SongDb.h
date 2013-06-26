@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <mutex>
 
 #include "SearchIndex.h"
 
@@ -31,12 +32,14 @@ public:
 	~SongDatabase();
 	void generateIndex();
 	IncrementalQuery find() {
+		std::lock_guard<std::mutex>{dbLock};
 		return IncrementalQuery(this);
 	}
 
 	int search(const std::string &query, std::vector<int> &result, unsigned int searchLimit);
 
 	std::string getString(int index) {
+		//std::lock_guard<std::mutex>{dbLock};
 		return utils::format("%s\t%s\t%d", getTitle(index), getComposer(index), index);
 	}
 
@@ -48,6 +51,7 @@ public:
 	}
 
 	int getFormat(int index) {
+		//std::lock_guard<std::mutex>{dbLock};
 		return formats[index];
 	}
 
@@ -64,5 +68,7 @@ private:
 	std::vector<int> titleToComposer;
 	std::vector<int> composerToTitle;
 	std::vector<uint8_t> formats;
+
+	std::mutex dbLock;
 };
 

@@ -269,16 +269,28 @@ void SearchIndex::simplify(string &s) {
 	if(!transInited) {
 		initTrans();
 	}
-	unsigned char *p = (unsigned char*)(s.c_str());
+#if 0
+	unsigned char *conv = &to7bitlow[0];
+	int l = s.length();
+	for(int i=0; i<l; i++) {
+		if(!(s[i] = conv[s[i] & 0xff])) {
+			s.erase(i, 1);
+			l--;
+			i--;
+		}
+	}
+#else
+	unsigned char *p = (unsigned char*)&s[0];
 	unsigned char *conv = &to7bitlow[0];
 	while(*p) {
 		if(!(*p = conv[*p])) {
-			int i = p - (unsigned char*)s.c_str();
+			int i = p - (unsigned char*)&s[0];
 			s.erase(i, 1);
-			p = (unsigned char*)(s.c_str());
+			p = (unsigned char*)&s[0];
 		}
 		p++;
 	}
+#endif
 }
 
 

@@ -110,6 +110,8 @@ unordered_map<string, int> formatMap {
 
 void SongDatabase::generateIndex() {
 
+	lock_guard<mutex>{dbLock};
+
 	sqlite3_stmt *s;
 	const char *tail;
 	char oldComposer[256] = "";
@@ -158,6 +160,8 @@ void SongDatabase::generateIndex() {
 }
 int SongDatabase::search(const string &query, vector<int> &result, unsigned int searchLimit) {
 
+	lock_guard<mutex>{dbLock};
+	
 	result.resize(0);
 	//if(query.size() < 3)
 	//	return 0;
