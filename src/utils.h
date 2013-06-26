@@ -10,6 +10,8 @@
 #include <sstream>
 #include <iostream>
 
+//#include "utils/format.h"
+
 namespace utils {
 
 typedef unsigned int uint;
@@ -206,88 +208,6 @@ public:
 private:
 	Holder *holder;
 };
-
-
-// FORMAT
-
-class Printable {
-public:
-	virtual std::string toText() const = 0;
-};
-
-
-bool parse_format(std::stringstream &ss, std::string &fmt);
-
-void format_stream(std::stringstream &ss, std::string &fmt, const std::vector<int8_t> &bytes);
-void format_stream(std::stringstream &ss, std::string &fmt, const std::vector<uint8_t> &bytes);
-void format_stream(std::stringstream &ss, std::string &fmt, const slice<std::vector<int8_t>::const_iterator> &bytes);
-void format_stream(std::stringstream &ss, std::string &fmt, const slice<std::vector<uint8_t>::const_iterator> &bytes);
-void format_stream(std::stringstream &ss, std::string &fmt, const Printable &printable);
-
-template <class T> void format_stream(std::stringstream &ss, std::string &fmt, const slice<T> &arg) {
-if(parse_format(ss, fmt)) {
-		bool first = true;
-		int w = ss.width();
-		for(auto b : arg) {
-			if(!first) ss << " ";
-			ss.width(w);
-			ss << b;
-			first = false;
-		}
-	}
-}
-
-template <class T> void format_stream(std::stringstream &ss, std::string &fmt, const T *arg) {
-	if(parse_format(ss, fmt))
-		ss << arg;
-}
-
-template <class T> void format_stream(std::stringstream &ss, std::string &fmt, const T& arg) {
-	if(parse_format(ss, fmt))
-		ss << arg;
-}
-
-template <class T> void format_stream(std::stringstream &ss, std::string &fmt, const std::vector<T>& arg) {
-	if(parse_format(ss, fmt)) {
-		bool first = true;
-		int w = ss.width();
-		for(auto b : arg) {
-			if(!first) ss << " ";
-			ss.width(w);
-			ss << b;
-			first = false;
-		}
-	}
-}
-
-
-template <class A, class... B>
-void format_stream(std::stringstream &ss, std::string &fmt, const A &head, const B& ... tail)
-{
-	format_stream(ss, fmt, head);
-	format_stream(ss, fmt, tail...);
-}
-
-template <class T>
-std::string format(const std::string &fmt, const T& arg) {
-	std::string fcopy = fmt;
-	std::stringstream ss;
-	format_stream(ss, fcopy, arg);
-	ss << fcopy;
-	return ss.str();  
-}
-
-std::string format(const std::string &fmt);
-
-template <class A, class... B> std::string format(const std::string &fmt, const A &head, const B& ... tail)
-{
-	std::string fcopy = fmt;
-	std::stringstream ss;
-	format_stream(ss, fcopy, head);
-	format_stream(ss, fcopy, tail...);
-	ss << fcopy;
-	return ss.str();
-}
 
 
 };

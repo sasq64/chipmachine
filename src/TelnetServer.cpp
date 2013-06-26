@@ -32,7 +32,7 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 
 	int len = socket->read(&ts->buffer[0], 128);
 	//ts->buffer.resize(len);
-	LOGD("Read %d bytes [%02x]\n", len, make_slice(ts->buffer, 0, len));
+	//LOGD("Read %d bytes [%02x]\n", len, make_slice(ts->buffer, 0, len));
 	session.handleIndata(ts->buffer, len);
 }
 

@@ -183,7 +183,7 @@ void IncrementalQuery::search() {
 	finalResult.resize(0);
 
 	for(auto &index : firstResult) {
-		//string rc = r;		
+		//string rc = r;
 		//makeLower(rc);
 		bool found = true;
 		//for(auto p : parts) {
@@ -216,8 +216,23 @@ bool SearchIndex::transInited = false;
 std::vector<uint8_t> SearchIndex::to7bit(256);
 std::vector<uint8_t> SearchIndex::to7bitlow(256);
 
+const char *translit = "!c$oY|S\"ca<n-R 0/23'uP.,1o>   ?AAAAAAACEEEEIIIIDNOOOOOxOUUUUYTsaaaaaaaceeeeiiiidnooooo:ouuuuyty";
+
 void SearchIndex::initTrans() {
 	transInited = true;
+
+	for(int i=0; i<256; i++) {
+		if(i>=0xa1)
+			to7bit[i] = translit[i-0xa1];
+		else if(i>=0x80)
+			to7bit[i] = '?';
+		else
+			to7bit[i] = i;
+		to7bitlow[i] = tolower(to7bit[i]);
+		if(to7bitlow[i] == '-' || to7bitlow[i] == '\'')
+			to7bitlow[i] = 0;
+	}
+/*
 	iconv_t fd = iconv_open("ASCII//TRANSLIT", "ISO_8859-1");
 	if(fd >= 0) {
 
@@ -239,13 +254,14 @@ void SearchIndex::initTrans() {
 			}
 			to7bit[i] = out[0];
 			to7bitlow[i] = tolower(out[0]);
+			if(to7bitlow[i] == '-' || to7bitlow[i] == '\'')
+				to7bitlow[i] = 0;
 		}
-		LOGD("[%02x]", to7bit);
-		LOGD("%s", string((char*)&to7bit[1], 0, 255));
+		//LOGD("%s", string((char*)&to7bitlow[1], 0, 255));
 		//printf("%02x\n", (int)outdata[0xe4]);
 		//printf("%02x\n", (int)outdata[0xe5]);
 		iconv_close(fd);
-	}
+	}*/
 }
 
 void SearchIndex::simplify(string &s) {
@@ -253,15 +269,15 @@ void SearchIndex::simplify(string &s) {
 	if(!transInited) {
 		initTrans();
 	}
-
-	for(unsigned int i=0; i<s.length(); i++) {
-		char &c = s[i];
-		if(c == '-' || c == '\'') {
+	unsigned char *p = (unsigned char*)(s.c_str());
+	unsigned char *conv = &to7bitlow[0];
+	while(*p) {
+		if(!(*p = conv[*p])) {
+			int i = p - (unsigned char*)s.c_str();
 			s.erase(i, 1);
-			i--;
-		} else
-			c = to7bitlow[c&0xff];
-			//c = tolower(c);
+			p = (unsigned char*)(s.c_str());
+		}
+		p++;
 	}
 }
 
@@ -275,7 +291,6 @@ unsigned int SearchIndex::tlcode(const char *s) {
 	}
 	return l;
 }
-
 
 int SearchIndex::search(const string &q, vector<int> &result, unsigned int searchLimit) {
 
@@ -299,13 +314,16 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 		result = tv;
 	} else {
 
+		//BMSearch bms { query } ;
+
 		for(int index : tv) {
 			string s = strings[index];
-			simplify(s);
+			simplify(s);			
+			//if(bms.search(s.c_str(), s.length())) {
 			if(s.find(query) != string::npos) {
 				result.push_back(index);
-				if(result.size() >= searchLimit)
-					break;
+				//if(result.size() >= searchLimit)
+				//	break;
 			}
 		}
 	}

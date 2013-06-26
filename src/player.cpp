@@ -238,7 +238,7 @@ void launchConsole(Console &console, SongDatabase &db) {
 		for(const auto &r : results) {
 			auto p = split(r, "\t");
 			if(p.size() < 3) {
-				LOGD("Illegal result line '%s' -> [%s]", r, p);
+				//LOGD("Illegal result line '%s' -> [%s]", r, p);
 			} else {
 				int index = atoi(p[2].c_str());
 				int fmt = db.getFormat(index);
@@ -269,7 +269,6 @@ void launchConsole(Console &console, SongDatabase &db) {
 int main(int argc, char* argv[]) {
 
 	setvbuf(stdout, NULL, _IONBF, 0);
-
 	lcd_init();
 
 	bool daemonize = false;

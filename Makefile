@@ -10,7 +10,7 @@ CFLAGS := -g -Wall
 INCLUDES := netlink/include sqlite3 plugins/VicePlugin plugins/ModPlugin plugins/GMEPlugin plugins/UADEPlugin plugins/SexyPSFPlugin
 
 TARGET := player
-MODULES := ziplib netlink/src
+MODULES := ziplib netlink/src utils
 LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lz
 LDFLAGS := -Wl,-Map -Wl,mapfile -Lsrc/plugins/SexyPSFPlugin -Lsrc/plugins/VicePlugin -Lsrc/plugins/ModPlugin -Lsrc/plugins/GMEPlugin -Lsrc/plugins/UADEPlugin
 OBJS := player.o TelnetServer.o TextScreen.o SongDb.o SearchIndex.o WebGetter.o URLPlayer.o Archive.o utils.o log.o sqlite3/sqlite3.o
