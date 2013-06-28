@@ -1,9 +1,11 @@
 #include "log.h"
-#include "TextScreen.h"
+#include "Console.h"
 #include "utils.h"
 
 #include <array>
 #include <algorithm>
+
+namespace bbs {
 
 using namespace std;
 
@@ -98,6 +100,20 @@ void Console::clear() {
 	curX = curY = 0;
 }
 
+void Console::refresh() {
+	for(int y = 0; y<height; y++) {
+		for(int x = 0; x<width; x++) {
+			Tile &t0 = oldGrid[x+y*width];
+			t0.c = -1;
+			t0.fg = -1;
+			t0.bg = -1;
+		}
+	}
+	impl_clear();
+	curX = curY = 0;
+	flush();
+}
+
 void Console::fill(int x, int y, int w, int h) {
 	for(int yy = y; yy < y + h; yy++)
 		for(int xx = x; xx < x + w; xx++) {
@@ -185,7 +201,7 @@ void Console::flush() {
 	curY = saveY;
 
 	if(outBuffer.size() > 0) {
-		//LOGD("OUTBYTES: [%02x]", outBuffer);
+		LOGD("OUTBYTES: [%02x]", outBuffer);
 		terminal.write(outBuffer, outBuffer.size());
 		outBuffer.resize(0);
 	}
@@ -249,6 +265,7 @@ AnsiConsole::AnsiConsole(Terminal &terminal) : Console(terminal) {
 	for(int i=0; i<16; i++) {
 		uint8_t *p = &c64pal[i*3];
 		const string &s = utils::format("\x1b]4;%d;#%02x%02x%02x\x07", 160 + i, p[0], p[1], p[2]);
+		LOGD(s);
 		outBuffer.insert(outBuffer.end(), s.begin(), s.end());
 	}
 };
@@ -281,7 +298,7 @@ void AnsiConsole::impl_color(int fg, int bg) {
 
 	//LOGD("## BG %d\n", ab);
 	//const string &s = utils::format("\x1b[%d;%d%sm", af + 30, ab + 40, hl ? ";1" : "");
-	const string &s = utils::format("\x1b[38;5;%d;48;5;%dm", af, ab);//fg+160, bg+160);
+	const string &s = utils::format("\x1b[38;5;%d;48;5;%dm", fg+160, bg+160);
 
 	//uint8_t *fp = &c64pal[fg*3];
 	//uint8_t *bp = &c64pal[bg*3];
@@ -366,12 +383,10 @@ void PetsciiConsole::impl_translate(Char &c) {
 }
 
 void PetsciiConsole::impl_color(int fg, int bg) {
-	if(bg == -1)
-		exit(0);
-	if(bg != BLACK) {
+	if(bg >= 0 && bg != BLACK) {
 		outBuffer.push_back(RVS_ON);
 		outBuffer.push_back(petsciiColors[bg]);
-	} else {
+	} else if(fg >= 0) {
 		outBuffer.push_back(RVS_OFF);
 		outBuffer.push_back(petsciiColors[fg]);
 	}
@@ -430,7 +445,7 @@ int PetsciiConsole::impl_handlekey() {
 	case RIGHT :
 		return KEY_RIGHT;
 	default:
-		if(k >= F1 && k <= F7) {
+		if(k >= F1 && k <= F8) {
 			return KEY_F1 + k - F1;
 		}
 	}
@@ -443,11 +458,15 @@ Console *createLocalConsole() {
 	return new AnsiConsole(localTerminal);
 }
 
+}
+
 
 #ifdef UNIT_TEST
 
 #include "catch.hpp"
 #include <sys/time.h>
+
+using namespace bbs;
 
 class TestTerminal : public Terminal {
 public:

@@ -1,7 +1,7 @@
 #ifndef TELNET_SERVER_H
 #define TELNET_SERVER_H
 
-#include "utils.h"
+#include <utils/format.h>
 #include "Terminal.h"
 
 #include <string>

@@ -1,7 +1,7 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
-#include "utils/format.h"
+#include "format.h"
 #include <string>
 
 

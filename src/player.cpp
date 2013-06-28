@@ -14,7 +14,7 @@
 #include "UADEPlugin.h"
 
 #include "TelnetServer.h"
-#include "TextScreen.h"
+#include "Console.h"
 
 #ifdef WIN32
 #include "AudioPlayerWindows.h"
@@ -53,6 +53,7 @@ void lcd_print(int x, int y, const std::string &text) {
 typedef unsigned int uint;
 using namespace std;
 using namespace utils;
+using namespace bbs;
 
 class PlayerSystem : public PlayerFactory {
 public:

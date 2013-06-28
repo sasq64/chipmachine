@@ -1,5 +1,5 @@
-#ifndef TEXT_SCREEN_H
-#define TEXT_SCREEN_H
+#ifndef BBS_CONSOLE_H
+#define BBS_CONSOLE_H
 
 #include "Terminal.h"
 
@@ -10,6 +10,8 @@
 #include <thread>
 #include <chrono>
 #include <stdint.h>
+
+namespace bbs {
 
 class LocalTerminal : public Terminal {
 public:
@@ -89,6 +91,8 @@ public:
 	virtual void putChar(Char c);
 	virtual void moveCursor(int x, int y);
 	virtual void fill(int x, int y, int width, int height);
+
+	virtual void refresh();
 
 	int getWidth() { return width; }
 	int getHeight() { return height; }
@@ -199,7 +203,6 @@ public:
 	}
 
 	virtual void putChar(Char c);
-
 protected:
 
 	virtual void impl_color(int fg, int bg) override;
@@ -217,5 +220,6 @@ private:
 	std::shared_ptr<Console> screen;
 };
 
+}
 
-#endif // TEXT_SCREEN_H
+#endif // BBS_CONSOLE_H

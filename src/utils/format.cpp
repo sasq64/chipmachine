@@ -17,6 +17,47 @@ using namespace std;
 
 // FORMAT
 
+void format_stream(std::stringstream &ss, std::string &fmt, const char arg) {
+	char letter;
+	if((letter = parse_format(ss, fmt))) {
+		if(letter == 'd' || letter == 'x')
+			ss << (int)(arg&0xff);
+		else {
+			printf("Printing char! %02x", (int)arg);
+			ss << arg;
+		}
+	}
+}
+void format_stream(std::stringstream &ss, std::string &fmt, const unsigned char arg) {
+	char letter;
+	if((letter = parse_format(ss, fmt))) {
+		if(letter == 'd' || letter == 'x')
+			ss << (int)(arg&0xff);
+		else {
+			printf("Printing char! %02x", (int)arg);
+			ss << arg;
+		}
+	}
+}
+void format_stream(std::stringstream &ss, std::string &fmt, const signed char arg) {
+	char letter;
+	if((letter = parse_format(ss, fmt))) {
+		if(letter == 'd' || letter == 'x')
+			ss << (int)(arg&0xff);
+		else {
+			printf("Printing char! %02x", (int)arg);
+			ss << arg;
+		}
+		}
+}
+
+/*void format_stream(std::stringstream &ss, std::string &fmt, const std::string &arg) {
+	if(parse_format(ss, fmt)) {
+		ss << arg;
+	}
+}*/
+
+
 void format_stream(std::stringstream &ss, std::string &fmt, const Printable &printable) {
 	if(parse_format(ss, fmt)) {
 		ss << printable.toText();
@@ -47,6 +88,11 @@ void format_stream(stringstream &ss, string &fmt, const vector<uint8_t> &bytes) 
 			first = false;
 		}
 	}
+}
+
+void format_stream(std::stringstream &ss, std::string &fmt) {
+	printf("Why are we here '%s'\n", fmt.c_str());
+	ss << fmt;
 }
 
 /*

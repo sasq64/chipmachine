@@ -74,8 +74,10 @@ template<template <typename, typename> class Container, class A> void format_str
 			ss.width(w);
 			if(letter == 'd' || letter == 'x')
 				ss << (int)(b&0xff);
-			else
+			else {
+				printf("Printing char! %02x", (int)b);
 				ss << b;
+			}
 			first = false;
 		}
 	}
@@ -91,8 +93,10 @@ template<template <typename, typename> class Container, class A> void format_str
 			ss.width(w);
 			if(letter == 'd' || letter == 'x')
 				ss << (int)(b&0xff);
-			else
+			else {
+				printf("Printing char! %02x", (int)b);
 				ss << b;
+			}
 			first = false;
 		}
 	}
@@ -108,8 +112,10 @@ template<template <typename, typename> class Container, class A> void format_str
 			ss.width(w);
 			if(letter == 'd' || letter == 'x')
 				ss << (int)(b&0xff);
-			else
+			else {
+				printf("Printing char! %02x", (int)b);
 				ss << b;
+			}
 			first = false;
 		}
 	}
@@ -136,6 +142,14 @@ template <template<class> class C> void format_stream(std::stringstream &ss, std
 		}
 	}
 } */
+
+
+void format_stream(std::stringstream &ss, std::string &fmt);
+void format_stream(std::stringstream &ss, std::string &fmt, const char arg);
+void format_stream(std::stringstream &ss, std::string &fmt, const unsigned char arg);
+void format_stream(std::stringstream &ss, std::string &fmt, const signed char arg);
+//void format_stream(std::stringstream &ss, std::string &fmt, const std::string &arg);
+
 
 template <class T> void format_stream(std::stringstream &ss, std::string &fmt, const T& arg) {
 	char letter;
