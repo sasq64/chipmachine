@@ -329,7 +329,7 @@ int main(int argc, char* argv[]) {
 	db.generateIndex();
 	LOGI("Index generated");
 
-	TelnetServer telnet { 23 };
+	TelnetServer telnet { 12345 };
 	telnet.setOnConnect([&](TelnetServer::Session &session) {
 
 		session.echo(false);

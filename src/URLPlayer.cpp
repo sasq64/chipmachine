@@ -4,12 +4,13 @@
 #include "log.h"
 
 #include <cstring>
+#include <algorithm>
 
 using namespace std;
 using namespace utils;
 using namespace logging;
 
-URLPlayer::URLPlayer(const string &url, PlayerFactory *playerFactory) : webGetter("_cache"), currentPlayer(nullptr), urlJob(nullptr), playerFactory(playerFactory) {
+URLPlayer::URLPlayer(const string &url, PlayerFactory *playerFactory) : webGetter("_cache"), currentPlayer(nullptr), playerFactory(playerFactory) {
 	StringTokenizer st {url, ":"};
 	string protocol = "";
 	string path;
@@ -22,9 +23,23 @@ URLPlayer::URLPlayer(const string &url, PlayerFactory *playerFactory) : webGette
 		path = st.getString(p);
 	}
 
+	LOGD("%d '%s' '%s'", st.noParts(), protocol, path);
+
 	if(protocol == "http" || protocol == "ftp") {
 		string musicUrl = protocol.append(":/").append(path);
-		urlJob = unique_ptr<WebGetter::Job>(webGetter.getURL(musicUrl));
+		vector<string> urlList = { musicUrl };
+
+		//injection_point("URLPlayer.getURL", urlList);
+		if(path_extention(musicUrl) == "mdat") {
+			urlList.push_back(path_directory(musicUrl) + "/" + path_basename(musicUrl) + ".smpl");
+		} else
+		if(path_extention(musicUrl) == "sng") {
+			urlList.push_back(path_directory(musicUrl) + "/" + path_basename(musicUrl) + ".ins");
+		}
+
+		for(auto u : urlList) {
+			urlJobs.push_back(unique_ptr<WebGetter::Job>(webGetter.getURL(u)));
+		}
 	}
 	else {
 		File file(path);
@@ -46,10 +61,21 @@ string URLPlayer::getMeta(const string &what) {
 int URLPlayer::getSamples(int16_t *target, int noSamples) {
 
 	if(!currentPlayer) {
-		if(urlJob) {
-			if(urlJob->isDone()) {
+		if(urlJobs.size() > 0) {
+			bool done = all_of(urlJobs.begin(), urlJobs.end(), [](unique_ptr<WebGetter::Job> &job) {
+				return job->isDone();
+			});
 
-				string target = urlJob->getFile();
+			if(done) {
+
+				for(auto &job : urlJobs) {
+					if(job->getReturnCode() != 0) {
+						LOGD("Job failed, fail song");
+						return -1;
+					}
+				}
+
+				string target = urlJobs[0]->getFile();
 				File file(target);
 
 				if(Archive::canHandle(target)) {
@@ -78,7 +104,7 @@ int URLPlayer::getSamples(int16_t *target, int noSamples) {
 					} else
 						LOGD("Can not handle %s\n", file.getName());
 				}
-				urlJob = nullptr;
+				urlJobs.resize(0);
 			}
 		}
 

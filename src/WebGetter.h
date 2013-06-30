@@ -17,6 +17,7 @@ public:
 		Job(const std::string &url, const std::string &targetDir);
 		~Job();
 		bool isDone();
+		int getReturnCode();
 		std::string getFile();
 	private:
 		void urlGet(std::string url);
@@ -25,6 +26,7 @@ public:
 
 		std::mutex m;
 		bool loaded;
+		int returnCode;
 		std::thread jobThread;
 		std::string targetDir;
 		FILE *fp;

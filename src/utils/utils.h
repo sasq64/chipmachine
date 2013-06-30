@@ -65,6 +65,9 @@ public:
 		if(std::remove(fileName.c_str()) != 0)
 			throw io_exception("Could not delete file");
 	}
+
+	void copyFrom(File &otherFile);
+
 private:
 	std::string fileName;
 	std::vector<uint8_t> data;
@@ -101,7 +104,8 @@ std::string path_basename(const std::string &name);
 std::string path_directory(const std::string &name);
 std::string path_filename(const std::string &name);
 std::string path_extention(const std::string &name);
-
+std::string path_suffix(const std::string &name);
+std::string path_prefix(const std::string &name);
 std::string utf8_encode(const std::string &s);
 
 // SLICE

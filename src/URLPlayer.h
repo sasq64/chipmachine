@@ -15,7 +15,7 @@ public:
 	URLPlayer(const std::string &url, PlayerFactory *playerFactory);
 
 	virtual ~URLPlayer() {
-		LOGD("URLPlayer destroy");
+		//LOGD("URLPlayer destroy");
 	}
 
 	int getSamples(int16_t *target, int noSamples) override;
@@ -34,7 +34,7 @@ public:
 private:
 	WebGetter webGetter;
 	std::unique_ptr<ChipPlayer> currentPlayer;
-	std::unique_ptr<WebGetter::Job> urlJob;
+	std::vector<std::unique_ptr<WebGetter::Job>> urlJobs;
 	std::mutex m;
 	PlayerFactory *playerFactory;
 };

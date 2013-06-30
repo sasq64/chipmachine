@@ -41,29 +41,29 @@ run :
 	./player
 
 cleanall : clean
-	make -C src/plugins/VicePlugin clean
-	make -C src/plugins/SexyPSFPlugin clean
-	make -C src/plugins/ModPlugin clean
-	make -C src/plugins/GMEPlugin clean
-	make -C src/plugins/UADEPlugin clean
+	+make -C src/plugins/VicePlugin clean
+	+make -C src/plugins/SexyPSFPlugin clean
+	+make -C src/plugins/ModPlugin clean
+	+make -C src/plugins/GMEPlugin clean
+	+make -C src/plugins/UADEPlugin clean
 
 #netlink :
 #	make -f netlink.mk
 
 modplug :
-	make -C src/plugins/ModPlugin
+	+make -C src/plugins/ModPlugin
 
 vice :
-	make -C src/plugins/VicePlugin
+	+make -C src/plugins/VicePlugin
 
 sexypsf :
-	make -C src/plugins/SexyPSFPlugin
+	+make -C src/plugins/SexyPSFPlugin
 
 gmeplugin :
-	make -C src/plugins/GMEPlugin
+	+make -C src/plugins/GMEPlugin
 
 uadeplugin :
-	make -C src/plugins/UADEPlugin
+	+make -C src/plugins/UADEPlugin
 
 include Makefile.inc
 

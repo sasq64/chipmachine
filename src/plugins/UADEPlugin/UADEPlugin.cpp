@@ -19,15 +19,43 @@ extern "C" {
 }*/
 
 using namespace std;
+using namespace utils;
 
 class UADEPlayer : public ChipPlayer {
 public:
 	UADEPlayer() : valid(false), state(nullptr)  {
 	}
 
+	static struct uade_file *amigaloader(const char *name, const char *playerdir, void *context, struct uade_state *state) {
+		LOGD("Trying to load '%s' from '%s'", name, playerdir);
+		UADEPlayer *up = static_cast<UADEPlayer*>(context);
+		string fileName = name;
+		if(path_suffix(fileName) == "music") {
+			fileName = path_directory(fileName) + "/" + up->baseName + "." + path_prefix(fileName);
+			LOGD("Translated back to '%s'", fileName);
+		}
+
+		struct uade_file *f = uade_load_amiga_file(fileName.c_str(), playerdir, state);
+		return f;
+	}
+
 	bool load(string fileName) {
 
 		state = uade_new_state(nullptr);
+
+		if(path_suffix(fileName) == "mdat") {
+			uade_set_amiga_loader(UADEPlayer::amigaloader, this, state);
+			baseName = path_basename(fileName);
+			string uadeFileName = path_directory(fileName) + "/" + path_extention(fileName) + "." + "music";
+			LOGD("Translated %s to %s", fileName, uadeFileName);
+			File file { uadeFileName };
+			File file2 { fileName };
+			file.copyFrom(file2);
+			file.close();
+			fileName = uadeFileName;
+		} else
+			uade_set_amiga_loader(nullptr, this, state);
+
 		if(uade_play(fileName.c_str(), -1, state) == 1) {
 			songInfo = uade_get_song_info(state);
 			setMetaData("songs", songInfo->subsongs.max - songInfo->subsongs.min + 1);
@@ -42,6 +70,8 @@ public:
 		return valid;
 
 	}
+
+
 
 	~UADEPlayer() override {
 		//if(valid)
@@ -72,6 +102,7 @@ private:
 	bool valid;
 	struct uade_state *state;
 	const struct uade_song_info *songInfo;
+	string baseName;
 	//ModPlugFile *mod;
 	//private unordered_map<string, string>;
 };
@@ -102,4 +133,5 @@ ChipPlayer *UADEPlugin::fromFile(const std::string &fileName) {
 
 UADEPlugin::UADEPlugin() {
 	//init_uade();
+
 }

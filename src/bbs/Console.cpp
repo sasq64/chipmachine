@@ -201,7 +201,7 @@ void Console::flush() {
 	curY = saveY;
 
 	if(outBuffer.size() > 0) {
-		LOGD("OUTBYTES: [%02x]", outBuffer);
+		LOGV("OUTBYTES: [%02x]", outBuffer);
 		terminal.write(outBuffer, outBuffer.size());
 		outBuffer.resize(0);
 	}
@@ -237,14 +237,14 @@ int Console::getKey(int timeout) {
 	while(true) {
 		int rc = terminal.read(temp, 16);
 		if(rc > 0) {
-			LOGD("Got %d bytes", rc);
+			//LOGD("Got %d bytes", rc);
 			for(int i=0; i<rc; i++) {
-				LOGD("Pushing %d", (int)temp[i]);
+				//LOGD("Pushing %d", (int)temp[i]);
 				inBuffer.push(temp[i]);
 			}
 		}
 		if(inBuffer.size() > 0) {
-			LOGD("Size %d", inBuffer.size());
+			//LOGD("Size %d", inBuffer.size());
 			return impl_handlekey();
 		}
 
@@ -265,7 +265,7 @@ AnsiConsole::AnsiConsole(Terminal &terminal) : Console(terminal) {
 	for(int i=0; i<16; i++) {
 		uint8_t *p = &c64pal[i*3];
 		const string &s = utils::format("\x1b]4;%d;#%02x%02x%02x\x07", 160 + i, p[0], p[1], p[2]);
-		LOGD(s);
+		//LOGD(s);
 		outBuffer.insert(outBuffer.end(), s.begin(), s.end());
 	}
 };

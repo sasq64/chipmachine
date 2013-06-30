@@ -26,6 +26,14 @@ bool WebGetter::Job::isDone() {
 	return l;
 }
 
+int WebGetter::Job::getReturnCode() { 
+	int l;
+	m.lock();
+	l = returnCode;
+	m.unlock();
+	return l;
+}
+
 string WebGetter::Job::getFile() {
 	return target;
 }
@@ -44,12 +52,14 @@ void WebGetter::Job::urlGet(string url) {
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunc);
 	curl_easy_setopt(curl, CURLOPT_WRITEHEADER, this);
 	curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, headerFunc);
-	curl_easy_perform(curl);
+	int rc = curl_easy_perform(curl);
+	LOGD("Curl returned %d", rc);
 
 	if(fp)
 		fclose(fp);
 
 	m.lock();
+	returnCode = rc;
 	loaded = true;
 	m.unlock();
 }

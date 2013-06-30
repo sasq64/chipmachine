@@ -73,6 +73,19 @@ void File::write(const string &data) {
 	fwrite(data.c_str(), 1, data.length(), writeFP);
 }
 
+
+void File::copyFrom(File &otherFile) {
+	if(!writeFP) {
+		makedirs(fileName);
+		writeFP = fopen(fileName.c_str(), "wb");
+		if(!writeFP)
+			throw io_exception{"Could not open file for writing"};
+	}
+	uint8_t *ptr = otherFile.getPtr();
+	int size = otherFile.getSize();
+	fwrite(ptr, 1, size, writeFP);
+}
+
 void File::close() {
 	if(writeFP)
 		fclose(writeFP);
@@ -237,6 +250,21 @@ string path_extention(const string &name) {
 	return name.substr(dotPos+1);
 
 }
+
+string path_suffix(const string &name) { return path_extention(name); }
+
+string path_prefix(const string &name) {
+	size_t slashPos = name.rfind(path_separator);
+	size_t dotPos = name.find('.', slashPos);
+	if(slashPos == string::npos)
+		slashPos = 0;
+	else
+		slashPos++;
+	if(dotPos == string::npos || dotPos < slashPos)
+		return "";
+	return name.substr(slashPos, dotPos-slashPos);
+}
+
 
 string utf8_encode(const string &s) {
 	string out;
