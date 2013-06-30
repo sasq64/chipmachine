@@ -2,6 +2,9 @@
 #include "UADEPlugin.h"
 
 #include "../../ChipPlayer.h"
+
+#include "inject.h"
+
 #include <utils/utils.h>
 
 #include <uade/uade.h>
@@ -133,5 +136,17 @@ ChipPlayer *UADEPlugin::fromFile(const std::string &fileName) {
 
 UADEPlugin::UADEPlugin() {
 	//init_uade();
+	inject<vector<string>>("URLPlayer.getURL", [](vector<string> &uv) -> bool {
+		LOGD("UADEPlayer injecting urls");
+		for(const auto &u : uv) {
+			if(path_extention(u) == "mdat") {
+				uv.push_back(path_directory(u) + "/" + path_basename(u) + ".smpl");
+			} else
+			if(path_extention(u) == "sng") {
+				uv.push_back(path_directory(u) + "/" + path_basename(u) + ".ins");
+			}
+		}
+		return true;
+	}, this);
 
 }

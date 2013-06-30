@@ -14,7 +14,6 @@ WIN_LDFLAGS := -static
 WIN_CC := gcc
 WIN_CXX := g++
 
-
 all : start_rule
 
 run :

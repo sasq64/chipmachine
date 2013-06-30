@@ -13,7 +13,7 @@ TARGET := player
 MODULES := ziplib netlink/src utils bbs
 LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lsc68plugin -lz
 LDFLAGS := -Wl,-Map -Wl,mapfile -Lsrc/plugins/SexyPSFPlugin -Lsrc/plugins/VicePlugin -Lsrc/plugins/ModPlugin -Lsrc/plugins/GMEPlugin -Lsrc/plugins/SC68Plugin -Lsrc/plugins/UADEPlugin
-OBJS := player.o SongDb.o SearchIndex.o WebGetter.o URLPlayer.o Archive.o sqlite3/sqlite3.o
+OBJS := player.o SongDb.o SearchIndex.o WebGetter.o URLPlayer.o Archive.o inject.o sqlite3/sqlite3.o
 
 WIN_CFLAGS := $(WIN_CFLAGS) -static -Icurl/include -DWIN32
 WIN_LIBS := -lwinmm -lcurldll -lws2_32 -liconv

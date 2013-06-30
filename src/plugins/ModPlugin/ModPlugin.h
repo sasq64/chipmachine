@@ -3,6 +3,7 @@
 
 #include "../../ChipPlugin.h"
 
+
 class ModPlugin : public ChipPlugin {
 public:
 	virtual bool canHandle(const std::string &name) override;

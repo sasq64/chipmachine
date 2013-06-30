@@ -16,6 +16,8 @@
 #include "TelnetServer.h"
 #include "Console.h"
 
+#include "inject.h"
+
 #ifdef WIN32
 #include "AudioPlayerWindows.h"
 #else
@@ -144,10 +146,15 @@ void launchConsole(Console &console, SongDatabase &db) {
 
 			console.fill(0,0, console.getWidth(), 2);
 
+			string title;
 			if(songTitle.length()) {
-				console.put(0, 0, format("%s - %s", songComposer, songTitle));
+				title = format("%s - %s", songComposer, songTitle);
 			} else
-				console.put(0, 0, "<Nothing playing>");
+				title = "<Nothing playing>";
+
+			injection_point("player.titlebar", title);
+			console.put(0, 0, title);
+
 			console.put(0, 1, format("Song %02d/%02d - [%02d:%02d] %s", subSong+1, totalSongs, seconds/60, seconds%60, songFormat));
 			console.setBg(Console::BLACK);
 			console.setFg(Console::YELLOW);

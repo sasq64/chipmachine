@@ -97,6 +97,11 @@ bool File::exists() {
 	return (stat(fileName.c_str(), &ss) == 0);
 }
 
+bool File::exists(const string &fileName) {
+	struct stat ss;
+	return (stat(fileName.c_str(), &ss) == 0);
+}
+
 uint8_t *File::getPtr() {
 	close();
 	if(!loaded)

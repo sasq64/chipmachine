@@ -2,7 +2,7 @@
 #include "utils.h"
 #include "Archive.h"
 #include "log.h"
-
+#include "inject.h"
 #include <cstring>
 #include <algorithm>
 
@@ -29,13 +29,7 @@ URLPlayer::URLPlayer(const string &url, PlayerFactory *playerFactory) : webGette
 		string musicUrl = protocol.append(":/").append(path);
 		vector<string> urlList = { musicUrl };
 
-		//injection_point("URLPlayer.getURL", urlList);
-		if(path_extention(musicUrl) == "mdat") {
-			urlList.push_back(path_directory(musicUrl) + "/" + path_basename(musicUrl) + ".smpl");
-		} else
-		if(path_extention(musicUrl) == "sng") {
-			urlList.push_back(path_directory(musicUrl) + "/" + path_basename(musicUrl) + ".ins");
-		}
+		injection_point("URLPlayer.getURL", urlList);
 
 		for(auto u : urlList) {
 			urlJobs.push_back(unique_ptr<WebGetter::Job>(webGetter.getURL(u)));

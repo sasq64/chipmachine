@@ -49,6 +49,7 @@ public:
 	void close();
 
 	bool exists();
+	static bool exists(const std::string &fileName);
 	uint8_t *getPtr();
 	const std::string &getName() const { return fileName; }
 	int getSize() const { 

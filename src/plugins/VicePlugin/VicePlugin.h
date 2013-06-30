@@ -3,8 +3,6 @@
 
 #include "../../ChipPlugin.h"
 
-class ChipPlayer;
-
 #include <string>
 
 class VicePlugin : public ChipPlugin {

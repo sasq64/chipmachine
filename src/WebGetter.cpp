@@ -42,18 +42,23 @@ void WebGetter::Job::urlGet(string url) {
 
 	target = targetDir + "/" + urlencode(url, ":/\\?;");
 
-	LOGD("Getting %s -> %s\n", url, target);
+	int rc = 0;
+	if(!File::exists(target)) {
 
-	CURL *curl;
-	curl = curl_easy_init();
-	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunc);
-	curl_easy_setopt(curl, CURLOPT_WRITEHEADER, this);
-	curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, headerFunc);
-	int rc = curl_easy_perform(curl);
-	LOGD("Curl returned %d", rc);
+		LOGD("Downloading %s\n", url);
+		CURL *curl;
+		curl = curl_easy_init();
+		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, this);
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunc);
+		curl_easy_setopt(curl, CURLOPT_WRITEHEADER, this);
+		curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, headerFunc);
+		rc = curl_easy_perform(curl);
+		LOGD("Curl returned %d", rc);
+	} else {
+		LOGD("Getting %s from cache\n", target);
+	}
 
 	if(fp)
 		fclose(fp);
