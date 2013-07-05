@@ -135,12 +135,8 @@ public:
 
 };
 
-VicePlugin::VicePlugin() {
-#ifdef RASPBERRYPI
-	VicePlayer::init("/opt/chipmachine/c64");
-#else
-	VicePlayer::init("c64");
-#endif   
+VicePlugin::VicePlugin(const string &dataDir) {
+	VicePlayer::init(dataDir.c_str());
 }
 
 VicePlugin::~VicePlugin() {
@@ -148,7 +144,7 @@ VicePlugin::~VicePlugin() {
 	machine_shutdown();
 }
 
-static const set<string> ext { ".sid", ".psid", ".rsid" , ".2sid" };
+static const set<string> ext { ".sid", ".psid", ".rsid" , ".2sid", ".mus" };
 
 bool VicePlugin::canHandle(const std::string &name) {
 	for(string x : ext) {

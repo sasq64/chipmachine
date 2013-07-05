@@ -43,7 +43,6 @@ public:
 		if(writeFP)
 			fclose(writeFP);
 	}
-	void read(); // throw(file_not_found_exception, io_exception);
 	void write(const uint8_t *data, int size); // throw(io_exception);
 	void write(const std::string &text);
 	void close();
@@ -69,7 +68,27 @@ public:
 
 	void copyFrom(File &otherFile);
 
+	int read(uint8_t *target, int len);
+
+	void seek(int where);
+	template <typename T> int read(T *target, int count) {
+		open();
+		return fread(target, sizeof(T), count, readFP);
+	}
+
+	template <typename T> T read() {
+		open();
+		T temp;
+		if(fread(&temp, sizeof(T), 1, readFP) > 0)
+			return temp;
+		throw io_exception{};
+	}
+
+
 private:
+	void readAll(); // throw(file_not_found_exception, io_exception);
+	void open();
+
 	std::string fileName;
 	std::vector<uint8_t> data;
 	mutable int size;

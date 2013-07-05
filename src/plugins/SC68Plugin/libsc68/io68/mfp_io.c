@@ -532,8 +532,8 @@ static io68_t mfp_io =
 
 int mfpio_init(int * argc, char ** argv)
 {
-  argc = argc;
-  argv = argv;
+  //argc = argc;
+  //argv = argv;
   return mfp_init();
 }
 

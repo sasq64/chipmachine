@@ -40,6 +40,7 @@ public:
 
 		noSamples /= 2;
 		ymMusicCompute(ymMusic, target, noSamples);
+		// Mono to stereo
 		for(int i=noSamples-1; i>=0; i--) {
 			target[i*2] = target[i];
 			target[i*2+1] = target[i];
@@ -50,6 +51,7 @@ public:
 	virtual void seekTo(int song, int seconds) {
 		//if(mod)
 		//	ModPlug_Seek(mod, seconds * 1000);
+		ymMusicSeek(ymMusic, seconds * 1000);
 	}
 
 private:

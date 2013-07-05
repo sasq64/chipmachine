@@ -142,7 +142,7 @@ public:
 	int		getAttrib(void);
 	void	getMusicInfo(ymMusicInfo_t *pInfo);
 	void	setLoopMode(ymbool bLoop);
-	char	*getLastError(void);
+	const char	*getLastError(void);
 	int		readYmRegister(ymint reg)			{ return ymChip.readRegister(reg); }
 	void	setLowpassFilter(ymbool bActive)	{ ymChip.setFilter(bActive); }
 
@@ -165,7 +165,7 @@ private:
 
 	void	setPlayerRate(int rate);
 	void	setAttrib(int _attrib);
-	void	setLastError(char *pError);
+	void	setLastError(const char *pError);
 	ymu8 *depackFile(ymu32 size);
 	ymbool	deInterleave(void);
 	void	readYm6Effect(ymu8 *pReg,int code,int prediv,int count);
@@ -174,7 +174,7 @@ private:
 
 
 	CYm2149Ex	ymChip;
-	char	*pLastError;
+	const char	*pLastError;
 	ymFile_t	songType;
 	int		nbFrame;
 	int		loopFrame;

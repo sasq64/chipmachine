@@ -51,7 +51,7 @@ static	void	signeSample(ymu8 *ptr,yms32 size)
 		}
 }
 
-char	*mstrdup(char *in)
+char	*mstrdup(const char *in)
 {
 	const int size = strlen(in)+1;
 	char *out = (char*)malloc(size);

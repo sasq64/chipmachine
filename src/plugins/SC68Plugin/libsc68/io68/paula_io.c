@@ -296,7 +296,7 @@ static void _paula_writeW(paula_io68_t * const paulaio,
 
   case PAULA_INTENA: {
     int old_intena = INTENA(paula->intena), new_intena;
-    old_intena=old_intena;
+    //old_intena=old_intena;
     paula->intena = clearset(paula->intena, v);
     new_intena = INTENA(paula->intena);
 

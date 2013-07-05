@@ -455,7 +455,7 @@ static int reset(ym_t * const ym, const cycle68_t ymcycle)
 }
 
 /* Get required length of buffer at run(s32 *output) (number of frames). */
-static int buffersize(const ym_t const * ym, const cycle68_t ymcycles)
+static int buffersize(const ym_t * ym, const cycle68_t ymcycles)
 {
   return MAX_MIXBUF;
 }

@@ -154,7 +154,7 @@ struct ym_s {
   void (*cb_cleanup)       (ym_t * const);
   int  (*cb_reset)         (ym_t * const, const cycle68_t);
   int  (*cb_run)           (ym_t * const, s32 *, const cycle68_t);
-  int  (*cb_buffersize)    (const ym_t const *, const cycle68_t);
+  int  (*cb_buffersize)    (const ym_t *, const cycle68_t);
   int  (*cb_sampling_rate) (ym_t * const, const int);
   /** @} */
 
@@ -336,7 +336,7 @@ IO68_EXTERN
  *          ymcycles samples.
  *
  */
-uint68_t ym_buffersize(const ym_t const * ym, const cycle68_t ymcycles);
+uint68_t ym_buffersize(const ym_t * ym, const cycle68_t ymcycles);
 
 IO68_EXTERN
 /** Change YM cycle counter base.

@@ -64,7 +64,7 @@ public:
 
 		string name = file.getName();
 		makeLower(name);
-		LOGD("Handling %s\n", name);
+		LOGD("Handling %s", name);
 
 		for(auto &plugin : plugins) {
 			if(plugin->canHandle(name))
@@ -287,8 +287,8 @@ int main(int argc, char* argv[]) {
 
 	volatile bool doQuit = false;
 
-	for(int i=1; i<argc; i++) 
-{		if(argv[i][0] == '-') {
+	for(int i=1; i<argc; i++) {
+		if(argv[i][0] == '-') {
 			if((strcmp(argv[i], "--start-daemon") == 0) || (strcmp(argv[i], "-d") == 0)) {
 				daemonize = true;
 			}
@@ -320,10 +320,10 @@ int main(int argc, char* argv[]) {
 
 	PlayerSystem psys;
 	psys.addPlugin<ModPlugin>();
-	psys.addPlugin<VicePlugin>();
+	psys.addPlugin<VicePlugin>("data/c64");
 	psys.addPlugin<SexyPSFPlugin>();
 	psys.addPlugin<GMEPlugin>();
-	psys.addPlugin<SC68Plugin>("sc68data");
+	psys.addPlugin<SC68Plugin>("data/sc68data");
 	psys.addPlugin<StSoundPlugin>();
 #ifndef WIN32
 	psys.addPlugin<UADEPlugin>();

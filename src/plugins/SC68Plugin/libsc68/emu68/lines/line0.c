@@ -91,7 +91,7 @@ void BSET_mem(emu68_t * const emu68, const int bit, int mode, int reg0)
 
 static void l0_ill(emu68_t * const emu68, int reg0)
 {
-  reg0 = reg0;
+  //reg0 = reg0;
   ILLEGAL;
 }
 

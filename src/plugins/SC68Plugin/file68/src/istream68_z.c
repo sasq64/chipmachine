@@ -96,13 +96,13 @@ typedef struct {
 
 static voidpf isf_zcalloc(voidpf opaque, unsigned items, unsigned size)
 {
-  opaque = opaque;
+  //opaque = opaque;
   return calloc68(items*size);
 }
 
 static void isf_zcfree(voidpf opaque, voidpf ptr)
 {
-  opaque = opaque;
+  //opaque = opaque;
   free68(ptr);
 }
 

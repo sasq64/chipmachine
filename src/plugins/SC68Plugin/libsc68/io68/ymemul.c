@@ -676,7 +676,7 @@ void ym_cleanup(ym_t * const ym)
 
 /** Get required output buffer size.
  */
-uint68_t ym_buffersize(const ym_t const * ym, const cycle68_t ymcycles)
+uint68_t ym_buffersize(const ym_t * ym, const cycle68_t ymcycles)
 {
   return ym->cb_buffersize(ym,ymcycles);
 }

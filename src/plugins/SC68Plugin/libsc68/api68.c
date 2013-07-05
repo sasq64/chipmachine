@@ -178,7 +178,7 @@ extern int config68_option_count;      /* conf68.c */
 static int dbg68k;
 static const char not_available[] = SC68_NOFILENAME;
 
-static inline const char * ok_int(const int const err) {
+static inline const char * ok_int(const int err) {
   return !err ? "success" : "failure";
 }
 

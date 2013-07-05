@@ -76,7 +76,7 @@ private:
 	bool started;
 };
 
-static const set<string> supported_ext = { "spc", "gym", "nsf", "nsfe", "gbs", "ay", "sap", "vgm", "vgz", "hes", "kss" };
+static const set<string> supported_ext = { "emul", "spc", "gym", "nsf", "nsfe", "gbs", "ay", "sap", "vgm", "vgz", "hes", "kss" };
 
 bool GMEPlugin::canHandle(const std::string &name) {
 	return supported_ext.count(utils::path_extention(name)) > 0;

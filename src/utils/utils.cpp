@@ -21,7 +21,7 @@ File::File() : size(-1), loaded(false), writeFP(nullptr), readFP(nullptr) {}
 File::File(const string &name) : fileName(name), size(-1), loaded(false), writeFP(nullptr), readFP(nullptr) {
 };
 
-void File::read()  {		
+void File::readAll()  {		
 	if(!loaded) {
 		FILE *fp = fopen(fileName.c_str(), "rb");
 		if(!fp)
@@ -38,11 +38,31 @@ void File::read()  {
 	}
 }
 
+void File::open() {
+	if(readFP == nullptr) {
+		readFP = fopen(fileName.c_str(), "rb");
+		if(!readFP)
+			throw file_not_found_exception{};
+	}
+}
+
+int File::read(uint8_t *target, int len) {
+	open();
+	return fread(target, 1, len, readFP);
+}
+
+void File::seek(int where) {
+	open();
+	if(!readFP)
+		throw file_not_found_exception{};
+	fseek(readFP, where, SEEK_SET);
+}
+
 vector<string> File::getLines() {
 	vector<string> lines;
 	close();
 	if(!loaded)
-		read();
+		readAll();
 	string source { reinterpret_cast<char*>(&data[0]), (unsigned int)size };
 	stringstream ss(source);
 	string to;
@@ -105,7 +125,7 @@ bool File::exists(const string &fileName) {
 uint8_t *File::getPtr() {
 	close();
 	if(!loaded)
-		read();
+		readAll();
 	return &data[0];
 }
 
@@ -313,7 +333,7 @@ TEST_CASE("utils::File", "File operations") {
 
 	file = File { "temp.text" };
 
-	file.read();
+	file.readAll();
 	REQUIRE(file.getPtr() != NULL);
 
 	vector<string> lines = file.getLines();

@@ -70,7 +70,7 @@ static ym_waccess_t * advance_list( ym_waccess_t * regs[] )
 }
 
 static
-int buffersize(const ym_t const * ym, const cycle68_t ymcycles)
+int buffersize(const ym_t * ym, const cycle68_t ymcycles)
 {
   return ymcycles * ym->hz / ym->clock;
 }

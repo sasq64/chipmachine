@@ -214,12 +214,12 @@ ymbool	CYmMusic::isSeekable(void)
 		return getAttrib()&A_TIMECONTROL;
 }
 
-void	CYmMusic::setLastError(char *pError)
+void	CYmMusic::setLastError(const char *pError)
 {
 		pLastError = pError;
 }
 
-char	*CYmMusic::getLastError(void)
+const char	*CYmMusic::getLastError(void)
 {
 		return pLastError;
 }

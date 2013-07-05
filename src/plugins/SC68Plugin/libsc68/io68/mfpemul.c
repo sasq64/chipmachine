@@ -153,7 +153,7 @@ int timer_get_tdr(const mfp_timer_t * const ptimer, const bogoc68_t bogoc)
 static inline
 void reconf_timer(mfp_timer_t * const ptimer, int tcr, const bogoc68_t bogoc)
 {
-  uint_t          frq = timerfrq(ptimer->tdr_res); /* old frequency       */
+  //uint_t          frq = timerfrq(ptimer->tdr_res); /* old frequency       */
   const bogoc68_t cti = ptimer->cti - bogoc;       /* cycles to interrupt */
   const uint_t    psw = prediv_width[ptimer->tcr]; /* cycles count-down   */
   const uint_t    cnt = cti/psw;                   /* count-down          */
@@ -290,7 +290,7 @@ void mfp_put_tdr(mfp_t * const mfp, int timer, int68_t v, bogoc68_t bogoc)
           "mfp: timer-%c -- reload TDR @%u -- %u\n",
           ptimer->def.letter, bogoc, ptimer->tdr_res);
   } else if (ptimer->tcr && v != old_tdr) {
-    uint_t old_frq = timerfrq(old_tdr);
+   // uint_t old_frq = timerfrq(old_tdr);
     TRACE68(mfp_cat,
           "mfp: timer-%c -- change @%u cti:%u psw:%u(%u) cpp:%u"
           " -- %u(%u) -> %u(%u)hz\n",

@@ -1085,7 +1085,7 @@ int run(ym_t * const ym, s32 * output, const cycle68_t ymcycles)
 
 
 static
-int buffersize(const ym_t const * ym, const cycle68_t ymcycles)
+int buffersize(const ym_t * ym, const cycle68_t ymcycles)
 {
   return ((ymcycles+7u) >> 3);
 }
