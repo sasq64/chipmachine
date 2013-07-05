@@ -12,6 +12,7 @@
 #include "GMEPlugin.h"
 #include "SC68Plugin.h"
 #include "UADEPlugin.h"
+#include "StSoundPlugin.h"
 
 #include "TelnetServer.h"
 #include "Console.h"
@@ -77,7 +78,7 @@ public:
 		string lname = name;
 		makeLower(lname);
 
-		LOGD("Factory checking: %s\n", lname);
+		LOGD("Factory checking: %s", lname);
 
 		for(auto &plugin : plugins) {
 			if(plugin->canHandle(lname))
@@ -135,16 +136,14 @@ void launchConsole(Console &console, SongDatabase &db) {
 		//char c = session.getChar();
 		int c = console.getKey(500);
 		int h = console.getHeight();
+		console.setFg(Console::WHITE);
+		console.setBg(Console::PINK);
+		console.fill(0,0, console.getWidth(), 2);
+
 		{
 			lock_guard<mutex>{playMutex};
 
-
 			int seconds = frameCount / 44100;
-
-			console.setFg(Console::WHITE);
-			console.setBg(Console::PINK);
-
-			console.fill(0,0, console.getWidth(), 2);
 
 			string title;
 			if(songTitle.length()) {
@@ -164,7 +163,7 @@ void launchConsole(Console &console, SongDatabase &db) {
 				continue;
 			}
 
-			LOGD("char %d\n", (int)c);
+			LOGD("Key pressed: %d", c);
 
 			switch(c) {
 				case Console::KEY_BACKSPACE:
@@ -325,6 +324,7 @@ int main(int argc, char* argv[]) {
 	psys.addPlugin<SexyPSFPlugin>();
 	psys.addPlugin<GMEPlugin>();
 	psys.addPlugin<SC68Plugin>("sc68data");
+	psys.addPlugin<StSoundPlugin>();
 #ifndef WIN32
 	psys.addPlugin<UADEPlugin>();
 #endif

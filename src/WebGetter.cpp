@@ -45,7 +45,7 @@ void WebGetter::Job::urlGet(string url) {
 	int rc = 0;
 	if(!File::exists(target)) {
 
-		LOGD("Downloading %s\n", url);
+		LOGD("Downloading %s", url);
 		CURL *curl;
 		curl = curl_easy_init();
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
@@ -57,7 +57,7 @@ void WebGetter::Job::urlGet(string url) {
 		rc = curl_easy_perform(curl);
 		LOGD("Curl returned %d", rc);
 	} else {
-		LOGD("Getting %s from cache\n", target);
+		LOGD("Getting %s from cache", target);
 	}
 
 	if(fp)
@@ -73,7 +73,7 @@ size_t WebGetter::Job::writeFunc(void *ptr, size_t size, size_t nmemb, void *use
 	Job *job = (Job*)userdata;
 	if(!job->fp) {
 		job->fp = fopen(job->target.c_str(), "wb");
-		LOGD("Opened %s => %s\n", job->target, job->fp ? "OK" : "FAIL");
+		LOGD("Opened %s => %s", job->target, job->fp ? "OK" : "FAIL");
 	}
 	if(job->fp) {
 		fwrite(ptr, size, nmemb, job->fp); 
@@ -91,11 +91,11 @@ size_t WebGetter::Job::headerFunc(void *ptr, size_t size, size_t nmemb, void *us
 
 	string line = string(text, sz);
 
-	log(VERBOSE, "HEADER:'%s'\n", line);
+	log(VERBOSE, "HEADER:'%s'", line);
 
 	if(line.substr(0, 9) == "Location:") {
 		string newUrl = line.substr(10);
-		LOGD("Redirecting to %s\n", newUrl);
+		LOGD("Redirecting to %s", newUrl);
 		job->target = job->targetDir + "/" + urlencode(newUrl, ":/\\?;");
 	}
 

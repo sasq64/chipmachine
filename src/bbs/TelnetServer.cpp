@@ -13,7 +13,7 @@ void TelnetServer::OnAccept::exec(NL::Socket* socket, NL::SocketGroup* group, vo
 	TelnetServer *ts = static_cast<TelnetServer*>(reference);
 	NL::Socket* c = socket->accept();
 	group->add(c);
-	LOGD("Connection from %s:%d\n", c->hostTo(), c->portTo());
+	LOGD("Connection from %s:%d", c->hostTo(), c->portTo());
 
 	ts->sessions.push_back(make_shared<Session>(c));
 
@@ -39,7 +39,7 @@ void TelnetServer::OnRead::exec(NL::Socket* socket, NL::SocketGroup* group, void
 
 void TelnetServer::OnDisconnect::exec(NL::Socket* socket, NL::SocketGroup* group, void* reference) {
 	group->remove(socket);
-	LOGD("Connection from %s disconnected\n", socket->hostTo());
+	LOGD("Connection from %s disconnected", socket->hostTo());
 
 	TelnetServer *ts = static_cast<TelnetServer*>(reference);
 	auto &session = ts->getSession(socket);

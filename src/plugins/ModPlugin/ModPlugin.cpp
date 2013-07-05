@@ -3,34 +3,15 @@
 #include "modplug.h"
 #include "../../ChipPlayer.h"
 
-#include "inject.h"
-
 #include <utils/utils.h>
 #include <set>
 #include <unordered_map>
 
 using namespace std;
 
-static bool injected = false;
-
 class ModPlayer : public ChipPlayer {
 public:
 	ModPlayer(uint8_t *data, int size) {
-/*
-		if(!injected) {
-			inject<string>("player.titlebar", [](string &title) -> bool {
-				LOGD("Injecting!\n");
-				title = "MODPLAYER!";
-				return true;
-			});
-			injected = true;
-		}
-*/
-		std::function<void(std::string&)> fn = [](std::string &titlebar) {
-			titlebar = "MOD!";
-		};
-
-		tbi = Inject( "titlebar", fn);
 
 		ModPlug_Settings settings;
 		ModPlug_GetSettings(&settings);
@@ -44,8 +25,6 @@ public:
 		setMetaData("length", ModPlug_GetLength(mod) / 1000);
 		int type = ModPlug_GetModuleType(mod);
 
-		//metaData[ChipPlayer::LENGTH] = to_string(ModPlug_GetLength() / 1000));
-		//metaData[ChipPlayer::TITLE] = ModPlug_GetName(mod);
 	}
 	~ModPlayer() override {
 		if(mod)
@@ -63,7 +42,6 @@ public:
 
 private:
 	ModPlugFile *mod;
-	Inject tbi;
 };
 
 static const set<string> supported_ext { "mod", "xm", "s3m" , "okt", "it", "ft" };

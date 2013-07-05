@@ -39,7 +39,7 @@ string SongDatabase::getFullString(int id) {
 	sqlite3_stmt *s;
 	const char *tail;
 	int rc = sqlite3_prepare_v2(db, "SELECT title, composer, path, metadata FROM songs WHERE _id == ?", -1, &s, &tail);
-	LOGD("Result '%d'\n", rc);
+	//LOGD("Result '%d'\n", rc);
 	if(rc != SQLITE_OK)
 		throw database_exception("Select failed");
 	sqlite3_bind_int(s, 1, id);
@@ -51,7 +51,7 @@ string SongDatabase::getFullString(int id) {
 		const char *path = (const char *)sqlite3_column_text(s, 2);
 		const char *metadata = (const char *)sqlite3_column_text(s, 3);
 
-		LOGD("Result %s %s %s\n", title, composer, path);
+		LOGD("Result %s %s %s", title, composer, path);
 		string r = format("%s\t%s\t%s\t%s", title, composer, path, metadata);
 		sqlite3_finalize(s);
 		return r;
@@ -117,7 +117,6 @@ void SongDatabase::generateIndex() {
 	char oldComposer[256] = "";
 
 	int rc = sqlite3_prepare_v2(db, "SELECT title, composer, path FROM songs;", -1, &s, &tail);
-	LOGD("Result '%d'\n", rc);
 	if(rc != SQLITE_OK)
 		throw database_exception("Select failed");
 
@@ -133,20 +132,22 @@ void SongDatabase::generateIndex() {
 			const char *path = (const char *)sqlite3_column_text(s, 2);
 
 			string ext = path_extention(path);
-
+			makeLower(ext);
 			int fmt = formatMap[ext];
-
 			formats.push_back(fmt);
 
-
+			// The title index maps one-to-one with the database
 			int tindex = titleIndex.add(title);
 
 			if(strcmp(composer, oldComposer) != 0) {
 				strcpy(oldComposer, composer);
 				cindex = composerIndex.add(composer);
+				// The composer index does not map to the database, but for each composer
+				// we save the first index in the database for that composer
 				composerToTitle.push_back(tindex);
 			}
 
+			// We also need to find the composer for a give title
 			titleToComposer.push_back(cindex);
 
 		} else if(ok == SQLITE_DONE) {

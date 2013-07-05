@@ -44,7 +44,7 @@ public:
 
 		string name = file.getName();
 		makeLower(name);
-		LOGD("Handling %s\n", name);
+		LOGD("Handling %s", name);
 
 		for(auto *plugin : plugins) {
 			if(plugin->canHandle(name))

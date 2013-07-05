@@ -42,7 +42,7 @@
 
 #include "zipint.h"
 
-static time_t _zip_d2u_time(int, int);
+//static time_t _zip_d2u_time(int, int);
 static char *_zip_readfpstr(FILE *, unsigned int, int, struct zip_error *);
 static char *_zip_readstr(unsigned char **, int, int, struct zip_error *);
 static void _zip_u2d_time(time_t, unsigned short *, unsigned short *);
@@ -218,7 +218,7 @@ _zip_dirent_read(struct zip_dirent *zde, FILE *fp,
 {
     unsigned char buf[CDENTRYSIZE];
     unsigned char *cur;
-    unsigned short dostime, dosdate;
+    //unsigned short dostime, dosdate;
     unsigned int size;
 
     if (local)
@@ -472,7 +472,7 @@ _zip_dirent_write(struct zip_dirent *zde, FILE *fp, int localp,
 }
 
 
-
+#if 0
 static time_t
 _zip_d2u_time(int dtime, int ddate)
 {
@@ -495,7 +495,7 @@ _zip_d2u_time(int dtime, int ddate)
 }
 
 
-
+#endif
 unsigned short
 _zip_read2(unsigned char **a)
 {

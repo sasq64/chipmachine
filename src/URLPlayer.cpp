@@ -75,9 +75,9 @@ int URLPlayer::getSamples(int16_t *target, int noSamples) {
 				if(Archive::canHandle(target)) {
 					Archive *a = Archive::open(target, "_cache");
 					for(const string &name : *a) {
-						LOGD("%s\n", name.c_str());
+						LOGD("%s", name.c_str());
 						if(playerFactory->canHandle(name)) {
-							LOGD("We can handle %s\n", name);
+							LOGD("We can handle %s", name);
 							file = a->extract(name);
 							break;
 						}
@@ -86,17 +86,17 @@ int URLPlayer::getSamples(int16_t *target, int noSamples) {
 				
 				if(file.exists()) {
 					if(playerFactory->canHandle(file.getName())) {
-						LOGD("Trying %s\n", file.getName());
+						LOGD("Trying %s", file.getName());
 						//rrentPlayer = playerFactory->fromFile(file); //new ModPlayer {file.getPtr(), file.getSize()};
 						currentPlayer = unique_ptr<ChipPlayer>(playerFactory->fromFile(file));
 						if(currentPlayer != nullptr) {
 							for(auto cb : callbacks)
 								currentPlayer->onMeta(cb);
 						} else
-							LOGD("%s failed to initialize\n", file.getName());
+							LOGD("%s failed to initialize", file.getName());
 
 					} else
-						LOGD("Can not handle %s\n", file.getName());
+						LOGD("Can not handle %s", file.getName());
 				}
 				urlJobs.resize(0);
 			}

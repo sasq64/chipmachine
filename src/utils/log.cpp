@@ -5,6 +5,14 @@
 #include <string.h>
 #include <ctime>
 
+#ifdef LOG_INCLUDE
+#include LOG_INCLUDE
+#endif
+
+#ifndef LOG_PUTS // const char *
+#define LOG_PUTS(x) (fwrite(x, 1, strlen(x), stdout), putchar(10))
+#endif
+
 namespace logging {
 
 using namespace std;
@@ -18,10 +26,8 @@ void log(const std::string &text) {
 
 void log(LogLevel level, const std::string &text) {
 	if(level >= defaultLevel) {
-		fwrite(text.c_str(), 1, text.length(), stdout);
-		char c = text[text.length()-1];
-		if(c != '\n' && c != '\r')
-			putc('\n', stdout);			
+		const char *cptr = text.c_str();
+		LOG_PUTS(cptr);
 	}
 	if(logFile) {
 		

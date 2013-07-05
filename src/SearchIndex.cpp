@@ -347,10 +347,13 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 	return result.size();
 }
 
-int SearchIndex::add(const string &str) {
+int SearchIndex::add(const string &str, bool stringonly) {
 
 	strings.push_back(str);
 	int index = strings.size()-1;
+
+	if(stringonly)
+		return index;
 
 	set<uint16_t> used;
 	string tl;

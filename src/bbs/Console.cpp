@@ -80,7 +80,7 @@ static vector<uint8_t> petsciiColors = { 5, 28, 30, 31, 129, 144, 149, 150, 151,
 	};
 */
 
-static int ansiColors[] = { 15, 1, 2, 4, 11, 0, 13, 9, 8, 14, 10, 12, 7, 5, 3, 6 };
+//static int ansiColors[] = { 15, 1, 2, 4, 11, 0, 13, 9, 8, 14, 10, 12, 7, 5, 3, 6 };
 //static int ansiColorsBg[] = {};
 
 
@@ -293,8 +293,8 @@ void AnsiConsole::putChar(Char c) {
 
 void AnsiConsole::impl_color(int fg, int bg) {
 
-	int af = ansiColors[fg];
-	int ab = ansiColors[bg];
+	//int af = ansiColors[fg];
+	//int ab = ansiColors[bg];
 
 	//LOGD("## BG %d\n", ab);
 	//const string &s = utils::format("\x1b[%d;%d%sm", af + 30, ab + 40, hl ? ";1" : "");

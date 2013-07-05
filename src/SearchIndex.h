@@ -52,7 +52,7 @@ public:
 	int search(const std::string &word, std::vector<int> &result, unsigned int searchLimit) override;
 	std::string getString(int index) override { return strings[index]; }
 
-	int add(const std::string &str);
+	int add(const std::string &str, bool stringonly = false);
 
 	static void simplify(std::string &s);
 	static unsigned int tlcode(const char *s);

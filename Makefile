@@ -7,12 +7,14 @@ CFLAGS := -g -Wall
 #-I. -Iinclude -Iplugins/SexyPSFPlugin
 #CFLAGS := $(CFLAGS) -Inetlink/include -Isqlite3 -Iplugins/VicePlugin -Isrc/plugins/ModPlugin -Iplugins/GMEPlugin -Iplugins/UADEPlugin
 
-INCLUDES := . netlink/include sqlite3 plugins/VicePlugin plugins/ModPlugin plugins/GMEPlugin plugins/UADEPlugin plugins/SC68Plugin plugins/SexyPSFPlugin
+INCLUDES := . netlink/include sqlite3 plugins/VicePlugin plugins/ModPlugin plugins/GMEPlugin \
+plugins/StSoundPlugin plugins/UADEPlugin plugins/SC68Plugin plugins/SexyPSFPlugin
 
 TARGET := player
 MODULES := ziplib netlink/src utils bbs
-LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lsc68plugin -lz
-LDFLAGS := -Wl,-Map -Wl,mapfile -Lsrc/plugins/SexyPSFPlugin -Lsrc/plugins/VicePlugin -Lsrc/plugins/ModPlugin -Lsrc/plugins/GMEPlugin -Lsrc/plugins/SC68Plugin -Lsrc/plugins/UADEPlugin
+LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lsc68plugin -lstsoundplugin -lz
+LDFLAGS := -Wl,-Map -Wl,mapfile -Lsrc/plugins/SexyPSFPlugin -Lsrc/plugins/VicePlugin -Lsrc/plugins/ModPlugin \
+-Lsrc/plugins/GMEPlugin -Lsrc/plugins/SC68Plugin -Lsrc/plugins/UADEPlugin -Lsrc/plugins/StSoundPlugin
 OBJS := player.o SongDb.o SearchIndex.o WebGetter.o URLPlayer.o Archive.o inject.o sqlite3/sqlite3.o
 
 WIN_CFLAGS := $(WIN_CFLAGS) -static -Icurl/include -DWIN32
@@ -31,7 +33,7 @@ PI_LIBS := -luade -lwiringPi
 
 #GCC_VERSION := $(subst /platform-tools/,,$(dir $(shell which adb)))
 
-XDEPENDS := modplug vice sexypsf gmeplugin
+XDEPENDS := modplug vice sexypsf gmeplugin sc68plugin stsoundplugin
 PI_XDEPENDS := uadeplugin
 LINUX_XDEPENDS = uadeplugin
 
@@ -45,6 +47,7 @@ cleanall : clean
 	+make -C src/plugins/SexyPSFPlugin clean
 	+make -C src/plugins/ModPlugin clean
 	+make -C src/plugins/GMEPlugin clean
+	+make -C src/plugins/SC68Plugin clean
 	+make -C src/plugins/UADEPlugin clean
 
 #netlink :
@@ -61,6 +64,12 @@ sexypsf :
 
 gmeplugin :
 	+make -C src/plugins/GMEPlugin
+
+sc68plugin :
+	+make -C src/plugins/SC68Plugin
+
+stsoundplugin :
+	+make -C src/plugins/StSoundPlugin
 
 uadeplugin :
 	+make -C src/plugins/UADEPlugin

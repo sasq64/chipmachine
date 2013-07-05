@@ -124,12 +124,18 @@ def make_modland(name):
 		if author == "- unknown" :
 			author = "<?>" ;
 
+		ext = "";
+
 		if len(parts) == 3 :
 			#name = parts[2]
-			name = os.path.splitext(parts[2])[0]
+			x = os.path.splitext(parts[2])
+			name = x[0]
+			ext = x[1]
 		elif len(parts) == 4 :			
 			#game = parts[2]
-			name = parts[2] + " (" + os.path.splitext(parts[3])[0] + ")";
+			x = os.path.splitext(parts[3])
+			ext = x[1]
+			name = parts[2] + " (" + x[0] + ")";
 
 		#elif len(parts) == 5 :
 		#	author = author + ' ' + parts[2]
@@ -140,6 +146,9 @@ def make_modland(name):
 			raise Exception('Unknown format')
 
 
+		if ext == ".smpl" or ext == ".ins" :
+			print "Skipping instrument file"
+			continue
 		
 		try:
 #			if types.has_key(type) :

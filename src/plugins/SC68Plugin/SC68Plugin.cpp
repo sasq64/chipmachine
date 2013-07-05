@@ -70,6 +70,7 @@ public:
 		if(sc68_verify_mem(ptr, size) < 0) {
 			LOGW("Verify mem failed");
 			sc68_destroy(sc68);
+			sc68 = nullptr;
 			sc68_shutdown();
 			return false;
 		}
@@ -77,6 +78,7 @@ public:
 		if (sc68_load_mem(sc68, ptr, size)) {
 			LOGW("Load mem failed");
 			sc68_destroy(sc68);
+			sc68 = nullptr;
 			sc68_shutdown();
 			return false;
 		}
@@ -87,6 +89,7 @@ public:
 		if(sc68_process(sc68, NULL, 0) < 0) {
 			LOGW("Process failed");
 			sc68_destroy(sc68);
+			sc68 = nullptr;
 			sc68_shutdown();
 			return false;
 		}
@@ -105,7 +108,8 @@ public:
 		if(sc68)
 			sc68_destroy(sc68);
 		sc68 = nullptr;
-		sc68_shutdown();
+		if(valid)
+			sc68_shutdown();
 	}
 
 	virtual int getSamples(int16_t *target, int noSamples) override {
@@ -157,6 +161,8 @@ public:
 		}
 	}
 
+	bool isValid() { return valid; }
+
 private:
 	sc68_t *sc68;
 	sc68_music_info_t info;
@@ -175,5 +181,9 @@ bool SC68Plugin::canHandle(const std::string &name) {
 
 ChipPlayer *SC68Plugin::fromFile(const std::string &fileName) {
 	utils::File file { fileName };
-	return new SC68Player {file.getPtr(), file.getSize(), dataDir};
+	SC68Player *player = new SC68Player {file.getPtr(), file.getSize(), dataDir};
+	if(player->isValid())
+		return player;
+	delete player;
+	return nullptr;
 };
