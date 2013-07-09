@@ -5,6 +5,10 @@
 #include "URLPlayer.h"
 
 #include <utils/utils.h>
+#include <utils/var.h>
+
+#include "SharedState.h"
+
 
 #include "ModPlugin.h"
 #include "VicePlugin.h"
@@ -57,6 +61,8 @@ typedef unsigned int uint;
 using namespace std;
 using namespace utils;
 using namespace bbs;
+
+class SharedState playerState;
 
 class PlayerSystem : public PlayerFactory {
 public:
@@ -145,11 +151,11 @@ void launchConsole(Console &console, SongDatabase &db) {
 
 			int seconds = frameCount / 44100;
 
-			string title;
-			if(songTitle.length()) {
-				title = format("%s - %s", songComposer, songTitle);
-			} else
-				title = "<Nothing playing>";
+			string title = playerState["title"];
+			//if(songTitle.length()) {
+			//	title = format("%s - %s", songComposer, songTitle);
+			//} else
+			//	title = "<Nothing playing>";
 
 			injection_point("player.titlebar", title);
 			console.put(0, 0, title);
@@ -277,11 +283,25 @@ void launchConsole(Console &console, SongDatabase &db) {
 
 }
 
+struct PlayState {
+	int seconds;
+	string title;
+	string composer;
+};
 
 int main(int argc, char* argv[]) {
 
 	setvbuf(stdout, NULL, _IONBF, 0);
 	lcd_init();
+
+	PlayState ps;
+	ps.seconds = 3;
+
+	playerState["title"] = "NOTHING";
+	playerState["state"] = ps;
+
+	PlayState ps2 = playerState["state"];
+	assert(ps2.seconds == 3);
 
 	bool daemonize = false;
 
@@ -406,6 +426,8 @@ int main(int argc, char* argv[]) {
 						totalSongs = player->getMetaInt("songs");
 						int startsong = player->getMetaInt("startsong");
 						subSong = currentSong = startsong;
+
+						playerState["title"] = player->getMeta("title");
 
 						songTitle = player->getMeta("title");
 						songComposer = player->getMeta("composer");

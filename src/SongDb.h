@@ -6,7 +6,7 @@
 
 #include "SearchIndex.h"
 
-class sqlite3;
+struct sqlite3;
 class SongDatabase;
 
 class database_exception : public std::exception {

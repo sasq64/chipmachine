@@ -19,19 +19,13 @@ WebGetter::Job::~Job() {
 }
 
 bool WebGetter::Job::isDone() { 
-	bool l;
-	m.lock();
-	l = loaded;
-	m.unlock();
-	return l;
+	lock_guard<mutex>{m};
+	return loaded;
 }
 
 int WebGetter::Job::getReturnCode() { 
-	int l;
-	m.lock();
-	l = returnCode;
-	m.unlock();
-	return l;
+	lock_guard<mutex>{m};
+	return returnCode;
 }
 
 string WebGetter::Job::getFile() {

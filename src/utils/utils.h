@@ -126,6 +126,7 @@ std::string path_filename(const std::string &name);
 std::string path_extention(const std::string &name);
 std::string path_suffix(const std::string &name);
 std::string path_prefix(const std::string &name);
+
 std::string utf8_encode(const std::string &s);
 
 // SLICE
@@ -152,87 +153,6 @@ private:
 template <class T> slice<typename T::const_iterator> make_slice(T &vec, int start, int len) {
 	return slice<typename T::const_iterator>(vec.begin() + start, vec.begin() + start + len);
 }
-
-// VAR
-
-class illegal_conversion_exception : public std::exception {
-public:
-	virtual const char *what() const throw() { return "Illegal conversion"; }
-};
-
-class Holder {
-public:
-	virtual const std::type_info& getType() = 0;
-	virtual void *getValue() = 0;
-};
-
-template <class T> class VHolder : public Holder {
-public:
-	VHolder(const T &t) : value(t) {}
-
-	virtual const std::type_info &getType() {
-		return typeid(value);
-	}
-
-	virtual void *getValue() {
-		return (void*)&value;
-	}
-
-private:
-	T value;
-};
-
-template <> class VHolder<const char *> : public Holder {
-public:
-	VHolder(const char *t) : value(t) {
-	}
-
-	virtual const std::type_info &getType() {
-		return typeid(value);
-	}
-
-	virtual void *getValue() {
-		return (void*)&value;
-	}
-
-private:
-	std::string value;
-};
-
-
-class var {
-public:
-	template <class T> var(T t) {
-		holder = new VHolder<T>(t);
-	}
-
-	operator int() {
-		if(holder->getType() == typeid(int)) {
-			return *((int*)holder->getValue());
-		} else if(holder->getType() == typeid(std::string) || holder->getType() == typeid(std::string)) {
-			const std::string &s = *((std::string*)holder->getValue());
-			char *endptr = nullptr;
-			int i = strtol(s.c_str(), &endptr, 0);
-			if(endptr == nullptr || *endptr == 0)
-				return i;
-		}
-		throw illegal_conversion_exception();
-	}
-
-	operator std::string() {
-		if(holder->getType() == typeid(std::string)) {
-			return *((std::string*)holder->getValue());
-		} else if(holder->getType() == typeid(int)) {
-			int i = *((int*)holder->getValue());
-			return std::to_string(i);
-		}
-		throw illegal_conversion_exception();	
-	}
-
-private:
-	Holder *holder;
-};
-
 
 };
 

@@ -1,9 +1,7 @@
 
 #include <utils/log.h>
-
 #include <bbs/TelnetServer.h>
 #include <bbs/Console.h>
-
 
 #include <string>
 

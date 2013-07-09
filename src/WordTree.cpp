@@ -1,12 +1,3 @@
-/*
-
-ALGORITHM
-If word is one letter long, add it under the root node for that letter.
-If word is two letters long, add it as the second level directly.
-
-
-
-*/
 
 #include "utils.h"
 
@@ -21,8 +12,8 @@ static int nodeId = 0;
 class Node {
 public:
 	//Node() : letter(0) {}
-	Node(char c, short index) : letter(c), wordIndexes { index }, id {nodeId++} {};
-	Node(char c) : letter(c), id {nodeId++} {};
+	Node(char c, short index) : letter(c), wordIndexes { index }, id { nodeId++ } {};
+	Node(char c) : letter(c), id { nodeId++ } {};
 	char letter;
 	vector<Node*> children;
 	vector<short> wordIndexes;
