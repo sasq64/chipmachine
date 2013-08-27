@@ -2,6 +2,7 @@
 #define TERMINAL_H
 
 #include <vector>
+#include <string>
 #include <stdint.h>
 
 class Terminal {

@@ -4,7 +4,9 @@ import sys
 import os
 import os.path
 
-def scanDir(path, depth) :
+basePath = '';
+
+def scanDir(path, depth, add_file) :
 	global dbc
 	global db
 	try:
@@ -19,34 +21,91 @@ def scanDir(path, depth) :
 	for d in dirs:
 		if os.path.islink(d):
 			continue
-		scanDir(d, depth + 1)
+		scanDir(d, depth + 1, add_file)
 
 	print "Adding", path
 
 	for f in files :
-		if f.lower().endswith('.sid') :
-			data = open(f, 'rb').read()
-			title = data[22:22+32].strip('\x00') #  "ISO-8859-1"
-			composer = data[54:54+32].strip('\x00')
-			copyright = data[86:86+32].strip('\x00')	
+		add_file(f)
 
-			titleu = title.replace(' ', '_')
-			composeru = composer.replace(' ', '_')
-			f = f.replace('C64Music/', '')
-			#f = f.replace(composeru, '%c')
-			#f = f.replace(titleu, '%t')
-			#f = f.replace('MUSICIANS/', '%M')
-			#f = f.replace('DEMOS/', '%D')
-			#f = f.replace('GAMES/', '%G')
-			#print f, title, composer, copyright
-			dbc.execute('insert into songs values (null, ?,?,?,?)', (str(f), title, composer, 'COPYRIGHT='+copyright))
-	db.commit()
-	 
+def add_exotic(f) :
+	name = f.lower()
+	title = "Unnamed";
+	composer = "<?>";
+	year = "";
+	if name.endswith('.txt') and not name.endswith('composer.txt') :
+		lines = open(f, 'rb').readlines()
+		for i in range(0, len(lines)-1, 2) :
+			l = lines[i].strip()
+			a = lines[i+1].strip()
+			#print l,a
+			if l == "composer 1" :
+				composer = a
+			elif l == "source title" :
+				title = a
+			elif l == "year" :
+				year = a
+			elif l == "group" :
+				group = a
+
+		metaData = ''
+		if year :
+			metaData = ("YEAR=" + year)
+		f = f.replace(basePath, '')
+		f = f.replace(".txt", ".lha")
+		print "%s - %s [%s]" % (composer, title, f)
+		dbc.execute('insert into songs values (null, ?,?,?,?)', (str(f), title, composer, metaData))
+
+
+
+
+def add_hvsc(f) :
+	if f.lower().endswith('.sid') :
+		data = open(f, 'rb').read()
+		title = data[22:22+32].strip('\x00') #  "ISO-8859-1"
+		composer = data[54:54+32].strip('\x00')
+		copyright = data[86:86+32].strip('\x00')	
+
+		titleu = title.replace(' ', '_')
+		composeru = composer.replace(' ', '_')
+		#f = f.replace('C64Music/', '')
+		f = f.replace(basePath, '')
+		#f = f.replace(composeru, '%c')
+		#f = f.replace(titleu, '%t')
+		#f = f.replace('MUSICIANS/', '%M')
+		#f = f.replace('DEMOS/', '%D')
+		#f = f.replace('GAMES/', '%G')
+		#print f, title, composer, copyright
+		dbc.execute('insert into songs values (null, ?,?,?,?)', (str(f), title, composer, 'COPYRIGHT='+copyright))
+
 
 
 def main(argv) :
 	#make_hvsc(argv[0])
-	make_modland(argv[0])
+	#make_modland(argv[0])
+	make_exotic(argv[0])
+
+def make_exotic(path) :
+	global dbc
+	global db
+	global basePath
+	db = sqlite3.connect('unexotica.db')
+	db.text_factory = str
+
+	basePath = path
+	if basePath[-1] != '/' :
+		basePath += '/'
+	dbc = db.cursor()
+	try :
+		dbc.execute('create table songs (_id INTEGER PRIMARY KEY, path TEXT, title TEXT, composer TEXT, metadata TEXT)')
+		db.commit()
+	except :
+		print "DB FAILED"
+		return 0
+	scanDir(path, 0, add_exotic)
+	db.commit()
+
+
 
 def make_hvsc(name):
 	global dbc
@@ -69,7 +128,8 @@ def make_hvsc(name):
 		return 0
 	
 
-	scanDir(name, 0)
+	scanDir(name, 0, add_hvsc)
+	db.commit()
 
 	return 0;
 

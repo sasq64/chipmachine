@@ -1,3 +1,6 @@
+#ifndef SEARCH_INDEX_H
+#define SEARCH_INDEX_H
+
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -75,3 +78,5 @@ private:
 	std::vector<std::string> strings;
 
 };
+
+#endif // SEARCH_INDEX_H

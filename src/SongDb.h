@@ -1,8 +1,12 @@
+#ifndef SONG_DB_H
+#define SONG_DB_H
 
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <mutex>
+
+#include <utils/format.h>
 
 #include "SearchIndex.h"
 
@@ -72,3 +76,4 @@ private:
 	std::mutex dbLock;
 };
 
+#endif // SONG_DB_H

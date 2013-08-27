@@ -3,6 +3,8 @@
 
 #include <string>
 #include <exception>
+#include <functional>
+#include <memory>
 
 namespace utils {
 
@@ -59,18 +61,33 @@ private:
 class var {
 public:
 
-	var() : holder(nullptr) {
+	var() : holder(nullptr), callback(nullptr) {
 	}
 
-	template <typename T> var(T t) {
-		holder = new VHolder<T>(t);
+	void setCallback(std::function<void()> f) {
+		callback = f;
 	}
 
-	template <typename T> operator T() {
+	template <typename T> var& operator=(T t) {
+		holder = std::unique_ptr<Holder>(new VHolder<T>(t));
+		if(callback) {
+			LOGD("Assigning to variable with callback");
+			callback();
+		} else
+			LOGD("Assigning to variable WITHOUT callback");
+
+		return *this;
+	}
+
+	//template <typename T> var(const T &t) {
+	//	holder = std::unique_ptr<Holder>(new VHolder<T>(t));
+	//}
+
+	template <typename T> operator T&() {
 		if(!holder)
 			throw no_such_var_exception();
 		if(holder->getType() == typeid(T)) {
-			const T &t = *((T*)holder->getValue());
+			T &t = *((T*)holder->getValue());
 			return t;
 		}
 		throw illegal_conversion_exception();
@@ -104,7 +121,8 @@ public:
 	}
 
 private:
-	Holder *holder;
+	std::unique_ptr<Holder> holder;
+	std::function<void()> callback;
 };
 
 }
