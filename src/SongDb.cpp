@@ -1,9 +1,9 @@
-#include "log.h"
+#include <coreutils/log.h>
 
 #include "SongDb.h"
 
 #include "sqlite3/sqlite3.h"
-#include "utils.h"
+#include <coreutils/utils.h>
 
 #include <cstring>
 #include <algorithm>

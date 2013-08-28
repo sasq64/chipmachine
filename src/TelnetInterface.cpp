@@ -1,13 +1,13 @@
-#include "Console.h"
+#include <bbsutils/Console.h>
 #include "SongDb.h"
-#include "utils.h"
+#include <coreutils/utils.h>
 #include "inject.h"
 #include "SharedState.h"
 #include "SongState.h"
 #include "TelnetInterface.h"
 #include "PlayerInterface.h"
 
-#include <utils/log.h>
+#include <coreutils/log.h>
 #include <mutex>
 
 using namespace std;

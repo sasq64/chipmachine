@@ -6,7 +6,7 @@ EXT=.a
 
 MODULES := file68/src libsc68 libsc68/emu68 libsc68/io68 libsc68/sc68 unice68
 OBJS := SC68Plugin.o
-CFLAGS := $(CFLAGS) -DHAVE_CONFIG_H -Wall -I. -I../..
-INCLUDES := . libsc68/sc68 file68 file68/sc68
+CFLAGS := $(CFLAGS) -DHAVE_CONFIG_H -Wall -I$(UTILS) -I. -I../..
+INCLUDES := . libsc68/sc68 file68 file68/sc68 unice68 libsc68
 
 include ../../../Makefile.inc

@@ -5,7 +5,7 @@ extern "C" {
 #include "../../common/Fifo.h"
 
 #include "../../ChipPlayer.h"
-#include <utils/utils.h>
+#include <coreutils/utils.h>
 
 static Fifo *sexyFifo;
 

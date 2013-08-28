@@ -1,12 +1,12 @@
 #ifndef SHARED_STATE_H
 #define SHARED_STATE_H
 
-#include <utils/log.h>
+#include <coreutils/log.h>
 
-#include <utils.h>
+#include <coreutils/utils.h>
 #include <unordered_map>
 
-#include <utils/var.h>
+#include <coreutils/var.h>
 
 class SharedState {
 public:

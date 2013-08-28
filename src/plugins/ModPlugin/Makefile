@@ -6,6 +6,6 @@ EXT=.a
 
 MODULES := modplug
 OBJS := ModPlugin.o
-CFLAGS := $(CFLAGS) -Wall -I. -I../..
+CFLAGS := $(CFLAGS) -Wall -I$(UTILS) -Imodplug -I. -I../..
 
 include ../../../Makefile.inc

@@ -15,8 +15,8 @@
 #include "ChipPlayer.h"
 #include "PlayerFactory.h"
 
-#include "utils.h"
-#include "log.h"
+#include <coreutils/utils.h>
+#include <coreutils/log.h>
 
 #include "ModPlugin.h"
 #include "VicePlugin.h"

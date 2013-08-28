@@ -6,6 +6,6 @@ EXT=.a
 
 MODULES := StSoundLibrary StSoundLibrary/LZH
 OBJS := StSoundPlugin.o
-CFLAGS := $(CFLAGS) -Wall -I. -I../..
+CFLAGS := $(CFLAGS) -I$(UTILS) -Wall -I. -I../..
 
 include ../../../Makefile.inc

@@ -5,7 +5,7 @@
 
 #include "inject.h"
 
-#include <utils/utils.h>
+#include <coreutils/utils.h>
 
 #include <uade/uade.h>
 

@@ -2,7 +2,7 @@
 #define TELNET_INTERFACE_H
 
 #include "SongDb.h"
-#include <bbs/Console.h>
+#include <bbsutils/Console.h>
 
 class PlayerInterface;
 

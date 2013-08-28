@@ -1,11 +1,11 @@
-#include <utils/log.h>
-#include <utils/utils.h>
+#include <coreutils/log.h>
+#include <coreutils/utils.h>
 //#include <utils/var.h>
 
 //#include "SharedState.h"
 
-#include "TelnetServer.h"
-#include "Console.h"
+#include <bbsutils/TelnetServer.h>
+#include <bbsutils/Console.h>
 //#include "SongState.h"
 
 #include "TelnetInterface.h"

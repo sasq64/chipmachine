@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <mutex>
 
-#include <utils/format.h>
+#include <coreutils/format.h>
 
 #include "SearchIndex.h"
 

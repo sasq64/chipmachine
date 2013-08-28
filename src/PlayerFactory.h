@@ -1,7 +1,7 @@
 #ifndef PLAYER_FACTORY
 #define PLAYER_FACTORY
 
-#include "utils.h"
+#include <coreutils/utils.h>
 class ChipPlayer;
 
 /** Interface to create a player from a file

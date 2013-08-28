@@ -1,7 +1,7 @@
 #ifndef CHIP_PLAYER_H
 #define CHIP_PLAYER_H
 
-#include <utils/log.h>
+#include <coreutils/log.h>
 
 #include <stdint.h>
 

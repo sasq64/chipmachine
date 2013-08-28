@@ -1,7 +1,8 @@
  
 #include "WebGetter.h"
 
-#include "log.h"
+#include <coreutils/log.h>
+
 
 #include <curl/curl.h>
 

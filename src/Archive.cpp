@@ -7,6 +7,13 @@
 using namespace std;
 using namespace utils;
 
+/*
+class ExtArchive : public Archive {
+	File extract(const string &name) {
+		system("lha x " + name);
+	}
+};*/
+
 class ZipFile : public Archive {
 public:
 	ZipFile(const string &fileName, const string &workDir = ".") : workDir(workDir) {

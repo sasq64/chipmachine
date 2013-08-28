@@ -1,5 +1,5 @@
-#include "log.h"
-#include "utils.h"
+#include <coreutils/log.h>
+#include <coreutils/utils.h>
 
 #include "SearchIndex.h"
 

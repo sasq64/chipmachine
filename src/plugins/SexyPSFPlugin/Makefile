@@ -11,7 +11,7 @@ OBJS := SexyPSFPlugin.o sexypsf/PsxBios.o sexypsf/PsxCounters.o sexypsf/PsxDma.o
 
 #LOCAL_SRC_FILES += $(MY_SOURCES:$(LOCAL_PATH)%=%)
 
-CFLAGS := $(CFLAGS) -I../.. -Isexypsf -DPSS_STYLE=1
+CFLAGS := $(CFLAGS) -I$(UTILS) -I../.. -Isexypsf -DPSS_STYLE=1
 
 LDLIBS := -lz
 

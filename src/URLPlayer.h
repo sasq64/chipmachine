@@ -1,7 +1,7 @@
 #ifndef URL_PLAYER_H
 #define URL_PLAYER_H
 
-#include "log.h"
+#include <coreutils/log.h>
 
 #include "ChipPlayer.h"
 #include "WebGetter.h"

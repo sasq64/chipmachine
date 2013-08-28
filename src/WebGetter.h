@@ -1,7 +1,7 @@
 #ifndef WEBGETTER_H
 #define WEBGETTER_H
 
-#include "utils.h"
+#include <coreutils/utils.h>
 
 #include <string>
 

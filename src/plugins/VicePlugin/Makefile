@@ -136,7 +136,7 @@ OBJS := \
     overrides/vicii/vicii-draw.o \
     overrides/video/video.o
 
-INC := \
+INC := -I$(UTILS) \
 	-I../.. \
 	-Icommon \
 	-Icommon/readline \

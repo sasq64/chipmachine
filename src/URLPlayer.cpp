@@ -1,7 +1,7 @@
 #include "URLPlayer.h"
-#include "utils.h"
+#include <coreutils/utils.h>
 #include "Archive.h"
-#include "log.h"
+#include <coreutils/log.h>
 #include "inject.h"
 #include <cstring>
 #include <algorithm>

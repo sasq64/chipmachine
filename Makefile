@@ -7,11 +7,13 @@ CFLAGS := -g -Wall
 #-I. -Iinclude -Iplugins/SexyPSFPlugin
 #CFLAGS := $(CFLAGS) -Inetlink/include -Isqlite3 -Iplugins/VicePlugin -Isrc/plugins/ModPlugin -Iplugins/GMEPlugin -Iplugins/UADEPlugin
 
-INCLUDES := . netlink/include sqlite3 plugins/VicePlugin plugins/ModPlugin plugins/GMEPlugin \
-plugins/StSoundPlugin plugins/UADEPlugin plugins/SC68Plugin plugins/SexyPSFPlugin
+INCLUDES := sqlite3 plugins/VicePlugin plugins/ModPlugin plugins/GMEPlugin \
+plugins/StSoundPlugin plugins/UADEPlugin plugins/SC68Plugin plugins/SexyPSFPlugin ziplib
+
+CFLAGS += -I. -I$(UTILS) -I$(UTILS)/netlink
 
 TARGET := player
-MODULES := ziplib netlink/src utils bbs
+MODULES := src/ziplib $(UTILS)/coreutils $(UTILS)/bbsutils $(UTILS)/netlink
 LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lsc68plugin -lstsoundplugin -lz
 LDFLAGS := -Wl,-Map -Wl,mapfile -Lsrc/plugins/SexyPSFPlugin -Lsrc/plugins/VicePlugin -Lsrc/plugins/ModPlugin \
 -Lsrc/plugins/GMEPlugin -Lsrc/plugins/SC68Plugin -Lsrc/plugins/UADEPlugin -Lsrc/plugins/StSoundPlugin

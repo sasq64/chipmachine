@@ -1,11 +1,11 @@
-#include <utils/log.h>
+#include <coreutils/log.h>
 
 #include "ChipPlugin.h"
 #include "ChipPlayer.h"
 #include "URLPlayer.h"
 
-#include <utils/utils.h>
-#include <utils/var.h>
+#include <coreutils/utils.h>
+#include <coreutils/var.h>
 
 #include "Player.h"
 
