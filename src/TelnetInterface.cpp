@@ -1,4 +1,4 @@
-#include <bbsutils/Console.h>
+#include <bbsutils/console.h>
 #include "SongDb.h"
 #include <coreutils/utils.h>
 #include "inject.h"

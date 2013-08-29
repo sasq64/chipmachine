@@ -1,8 +1,10 @@
 
 CC=gcc
 
-LINUX_CC := clang
-LINUX_CXX := clang++
+LINUX_CC := gcc-4.7
+LINUX_CXX := g++-4.7
+#LINUX_CC := clang
+#LINUX_CXX := clang++
 #LINUX_CFLAGS := -Doverride=""
 
 WIN_CFLAGS := -DWIN32_LEAN_AND_MEAN -O2

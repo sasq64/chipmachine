@@ -13,11 +13,11 @@ plugins/StSoundPlugin plugins/UADEPlugin plugins/SC68Plugin plugins/SexyPSFPlugi
 CFLAGS += -I. -I$(UTILS) -I$(UTILS)/netlink
 
 TARGET := player
-MODULES := src/ziplib $(UTILS)/coreutils $(UTILS)/bbsutils $(UTILS)/netlink
+MODULES := $(UTILS)/archive $(UTILS)/webutils $(UTILS)/ziplib $(UTILS)/coreutils $(UTILS)/bbsutils $(UTILS)/netlink
 LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lsc68plugin -lstsoundplugin -lz
 LDFLAGS := -Wl,-Map -Wl,mapfile -Lsrc/plugins/SexyPSFPlugin -Lsrc/plugins/VicePlugin -Lsrc/plugins/ModPlugin \
 -Lsrc/plugins/GMEPlugin -Lsrc/plugins/SC68Plugin -Lsrc/plugins/UADEPlugin -Lsrc/plugins/StSoundPlugin
-OBJS := main.o Player.o TelnetInterface.o SongDb.o SearchIndex.o WebGetter.o URLPlayer.o Archive.o SharedState.o inject.o sqlite3/sqlite3.o
+OBJS := main.o Player.o TelnetInterface.o SongDb.o SearchIndex.o URLPlayer.o SharedState.o inject.o sqlite3/sqlite3.o
 
 WIN_CFLAGS := $(WIN_CFLAGS) -static -Icurl/include -DWIN32
 WIN_LIBS := -lwinmm -lcurldll -lws2_32 -liconv

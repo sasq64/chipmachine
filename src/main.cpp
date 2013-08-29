@@ -4,8 +4,8 @@
 
 //#include "SharedState.h"
 
-#include <bbsutils/TelnetServer.h>
-#include <bbsutils/Console.h>
+#include <bbsutils/telnetserver.h>
+#include <bbsutils/console.h>
 //#include "SongState.h"
 
 #include "TelnetInterface.h"

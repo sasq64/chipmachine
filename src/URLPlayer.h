@@ -4,7 +4,7 @@
 #include <coreutils/log.h>
 
 #include "ChipPlayer.h"
-#include "WebGetter.h"
+#include <webutils/webgetter.h>
 #include "PlayerFactory.h"
 
 #include <memory>
