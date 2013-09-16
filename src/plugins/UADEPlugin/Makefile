@@ -60,4 +60,4 @@ CFLAGS := -I$(UTILS) \
 	-I$(FE) \
 	-I.
 
-include ../../../Makefile.inc
+include $(UTILS)/Makefile.inc

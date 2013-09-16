@@ -42,8 +42,8 @@ void TelnetInterface::launchConsole(Console &console, SongDatabase &db) {
 		int c = console.getKey(500);
 		int h = console.getHeight();
 		console.setFg(Console::WHITE);
-		console.setBg(Console::PINK);
-		console.fill(0,0, console.getWidth(), 2);
+		//console.setBg(Console::PINK);
+		console.fill(Console::PINK, 0,0, 0, 2);
 
 		{
 			lock_guard<mutex>{playMutex};
@@ -156,7 +156,7 @@ void TelnetInterface::launchConsole(Console &console, SongDatabase &db) {
 
 		console.setFg(Console::GREEN);
 
-		console.fill(0, 3, console.getWidth(), console.getHeight()-3);
+		console.fill(Console::BLACK, 0, 3, console.getWidth(), console.getHeight()-3);
 
 		console.setFg(Console::LIGHT_BLUE);
 		console.put(0, marker-start+3, "!");

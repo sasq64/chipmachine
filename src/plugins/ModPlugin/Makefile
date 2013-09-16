@@ -8,4 +8,4 @@ MODULES := modplug
 OBJS := ModPlugin.o
 CFLAGS := $(CFLAGS) -Wall -I$(UTILS) -Imodplug -I. -I../..
 
-include ../../../Makefile.inc
+include $(UTILS)/Makefile.inc

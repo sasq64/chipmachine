@@ -160,4 +160,4 @@ CFLAGS := $(CFLAGS) -Wall -I. $(INC)
 
 #LINUX_CFLAGS := -Doverride=""
 
-include ../../../Makefile.inc
+include $(UTILS)/Makefile.inc

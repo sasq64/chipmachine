@@ -76,7 +76,7 @@ stsoundplugin :
 uadeplugin :
 	+make -C src/plugins/UADEPlugin
 
-include Makefile.inc
+include $(UTILS)/Makefile.inc
 
 #XDEPENDS := plugins/ModPlugin/libmodplugin.a plugins/GMEPlugin/libgmeplugin.a plugins/SexyPSFPlugin/libsexypsfplugin.a plugins/VicePlugin/libviceplugin.a
 #all : vice sexypsf gmeplugin modplug netlink $(TARGET)$(EXT)

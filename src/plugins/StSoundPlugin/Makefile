@@ -8,4 +8,4 @@ MODULES := StSoundLibrary StSoundLibrary/LZH
 OBJS := StSoundPlugin.o
 CFLAGS := $(CFLAGS) -I$(UTILS) -Wall -I. -I../..
 
-include ../../../Makefile.inc
+include $(UTILS)/Makefile.inc

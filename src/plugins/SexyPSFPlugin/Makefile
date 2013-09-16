@@ -15,4 +15,4 @@ CFLAGS := $(CFLAGS) -I$(UTILS) -I../.. -Isexypsf -DPSS_STYLE=1
 
 LDLIBS := -lz
 
-include ../../../Makefile.inc
+include $(UTILS)/Makefile.inc

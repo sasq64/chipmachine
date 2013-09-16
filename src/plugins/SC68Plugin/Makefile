@@ -9,4 +9,4 @@ OBJS := SC68Plugin.o
 CFLAGS := $(CFLAGS) -DHAVE_CONFIG_H -Wall -I$(UTILS) -I. -I../..
 INCLUDES := . libsc68/sc68 file68 file68/sc68 unice68 libsc68
 
-include ../../../Makefile.inc
+include $(UTILS)/Makefile.inc
