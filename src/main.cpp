@@ -6,6 +6,8 @@
 
 #include <bbsutils/telnetserver.h>
 #include <bbsutils/console.h>
+#include <bbsutils/ansiconsole.h>
+#include <bbsutils/petsciiconsole.h>
 //#include "SongState.h"
 
 #include "TelnetInterface.h"
@@ -89,7 +91,7 @@ int main(int argc, char* argv[]) {
 	Player player;
 
 	LOGI("Opening database");
-	SongDatabase db { "modland.db" };
+	SongDatabase db { "hvsc.db" };
 	db.generateIndex();
 	LOGI("Index generated");
 

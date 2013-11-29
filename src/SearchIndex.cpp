@@ -169,7 +169,7 @@ void IncrementalQuery::search() {
 
 	string q = string(&query[0], query.size());
 
-	auto parts = split(q, " ");
+	auto parts = split(q);
 	// Remove empty strings
 	parts.erase(remove_if(parts.begin(), parts.end(), [&](const string &a) { return a.size() == 0; }), parts.end());
 	//LOGD("Parts: [%s]", parts);

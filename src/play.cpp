@@ -1,3 +1,16 @@
+#include "ModPlugin.h"
+#include "VicePlugin.h"
+#include "SexyPSFPlugin.h"
+#include "GMEPlugin.h"
+
+#include "AudioPlayer.h"
+
+#include "ChipPlugin.h"
+#include "ChipPlayer.h"
+#include "PlayerFactory.h"
+
+#include <coreutils/utils.h>
+#include <coreutils/log.h>
 
 #include <stdio.h>
 #include <stdint.h>
@@ -11,27 +24,9 @@
 #include <cstdlib>
 
 
-#include "ChipPlugin.h"
-#include "ChipPlayer.h"
-#include "PlayerFactory.h"
 
-#include <coreutils/utils.h>
-#include <coreutils/log.h>
-
-#include "ModPlugin.h"
-#include "VicePlugin.h"
-#include "SexyPSFPlugin.h"
-#include "GMEPlugin.h"
-
-
-#ifdef WIN32
-#include "AudioPlayerWindows.h"
-#else
-#include "AudioPlayerLinux.h"
-#endif
 
 #include <unistd.h>
-
 
 typedef unsigned int uint;
 using namespace std;
@@ -81,7 +76,7 @@ int main(int argc, char* argv[]) {
 
 	PlayerSystem psys;
 	psys.registerPlugin(new ModPlugin {});
-	psys.registerPlugin(new VicePlugin {});
+	psys.registerPlugin(new VicePlugin {"data/c64"});
 	psys.registerPlugin(new SexyPSFPlugin {});
 	psys.registerPlugin(new GMEPlugin {});
 
@@ -94,7 +89,7 @@ int main(int argc, char* argv[]) {
 	int frameCount = 0;
 	string songName;
 
-	AudioPlayerNative ap;
+	AudioPlayer ap;
 	int bufSize = 4096;
 	vector<int16_t> buffer(bufSize);
 	while(true) {

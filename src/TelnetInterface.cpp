@@ -25,12 +25,8 @@ TelnetInterface::TelnetInterface(PlayerInterface *pi) : player(pi) {
 void TelnetInterface::launchConsole(Console &console, SongDatabase &db) {
 
 	console.flush();
-	console.setFg(Console::GREEN);
-	console.setBg(Console::BLACK);
-
-	console.setFg(Console::WHITE);
-	console.put(0,2,">");
-	console.setFg(Console::YELLOW);
+	console.put(0,2,">", Console::WHITE);
+	console.setColor(Console::YELLOW);
 	console.moveCursor(1, 2);
 
 	auto query = db.find();
@@ -41,9 +37,9 @@ void TelnetInterface::launchConsole(Console &console, SongDatabase &db) {
 		//char c = session.getChar();
 		int c = console.getKey(500);
 		int h = console.getHeight();
-		console.setFg(Console::WHITE);
 		//console.setBg(Console::PINK);
 		console.fill(Console::PINK, 0,0, 0, 2);
+		console.setColor(Console::GREEN);
 
 		{
 			lock_guard<mutex>{playMutex};
@@ -70,8 +66,6 @@ void TelnetInterface::launchConsole(Console &console, SongDatabase &db) {
 
 
 			console.put(0, 1, format("Song %02d/%02d - [%02d:%02d] %s", subSong+1, totalSongs, seconds/60, seconds%60, ss.format));
-			console.setBg(Console::BLACK);
-			console.setFg(Console::YELLOW);
 			console.flush();
 			if(c == Console::KEY_TIMEOUT) {
 				console.flush();
@@ -101,7 +95,8 @@ void TelnetInterface::launchConsole(Console &console, SongDatabase &db) {
 					LOGD("Pushing '%s' to queue", p[2]);
 					//addToQueue("ftp://modland.ziphoid.com/pub/modules/" + p[2]);
 					auto &plist = player->getPlayList();
-					plist.push("ftp://modland.ziphoid.com/pub/modules/" + p[2]);
+					//plist.push("ftp://modland.ziphoid.com/pub/modules/" + p[2]);
+					plist.push("/home/sasq/C64Music/" + p[2]);
 					player->releasePlayList();
 				}
 				break;
@@ -150,17 +145,12 @@ void TelnetInterface::launchConsole(Console &console, SongDatabase &db) {
 		
 		console.put(1,2,"                       ");
 
-		console.setFg(Console::YELLOW);
 		console.put(1,2, query.getString());
 		console.moveCursor(1 + query.getString().length(), 2);
 
-		console.setFg(Console::GREEN);
-
 		console.fill(Console::BLACK, 0, 3, console.getWidth(), console.getHeight()-3);
 
-		console.setFg(Console::LIGHT_BLUE);
-		console.put(0, marker-start+3, "!");
-		console.setFg(Console::GREEN);
+		console.put(0, marker-start+3, "!", Console::LIGHT_BLUE);
 		int i = 0;
 		
 		if(h < 0) h = 40;
@@ -172,18 +162,18 @@ void TelnetInterface::launchConsole(Console &console, SongDatabase &db) {
 			} else {
 				int index = atoi(p[2].c_str());
 				int fmt = db.getFormat(index);
+				int color = Console::WHITE;
 				if(fmt >= 0x10 && fmt <= 0x2f) {
 					if(fmt == 0x11)
-						console.setFg(Console::LIGHT_GREY);
+						color = Console::LIGHT_GREY;
 					else
-						console.setFg(Console::GREY);
+						color = Console::GREY;
 				} else if(fmt >= 0x30 && fmt <= 0x4f) {
-					console.setFg(Console::ORANGE);
+					color = Console::ORANGE;
 				} else if(fmt == 1)
-					console.setFg(Console::LIGHT_BLUE);
+					color = Console::LIGHT_BLUE;
 
-				console.put(1, i+3, format("%s - %s", p[1], p[0]));
-				console.setFg(Console::GREEN);
+				console.put(1, i+3, utf8_encode(format("%s - %s", p[1], p[0])), color);
 			}
 			i++;
 			if(i >= h-3)

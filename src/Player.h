@@ -7,11 +7,7 @@
 #include "PlayerInterface.h"
 #include "ChipPlayer.h"
 
-#ifdef WIN32
-#include "AudioPlayerWindows.h"
-#else
-#include "AudioPlayerLinux.h"
-#endif
+#include "AudioPlayer.h"
 
 #include <vector>
 #include <string>
@@ -49,7 +45,7 @@ public:
 
 private:
 	PlayerFactory *factory;
-	AudioPlayerNative ap;
+	AudioPlayer ap;
 	std::unique_ptr<ChipPlayer> player;
 	std::vector<int16_t> buffer;
 	int oldSeconds;

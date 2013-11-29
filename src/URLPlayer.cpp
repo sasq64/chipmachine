@@ -11,19 +11,22 @@ using namespace utils;
 using namespace logging;
 
 URLPlayer::URLPlayer(const string &url, PlayerFactory *playerFactory) : webGetter("_cache"), currentPlayer(nullptr), playerFactory(playerFactory) {
-	StringTokenizer st {url, ":"};
+	//StringTokenizer st {url, ":"};
 	string protocol = "";
 	string path;
 	int p = 0;
 
-	if(st.noParts() > 1 && st.getString(1).substr(0,2) == "//" && st.getDelim(1) == ':') {
-		protocol = st.getString(p++);
-		path = st.getString(p).substr(1);
+	// http://hostname/path
+	auto parts = split(url, ":");
+
+	if(parts.size() > 1 && parts[1].substr(0,2) == "//") {
+		protocol = parts[0];
+		path = parts[1].substr(1);
 	} else {
-		path = st.getString(p);
+		path = url;
 	}
 
-	LOGD("%d '%s' '%s'", st.noParts(), protocol, path);
+	//LOGD("%d '%s' '%s'", st.noParts(), protocol, path);
 
 	if(protocol == "http" || protocol == "ftp") {
 		string musicUrl = protocol.append(":/").append(path);

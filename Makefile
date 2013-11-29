@@ -14,21 +14,22 @@ CFLAGS += -I. -I$(UTILS) -I$(UTILS)/netlink
 
 TARGET := player
 MODULES := $(UTILS)/archive $(UTILS)/webutils $(UTILS)/ziplib $(UTILS)/coreutils $(UTILS)/bbsutils $(UTILS)/netlink
-LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lsc68plugin -lstsoundplugin -lz
+LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lsc68plugin -lstsoundplugin -lz -ldl -lpthread
 LDFLAGS := -Wl,-Map -Wl,mapfile -Lsrc/plugins/SexyPSFPlugin -Lsrc/plugins/VicePlugin -Lsrc/plugins/ModPlugin \
 -Lsrc/plugins/GMEPlugin -Lsrc/plugins/SC68Plugin -Lsrc/plugins/UADEPlugin -Lsrc/plugins/StSoundPlugin
-OBJS := main.o Player.o TelnetInterface.o SongDb.o SearchIndex.o URLPlayer.o SharedState.o inject.o sqlite3/sqlite3.o
+OBJS := play.o Player.o AudioPlayer.o TelnetInterface.o SongDb.o SearchIndex.o URLPlayer.o SharedState.o inject.o sqlite3/sqlite3.o
 
 WIN_CFLAGS := $(WIN_CFLAGS) -static -Icurl/include -DWIN32
 WIN_LIBS := -lwinmm -lcurldll -lws2_32 -liconv
 WIN_LDFLAGS := -Lcurl/lib -static
-WIN_OBJS := AudioPlayerWindows.o
 WIN_CC := gcc
 WIN_CXX := g++
 
+LINIX_CC := clang
+LINUX_CXX := clang++
+
 LINUX_CFLAGS := $(LINUX_CFLAGS) `curl-config --cflags`
 LINUX_LIBS := -luade -lasound `curl-config --libs`
-LINUX_OBJS := AudioPlayerLinux.o
 
 PI_OBJS := lcd.o
 PI_LIBS := -luade -lwiringPi
@@ -41,8 +42,8 @@ LINUX_XDEPENDS = uadeplugin
 
 all : start_rule
 
-run :
-	./player
+#run :
+#	./player
 
 cleanall : clean
 	+make -C src/plugins/VicePlugin clean

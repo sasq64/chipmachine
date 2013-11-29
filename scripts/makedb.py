@@ -81,9 +81,9 @@ def add_hvsc(f) :
 
 
 def main(argv) :
-	#make_hvsc(argv[0])
+	make_hvsc(argv[0])
 	#make_modland(argv[0])
-	make_exotic(argv[0])
+	#make_exotic(argv[0])
 
 def make_exotic(path) :
 	global dbc
