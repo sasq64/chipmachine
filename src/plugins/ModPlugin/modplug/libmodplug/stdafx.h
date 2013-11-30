@@ -21,7 +21,6 @@
 # include <stdint.h>
 #endif
 
-
 #ifdef _WIN32
 
 #ifdef MSC_VER

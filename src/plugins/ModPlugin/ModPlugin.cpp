@@ -7,6 +7,11 @@
 #include <set>
 #include <unordered_map>
 
+#ifdef EMSCRIPTEN
+void srandom(unsigned int _seed)  { srand(_seed); }
+long int random() { return rand(); }
+#endif
+
 using namespace std;
 
 class ModPlayer : public ChipPlayer {

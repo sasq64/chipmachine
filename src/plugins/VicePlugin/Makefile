@@ -1,8 +1,13 @@
 include ../../../settings.mk
 
+include $(UTILS)/config.mk
+
+CFLAGS += -O2 -Wall -I$(UTILS)
+CXXFLAGS += -std=c++0x
+
 OBJDIR=obj/
 TARGET=libviceplugin
-EXT=.a
+TARGET_EXT=.a
 
 MODULES := vice/resid
 
@@ -160,4 +165,4 @@ CFLAGS := $(CFLAGS) -Wall -I. $(INC)
 
 #LINUX_CFLAGS := -Doverride=""
 
-include $(UTILS)/Makefile.inc
+include $(UTILS)/build.mk

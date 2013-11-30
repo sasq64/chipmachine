@@ -1,11 +1,17 @@
 include ../../../settings.mk
 
+include $(UTILS)/config.mk
+
 OBJDIR=obj/
 TARGET=libmodplugin
-EXT=.a
+TARGET_EXT=.a
+
+#LINUX_CC = emcc
+#LINUX_CXX = em++
 
 MODULES := modplug
 OBJS := ModPlugin.o
-CFLAGS := $(CFLAGS) -Wall -I$(UTILS) -Imodplug -I. -I../..
+CFLAGS += -Wall -I$(UTILS) -Imodplug -I. -I../..
 
-include $(UTILS)/Makefile.inc
+include $(UTILS)/build.mk
+#Makefile.inc
