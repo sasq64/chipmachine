@@ -1,0 +1,158 @@
+//
+//  OS/2 keyboard mapping file
+//
+//       The default keyboard file 'default.vkm' is read always.
+//       Every other keyboard file in read as a patch
+//
+//  comments are starting with /
+//
+// This is a symbolic mapping file
+
+!KSYM
+!CLEAR
+
+//
+//  the position of th left and right shift key on the cbm keyboard:
+//     !LSHIFT col row
+//     !RSHIFT col row
+//  e.g.
+
+!LSHIFT 1 7
+!RSHIFT 6 4
+
+// the keyboard is mapped with the keyboard scancodes:
+//      Xcode1, code2: col row vshift
+//
+//      X       # (shifted and unshifted), S (shifted), U (unshifted)
+//      code1   1st byte of two byte keyboard symbol code (character code)
+//      code2   2nd byte of two byte keyboard symbol code (virtual key code)
+//      col     cbm keyboard: column
+//      row     cbm keyboard: row    
+//      vshift  should the cbm key pressed? (use 0 for the shiftkeys itself)
+//               0 key is shifted if shift is pressed
+//               1 left shifted        
+//               2 right shifted        
+//               3 unshifted     
+//  e.g.
+//         S8, 9: 1, 7, 2 
+//  means
+//         If the key with the symbol code 8,9 is pressed together with shift
+//         the cbm emulator will receive the pressing of a key at
+//         column 1, row 7 together with the right shift key (defined by !RSHIFT)
+//
+
+#0, 9: 1, 7, 1       /* Shift */
+#8,  5:  0, 0, 0     /*  Del  */
+#13, 8:  0, 1, 0     /*  Ret  */
+#32, 16: 7, 4, 0     /*  Spc  */
+#33, 0: 7, 0, 1      /*   !   */
+#34, 0: 7, 3, 1      /*   "   */
+#35, 0: 1, 0, 1      /*   #   */
+#36, 0: 1, 3, 1      /*   $   */
+#37, 0: 2, 0, 1      /*   %   */
+#38, 0: 2, 3, 1      /*   &   */
+#39, 0: 3, 0, 1      /*   '   */
+#40, 0: 3, 3, 1      /*   (   */
+#41, 0: 4, 0, 1      /*   )   */
+#42, 0: 6, 1, 3      /*   *   */
+#43, 0: 5, 0, 3      /*   +   */
+#44, 0: 5, 7, 3      /*   ,   */
+#45, 0: 5, 3, 3      /*   -   */
+#46, 0: 5, 4, 3      /*   .   */
+#47, 0: 6, 7, 3      /*   /   */
+#48, 0: 4, 3, 3      /*   0   */
+#49, 0: 7, 0, 3      /*   1   */
+#50, 0: 7, 3, 3      /*   2   */
+#51, 0: 1, 0, 3      /*   3   */
+#52, 0: 1, 3, 3      /*   4   */
+#53, 0: 2, 0, 3      /*   5   */
+#54, 0: 2, 3, 3      /*   6   */
+#55, 0: 3, 0, 3      /*   7   */
+#56, 0: 3, 3, 3      /*   8   */
+#57, 0: 4, 0, 3      /*   9   */
+#58, 0: 5, 5, 3      /*   :   */
+#59, 0: 6, 2, 3      /*   ;   */
+#60, 0: 5, 7, 1      /*   <   */
+#61, 0: 6, 5, 3      /*   =   */
+#62, 0: 5, 4, 1      /*   >   */
+#63, 0: 6, 7, 1      /*   ?   */
+#64, 0: 5, 6, 3      /*   @   */
+#65, 0: 1, 2, 1      /*   A   */
+#66, 0: 3, 4, 1      /*   B   */
+#67, 0: 2, 4, 1      /*   C   */
+#68, 0: 2, 2, 1      /*   D   */
+#69, 0: 1, 6, 1      /*   E   */
+#70, 0: 2, 5, 1      /*   F   */
+#71, 0: 3, 2, 1      /*   G   */
+#72, 0: 3, 5, 1      /*   H   */
+#73, 0: 4, 1, 1      /*   I   */
+#74, 0: 4, 2, 1      /*   J   */
+#75, 0: 4, 5, 1      /*   K   */
+#76, 0: 5, 2, 1      /*   L   */
+#77, 0: 4, 4, 1      /*   M   */
+#78, 0: 4, 7, 1      /*   N   */
+#79, 0: 4, 6, 1      /*   O   */
+#80, 0: 5, 1, 1      /*   p   */
+#81, 0: 7, 6, 1      /*   Q   */
+#82, 0: 2, 1, 1      /*   R   */
+#83, 0: 1, 5, 1      /*   S   */
+#84, 0: 2, 6, 1      /*   T   */
+#85, 0: 3, 6, 1      /*   U   */
+#86, 0: 3, 7, 1      /*   V   */
+#87, 0: 1, 1, 1      /*   W   */
+#88, 0: 2, 7, 1      /*   X   */
+#89, 0: 3, 1, 1      /*   Y   */
+#90, 0: 1, 4, 1      /*   Z   */
+#91, 0: 5, 5, 1      /*   [   */
+#93, 0: 6, 2, 1      /*   ]   */
+
+#97, 0: 1, 2, 3      /*   a   */
+#98, 0: 3, 4, 3      /*   b   */
+#99, 0: 2, 4, 3      /*   c   */
+#100, 0: 2, 2, 3     /*   d   */
+#101, 0: 1, 6, 3     /*   e   */
+#102, 0: 2, 5, 3     /*   f   */
+#103, 0: 3, 2, 3     /*   g   */
+#104, 0: 3, 5, 3     /*   h   */
+#105, 0: 4, 1, 3     /*   i   */
+#106, 0: 4, 2, 3     /*   j   */
+#107, 0: 4, 5, 3     /*   k   */
+#108, 0: 5, 2, 3     /*   l   */
+#109, 0: 4, 4, 3     /*   m   */
+#110, 0: 4, 7, 3     /*   n   */
+#111, 0: 4, 6, 3     /*   o   */
+#112, 0: 5, 1, 3     /*   p   */
+#113, 0: 7, 6, 3     /*   q   */
+#114, 0: 2, 1, 3     /*   r   */
+#115, 0: 1, 5, 3     /*   s   */
+#116, 0: 2, 6, 3     /*   t   */
+#117, 0: 3, 6, 3     /*   u   */
+#118, 0: 3, 7, 3     /*   v   */
+#119, 0: 1, 1, 3     /*   w   */
+#120, 0: 2, 7, 3     /*   x   */
+#121, 0: 3, 1, 3     /*   y   */
+#122, 0: 1, 4, 3     /*   z   */
+
+#0, 32: 0, 4, 0      /*  F1  */
+#0, 33: 0, 4, 1      /*  F2  */
+#0, 34: 0, 5, 0      /*  F3  */
+#0, 35: 0, 5, 1      /*  F4  */
+#0, 36: 0, 6, 0      /*  F5  */
+#0, 37: 0, 6, 1      /*  F6  */
+#0, 38: 0, 3, 0      /*  F7  */
+#0, 39: 0, 3, 1      /*  F8  */
+
+#224, 20: 6, 3, 0    /* CLR/HOME   */
+#224, 22: 0, 7, 1    /* CRSR UP    */
+#224, 21: 0, 2, 1    /* CRSR LEFT  */
+#224, 23: 0, 2, 0    /* CRSR RIGHT */
+#224, 24: 0, 7, 0    /* CRSR DOWN  */
+#224, 27: 6, 6, 0    /* Up Arrow   */
+
+#126, 0: 7, 1, 0     /* ~      -> LtArow   */
+#9, 6:  7, 2, 0      /* TAB    -> Ctrl     */
+#0, 10: 7, 5, 0      /* Ctrl   -> CBM      */
+#0, 14: 7, 7, 0      /* CpsLck -> Run/Stop */
+#27, 15: 7, 7, 0     /* Esc    -> Run/Stop */
+#225, 0: 6, 0, 0     /* beta   -> pound    */
+ 
