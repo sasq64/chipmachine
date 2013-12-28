@@ -135,6 +135,14 @@ void IncrementalQuery::removeLast() {
 	}
 }
 
+void IncrementalQuery::setString(const std::string &s) {
+	query.resize(0);
+	for(const auto &c : s) {
+		query.push_back(c);
+	}
+	search();
+}
+
 void IncrementalQuery::clear() {
 	query.resize(0);
 }
@@ -166,13 +174,14 @@ int IncrementalQuery::numHits() const {
 void IncrementalQuery::search() {
 
 	lastStart = -1;
+	newRes = true;
 
 	string q = string(&query[0], query.size());
 
 	auto parts = split(q);
 	// Remove empty strings
 	parts.erase(remove_if(parts.begin(), parts.end(), [&](const string &a) { return a.size() == 0; }), parts.end());
-	//LOGD("Parts: [%s]", parts);
+	LOGD("Parts: [%s]", parts);
 
 	if(oldParts.size() == 0 || oldParts[0] != parts[0]) {
 		provider->search(parts[0], firstResult, searchLimit);
@@ -203,6 +212,7 @@ void IncrementalQuery::search() {
 			}
 
 			const auto &p = parts[i];
+			//LOGD("Find %s in %s", p, str);
 			if(str.find(p) == string::npos) {
 				found = false;
 				break;

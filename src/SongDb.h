@@ -42,15 +42,16 @@ public:
 
 	int search(const std::string &query, std::vector<int> &result, unsigned int searchLimit);
 
-	std::string getString(int index) {
+	std::string getString(int index) const {
 		//std::lock_guard<std::mutex>{dbLock};
 		return utils::format("%s\t%s\t%d", getTitle(index), getComposer(index), index);
 	}
 
-	std::string getTitle(int index) { 
+	std::string getTitle(int index) const { 
 		return titleIndex.getString(index);
 	}
-	std::string getComposer(int index) {
+
+	std::string getComposer(int index) const {
 		return composerIndex.getString(titleToComposer[index]);
 	}
 
@@ -61,7 +62,7 @@ public:
 
 	void addSubStrings(const std::string &words, std::unordered_map<uint16_t, std::vector<int>> &stringMap, int index);
 
-	virtual std::string getFullString(int index) override;
+	virtual std::string getFullString(int index) const override;
 
 private:
 

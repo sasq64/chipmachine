@@ -1,5 +1,5 @@
-
 include settings.mk
+include $(UTILS)/config.mk
 
 SRCDIR := src/
 OBJDIR := obj/

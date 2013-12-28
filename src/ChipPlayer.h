@@ -55,7 +55,7 @@ protected:
 
 	virtual void setMetaData(const std::string &meta, const std::string &value) {
 		metaData[meta] = value;
-		LOGD("Setting meta '%s' in %p", meta, this);
+		//LOGD("Setting meta '%s' in %p", meta, this);
 		for(auto cb : callbacks) {
 			LOGD("Calling callback for '%s'", meta);
 			cb(meta, this);

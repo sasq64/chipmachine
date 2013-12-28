@@ -10,30 +10,40 @@ public:
 	// Search for a string, return indexes of hits
 	virtual int search(const std::string &word, std::vector<int> &result, unsigned int searchLimit) = 0;
 	// Lookup internal string for index
-	virtual std::string getString(int index) = 0;
+	virtual std::string getString(int index) const = 0;
 	// Get full data, may require SQL query
-	virtual std::string getFullString(int index) { return getString(index); }
+	virtual std::string getFullString(int index) const { return getString(index); }
 };
 
 class IncrementalQuery {
 public:
 
-	IncrementalQuery(SearchProvider *provider) : provider(provider), searchLimit(10000), lastStart(-1), lastSize(-1) {}
+	IncrementalQuery() : provider(nullptr) {}
+
+	IncrementalQuery(SearchProvider *provider) : newRes(false), provider(provider), searchLimit(10000), lastStart(-1), lastSize(-1) {}
 
 	void addLetter(char c);
 	void removeLast();
 	void clear();
+	void setString(const std::string &s);
 	const std::string getString();
 	const std::vector<std::string> &getResult(int start, int size);
 	int numHits() const;
+	bool newResult() {
+		bool r = newRes;
+		newRes = false;
+		return r;
+	}
 
-	std::string getFull(int index) {
+	std::string getFull(int index) const {
 		return provider->getFullString(finalResult[index]);
 	}
 
 
 private:
 	void search();
+
+	bool newRes;
 
 	SearchProvider *provider;
 	unsigned int searchLimit;
@@ -53,7 +63,7 @@ public:
 	SearchIndex() {}
 	~SearchIndex() {}
 	int search(const std::string &word, std::vector<int> &result, unsigned int searchLimit) override;
-	std::string getString(int index) override { return strings[index]; }
+	std::string getString(int index) const override { return strings[index]; }
 
 	int add(const std::string &str, bool stringonly = false);
 

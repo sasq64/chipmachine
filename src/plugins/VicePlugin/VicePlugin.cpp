@@ -27,7 +27,7 @@ int psid_tunes(int* default_tune);
 #include <coreutils/utils.h>
 
 #include <set>
-
+#include <algorithm>
 using namespace std;
 using namespace utils;
 
@@ -139,8 +139,26 @@ VicePlugin::VicePlugin(const string &dataDir) {
 	VicePlayer::init(dataDir.c_str());
 }
 
+VicePlugin::VicePlugin(const unsigned char *data) {
+	mkdir("c64", 0777);
+
+	FILE *fp;
+	fp = fopen("c64/basic", "wb");
+	fwrite(&data[0], 1, 8192, fp);
+	fclose(fp);
+
+	fp = fopen("c64/chargen", "wb");
+	fwrite(&data[8192], 1, 4096, fp);
+	fclose(fp);
+
+	fp = fopen("c64/kernal", "wb");
+	fwrite(&data[8192+4096], 1, 8192, fp);
+	fclose(fp);
+	VicePlayer::init("c64");
+}
+
 VicePlugin::~VicePlugin() {
-	LOGD("VicePlugin destroy");
+	LOGD("VicePlugin destroy\n");
 	machine_shutdown();
 }
 

@@ -60,7 +60,7 @@
 #include "ui.h"
 #include "util.h"
 
-#undef HAVE_MKSTEMP
+//#undef HAVE_MKSTEMP
 
 #ifdef __NeXT__
 #define waitpid(p, s, o) wait3((union wait *)(s), (o), (struct rusage *) 0)

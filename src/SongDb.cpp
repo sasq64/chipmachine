@@ -23,15 +23,17 @@ SongDatabase::SongDatabase(const string &name) {
 	if(rc != SQLITE_OK) {	
 		throw database_exception(format("%s: %s", name, sqlite3_errstr(rc)).c_str());
 	};
+	LOGD("DB OPEN");
 }
 
 SongDatabase::~SongDatabase() {
+	LOGD("DB CLOSE");
 	if(db)
 		sqlite3_close(db);
 }
 
 
-string SongDatabase::getFullString(int id) {
+string SongDatabase::getFullString(int id) const {
 
 	id++;
 	LOGD("ID %d", id);
@@ -39,7 +41,7 @@ string SongDatabase::getFullString(int id) {
 	sqlite3_stmt *s;
 	const char *tail;
 	int rc = sqlite3_prepare_v2(db, "SELECT title, composer, path, metadata FROM songs WHERE _id == ?", -1, &s, &tail);
-	//LOGD("Result '%d'\n", rc);
+	LOGD("Result for %d -> '%d' (%s)\n", id, rc, tail ? tail : "NONE");
 	if(rc != SQLITE_OK)
 		throw database_exception("Select failed");
 	sqlite3_bind_int(s, 1, id);
@@ -156,8 +158,8 @@ void SongDatabase::generateIndex() {
 	}
 
 	sqlite3_finalize(s);
+	LOGD("INDEX CREATED");
 
-	//LOGD("%d titles by %d composer generated %d + %d 3 letter indexes\n", titles.size(), composers.size(), titleMap.size(), composerMap.size());
 }
 int SongDatabase::search(const string &query, vector<int> &result, unsigned int searchLimit) {
 

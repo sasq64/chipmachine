@@ -459,9 +459,10 @@ int vsync_do_vsync(struct video_canvas_s *c, int been_skipped)
      * We could optimize by sleeping only if a frame is to be output.
      */
     /*log_debug("vsync_do_vsync: sound_delay=%f  frame_ticks=%d  delay=%d", sound_delay, frame_ticks, delay);*/
-    if (!warp_mode_enabled && timer_speed && delay < 0) {
-        vsyncarch_sleep(-delay);
-    }
+     // NOTE NOTE NOTE WTF
+    //// if (!warp_mode_enabled && timer_speed && delay < 0) {
+    ////    vsyncarch_sleep(-delay);
+    ////}
 #if (defined(HAVE_OPENGL_SYNC)) && !defined(USE_SDLUI)
     vsyncarch_prepare_vbl();
 #endif
