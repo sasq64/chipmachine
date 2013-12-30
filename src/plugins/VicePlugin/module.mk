@@ -1,6 +1,5 @@
 ifeq ($(VICEPLUGIN_INCLUDED),)
 VICEPLUGIN_INCLUDED = 1
-
 THIS_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 MODULES += $(THIS_DIR)/vice/resid
@@ -156,6 +155,6 @@ VICE_INC :=	. \
     vice/vicii \
     vice/rtc
 
-CFLAGS += $(addprefix -I$(THIS_DIR)/,$(VICE_INC))
+INCLUDES += $(addprefix $(THIS_DIR)/,$(VICE_INC))
 
 endif
