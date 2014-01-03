@@ -4,7 +4,7 @@
 #include <coreutils/log.h>
 
 #include <stdint.h>
-
+#include <stdlib.h>
 #include <string>
 #include <cstdio>
 #include <unordered_map>
@@ -63,7 +63,14 @@ protected:
 	};
 
 	virtual void setMetaData(const std::string &meta, int value) {
+
+#ifdef ANDROID
+		char tmp[32];
+		sprintf(tmp, "%d", value);
+		setMetaData(meta, tmp);
+#else
 		setMetaData(meta, std::to_string(value));
+#endif
 	};
 
 	virtual void metaDataEnd() {
