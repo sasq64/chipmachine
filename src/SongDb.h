@@ -15,8 +15,7 @@ class SongDatabase;
 
 class database_exception : public std::exception {
 public:
-	database_exception(const char *txt) {
-		msg = txt;
+	database_exception(const char *txt) : msg(txt) {
 	}
 	virtual const char *what() const throw() { return msg.c_str(); }
 private:

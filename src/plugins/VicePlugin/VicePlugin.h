@@ -5,6 +5,8 @@
 
 #include <string>
 
+namespace chipmachine {
+
 class VicePlugin : public ChipPlugin {
 public:
 	VicePlugin(const std::string &dataDir);
@@ -13,5 +15,7 @@ public:
 	virtual bool canHandle(const std::string &name) override;
 	virtual ChipPlayer *fromFile(const std::string &fileName) override;
 };
+
+}
 
 #endif // VICE_PLAYER_H

@@ -14,6 +14,8 @@ long int random() { return rand(); }
 
 using namespace std;
 
+namespace chipmachine {
+
 class ModPlayer : public ChipPlayer {
 public:
 	ModPlayer(uint8_t *data, int size) {
@@ -28,7 +30,7 @@ public:
 		mod = ModPlug_Load(data, size);
 
 		setMetaData("length", ModPlug_GetLength(mod) / 1000);
-		int type = ModPlug_GetModuleType(mod);
+		//int type = ModPlug_GetModuleType(mod);
 
 	}
 	~ModPlayer() override {
@@ -59,3 +61,5 @@ ChipPlayer *ModPlugin::fromFile(const std::string &fileName) {
 	utils::File file { fileName };
 	return new ModPlayer {file.getPtr(), file.getSize()};
 };
+
+}

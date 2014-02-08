@@ -11,6 +11,8 @@
 #include <functional>
 #include <vector>
 
+namespace chipmachine {
+
 class ChipPlayer {
 public:
 	typedef std::function<void(const std::string &meta, ChipPlayer*)> Callback;
@@ -81,5 +83,7 @@ protected:
 	std::vector<Callback> callbacks;
 
 };
+
+}
 
 #endif // CHIP_PLAYER_H

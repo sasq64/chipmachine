@@ -3,6 +3,8 @@
 
 #include <string>
 
+namespace chipmachine {
+
 class ChipPlayer;
 
 class ChipPlugin {
@@ -13,4 +15,5 @@ public:
 	virtual ChipPlayer *fromFile(const std::string &fileName) = 0;
 };
 
+}
 #endif // CHIP_PLUGIN_H

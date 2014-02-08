@@ -28,6 +28,13 @@ int psid_tunes(int* default_tune);
 
 #include <set>
 #include <algorithm>
+
+int console_mode = 1;
+int vsid_mode = 1;
+int video_disabled_mode = 1;
+
+namespace chipmachine {
+
 using namespace std;
 using namespace utils;
 
@@ -36,10 +43,6 @@ static bool videomode_is_ntsc;
 static bool videomode_is_forced;
 static int sid;
 static bool sid_is_forced;
-
-int console_mode = 1;
-int vsid_mode = 1;
-int video_disabled_mode = 1;
 
 class VicePlayer : public ChipPlayer {
 public:
@@ -176,4 +179,4 @@ ChipPlayer *VicePlugin::fromFile(const std::string &fileName) {
 	return new VicePlayer { fileName };
 }
 
-
+}

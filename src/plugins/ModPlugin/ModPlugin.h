@@ -3,6 +3,7 @@
 
 #include "../../ChipPlugin.h"
 
+namespace chipmachine {
 
 class ModPlugin : public ChipPlugin {
 public:
@@ -10,5 +11,6 @@ public:
 	virtual ChipPlayer *fromFile(const std::string &fileName) override;
 };
 
+}
 
 #endif // MODPLAYER_H
