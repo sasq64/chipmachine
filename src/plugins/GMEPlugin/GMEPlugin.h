@@ -3,11 +3,14 @@
 
 #include "../../ChipPlugin.h"
 
+namespace chipmachine {
+
 class GMEPlugin : public ChipPlugin {
 public:
 	virtual bool canHandle(const std::string &name) override;
 	virtual ChipPlayer *fromFile(const std::string &fileName) override;
 };
 
+}
 
 #endif // GME_PLAYER_H

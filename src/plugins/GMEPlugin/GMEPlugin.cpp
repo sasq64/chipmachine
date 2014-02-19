@@ -9,6 +9,8 @@
 
 using namespace std;
 
+namespace chipmachine {
+
 class GMEPlayer : public ChipPlayer {
 public:
 	GMEPlayer(const string &fileName) : emu(nullptr), started(false) {
@@ -85,3 +87,5 @@ bool GMEPlugin::canHandle(const std::string &name) {
 ChipPlayer *GMEPlugin::fromFile(const std::string &name) {
 	return new GMEPlayer { name };
 };
+
+} // namespace chipmachine

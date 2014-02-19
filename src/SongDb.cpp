@@ -2,7 +2,6 @@
 
 #include "SongDb.h"
 
-#include "sqlite3/sqlite3.h"
 #include <coreutils/utils.h>
 
 #include <cstring>
@@ -15,21 +14,12 @@ using namespace std;
 using namespace utils;
 
 
-SongDatabase::SongDatabase(const string &name) {
-	db = nullptr;
-
-
-	int rc = sqlite3_open(name.c_str(), &db);//, SQLITE_READONLY, NULL);
-	if(rc != SQLITE_OK) {	
-		throw database_exception(format("%s: %s", name, sqlite3_errstr(rc)).c_str());
-	};
+SongDatabase::SongDatabase(const string &name) : db ( name ) {
 	LOGD("DB OPEN");
 }
 
 SongDatabase::~SongDatabase() {
 	LOGD("DB CLOSE");
-	if(db)
-		sqlite3_close(db);
 }
 
 
@@ -38,30 +28,14 @@ string SongDatabase::getFullString(int id) const {
 	id++;
 	LOGD("ID %d", id);
 
-	sqlite3_stmt *s;
-	const char *tail;
-	int rc = sqlite3_prepare_v2(db, "SELECT title, composer, path, metadata FROM songs WHERE _id == ?", -1, &s, &tail);
-	LOGD("Result for %d -> '%d' (%s)\n", id, rc, tail ? tail : "NONE");
-	if(rc != SQLITE_OK)
-		throw database_exception("Select failed");
-	sqlite3_bind_int(s, 1, id);
-	int ok = sqlite3_step(s);
-	
-	if(ok == SQLITE_ROW) {
-		const char *title = (const char *)sqlite3_column_text(s, 0);
-		const char *composer = (const char *)sqlite3_column_text(s, 1);
-		const char *path = (const char *)sqlite3_column_text(s, 2);
-		const char *metadata = (const char *)sqlite3_column_text(s, 3);
-
-		LOGD("Result %s %s %s", title, composer, path);
-		string r = format("%s\t%s\t%s\t%s", title, composer, path, metadata);
-		sqlite3_finalize(s);
+	auto q = db.query<string, string, string, string>("SELECT title, composer, path, metadata FROM songs WHERE _id == ?", id);
+	if(q.step()) {
+		auto t = q.get_tuple();
+		string r = format("%s\t%s\t%s\t%s", get<0>(t), get<1>(t), get<2>(t), get<3>(t));
+		LOGD("RESULT %s", r);
 		return r;
-	} else {
-		sqlite3_finalize(s);
-		throw not_found_exception();
 	}
-	//return "";
+	throw not_found_exception();
 }
 enum {
 	UNKNOWN = 0,
@@ -114,53 +88,41 @@ void SongDatabase::generateIndex() {
 
 	lock_guard<mutex>{dbLock};
 
-	sqlite3_stmt *s;
-	const char *tail;
-	char oldComposer[256] = "";
-
-	int rc = sqlite3_prepare_v2(db, "SELECT title, composer, path FROM songs;", -1, &s, &tail);
-	if(rc != SQLITE_OK)
-		throw database_exception("Select failed");
+	string oldComposer;
+	auto query = db.query<string, string, string>("SELECT title, composer, path FROM songs");
 
 	int count = 0;
 	//int maxTotal = 3;
 	int cindex = 0;
 	while(count < 1000000) {
 		count++;
-		int ok = sqlite3_step(s);
-		if(ok == SQLITE_ROW) {
-			const char *title = (const char *)sqlite3_column_text(s, 0);
-			const char *composer = (const char *)sqlite3_column_text(s, 1);
-			const char *path = (const char *)sqlite3_column_text(s, 2);
-
-			string ext = path_extention(path);
-			makeLower(ext);
-			int fmt = formatMap[ext];
-			formats.push_back(fmt);
-
-			// The title index maps one-to-one with the database
-			int tindex = titleIndex.add(title);
-
-			if(strcmp(composer, oldComposer) != 0) {
-				strcpy(oldComposer, composer);
-				cindex = composerIndex.add(composer);
-				// The composer index does not map to the database, but for each composer
-				// we save the first index in the database for that composer
-				composerToTitle.push_back(tindex);
-			}
-
-			// We also need to find the composer for a give title
-			titleToComposer.push_back(cindex);
-
-		} else if(ok == SQLITE_DONE) {
+		if(!query.step())
 			break;
+
+		string title, composer, path;
+		tie(title, composer, path) = query.get_tuple();
+		string ext = path_extention(path);
+		makeLower(ext);
+		int fmt = formatMap[ext];
+		formats.push_back(fmt);
+
+		// The title index maps one-to-one with the database
+		int tindex = titleIndex.add(title);
+
+		if(composer != oldComposer) {
+			oldComposer = composer;
+			cindex = composerIndex.add(composer);
+			// The composer index does not map to the database, but for each composer
+			// we save the first index in the database for that composer
+			composerToTitle.push_back(tindex);
 		}
+
+		// We also need to find the composer for a give title
+		titleToComposer.push_back(cindex);
 	}
-
-	sqlite3_finalize(s);
 	LOGD("INDEX CREATED");
-
 }
+
 int SongDatabase::search(const string &query, vector<int> &result, unsigned int searchLimit) {
 
 	lock_guard<mutex>{dbLock};

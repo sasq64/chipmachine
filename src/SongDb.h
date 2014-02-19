@@ -7,12 +7,13 @@
 #include <mutex>
 
 #include <coreutils/format.h>
+#include <sqlite3/database.h>
 
 #include "SearchIndex.h"
 
 struct sqlite3;
 class SongDatabase;
-
+/*
 class database_exception : public std::exception {
 public:
 	database_exception(const char *txt) : msg(txt) {
@@ -21,6 +22,7 @@ public:
 private:
 	std::string msg;
 };
+*/
 
 class not_found_exception : public std::exception {
 public:
@@ -65,7 +67,8 @@ public:
 
 private:
 
-	sqlite3 *db;
+	//sqlite3 *db;
+	sqlite3db::Database db;
 
 	SearchIndex composerIndex;
 	SearchIndex titleIndex;

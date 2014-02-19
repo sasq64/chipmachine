@@ -1,6 +1,6 @@
 #include "ModPlugin.h"
 #include "VicePlugin.h"
-#include "SexyPSFPlugin.h"
+//#include "SexyPSFPlugin.h"
 #include "GMEPlugin.h"
 
 #include "AudioPlayer.h"
@@ -23,10 +23,9 @@
 #include <memory>
 #include <cstdlib>
 
-
-
-
 #include <unistd.h>
+
+using namespace chipmachine;
 
 typedef unsigned int uint;
 using namespace std;
@@ -77,7 +76,7 @@ int main(int argc, char* argv[]) {
 	PlayerSystem psys;
 	psys.registerPlugin(new ModPlugin {});
 	psys.registerPlugin(new VicePlugin {"data/c64"});
-	psys.registerPlugin(new SexyPSFPlugin {});
+	//psys.registerPlugin(new SexyPSFPlugin {});
 	psys.registerPlugin(new GMEPlugin {});
 
 	File file { argv[1] };
