@@ -43,7 +43,7 @@ public:
 		return false;
 	}
 
-	registerPlugin(ChipPlugin *p) {	
+	void registerPlugin(ChipPlugin *p) {	
 		plugins.push_back(p);
 	}
 

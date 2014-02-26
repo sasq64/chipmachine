@@ -2,7 +2,7 @@ MODULE_DIR = ../utils
 include $(MODULE_DIR)/config.mk
 
 OBJDIR := obj/
-CFLAGS := -g -Wall -I$(MODULE_DIR) -DLINUX
+CFLAGS := -O2 -Wall -I$(MODULE_DIR) -DLINUX
 CXXFLAGS := -std=c++0x
 SRCDIR := src/
 
@@ -15,8 +15,8 @@ include src/plugins/ModPlugin/module.mk
 include src/plugins/VicePlugin/module.mk
 include src/plugins/GMEPlugin/module.mk
 include src/plugins/SexyPSFPlugin/module.mk
-include src/plugins/UADEPlugin/module.mk
 include src/plugins/SC68Plugin/module.mk
+include src/plugins/UADEPlugin/module.mk
 
 TARGET := player
 LOCAL_FILES += play.cpp

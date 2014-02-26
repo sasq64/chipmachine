@@ -4,7 +4,7 @@ THIS_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
 FE = $(THIS_DIR)/uade/src/frontends/common/
 
-uade_FILES += $(THIS_DIR)/UADEPlugin.cpp \
+uade_FILES := $(THIS_DIR)/UADEPlugin.cpp \
 	$(FE)unixatomic.c \
 	$(FE)uadeipc.c \
 	$(FE)amifilemagic.c \
@@ -25,7 +25,7 @@ uade_FILES += $(THIS_DIR)/UADEPlugin.cpp \
 	$(FE)fifo.c \
 	$(THIS_DIR)/bencodetools/bencode.c
 
-uade_INCLUDES += $(MODULE_DIR) $(THIS_DIR) $(THIS_DIR)/../.. $(THIS_DIR)/uade/src/include $(THIS_DIR)/uade/src/frontends/include $(FE)
+uade_INCLUDES := $(MODULE_DIR) $(THIS_DIR) $(THIS_DIR)/../.. $(THIS_DIR)/uade/src/include $(THIS_DIR)/uade/src/frontends/include $(FE)
 INCLUDES += $(THIS_DIR)
 MODULES += uade
 

@@ -28,6 +28,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "strlrep.h"
+
 int uade_filesize(size_t *size, const char *pathname)
 {
 	struct stat st;

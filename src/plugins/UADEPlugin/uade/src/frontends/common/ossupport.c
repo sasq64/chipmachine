@@ -28,6 +28,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+size_t strlcpy(char *dst, const char *src, size_t size);
+size_t strlcat(char *dst, const char *src, size_t size);
+
 int uade_filesize(size_t *size, const char *pathname)
 {
 	struct stat st;
