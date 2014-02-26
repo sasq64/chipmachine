@@ -24,6 +24,7 @@ int psid_tunes(int* default_tune);
 
 #include "VicePlugin.h"
 #include "../../ChipPlayer.h"
+#include <coreutils/log.h>
 #include <coreutils/utils.h>
 
 #include <set>

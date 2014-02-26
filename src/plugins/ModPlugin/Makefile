@@ -11,7 +11,7 @@ TARGET_EXT=.a
 #LINUX_CC = emcc
 #LINUX_CXX = em++
 
-MODULES := modplug
+DIRS := modplug
 OBJS := ModPlugin.o
 CFLAGS += -Wall -I$(UTILS) -Imodplug -I. -I../..
 

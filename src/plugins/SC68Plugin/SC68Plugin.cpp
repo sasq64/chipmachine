@@ -1,6 +1,8 @@
 
 #include "SC68Plugin.h"
 #include "../../ChipPlayer.h"
+
+#include <coreutils/log.h>
 #include <coreutils/utils.h>
 
 #include <string.h>
@@ -23,6 +25,8 @@ static void write_debug(int level, void *cookie, const char *fmt, va_list list) 
 	vsprintf(temp, fmt, list);
 	LOGD(temp);
 }
+
+namespace chipmachine {
 
 class SC68Player : public ChipPlayer {
 public:
@@ -187,3 +191,5 @@ ChipPlayer *SC68Plugin::fromFile(const std::string &fileName) {
 	delete player;
 	return nullptr;
 };
+
+}

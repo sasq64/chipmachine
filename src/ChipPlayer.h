@@ -1,7 +1,7 @@
 #ifndef CHIP_PLAYER_H
 #define CHIP_PLAYER_H
 
-#include <coreutils/log.h>
+//#include <coreutils/log.h>
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -45,10 +45,10 @@ public:
 	virtual void seekTo(int song, int seconds = -1) { printf("NOT IMPLEMENTED\n"); }
 
 	virtual void onMeta(Callback callback) {
-		LOGD("Setting callback in %p", this);
+		//LOGD("Setting callback in %p", this);
 		callbacks.push_back(callback);
 		for(auto &md : metaData) {
-			LOGD("Calling callback for '%s'", md.first);
+			//LOGD("Calling callback for '%s'", md.first);
 			callback(md.first, this);
 		}
 	}
@@ -57,9 +57,9 @@ protected:
 
 	virtual void setMetaData(const std::string &meta, const std::string &value) {
 		metaData[meta] = value;
-		//LOGD("Setting meta '%s' in %p", meta, this);
+		////LOGD("Setting meta '%s' in %p", meta, this);
 		for(auto cb : callbacks) {
-			LOGD("Calling callback for '%s'", meta);
+			//LOGD("Calling callback for '%s'", meta);
 			cb(meta, this);
 		}
 	};

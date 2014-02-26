@@ -2,7 +2,7 @@ ifeq ($(VICEPLUGIN_INCLUDED),)
 VICEPLUGIN_INCLUDED = 1
 THIS_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
 
-MODULES += $(THIS_DIR)/vice/resid
+vice_DIRS := $(THIS_DIR)/vice/resid
 
 VICE_FILES := VicePlugin.cpp \
 	common/archdep.c \
@@ -133,7 +133,7 @@ VICE_FILES := VicePlugin.cpp \
     overrides/vicii/vicii-draw.c \
     overrides/video/video.c
 
-FILES += $(addprefix $(THIS_DIR),$(VICE_FILES))
+vice_FILES := $(addprefix $(THIS_DIR),$(VICE_FILES))
 
 VICE_INC :=	. \
 	../.. \
@@ -155,6 +155,13 @@ VICE_INC :=	. \
     vice/vicii \
     vice/rtc
 
-INCLUDES += $(addprefix $(THIS_DIR)/,$(VICE_INC))
+
+vice_CXXFLAGS := 
+
+vice_INCLUDES := $(addprefix $(THIS_DIR),$(VICE_INC)) $(MODULE_DIR)
+
+INCLUDES += $(THIS_DIR)
+
+MODULES += vice
 
 endif

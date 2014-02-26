@@ -5,7 +5,7 @@ OBJDIR := bbsobj/
 CFLAGS := -g -Wall -Isrc -Isrc/netlink/include
 
 TARGET := bbs
-MODULES := src/utils src/netlink/src src/bbs
+DIRS := src/utils src/netlink/src src/bbs
 OBJS := bbstest.o
 
 WIN_CFLAGS := $(WIN_CFLAGS) -static

@@ -1,45 +1,30 @@
 #include "ModPlugin.h"
 #include "VicePlugin.h"
-//#include "SexyPSFPlugin.h"
+#include "SexyPSFPlugin.h"
 #include "GMEPlugin.h"
+#include "SC68Plugin.h"
+#include "UADEPlugin.h"
 
-#include "AudioPlayer.h"
-
-#include "ChipPlugin.h"
 #include "ChipPlayer.h"
-#include "PlayerFactory.h"
 
 #include <coreutils/utils.h>
 #include <coreutils/log.h>
+#include <audioplayer/audioplayer.h>
 
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-
-#include <sys/stat.h>
-
+#include <cstdio>
 #include <vector>
 #include <string>
-#include <memory>
-#include <cstdlib>
-
-#include <unistd.h>
 
 using namespace chipmachine;
-
-typedef unsigned int uint;
 using namespace std;
 using namespace utils;
-using namespace logging;
 
-class PlayerSystem : public PlayerFactory {
+class PlayerSystem  {
 public:
-	virtual ChipPlayer *fromFile(File &file) override {
+	ChipPlayer *fromFile(File &file) {
 
 		string name = file.getName();
 		makeLower(name);
-		LOGD("Handling %s", name);
-
 		for(auto *plugin : plugins) {
 			if(plugin->canHandle(name))
 				return plugin->fromFile(file.getName());
@@ -47,13 +32,10 @@ public:
 		return nullptr;
 	}
 
-	virtual bool canHandle(const std::string &name) override {
+	virtual bool canHandle(const std::string &name) {
 
 		string lname = name;
 		makeLower(lname);
-
-		LOGD("Factory checking: %s\n", lname);
-
 		for(auto *plugin : plugins) {
 			if(plugin->canHandle(lname))
 				return true;
@@ -61,7 +43,7 @@ public:
 		return false;
 	}
 
-	void registerPlugin(ChipPlugin *p) {	
+	registerPlugin(ChipPlugin *p) {	
 		plugins.push_back(p);
 	}
 
@@ -76,28 +58,25 @@ int main(int argc, char* argv[]) {
 	PlayerSystem psys;
 	psys.registerPlugin(new ModPlugin {});
 	psys.registerPlugin(new VicePlugin {"data/c64"});
-	//psys.registerPlugin(new SexyPSFPlugin {});
+	psys.registerPlugin(new SexyPSFPlugin {});
 	psys.registerPlugin(new GMEPlugin {});
+	psys.registerPlugin(new SC68Plugin {"data/sc68"});
+	psys.registerPlugin(new UADEPlugin {});
 
 	File file { argv[1] };
 	ChipPlayer *player = psys.fromFile(file);
 
 	//string songTitle = player->getMetaDataString("title");
 	//int length player->getMetaDataInt("length");
-
-	int frameCount = 0;
+	//int frameCount = 0;
 	string songName;
 
-	AudioPlayer ap;
-	int bufSize = 4096;
-	vector<int16_t> buffer(bufSize);
-	while(true) {
-		int rc = player->getSamples(&buffer[0], bufSize);
-		if(rc > 0) {
-			ap.writeAudio(&buffer[0], rc);
-			frameCount += rc/2;
-		} else
-			sleepms(250);
-	}
+	AudioPlayer ap ([&](int16_t *ptr, int size) {
+		player->getSamples(ptr, size);
+	});
+
+	while(true)
+		sleepms(250);
+
 	return 0;
 }

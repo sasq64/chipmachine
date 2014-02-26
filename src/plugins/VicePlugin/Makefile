@@ -7,7 +7,7 @@ CXXFLAGS += -std=c++0x
 
 OBJDIR=obj/
 
-MODULES := vice/resid
+DIRS := vice/resid
 
 LOCAL_FILES := \
 	common/archdep.c \

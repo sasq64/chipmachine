@@ -3,6 +3,8 @@
 
 #include "../../ChipPlugin.h"
 
+namespace chipmachine {
+
 class UADEPlugin : public ChipPlugin {
 public:
 	UADEPlugin();
@@ -10,5 +12,6 @@ public:
 	virtual ChipPlayer *fromFile(const std::string &fileName) override;
 };
 
+}
 
 #endif // UADEPLUGIN_H

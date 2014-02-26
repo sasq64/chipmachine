@@ -7,7 +7,7 @@ CFLAGS := -g -Wall  -DUNIT_TEST
 INCLUDES := netlink/include sqlite3 plugins/VicePlugin plugins/ModPlugin plugins/GMEPlugin plugins/UADEPlugin plugins/SexyPSFPlugin
 
 TARGET := test
-MODULES := ziplib netlink/src
+DIRS := ziplib netlink/src
 LIBS := -lsexypsfplugin -lviceplugin -lmodplugin -lgmeplugin -lz
 LDFLAGS := -Wl,-Map -Wl,mapfile -Lplugins/SexyPSFPlugin -Lplugins/VicePlugin -Lplugins/ModPlugin -Lplugins/GMEPlugin
 LDFLAGS := -Wl,-Map -Wl,mapfile -Lsrc/plugins/SexyPSFPlugin -Lsrc/plugins/VicePlugin -Lsrc/plugins/ModPlugin -Lsrc/plugins/GMEPlugin -Lsrc/plugins/UADEPlugin

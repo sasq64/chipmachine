@@ -3,10 +3,10 @@
 
 #include "../../ChipPlayer.h"
 
-#include "inject.h"
+//#include "inject.h"
 
 #include <coreutils/utils.h>
-
+#include <coreutils/log.h>
 #include <uade/uade.h>
 
 #include <set>
@@ -20,6 +20,8 @@ extern "C" {
 	void exit_song();
 	void set_song(int song);
 }*/
+
+namespace chipmachine {
 
 using namespace std;
 using namespace utils;
@@ -136,7 +138,7 @@ ChipPlayer *UADEPlugin::fromFile(const std::string &fileName) {
 
 UADEPlugin::UADEPlugin() {
 	//init_uade();
-	inject<vector<string>>("URLPlayer.getURL", [](vector<string> &uv) -> bool {
+	/*inject<vector<string>>("URLPlayer.getURL", [](vector<string> &uv) -> bool {
 		LOGD("UADEPlayer injecting urls");
 		for(const auto &u : uv) {
 			if(path_extention(u) == "mdat") {
@@ -147,6 +149,7 @@ UADEPlugin::UADEPlugin() {
 			}
 		}
 		return true;
-	}, this);
+	}, this);*/
 
+}
 }

@@ -15,6 +15,8 @@ void sexyd_update(unsigned char *pSound, long lBytes)
 		sexyFifo->putBytes((char*)pSound, lBytes);
 }
 
+namespace chipmachine {
+
 class SexyPSFPlayer : public ChipPlayer {
 public:
 	SexyPSFPlayer(const std::string &fileName) : fifo(1024 * 128) {
@@ -57,4 +59,6 @@ bool SexyPSFPlugin::canHandle(const std::string &name) {
 
 ChipPlayer *SexyPSFPlugin::fromFile(const std::string &name) {
 	return new SexyPSFPlayer { name };
+}
+
 }

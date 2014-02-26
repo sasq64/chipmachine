@@ -3,6 +3,8 @@
 
 #include "../../ChipPlugin.h"
 
+namespace chipmachine {
+
 class SC68Plugin : public ChipPlugin {
 public:
 	SC68Plugin(const std::string &dataDir) : dataDir(dataDir) {}
@@ -16,5 +18,6 @@ private:
 	std::string dataDir;
 };
 
+}
 
 #endif // SC68PLAYER_H
