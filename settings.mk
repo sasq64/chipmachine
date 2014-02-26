@@ -15,7 +15,7 @@ UTILS=/home/sasq/projects/utils
 CC = clang
 CXX = clang++
 
-ifeq ($(EMSCRIPTEN),)
+#ifneq ($(EMSCRIPTEN),)
 AR=llvm-ar
-endif
+#endif
 

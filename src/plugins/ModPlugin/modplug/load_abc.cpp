@@ -280,14 +280,14 @@ static void setenv(const char *name, const char *value, int overwrite)
 static int abc_isvalidchar(char c) {
 	return(isalpha(c) || isdigit(c) || isspace(c) || c == '%' || c == ':');
 }
-
+/*
 static const char *abc_skipspace(const char *p)
 {
 	while (*p && isspace(*p))
 		p++;
 	return p;
 }
-
+*/
 static void abc_extractkeyvalue(char *key, size_t key_max,
 								char *value, size_t value_max, const char *src)
 {

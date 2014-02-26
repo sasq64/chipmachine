@@ -46,12 +46,15 @@ static const signed char UnpackTable[MAX_PACK_TABLES][16] =
 // CSoundFile
 
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreorder"
 CSoundFile::CSoundFile() : m_nBufferCount(0), m_nCurrentPattern(0),
 		m_nDefaultGlobalVolume(0), m_nDefaultSpeed(0), m_nDefaultTempo(0), m_nFrameDelay(0), m_nGlobalFadeMaxSamples(0),
 		m_nGlobalFadeSamples(0), m_nGlobalVolume(0), m_nInitialRepeatCount(0), m_nMaxOrderPosition(0), m_nMixStat(0),
 		m_nMusicSpeed(0), m_nMusicTempo(0), m_nNextPattern(0), m_nNextRow(0), m_nOldGlbVolSlide(0), m_nPattern(0),
 		m_nPatternDelay(0), m_nRestartPos(0), m_nRow(0), m_nSongPreAmp(0), m_nTickCount(0), m_nTotalCount(0)
 //----------------------
+#pragma clang diagnostic pop
 {
 
 	m_nType = MOD_TYPE_NONE;
