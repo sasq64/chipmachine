@@ -49,6 +49,8 @@ public:
 		} else {
 			valid = load(data, size);
 		}
+		if(valid)
+			setMeta("format", "SC68");
 
 	}
 

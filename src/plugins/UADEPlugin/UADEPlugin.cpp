@@ -3,8 +3,6 @@
 
 #include "../../ChipPlayer.h"
 
-//#include "inject.h"
-
 #include <coreutils/utils.h>
 #include <coreutils/log.h>
 #include <uade/uade.h>
@@ -63,13 +61,14 @@ public:
 
 		if(uade_play(fileName.c_str(), -1, state) == 1) {
 			songInfo = uade_get_song_info(state);
-			setMetaData("songs", songInfo->subsongs.max - songInfo->subsongs.min + 1);
-			setMetaData("startsong", songInfo->subsongs.def - songInfo->subsongs.min);
-			setMetaData("length", songInfo->duration);
-			setMetaData("title", songInfo->modulename);
-			setMetaData("format", songInfo->formatname);
-			metaDataEnd();
-
+			setMeta(
+				"songs", songInfo->subsongs.max - songInfo->subsongs.min + 1,
+				"startsong", songInfo->subsongs.def - songInfo->subsongs.min,
+				"length", songInfo->duration,
+				"title", songInfo->modulename,
+				"format", songInfo->playername
+			);
+			//printf("UADE:%s %s\n", songInfo->playerfname, songInfo->playername);
 			valid = true;
 		} 
 		return valid;
@@ -99,35 +98,19 @@ public:
 		//set_song(song);	
 	}
 
-	//virtual unordered_map<string, string> getMetaData() {
-	//	return metaData;
-	//}
-
 private:
 	bool valid;
 	struct uade_state *state;
 	const struct uade_song_info *songInfo;
 	string baseName;
-	//ModPlugFile *mod;
-	//private unordered_map<string, string>;
 };
 
-//static const set<string> ext { ".mod", ".xm", ".s3m" , ".okt", ".it", ".ft" };
-
 bool UADEPlugin::canHandle(const std::string &name) {
-
 	return true;
-
-	/*for(string x : ext) {
-		if(utils::endsWith(name, x))
-			return true;
-	}*/
-	//return false;
-	//utils::endsWith(name, ".mod") || utils::endsWith(name, ".xm");
 }
 
 ChipPlayer *UADEPlugin::fromFile(const std::string &fileName) {
-//	utils::File file { fileName };
+
 	auto *player = new UADEPlayer();
 	if(!player->load(fileName)) {
 		delete player;
@@ -136,20 +119,4 @@ ChipPlayer *UADEPlugin::fromFile(const std::string &fileName) {
 	return player;
 };
 
-UADEPlugin::UADEPlugin() {
-	//init_uade();
-	/*inject<vector<string>>("URLPlayer.getURL", [](vector<string> &uv) -> bool {
-		LOGD("UADEPlayer injecting urls");
-		for(const auto &u : uv) {
-			if(path_extention(u) == "mdat") {
-				uv.push_back(path_directory(u) + "/" + path_basename(u) + ".smpl");
-			} else
-			if(path_extention(u) == "sng") {
-				uv.push_back(path_directory(u) + "/" + path_basename(u) + ".ins");
-			}
-		}
-		return true;
-	}, this);*/
-
-}
 }

@@ -1,14 +1,16 @@
-#include "ModPlugin.h"
-#include "VicePlugin.h"
-#include "SexyPSFPlugin.h"
-#include "GMEPlugin.h"
-#include "SC68Plugin.h"
-#include "UADEPlugin.h"
 
 #include "ChipPlayer.h"
 
+#include <ModPlugin/ModPlugin.h>
+#include <VicePlugin/VicePlugin.h>
+#include <SexyPSFPlugin/SexyPSFPlugin.h>
+#include <GMEPlugin/GMEPlugin.h>
+#include <SC68Plugin/SC68Plugin.h>
+#include <UADEPlugin/UADEPlugin.h>
+
 #include <coreutils/utils.h>
 #include <coreutils/log.h>
+#include <bbsutils/console.h>
 #include <audioplayer/audioplayer.h>
 #include <cstdio>
 #include <vector>
@@ -17,6 +19,7 @@
 using namespace chipmachine;
 using namespace std;
 using namespace utils;
+using namespace bbs;
 
 class PlayerSystem  {
 public:
@@ -25,21 +28,13 @@ public:
 		string name = file.getName();
 		makeLower(name);
 		for(auto *plugin : plugins) {
-			if(plugin->canHandle(name))
+			if(plugin->canHandle(name)) {
+				print_fmt("Playing with %s\n", plugin->name());
+				fflush(stdout);
 				return plugin->fromFile(file.getName());
+			}
 		}
 		return nullptr;
-	}
-
-	virtual bool canHandle(const std::string &name) {
-
-		string lname = name;
-		makeLower(lname);
-		for(auto *plugin : plugins) {
-			if(plugin->canHandle(lname))
-				return true;
-		}
-		return false;
 	}
 
 	void registerPlugin(ChipPlugin *p) {	
@@ -58,6 +53,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	setvbuf(stdout, NULL, _IONBF, 0);
+	logging::setLevel(logging::ERROR);
 
 	PlayerSystem psys;
 	psys.registerPlugin(new ModPlugin {});
@@ -69,14 +65,46 @@ int main(int argc, char* argv[]) {
 
 	File file { argv[1] };
 	auto *player = psys.fromFile(file);
-	
-	AudioPlayer ap ([&](int16_t *ptr, int size) {
-		if(player)
-			player->getSamples(ptr, size);
-	});
 
-	while(true)
-		sleepms(250);
+	if(player) {
+		mutex m;
+		auto *console = bbs::Console::createLocalConsole();
+		console->clear();
+		console->moveCursor(0,0);
+
+		player->onMeta([&](const vector<string> &meta, ChipPlayer *player) {
+			lock_guard<mutex> guard(m);
+			for(const auto &m : meta)
+				console->write(format("%s:%s\n", m, player->getMeta(m)));
+		});
+
+		AudioPlayer ap ([&](int16_t *ptr, int size) {
+			if(player)
+				player->getSamples(ptr, size);
+		});
+
+		int song = 0;
+
+		while(true) {
+			int k;
+			{ lock_guard<mutex> guard(m);
+				k = console->getKey(0);
+			}
+			switch(k) {
+			case Console::KEY_RIGHT:
+				player->seekTo(++song);
+				break;
+			case Console::KEY_LEFT:
+				player->seekTo(--song);
+				break;
+			}
+			sleepms(100);
+		}
+
+		while(true)
+			sleepms(250);
+	} else
+		print_fmt("FAILED\n");
 
 	return 0;
 }

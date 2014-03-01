@@ -9,6 +9,7 @@ namespace chipmachine {
 
 class VicePlugin : public ChipPlugin {
 public:
+	virtual std::string name() const override { return "VicePlugin"; }
 	VicePlugin(const std::string &dataDir);
 	VicePlugin(const unsigned char *data);
 	virtual ~VicePlugin();

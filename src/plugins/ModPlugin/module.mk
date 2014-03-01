@@ -6,7 +6,7 @@ modplug_DIRS := $(THIS_DIR)modplug
 modplug_FILES := $(THIS_DIR)ModPlugin.cpp
 modplug_INCLUDES := $(THIS_DIR)modplug $(THIS_DIR)../.. $(MODULE_DIR)
 
-INCLUDES += $(THIS_DIR)
+INCLUDES += $(THIS_DIR)/..
 
 MODULES += modplug
 

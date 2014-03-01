@@ -11,6 +11,8 @@ class ChipPlugin {
 public:
 	virtual ~ChipPlugin() {};
 
+	virtual std::string name() const = 0; 
+
 	virtual bool canHandle(const std::string &name) = 0;
 	virtual ChipPlayer *fromFile(const std::string &fileName) = 0;
 	virtual ChipPlayer *fromData(uint8_t *data, int size) {

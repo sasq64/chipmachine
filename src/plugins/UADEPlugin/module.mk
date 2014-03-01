@@ -25,7 +25,7 @@ uade_FILES := $(THIS_DIR)/UADEPlugin.cpp \
 	$(THIS_DIR)/bencodetools/bencode.c
 
 uade_INCLUDES := $(MODULE_DIR) $(THIS_DIR) $(THIS_DIR)/../.. $(THIS_DIR)/uade/src/include $(THIS_DIR)/uade/src/frontends/include $(FE)
-INCLUDES += $(THIS_DIR)
+INCLUDES += $(THIS_DIR)/..
 MODULES += uade
 
 endif

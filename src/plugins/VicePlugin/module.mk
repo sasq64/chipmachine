@@ -160,7 +160,7 @@ vice_CXXFLAGS :=
 
 vice_INCLUDES := $(addprefix $(THIS_DIR),$(VICE_INC)) $(MODULE_DIR)
 
-INCLUDES += $(THIS_DIR)
+INCLUDES += $(THIS_DIR)/..
 
 MODULES += vice
 

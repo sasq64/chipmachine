@@ -45,7 +45,7 @@ static FILE *log_file = NULL;
 static char **logs = NULL;
 static log_t num_logs = 0;
 
-static int log_enabled = 1; /* cv: this flag allows to temporarly disable all logging */
+static int log_enabled = 0; /* cv: this flag allows to temporarly disable all logging */
 static int verbose = 0;
 static int locked = 0;
 

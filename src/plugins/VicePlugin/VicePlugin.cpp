@@ -108,12 +108,13 @@ public:
 			int defaultSong;
 			int songs = psid_tunes(&defaultSong);
 
-			setMetaData("title", psid_get_name());
-			setMetaData("composer", psid_get_author());
-			setMetaData("copyright", psid_get_copyright());
-			setMetaData("songs", songs);
-			setMetaData("startsong", defaultSong-1);
-			metaDataEnd();
+			setMeta(
+				"title", psid_get_name(),
+				"composer", psid_get_author(),
+				"copyright", psid_get_copyright(),
+				"songs", songs,
+				"startSong", defaultSong-1
+			);
 
 			c64_song_init();
 		}
