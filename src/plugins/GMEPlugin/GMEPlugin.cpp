@@ -22,15 +22,17 @@ public:
 			gme_track_info(emu, &track0, 0);
 			//int track_count = gme_track_count(emu);
 
-			setMetaData("title", track0->game);
-			setMetaData("composer", track0->author);
-			setMetaData("copyright", track0->copyright);
-			setMetaData("length", track0->length);
-			setMetaData("songTitle", track0->song);
-			setMetaData("format", track0->system);
-			setMetaData("songs", gme_track_count(emu));
-			metaDataEnd();
+			//meta["title"] = track0->game;
 
+			setMeta(
+				"title", track0->game,
+				"composer", track0->author,
+				"copyright", track0->copyright,
+				"length", track0->length,
+				"songTitle", track0->song,
+				"format", track0->system,
+				"songs", gme_track_count(emu)
+			);
 		}
 
 
@@ -60,7 +62,7 @@ public:
 		if(song >= 0) {
 			gme_info_t* track;
 			gme_track_info(emu, &track, song);
-			setMetaData("songTitle", track->song);
+			setMeta("songTitle", track->song);
 
 			/* gme_err_t err = */ gme_start_track(emu, song);
 			started = true;

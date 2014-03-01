@@ -22,8 +22,8 @@ public:
 	SexyPSFPlayer(const std::string &fileName) : fifo(1024 * 128) {
 		char *temp = new char [fileName.length()+1];
 		strcpy(temp, fileName.c_str());
-		psfInfo = sexy_load(temp);
 		sexyFifo = &fifo;
+		psfInfo = sexy_load(temp);
 		delete [] temp;
 	}
 

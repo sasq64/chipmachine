@@ -13,6 +13,12 @@ public:
 
 	virtual bool canHandle(const std::string &name) = 0;
 	virtual ChipPlayer *fromFile(const std::string &fileName) = 0;
+	virtual ChipPlayer *fromData(uint8_t *data, int size) {
+		FILE *fp = fopen("tmpfile", "wb");
+		fwrite(data, size, 1, fp);
+		fclose(fp);
+		return fromFile("tmpfile");
+	}
 };
 
 }

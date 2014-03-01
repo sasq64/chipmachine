@@ -10,7 +10,6 @@
 #include <coreutils/utils.h>
 #include <coreutils/log.h>
 #include <audioplayer/audioplayer.h>
-
 #include <cstdio>
 #include <vector>
 #include <string>
@@ -53,6 +52,11 @@ private:
 
 int main(int argc, char* argv[]) {
 
+	if(argc < 2) {
+		printf("%s [musicfile]\n", argv[0]);
+		return 0;
+	}
+
 	setvbuf(stdout, NULL, _IONBF, 0);
 
 	PlayerSystem psys;
@@ -64,15 +68,11 @@ int main(int argc, char* argv[]) {
 	psys.registerPlugin(new UADEPlugin {});
 
 	File file { argv[1] };
-	ChipPlayer *player = psys.fromFile(file);
-
-	//string songTitle = player->getMetaDataString("title");
-	//int length player->getMetaDataInt("length");
-	//int frameCount = 0;
-	string songName;
-
+	auto *player = psys.fromFile(file);
+	
 	AudioPlayer ap ([&](int16_t *ptr, int size) {
-		player->getSamples(ptr, size);
+		if(player)
+			player->getSamples(ptr, size);
 	});
 
 	while(true)

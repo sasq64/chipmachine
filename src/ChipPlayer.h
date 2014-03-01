@@ -15,7 +15,7 @@ namespace chipmachine {
 
 class ChipPlayer {
 public:
-	typedef std::function<void(const std::string &meta, ChipPlayer*)> Callback;
+	typedef std::function<void(const std::vector<std::string> &meta, ChipPlayer*)> Callback;
 
 	virtual ~ChipPlayer() {}
 	virtual int getSamples(int16_t *target, int size) = 0;
@@ -29,6 +29,31 @@ public:
 		int i = atoi(data.c_str());
 		return i;
 	};
+
+	void setMeta() {
+		for(auto cb : callbacks) {
+			//LOGD("Calling callback for '%s'", meta);
+			cb(changedMeta, this);
+		}
+		changedMeta.clear();
+	}
+
+	template <typename... A> void setMeta(const std::string &what, int value, const A& ...args) {
+		metaData[what] = std::to_string(value);
+		changedMeta.push_back(what);
+		setMeta(args...);
+	}
+
+	template <typename... A> void setMeta(const std::string &what, const std::string &value, const A& ...args) {
+		metaData[what] = value;
+		changedMeta.push_back(what);
+		setMeta(args...);
+	}
+
+	//template <typename T> void setMeta(const std::string &what, T& value) {
+	//	metaData[what] = "";
+	//}
+
 /*
 	virtual const std::unordered_map<std::string, std::string> &getMetaData();
 	
@@ -43,7 +68,7 @@ public:
 	}
 */
 	virtual void seekTo(int song, int seconds = -1) { printf("NOT IMPLEMENTED\n"); }
-
+/*
 	virtual void onMeta(Callback callback) {
 		//LOGD("Setting callback in %p", this);
 		callbacks.push_back(callback);
@@ -52,16 +77,16 @@ public:
 			callback(md.first, this);
 		}
 	}
-
+*/
 protected:
 
 	virtual void setMetaData(const std::string &meta, const std::string &value) {
 		metaData[meta] = value;
 		////LOGD("Setting meta '%s' in %p", meta, this);
-		for(auto cb : callbacks) {
+		//for(auto cb : callbacks) {
 			//LOGD("Calling callback for '%s'", meta);
-			cb(meta, this);
-		}
+		//	cb(meta, this);
+		//}
 	};
 
 	virtual void setMetaData(const std::string &meta, int value) {
@@ -75,12 +100,13 @@ protected:
 #endif
 	};
 
-	virtual void metaDataEnd() {
-		setMetaData("metaend", "");
-	}
+	//virtual void metaDataEnd() {
+	//	setMetaData("metaend", "");
+//	}
 
 	std::unordered_map<std::string, std::string> metaData;
 	std::vector<Callback> callbacks;
+	std::vector<std::string> changedMeta;
 
 };
 

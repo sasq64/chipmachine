@@ -1,7 +1,6 @@
 ifeq ($(UADEPLUGIN_INCLUDED),)
 UADEPLUGIN_INCLUDED = 1
 THIS_DIR := $(dir $(lastword $(MAKEFILE_LIST)))
-
 FE = $(THIS_DIR)/uade/src/frontends/common/
 
 uade_FILES := $(THIS_DIR)/UADEPlugin.cpp \

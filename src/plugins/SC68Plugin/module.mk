@@ -7,6 +7,8 @@ sc68_INCLUDES := $(THIS_DIR) $(THIS_DIR)libsc68/sc68 $(THIS_DIR)file68 $(THIS_DI
 sc68_DIRS := $(THIS_DIR)file68/src $(THIS_DIR)libsc68 $(THIS_DIR)libsc68/emu68 $(THIS_DIR)libsc68/io68 $(THIS_DIR)libsc68/sc68 $(THIS_DIR)unice68
 sc68_CFLAGS := -DHAVE_CONFIG_H -Wall
 
+DPFLAGS += -DHAVE_CONFIG_H
+
 INCLUDES += $(THIS_DIR)
 
 MODULES += sc68
