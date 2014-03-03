@@ -9,12 +9,12 @@ SRCDIR := src/
 #SDL_AUDIO := 1
 
 include $(MODULE_DIR)/coreutils/module.mk
-include $(MODULE_DIR)/bbsutils/module.mk
-include $(MODULE_DIR)/webutils/module.mk
-include $(MODULE_DIR)/sqlite3/module.mk
+#include $(MODULE_DIR)/bbsutils/module.mk
+#include $(MODULE_DIR)/webutils/module.mk
+#include $(MODULE_DIR)/sqlite3/module.mk
 include $(MODULE_DIR)/audioplayer/module.mk
 #include $(MODULE_DIR)/json/module.mk
-include $(MODULE_DIR)/backward-cpp/module.mk
+#include $(MODULE_DIR)/backward-cpp/module.mk
 
 include src/plugins/ModPlugin/module.mk
 include src/plugins/VicePlugin/module.mk
@@ -24,7 +24,7 @@ include src/plugins/SC68Plugin/module.mk
 include src/plugins/UADEPlugin/module.mk
 
 TARGET := player
-LOCAL_FILES += play.cpp
+LOCAL_FILES += miniplay.cpp
 LIBS += -lz
 # TelnetInterface.cpp SongDb.cpp SearchIndex.cpp URLPlayer.cpp
 

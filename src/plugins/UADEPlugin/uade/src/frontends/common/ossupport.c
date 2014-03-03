@@ -28,8 +28,10 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-size_t strlcpy(char *dst, const char *src, size_t size);
-size_t strlcat(char *dst, const char *src, size_t size);
+#include <uade/compat/strlrep.h>
+
+//size_t strlcpy(char *dst, const char *src, size_t size);
+//size_t strlcat(char *dst, const char *src, size_t size);
 
 int uade_filesize(size_t *size, const char *pathname)
 {
@@ -282,11 +284,13 @@ int uade_arch_spawn(struct uade_ipc *ipc, pid_t *uadepid, const char *uadename)
 	uade_set_peer(ipc, 1, fds[0], fds[0]);
 	return 0;
 }
+
+
 /* This module was written by Heikki Orsila <heikki.orsila@iki.fi> 2000-2005.
  * No copyrights claimed, so this module is in Public Domain (only this
  * code module). See OpenBSD man pages for strlcat and strlcpy
  */
-
+/*
 #include <string.h>
 
 size_t strlcpy(char *dst, const char *src, size_t size)
@@ -327,3 +331,4 @@ size_t strlcat(char *dst, const char *src, size_t size)
   }
   return slen + dlen;
 }
+*/

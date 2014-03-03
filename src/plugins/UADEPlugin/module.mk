@@ -22,6 +22,7 @@ uade_FILES := $(THIS_DIR)/UADEPlugin.cpp \
 	$(FE)vparray.c \
 	$(FE)support.c \
 	$(FE)fifo.c \
+	$(THIS_DIR)/uade/compat/strlrep.c \
 	$(THIS_DIR)/bencodetools/bencode.c
 
 uade_INCLUDES := $(MODULE_DIR) $(THIS_DIR) $(THIS_DIR)/../.. $(THIS_DIR)/uade/src/include $(THIS_DIR)/uade/src/frontends/include $(FE)

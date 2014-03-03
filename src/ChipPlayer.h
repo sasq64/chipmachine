@@ -39,7 +39,11 @@ public:
 	}
 
 	template <typename... A> void setMeta(const std::string &what, int value, const A& ...args) {
+#ifdef ANDROID
+	metaData[what] = "12345";
+#else
 		metaData[what] = std::to_string(value);
+#endif
 		changedMeta.push_back(what);
 		setMeta(args...);
 	}
