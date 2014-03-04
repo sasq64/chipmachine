@@ -43,6 +43,7 @@ int main(int argc, char* argv[]) {
 		if(plugin->canHandle(name)) {
 			printf("Playing with %s\n", plugin->name().c_str());
 			player = plugin->fromFile(file.getName());
+			break;
 		}
 	}
 

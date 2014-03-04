@@ -28,8 +28,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#ifdef LINUX
 #include <uade/compat/strlrep.h>
-
+#endif
 //size_t strlcpy(char *dst, const char *src, size_t size);
 //size_t strlcat(char *dst, const char *src, size_t size);
 
