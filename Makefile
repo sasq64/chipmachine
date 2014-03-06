@@ -1,4 +1,4 @@
-MODULE_DIR = ../utils
+MODULE_DIR = ../cpp-mods
 include $(MODULE_DIR)/config.mk
 
 OBJDIR := obj/
