@@ -62,6 +62,7 @@ void fullscreen_resize(struct video_canvas_s *canvas, int uienable)
 }
 
 /* enable/disable statusbar and menubar */
+/*
 static int fullscreen_statusbar(struct video_canvas_s *canvas, int enable)
 {
     return 0;
@@ -85,7 +86,7 @@ static int fullscreen_double_scan(struct video_canvas_s *canvas, int double_scan
 static int fullscreen_device(struct video_canvas_s *canvas, const char *device)
 {
     return 0;
-}
+} */
 
 void fullscreen_capability(cap_fullscreen_t *cap_fullscreen)
 {

@@ -377,15 +377,15 @@ static int psid_set_cbm80(WORD vec, WORD addr)
 }
 
 const char *psid_get_name() {
-    return psid ? psid->name : NULL;
+    return psid ? (const char*)psid->name : NULL;
 }
 
 const char *psid_get_author() {
-    return psid ? psid->author : NULL;
+    return psid ? (const char*)psid->author : NULL;
 }
 
 const char *psid_get_copyright() {
-    return psid ? psid->copyright : NULL;
+    return psid ? (const char*)psid->copyright : NULL;
 }
 
 void psid_init_tune(void)

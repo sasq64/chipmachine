@@ -156,7 +156,7 @@ VICE_INC :=	. \
     vice/rtc
 
 
-vice_CXXFLAGS := 
+vice_CFLAGS := -Wno-array-bounds
 
 vice_INCLUDES := $(addprefix $(THIS_DIR),$(VICE_INC)) $(MODULE_DIR)
 

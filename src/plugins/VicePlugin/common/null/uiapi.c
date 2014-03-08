@@ -17,7 +17,7 @@ void ui_display_drive_track(unsigned int drive_number, unsigned int drive_base, 
 /* The pwm value will vary between 0 and 1000.  */
 void ui_display_drive_led(int drive_number, unsigned int pwm1, unsigned int led_pwm2) {}
 void ui_display_drive_current_image(unsigned int drive_number, const char *image) {}
-int ui_extend_image_dialog(void) {}
+int ui_extend_image_dialog(void) {return 0;}
 void ui_set_tape_status(int tape_status) {}
 void ui_display_tape_motor_status(int motor) {}
 void ui_display_tape_control_status(int control) {}

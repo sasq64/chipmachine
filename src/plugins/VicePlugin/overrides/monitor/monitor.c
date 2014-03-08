@@ -5,7 +5,7 @@ unsigned monitor_mask[NUM_MEMSPACES];
 struct break_list_s *breakpoints[NUM_MEMSPACES];
 struct break_list_s *watchpoints_load[NUM_MEMSPACES];
 struct break_list_s *watchpoints_store[NUM_MEMSPACES];
-static int set_keep_monitor_open(int val, void *param) { return 0; }
+//static int set_keep_monitor_open(int val, void *param) { return 0; }
 int monitor_resources_init(void) { return 0; }
 void monitor_init(monitor_interface_t *maincpu_interface,
                          monitor_interface_t *drive_interface_init[],

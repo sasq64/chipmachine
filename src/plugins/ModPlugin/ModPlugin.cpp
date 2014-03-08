@@ -72,7 +72,7 @@ public:
 		mod = ModPlug_Load(data, size);
 
 		int type = ModPlug_GetModuleType(mod);
-		int fmt = 0;
+		unsigned int fmt = 0;
 		while(type > 1 && fmt < format_names.size()-1) {
 			type>>=1;
 			fmt++;

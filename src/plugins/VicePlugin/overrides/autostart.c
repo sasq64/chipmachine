@@ -39,6 +39,7 @@ void autostart_advance(void)
 /* Autostart snapshot file `file_name'.  */
 int autostart_snapshot(const char *file_name, const char *program_name)
 {
+  return 0;
 }
 
 /* Autostart tape image `file_name'.  */

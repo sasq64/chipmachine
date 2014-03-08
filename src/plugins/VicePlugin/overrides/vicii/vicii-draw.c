@@ -89,9 +89,9 @@ static void setup_modes(void)
 }
 
 /* Initialize the drawing tables.  */
-static void init_drawing_tables(void)
-{
-}
+//static void init_drawing_tables(void)
+//{
+//}
 
 void vicii_draw_init(void)
 {

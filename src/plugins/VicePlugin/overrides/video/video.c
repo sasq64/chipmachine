@@ -2,6 +2,7 @@
 #include "video.h"
 #include "videoarch.h"
 #include "viewport.h"
+#include "lib.h"
 
 void video_render_initconfig(video_render_config_t *config) {}
 void video_render_setphysicalcolor(video_render_config_t *config, int index, DWORD color, int depth) {}
@@ -10,8 +11,8 @@ void video_render_initraw(struct video_render_config_s *videoconfig) {}
 
 /**************************************************************/
 
-int video_init_cmdline_options(void) {}
-int video_init(void) {}
+int video_init_cmdline_options(void) {return 0;}
+int video_init(void) {return 0;}
 void video_shutdown(void) {}
 
 struct video_canvas_s *video_canvas_create(struct video_canvas_s *canvas, unsigned int *width, unsigned int *height, int mapped) { return NULL; }
@@ -38,10 +39,10 @@ struct video_canvas_s *video_canvas_init(void) {
 
 void video_canvas_refresh(struct video_canvas_s *canvas, unsigned int xs, unsigned int ys, unsigned int xi, unsigned int yi, unsigned int w, unsigned int h) {}
 
-int video_canvas_set_palette(struct video_canvas_s *canvas, struct palette_s *palette) {}
+int video_canvas_set_palette(struct video_canvas_s *canvas, struct palette_s *palette) {return 0;}
 /* This will go away.  */
 int video_canvas_palette_set(struct video_canvas_s *canvas,
-                                    struct palette_s *palette) {}
+                                    struct palette_s *palette) {return 0;}
 void video_canvas_create_set(struct video_canvas_s *canvas) {}
 void video_canvas_destroy(struct video_canvas_s *canvas) {}
 void video_canvas_map(struct video_canvas_s *canvas) {}

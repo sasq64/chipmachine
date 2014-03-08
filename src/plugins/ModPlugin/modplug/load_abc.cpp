@@ -466,8 +466,10 @@ static MMFILE *mmfopen(const char *name, const char *mode)
         return NULL;
     }
 	fseek(fp, 0, SEEK_SET);
-	fread(&mmfile[1],1,len,fp);
+	int rc = fread(&mmfile[1],1,len,fp);
 	fclose(fp);
+	if(rc >= 0)
+		return NULL;
 	mmfile->mm = (char *)&mmfile[1];
 	mmfile->sz = len;
 	mmfile->pos = 0;
@@ -850,7 +852,7 @@ static ABCTRACK *abc_locate_track(ABCHANDLE *h, const char *voice, int pos)
 	char vc[21];
 	int i, trans=0, voiceno=0, instrno = 1, channo = 0;
 	for( ; *voice == ' '; voice++ ) ;	// skip leading spaces
-	for( i=0; i+1 < sizeof(vc) && *voice && *voice != ']' && *voice != '%' && !isspace(*voice); voice++ )	// can work with inline voice instructions
+	for( i=0; i+1 < (int)sizeof(vc) && *voice && *voice != ']' && *voice != '%' && !isspace(*voice); voice++ )	// can work with inline voice instructions
 		vc[i++] = *voice;
 	vc[i] = '\0';
 	prev = NULL;
@@ -1519,7 +1521,7 @@ static void	abc_add_chord(const char *p, ABCHANDLE *h, ABCTRACK *tp, uint32_t tr
 			break;
 	}
 	d[chordbase] = d[chordnote];
-	for( i=0; i < sizeof(s) - 1 && p[i] && p[i] != '"' && p[i] != '/' && p[i] != '(' && p[i] != ')' && p[i] != ' '; i++ ) s[i] = p[i];
+	for( i=0; i < (int)sizeof(s) - 1 && p[i] && p[i] != '"' && p[i] != '/' && p[i] != '(' && p[i] != ')' && p[i] != ' '; i++ ) s[i] = p[i];
 	s[i] = '\0';
 	p = &p[i];
 	if( *p=='/' ) {

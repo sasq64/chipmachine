@@ -429,7 +429,7 @@ static void *lib_debug_libc_realloc(void *ptr, size_t size)
 #endif
 
 /*-----------------------------------------------------------------------*/
-
+/*
 static void printsize(unsigned int size)
 {
     if (size > (1024 * 1024)) {
@@ -439,7 +439,7 @@ static void printsize(unsigned int size)
     } else {
         printf("%dB", size);
     }
-}
+}*/
 
 void lib_debug_check(void)
 {
