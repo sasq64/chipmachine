@@ -2,10 +2,11 @@
 #define CHIP_PLUGIN_H
 
 #include <string>
+#include "ChipPlayer.h"
 
 namespace chipmachine {
 
-class ChipPlayer;
+//class ChipPlayer;
 
 class ChipPlugin {
 public:

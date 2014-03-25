@@ -1,6 +1,4 @@
 
-#include "ChipPlayer.h"
-
 #include <ModPlugin/ModPlugin.h>
 #include <VicePlugin/VicePlugin.h>
 #include <SexyPSFPlugin/SexyPSFPlugin.h>
@@ -13,6 +11,7 @@
 #include <bbsutils/console.h>
 #include <audioplayer/audioplayer.h>
 #include <sqlite3/database.h>
+#include <webutils/webgetter.h>
 
 #include <cstdio>
 #include <vector>
@@ -48,15 +47,6 @@ private:
 	vector<ChipPlugin*> plugins;
 };
 
-/*
-		if parts[0] == 'Ad Lib' or parts[0] == 'Video Game Music':
-			parts = [parts[0] + '/' + parts[1]] + parts[2:]
-		if parts[0] == 'YM' and parts[1] == 'Synth Pack':
-			parts = [parts[0] + '/' + parts[1]] + parts[2:]
-
-		if parts[2].startswith('coop-') :
-			parts = [parts[0]] + [parts[1] + '/' + parts[2]] + parts[3:]
-*/
 void index_db(sqlite3db::Database &db) {
 
 	static const unordered_set<string> ownDirFormats = {
@@ -115,17 +105,15 @@ void index_db(sqlite3db::Database &db) {
 int main(int argc, char* argv[]) {
 
 	sqlite3db::Database db { "modland.db" };
+	WebGetter webgetter { "_files" };
 
-	//index_db(db);
-	//return 0;
+	webgetter.setBaseURL("ftp://ftp.modland.com/pub/modules/");
 
-	//if(argc < 2) {
-	//	printf("%s [musicfiles...]\n", argv[0]);
-	//	return 0;
-	//}
+	if(!db.has_table("song"))
+		index_db(db);
 
 	setvbuf(stdout, NULL, _IONBF, 0);
-	logging::setLevel(logging::ERROR);
+	logging::setLevel(logging::WARNING);
 
 	PlayerSystem psys;
 	psys.registerPlugin(new ModPlugin {});
@@ -148,89 +136,48 @@ int main(int argc, char* argv[]) {
 			player->getSamples(ptr, size);
 	});
 
-	string modlandPath = "/nas/DATA/MUSIC/MODLAND";
+	string modlandPath = "/nas/DATA/MUSIC/MODLAND/";
 	vector<string> songs;
 	while(true) {
 		auto line = console->getLine(">");
 		makeLower(line);
 		auto parts = split(line, " ");
-		if(parts[0] == "find") {
+		auto cmd = parts[0];
+		parts.erase(parts.begin());
+		if(cmd == "find") {
 			songs.clear();
 
-			auto q = parts.size() > 2 ? 
-				  db.query<string, string, string>("SELECT path,title,composer FROM song WHERE title LIKE ? COLLATE NOCASE AND composer LIKE ? COLLATE NOCASE", "%" + parts[1] + "%", "%" + parts[2] + "%")
-				: db.query<string, string, string>("SELECT path,title,composer FROM song WHERE title LIKE ? COLLATE NOCASE", "%" + parts[1] + "%");
-
+			string qs = "SELECT path,title,composer,format FROM song WHERE ";
+			for(int i=0; i<parts.size(); i++) {
+				if(i > 0)
+					qs.append(" AND ");
+				qs.append("path LIKE ?");
+				parts[i] = format("%%%s%%",parts[i]);
+			}
+			qs.append(" COLLATE NOCASE");
+			auto q = db.query<string, string, string,string>(qs, parts);
 			int i = 0;
 			while(q.step()) {
 				auto t = q.get_tuple();
-				songs.push_back(format("%s/%s", modlandPath, get<0>(t)));
-				console->write(format("[%02d] %s / %s\n", i++, get<1>(t), get<2>(t)));
+				songs.push_back(get<0>(t));
+				console->write(format("[%02d] %s / %s (%s)\n", i++, get<1>(t), get<2>(t), get<3>(t)));
 			}
-		} else if(parts[0] == "play") {
-			int n = stol(parts[1]);
-			File file { songs[n] };
+			console->write(qs + "\n");
+		} else if(cmd == "play") {
+			int n = stol(parts[0]);
+
+			File file { modlandPath + songs[n] };
 			console->write(format("Song:%s\n", songs[n]));
-			{
+			if(!webgetter.inCache(songs[n]))
+				console->write("Downloading from modland...\n");
+			webgetter.getURL(songs[n], [&](const WebGetter::Job &job) mutable {
 				lock_guard<mutex> guard(m);
 				player = nullptr;
-				player = unique_ptr<ChipPlayer>(psys.fromFile(file));
-			}
-		}
-
-	}
-/*
-	auto q = db.query<string, string>("SELECT path,name FROM song WHERE name LIKE ?", string(argv[1]) + "%");
-	while(q.step()) {
-		auto t = q.get_tuple();
-		songs.push_back(format("%s/%s/%s", modlandPath, get<0>(t), get<1>(t)));
-		print_fmt("Found %s\n", get<1>(t));
-	}
-*/
-	//for(int i=1; i<argc; i++) {
-	for(auto song : songs) { 
-
-
-		File file { song };
-
-		print_fmt("Song:%s\n", song);
-
-		m.lock();
-		player = nullptr;
-		player = unique_ptr<ChipPlayer>(psys.fromFile(file));
-
-		if(player) {
-
-			player->onMeta([&](const vector<string> &meta, ChipPlayer *player) {
-				//for(const auto &m : meta)
-				//	console->write(format("%s:%s\n", m, player->getMeta(m)));
+				File f = File { job.getFile() };
+				player = unique_ptr<ChipPlayer>(psys.fromFile(f));				
 			});
-			m.unlock();
-
-			int song = 0;
-			bool next_song = false;
-			while(!next_song) {
-				{ lock_guard<mutex> guard(m);
-					auto k = console->getKey(0);
-					switch(k) {
-					case Console::KEY_RIGHT:
-						player->seekTo(++song);
-						break;
-					case Console::KEY_LEFT:
-						player->seekTo(--song);
-						break;
-					case ' ':
-						next_song = true;
-						break;
-					}
-				}
-				sleepms(100);
-			}
-
-		} else {
-			m.unlock();
-			print_fmt("%s FAILED\n", song);
 		}
+
 	}
 	return 0;
 }

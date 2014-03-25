@@ -2,7 +2,7 @@ MODULE_DIR = ../cpp-mods
 include $(MODULE_DIR)/config.mk
 
 OBJDIR := obj/
-CFLAGS += -O2 -Wall -I$(MODULE_DIR)
+CFLAGS += -O2 -g -Wall -I$(MODULE_DIR)
 #CXXFLAGS := -std=c++0x
 SRCDIR := src/
 
