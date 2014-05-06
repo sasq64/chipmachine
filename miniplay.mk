@@ -1,4 +1,4 @@
-MODULE_DIR = ../utils
+MODULE_DIR = ../cpp-mods
 include $(MODULE_DIR)/config.mk
 
 OBJDIR := obj/
@@ -8,6 +8,7 @@ SRCDIR := src/
 #SDL_AUDIO := 1
 include $(MODULE_DIR)/coreutils/module.mk
 include $(MODULE_DIR)/audioplayer/module.mk
+include $(MODULE_DIR)/grappix/module.mk
 
 include src/plugins/ModPlugin/module.mk
 include src/plugins/VicePlugin/module.mk
@@ -17,7 +18,7 @@ include src/plugins/SC68Plugin/module.mk
 include src/plugins/UADEPlugin/module.mk
 
 TARGET := play
-LOCAL_FILES += miniplay.cpp
+LOCAL_FILES += miniplay.cpp MusicPlayer.cpp
 LIBS += -lz
 
 CC=ccache clang -Qunused-arguments

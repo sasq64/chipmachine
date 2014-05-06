@@ -1,7 +1,7 @@
 #ifndef CHIP_PLAYER_H
 #define CHIP_PLAYER_H
 
-//#include <coreutils/log.h>
+#include <coreutils/log.h>
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -24,13 +24,14 @@ public:
 		return metaData[what];
 	};
 
-	int getMetaInt(const std::string &what) { 
+	virtual int getMetaInt(const std::string &what) { 
 		const std::string &data = getMeta(what);
 		int i = atoi(data.c_str());
 		return i;
 	};
 
 	void setMeta() {
+		LOGD("META END");
 		for(auto cb : callbacks) {
 			//LOGD("Calling callback for '%s'", meta);
 			cb(changedMeta, this);
@@ -43,6 +44,7 @@ public:
 	metaData[what] = "12345";
 #else
 		metaData[what] = std::to_string(value);
+		LOGD("META %s = %s", what, value);
 #endif
 		changedMeta.push_back(what);
 		setMeta(args...);
@@ -50,6 +52,7 @@ public:
 
 	template <typename... A> void setMeta(const std::string &what, const std::string &value, const A& ...args) {
 		metaData[what] = value;
+		LOGD("META %s = %s", what, value);
 		changedMeta.push_back(what);
 		setMeta(args...);
 	}

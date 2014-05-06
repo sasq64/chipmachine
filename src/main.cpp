@@ -1,133 +1,93 @@
-#include <coreutils/log.h>
-#include <coreutils/utils.h>
-//#include <utils/var.h>
 
-//#include "SharedState.h"
+#include "ChipPlayer.h"
+#include "MusicPlayer.h"
 
 #include <bbsutils/telnetserver.h>
 #include <bbsutils/console.h>
 #include <bbsutils/ansiconsole.h>
 #include <bbsutils/petsciiconsole.h>
-//#include "SongState.h"
 
-#include "TelnetInterface.h"
+#include <ModPlugin/ModPlugin.h>
+#include <VicePlugin/VicePlugin.h>
+#include <SexyPSFPlugin/SexyPSFPlugin.h>
+#include <GMEPlugin/GMEPlugin.h>
+#include <SC68Plugin/SC68Plugin.h>
+#include <UADEPlugin/UADEPlugin.h>
 
-//#include "inject.h"
+#include <grappix/grappix.h>
 
-#include "Player.h"
-
-#include "SongDb.h"
-
-#include <stdio.h>
-#include <stdint.h>
-//#include <string.h>
-//#include <sys/stat.h>
+#include <coreutils/utils.h>
+#include <audioplayer/audioplayer.h>
+#include <cstdio>
 #include <vector>
 #include <string>
-//#include <memory>
-//#include <mutex>
-//#include <queue>
-#include <cstdlib>
-#include <unistd.h>
 
-#ifdef RASPBERRYPI
-void lcd_init();
-void lcd_print(int x, int y, const std::string &text);
-#else
-void lcd_init() {}
-void lcd_print(int x, int y, const std::string &text) {
-	//puts(text.c_str());
-	//putchar('\r');
-}
-#endif
-
-typedef unsigned int uint;
+using namespace chipmachine;
 using namespace std;
 using namespace utils;
+using namespace grappix;
 using namespace bbs;
 
-//class SharedState playerState;
+unique_ptr<TelnetServer> telnet;
 
 int main(int argc, char* argv[]) {
 
-	setvbuf(stdout, NULL, _IONBF, 0);
-	lcd_init();
+	string title;
+	string composer;
 
-	bool daemonize = false;
-
-	//volatile bool doQuit = false;
-
-	for(int i=1; i<argc; i++) {
-		if(argv[i][0] == '-') {
-			if((strcmp(argv[i], "--start-daemon") == 0) || (strcmp(argv[i], "-d") == 0)) {
-				daemonize = true;
-			}
-		} else {
-			//playQueue.push(argv[1]);
-		}
-	}
-	if(daemonize)
-#ifdef WIN32
-		sleepms(1);	
-#else
-	if(daemon(0, 0) != 0)
-		throw std::exception();
-#endif
-
-	logging::setOutputFile("chipmachine.log");
-	//if(playQueue.size() > 0) {
-	//	logging::setLevel(logging::WARNING);
-	//}
-
-
-	File startSongs { "/opt/chipmachine/startsongsX" };
-	if(startSongs.exists()) {
-		for(string s : startSongs.getLines()) {
-			//playQueue.push(s);
-		}
-		startSongs.close();
-	}
-
-	Player player;
-
-	LOGI("Opening database");
-	SongDatabase db { "hvsc.db" };
-	db.generateIndex();
-	LOGI("Index generated");
-
-	TelnetServer telnet { 12345 };
-	telnet.setOnConnect([&](TelnetServer::Session &session) {
-
+	telnet = make_unique<TelnetServer>(12345);
+	telnet->setOnConnect([&](TelnetServer::Session &session) {
 		session.echo(false);
-		
-		unique_ptr<Console> console;
-		string termType = session.getTermType();
+		string termType = session.getTermType();		
 		LOGD("New connection, TERMTYPE '%s'", termType);
+
+		unique_ptr<Console> console;
 		if(termType.length() > 0) {
 			console = unique_ptr<Console>(new AnsiConsole { session });
 		} else {
 			console = unique_ptr<Console>(new PetsciiConsole { session });
 		}
-
-		try {
-			TelnetInterface ti(&player);
-			ti.launchConsole(*console.get(), db);
-			exit(0);
-		} catch (TelnetServer::disconnect_excpetion &e) {
-			LOGD(e.what());
-			return;
+		console->flush();
+		while(true) {
+			auto l = console->getLine(">");
+			if(l == "status") {
+				console->write(format("%s - %s\n", composer, title));
+			}
 		}
 	});
+	telnet->runThread();
 
-	telnet.runThread();
+	if(argc < 2) {
+		printf("%s [musicfiles...]\n", argv[0]);
+		return 0;
+	}
 
-	SharedState &g = SharedState::getGlobal("playerState");
-	g.callOnChange("songTitle", [&](const string &what) {
-		string title = g["songTitle"];
-		printf("#### SONG IS NOW %s\n", title.c_str());
+	screen.open(720, 576, false);
+
+	Font font = Font("data/ObelixPro.ttf", 32, 256 | Font::DISTANCE_MAP);
+
+	File file { argv[1] };
+
+	MusicPlayer mp;
+	auto player = mp.fromFile(argv[1]);
+
+	AudioPlayer ap ([=](int16_t *ptr, int size) mutable {
+		player.getSamples(ptr, size);
 	});
 
-	player.run();
+	title = player.getMeta("title");
+	if(title == "")
+		title = path_basename(argv[1]);
+	composer = player.getMeta("composer");
+	LOGD("TITLE:%s", title);
+	float zoom1 = 1.0;
+	float zoom2 = 1.0;
+	screen.render_loop([=](uint32_t delta) mutable {
+		screen.clear();
+		screen.text(font, title, 0, 0, 0xe080c0ff, zoom1 *= 1.01);
+		screen.text(font, composer, 0, 52, 0xe080c0ff, zoom2 *= 1.03);
+		screen.flip();
+	});
 
-	return 0;
+	return 0;	
 }
