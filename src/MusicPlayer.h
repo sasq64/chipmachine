@@ -12,6 +12,8 @@ public:
 	DelegatingChipPlayer(chipmachine::ChipPlayer *cp) : player(cp) {}
 	~DelegatingChipPlayer() {}
 
+	bool valid() { return player.get() != nullptr; }
+
 	int getSamples(int16_t *target, int size) override {
 		return player->getSamples(target, size);
 	}
@@ -31,7 +33,7 @@ private:
 class MusicPlayer {
 public:
 	MusicPlayer();
-	DelegatingChipPlayer fromFile(const std::string &fileName);
+	std::shared_ptr<ChipPlayer> fromFile(const std::string &fileName);
 private:
 	std::vector<ChipPlugin*> plugins;
 };

@@ -24,18 +24,18 @@ MusicPlayer::MusicPlayer() : plugins {
 {
 }
 
-DelegatingChipPlayer MusicPlayer::fromFile(const std::string &fileName) {
-	ChipPlayer *player = nullptr;
+shared_ptr<ChipPlayer> MusicPlayer::fromFile(const std::string &fileName) {
+	shared_ptr<ChipPlayer> player;
 	string name = fileName;
 	utils::makeLower(name);
 	for(auto *plugin : plugins) {
 		if(plugin->canHandle(name)) {
 			printf("Playing with %s\n", plugin->name().c_str());
-			player = plugin->fromFile(fileName);
+			player = shared_ptr<ChipPlayer>(plugin->fromFile(fileName));
 			break;
 		}
 	}
-	return DelegatingChipPlayer(player);
+	return player;
 }
 
 }

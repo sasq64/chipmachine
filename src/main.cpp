@@ -57,28 +57,28 @@ int main(int argc, char* argv[]) {
 	});
 	telnet->runThread();
 
-	if(argc < 2) {
-		printf("%s [musicfiles...]\n", argv[0]);
-		return 0;
-	}
 
 	screen.open(720, 576, false);
 
 	Font font = Font("data/ObelixPro.ttf", 32, 256 | Font::DISTANCE_MAP);
 
-	File file { argv[1] };
-
 	MusicPlayer mp;
-	auto player = mp.fromFile(argv[1]);
+	shared_ptr<ChipPlayer> player;
+
+	if(argc >= 2)
+		player = mp.fromFile(argv[1]);
 
 	AudioPlayer ap ([=](int16_t *ptr, int size) mutable {
-		player.getSamples(ptr, size);
+		if(player)
+			player->getSamples(ptr, size);
 	});
 
-	title = player.getMeta("title");
-	if(title == "")
-		title = path_basename(argv[1]);
-	composer = player.getMeta("composer");
+	if(player) {
+		title = player->getMeta("title");
+		if(title == "")
+			title = path_basename(argv[1]);
+		composer = player->getMeta("composer");
+	}
 	LOGD("TITLE:%s", title);
 	float zoom1 = 1.0;
 	float zoom2 = 1.0;
