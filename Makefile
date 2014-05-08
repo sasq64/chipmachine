@@ -13,16 +13,16 @@ include $(MODULE_DIR)/bbsutils/module.mk
 include $(MODULE_DIR)/webutils/module.mk
 include $(MODULE_DIR)/sqlite3/module.mk
 include $(MODULE_DIR)/audioplayer/module.mk
-#include $(MODULE_DIR)/json/module.mk
+include $(MODULE_DIR)/lua/module.mk
 #include $(MODULE_DIR)/backward-cpp/module.mk
 include $(MODULE_DIR)/grappix/module.mk
 
-include src/plugins/ModPlugin/module.mk
-include src/plugins/VicePlugin/module.mk
-include src/plugins/GMEPlugin/module.mk
-include src/plugins/SexyPSFPlugin/module.mk
-include src/plugins/SC68Plugin/module.mk
-include src/plugins/UADEPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/ModPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/VicePlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/GMEPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/SexyPSFPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/SC68Plugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/UADEPlugin/module.mk
 
 TARGET := chipmachine
 LOCAL_FILES += main.cpp MusicPlayer.cpp
