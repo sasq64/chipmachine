@@ -107,11 +107,15 @@ public:
 		LOGD("Query: %s", qs);
 		auto q = db.query<string, string, string,string>(qs, parts);
 		//int i = 0;
-		while(q.step()) {
-			auto si = q.get<SongInfo>();
-			si.path = "/nas/DATA/MUSIC/MODLAND/" + si.path; 
-			songs.push_back(si);
-		}
+		try {
+			while(q.step()) {
+				auto si = q.get<SongInfo>();
+				si.path = "ftp://ftp.modland.com/pub/modules/" + si.path; 
+				songs.push_back(si);
+			}
+		} catch(std::invalid_argument &e) {
+			LOGD("Illegal shit");
+		};
 
 		return songs;
 	}

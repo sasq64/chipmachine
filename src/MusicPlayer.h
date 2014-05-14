@@ -1,41 +1,34 @@
 
-#include "ChipPlayer.h"
+//#include "ChipPlayer.h"
+#include <fft/spectrum.h>
 
+#include <atomic>
 #include <memory>
+#include <vector>
+#include <mutex>
 
 namespace chipmachine {
 
 class ChipPlugin;
-
-class DelegatingChipPlayer : public ChipPlayer {
-public:
-	DelegatingChipPlayer(chipmachine::ChipPlayer *cp) : player(cp) {}
-	~DelegatingChipPlayer() {}
-
-	bool valid() { return player.get() != nullptr; }
-
-	int getSamples(int16_t *target, int size) override {
-		return player->getSamples(target, size);
-	}
-
-	virtual std::string getMeta(const std::string &what) override { 
-		return player->getMeta(what);
-	};
-
-	int getMetaInt(const std::string &what) override {
-		return player->getMetaInt(what);
-	}
-
-private:
-	std::shared_ptr<ChipPlayer> player;
-};
+class ChipPlayer;
 
 class MusicPlayer {
 public:
-	MusicPlayer();
-	std::shared_ptr<ChipPlayer> fromFile(const std::string &fileName);
+	MusicPlayer(SpectrumAnalyzer &fft);
+	void playFile(const std::string &fileName);
+	bool playing() { return player != nullptr; }
+	void stop() { player = nullptr; }
+	uint32_t getPosition() { return pos/44100; };
+	uint32_t getLength() { return length; }
 private:
+	std::shared_ptr<ChipPlayer> fromFile(const std::string &fileName);
+	SpectrumAnalyzer &fft;
 	std::vector<ChipPlugin*> plugins;
+	std::string toPlay;
+	std::mutex m;
+	std::shared_ptr<ChipPlayer> player;
+	int pos;
+	int length;
 };
 
 }

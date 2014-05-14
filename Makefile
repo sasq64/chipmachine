@@ -2,7 +2,7 @@ MODULE_DIR = ../cpp-mods
 include $(MODULE_DIR)/config.mk
 
 OBJDIR := obj/
-CFLAGS += -O2 -g -Wall -I$(MODULE_DIR)
+CFLAGS += -g -O2 -Wall -I$(MODULE_DIR)
 #CXXFLAGS := -std=c++0x
 SRCDIR := src/
 
@@ -14,8 +14,8 @@ include $(MODULE_DIR)/webutils/module.mk
 include $(MODULE_DIR)/sqlite3/module.mk
 include $(MODULE_DIR)/audioplayer/module.mk
 include $(MODULE_DIR)/lua/module.mk
-#include $(MODULE_DIR)/backward-cpp/module.mk
 include $(MODULE_DIR)/grappix/module.mk
+include $(MODULE_DIR)/fft/module.mk
 
 include $(MODULE_DIR)/musicplayer/plugins/ModPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/VicePlugin/module.mk
@@ -23,6 +23,8 @@ include $(MODULE_DIR)/musicplayer/plugins/GMEPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/SexyPSFPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/SC68Plugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/UADEPlugin/module.mk
+
+include $(MODULE_DIR)/crypto/module.mk
 
 TARGET := chipmachine
 LOCAL_FILES += main.cpp MusicPlayer.cpp
