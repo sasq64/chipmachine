@@ -11,6 +11,8 @@ using namespace utils;
 struct SongInfo {
 	SongInfo(const std::string &path, const std::string &title = "", const std::string &composer = "", const std::string &format = "") :
 		path(path), title(title), composer(composer), format(format) {}
+	SongInfo(const std::string &path, const std::string &title, const std::string &subtitle, const std::string &composer, const std::string &format) :
+		path(path), title(subtitle == "" ? title : title + "(" + subtitle + ")"), composer(composer), format(format) {}
 	std::string path;
 	std::string title;
 	std::string composer;
@@ -45,7 +47,8 @@ public:
 			"Playstation Sound Format"
 		};
 
-		db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING)");
+		//db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING)");
+		db.exec("CREATE VIRTUAL TABLE song USING fts4(title, game, composer, format, path)");
 
 		auto query = db.query("INSERT INTO song (title, game, composer, format, path) VALUES (?, ?, ?, ?, ?)");
 
@@ -96,16 +99,17 @@ public:
 		std::vector<SongInfo> songs;
 
 		auto parts = split(pattern, " ");
-		string qs = "SELECT path,title,composer,format FROM song WHERE ";
+		string qs = "SELECT path,game,title,composer,format FROM song WHERE ";
 		for(int i=0; i<(int)parts.size(); i++) {
-			if(i > 0)
-				qs.append(" AND ");
-			qs.append("path LIKE ?");
-			parts[i] = format("%%%s%%",parts[i]);
+			if(i > 0) {
+				qs.append("AND path LIKE ?");
+				parts[i] = format("%%%s%%",parts[i]);
+			} else
+				qs.append("path MATCH ?");
 		}
-		qs.append(" COLLATE NOCASE");
+		//qs.append(" COLLATE NOCASE");
 		LOGD("Query: %s", qs);
-		auto q = db.query<string, string, string,string>(qs, parts);
+		auto q = db.query<string, string, string, string, string>(qs, parts);
 		//int i = 0;
 		try {
 			while(q.step()) {
