@@ -32,6 +32,12 @@
 #include <deque>
 #include <atomic>
 
+#ifdef RASPBERRYPI
+#define AUDIO_DELAY 12
+#else
+#define AUDIO_DELAY 20
+#endif
+
 using namespace chipmachine;
 using namespace std;
 using namespace utils;
@@ -130,15 +136,15 @@ public:
 			composer = si.composer;
 			//mp.playFile(si.path);
 			auto proto = split(si.path, ":");
-			if(proto.size() > 0)
-				LOGD("PROTO %s", proto[0]);
-			//if(proto.size() < 0 && (proto[0] == "http" || proto[0] == "ftp")) {
+			//if(proto.size() > 0)
+			//	LOGD("PROTO %s", proto[0]);
+			if(proto.size() > 0 && (proto[0] == "http" || proto[0] == "ftp")) {
 				webgetter.getURL(si.path, [=](const WebGetter::Job &job) {
 					mp.playFile(job.getFile());
 				});
-			//} else {
-			//	mp.playFile(si.path);
-			//}
+			} else {
+				mp.playFile(si.path);
+			}
 			/*player = mp.fromFile(si.path);
 			if(player) {
 				title = player->getMeta("title");
@@ -150,15 +156,15 @@ public:
 		vec2i xy = { 100, 100 };
 
 		screen.clear();
-		screen.text(font, title, 100, 50, 0xe080c0ff, 2.0);
-		screen.text(font, composer, 100, 102, 0xe080c0ff, 2.0);
+		screen.text(font, title, 120, 50, 0xe080c0ff, 2.2);
+		screen.text(font, composer, 120, 122, 0xe080c0ff, 1.2);
 		//auto p = pos/44100;
 		auto p = mp.getPosition();
 		length = mp.getLength();
 
-		screen.text(font, format("%02d:%02d / %02d:%02d", p/60, p%60, length/60, length%60), 100, 162, 0x888888ff, 1.5);
+		screen.text(font, format("%02d:%02d / %02d:%02d", p/60, p%60, length/60, length%60), 120, 280, 0x888888ff, 1.0);
 
-		if(fft.size() > 20) {
+		if(fft.size() > AUDIO_DELAY) {
 			auto levels = fft.getLevels();
 			for(int i=0; i<(int)levels.size(); i++) {
 				if(levels[i] > 5) {
@@ -172,7 +178,7 @@ public:
 		}
 
 		for(int i=0; i<(int)eq.size(); i++) {
-			screen.rectangle(100 + 20*i, 400-eq[i], 18, eq[i], 0xffffffff);
+			screen.rectangle(140 + 20*i, 500-eq[i], 18, eq[i], 0xffffffff);
 			if(eq[i] >= 4)
 				eq[i]-=2;
 			else

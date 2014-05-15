@@ -38,15 +38,16 @@ MusicPlayer::MusicPlayer(SpectrumAnalyzer &f) : fft(f), plugins {
 			}
 		}
 		if(player) {
-			LOGD("SAMPLES");			
 			int rc = player->getSamples(ptr, size);
-			fft.addAudio(ptr, size);
-
-			LOGD("GOT %d", rc);			
-			if(rc < 0)
+			if(rc > 0)
+				fft.addAudio(ptr, size);
+			if(rc < 0) {
 				player = nullptr;
+				LOGD("GOT %d", rc);
+			}
 			else pos += size/2;
-		}
+		} else
+			memset(ptr, 0, size*2);
 	});
 }
 
