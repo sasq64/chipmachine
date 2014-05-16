@@ -13,8 +13,6 @@
 #include <lua/luainterpreter.h>
 #include <webutils/webgetter.h>
 
-#include <fft/spectrum.h>
-
 #include <musicplayer/plugins/ModPlugin/ModPlugin.h>
 #include <musicplayer/plugins/VicePlugin/VicePlugin.h>
 #include <musicplayer/plugins/SexyPSFPlugin/SexyPSFPlugin.h>
@@ -25,18 +23,12 @@
 #include <grappix/grappix.h>
 
 #include <coreutils/utils.h>
-//#include <audioplayer/audioplayer.h>
+
 #include <cstdio>
 #include <vector>
 #include <string>
 #include <deque>
 #include <atomic>
-
-#ifdef RASPBERRYPI
-#define AUDIO_DELAY 12
-#else
-#define AUDIO_DELAY 20
-#endif
 
 using namespace chipmachine;
 using namespace std;
@@ -46,7 +38,7 @@ using namespace bbs;
 
 class ChipMachine {
 public:
-	ChipMachine() : mp(fft), eq(SpectrumAnalyzer::eq_slots)  {
+	ChipMachine() : eq(SpectrumAnalyzer::eq_slots)  {
 
 		modland.init();
 
@@ -89,28 +81,7 @@ public:
 		telnet->runThread();
 
 		font = Font("data/ObelixPro.ttf", 32, 256 | Font::DISTANCE_MAP);
-
 		memset(&eq[0], 2, eq.size());
-
-		/* AudioPlayer::play([=](int16_t *ptr, int size) mutable {
-			lock_guard<mutex> guard(plMutex);
-			if(player) {				
-				int rc = player->getSamples(ptr, size);
-				if(rc < 0)
-					player = nullptr;
-				else pos += size/2;
-			}
-		}); */
-/*
-		if(player) {
-			title = player->getMeta("title");
-			if(title == "")
-				title = path_basename(argv[1]);
-			composer = player->getMeta("composer");
-		}
-		LOGD("TITLE:%s", title);
-		float zoom1 = 1.0;
-		float zoom2 = 1.0; */
 	}
 
 	void play(const SongInfo &si) {
@@ -134,47 +105,34 @@ public:
 			pos = 0;
 			title = si.title;
 			composer = si.composer;
-			//mp.playFile(si.path);
 			auto proto = split(si.path, ":");
-			//if(proto.size() > 0)
-			//	LOGD("PROTO %s", proto[0]);
 			if(proto.size() > 0 && (proto[0] == "http" || proto[0] == "ftp")) {
 				webgetter.getURL(si.path, [=](const WebGetter::Job &job) {
 					mp.playFile(job.getFile());
-				});
+			});
 			} else {
 				mp.playFile(si.path);
 			}
-			/*player = mp.fromFile(si.path);
-			if(player) {
-				title = player->getMeta("title");
-				composer = player->getMeta("composer");
-				length = player->getMetaInt("length");
-			}*/
 		}
 
 		vec2i xy = { 100, 100 };
 
 		screen.clear();
-		screen.text(font, title, 120, 50, 0xe080c0ff, 2.2);
-		screen.text(font, composer, 120, 122, 0xe080c0ff, 1.2);
-		//auto p = pos/44100;
+		screen.text(font, title, 90, 64, 0xe080c0ff, 2.2);
+		screen.text(font, composer, 90, 130, 0xe080c0ff, 1.2);
+
 		auto p = mp.getPosition();
 		length = mp.getLength();
+		screen.text(font, format("%02d:%02d", p/60, p%60), 90, 170, 0x888888ff, 1.0);
+		screen.text(font, format("(%02d:%02d)", length/60, length%60), 200, 170, 0x888888ff, 1.0);
 
-		screen.text(font, format("%02d:%02d / %02d:%02d", p/60, p%60, length/60, length%60), 120, 280, 0x888888ff, 1.0);
-
-		if(fft.size() > AUDIO_DELAY) {
-			auto levels = fft.getLevels();
-			for(int i=0; i<(int)levels.size(); i++) {
-				if(levels[i] > 5) {
-					float f = log(levels[i]) * 20;
-					if(f > eq[i])
-						eq[i] = f;
-				}
+		auto spectrum = mp.getSpectrum();
+		for(int i=0; i<(int)mp.spectrumSize(); i++) {
+			if(spectrum[i] > 5) {
+				float f = log(spectrum[i]) * 20;
+				if(f > eq[i])
+					eq[i] = f;
 			}
-
-			fft.popLevels();
 		}
 
 		for(int i=0; i<(int)eq.size(); i++) {
@@ -185,13 +143,10 @@ public:
 				eq[i] = 2;
 		}
 
-
 		screen.flip();
 	}
 
 private:
-
-	SpectrumAnalyzer fft;
 
 	MusicPlayer mp;
 

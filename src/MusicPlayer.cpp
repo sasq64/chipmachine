@@ -17,7 +17,7 @@ using namespace std;
 
 namespace chipmachine {
 
-MusicPlayer::MusicPlayer(SpectrumAnalyzer &f) : fft(f), plugins {
+MusicPlayer::MusicPlayer() : plugins {
 		new ModPlugin {},
 		new VicePlugin {"data/c64"},
 		new SexyPSFPlugin {},

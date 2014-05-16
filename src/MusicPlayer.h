@@ -12,18 +12,37 @@ namespace chipmachine {
 class ChipPlugin;
 class ChipPlayer;
 
+#ifdef RASPBERRYPI
+#define AUDIO_DELAY 12
+#else
+#define AUDIO_DELAY 20
+#endif
+
 class MusicPlayer {
 public:
-	MusicPlayer(SpectrumAnalyzer &fft);
+	MusicPlayer();
 	void playFile(const std::string &fileName);
 	bool playing() { return player != nullptr; }
 	void stop() { player = nullptr; }
 	uint32_t getPosition() { return pos/44100; };
 	uint32_t getLength() { return length; }
+
+	uint16_t *getSpectrum() {
+		if(fft.size() > AUDIO_DELAY) {
+			spectrum = fft.getLevels();
+			fft.popLevels();
+		}
+		return &spectrum[0];
+
+	}
+
+	int spectrumSize() { return fft.eq_slots; }
+
 private:
 	std::shared_ptr<ChipPlayer> fromFile(const std::string &fileName);
-	SpectrumAnalyzer &fft;
+	SpectrumAnalyzer fft;
 	std::vector<ChipPlugin*> plugins;
+	std::array<uint16_t, SpectrumAnalyzer::eq_slots> spectrum;
 	std::string toPlay;
 	std::mutex m;
 	std::shared_ptr<ChipPlayer> player;
