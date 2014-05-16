@@ -120,5 +120,3 @@ private:
 	std::mutex dbMutex;
 	sqlite3db::Database db;
 };
-
-

@@ -28,7 +28,7 @@ MusicPlayer::MusicPlayer() : plugins {
 {
 	AudioPlayer::play([=](int16_t *ptr, int size) mutable {
 		lock_guard<mutex> guard(m);
-		if(toPlay != "") {
+/*		if(toPlay != "") {
 			player = nullptr;
 			player = fromFile(toPlay);
 			toPlay = "";
@@ -36,7 +36,7 @@ MusicPlayer::MusicPlayer() : plugins {
 				pos = 0;
 				length = player->getMetaInt("length");
 			}
-		}
+		} */
 		if(player) {
 			int rc = player->getSamples(ptr, size);
 			if(rc > 0)
@@ -53,8 +53,23 @@ MusicPlayer::MusicPlayer() : plugins {
 
 void MusicPlayer::playFile(const std::string &fileName) {
 	lock_guard<mutex> guard(m);
-	toPlay = fileName;
+	//toPlay = fileName;
+	player = nullptr;
+	player = fromFile(fileName);
+	//toPlay = "";
+	if(player) {
+		pos = 0;
+		length = player->getMetaInt("length");
+	}
 }
+
+SongInfo MusicPlayer::getPlayingInfo() {
+	SongInfo si;
+	si.title = player->getMeta("title");
+	si.composer = player->getMeta("composer");
+	return si;
+}
+
 
 shared_ptr<ChipPlayer> MusicPlayer::fromFile(const std::string &fileName) {
 	shared_ptr<ChipPlayer> player;

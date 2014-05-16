@@ -1,5 +1,7 @@
 
 //#include "ChipPlayer.h"
+#include "songinfo.h"
+
 #include <fft/spectrum.h>
 
 #include <atomic>
@@ -27,6 +29,8 @@ public:
 	uint32_t getPosition() { return pos/44100; };
 	uint32_t getLength() { return length; }
 
+	SongInfo getPlayingInfo();
+
 	uint16_t *getSpectrum() {
 		if(fft.size() > AUDIO_DELAY) {
 			spectrum = fft.getLevels();
@@ -43,7 +47,7 @@ private:
 	SpectrumAnalyzer fft;
 	std::vector<ChipPlugin*> plugins;
 	std::array<uint16_t, SpectrumAnalyzer::eq_slots> spectrum;
-	std::string toPlay;
+	//std::string toPlay;
 	std::mutex m;
 	std::shared_ptr<ChipPlayer> player;
 	int pos;
