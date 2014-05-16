@@ -174,8 +174,18 @@ public:
 
 	void render(uint32_t delta) {
 
-		if(screen.get_key() == Window::SPACE)
+		auto k = screen.get_key();
+		switch(k) {
+		case Window::SPACE:
 			next();
+		}
+
+		// TODO : If more than 9 songs, require 2 presses
+		// and also display pressed digits in corner
+		if(k >= '1' && k <= '9') {
+			mp.seek(k - '1');
+			length = mp.getLength();
+		}
 
 		if(state == PLAYING && !mp.playing()) {
 			LOGD("#### Music ended");

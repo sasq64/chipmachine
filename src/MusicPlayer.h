@@ -25,9 +25,11 @@ public:
 	MusicPlayer();
 	void playFile(const std::string &fileName);
 	bool playing() { return player != nullptr; }
-	void stop() { player = nullptr; }
+	void stop() { std::lock_guard<std::mutex> guard(m); player = nullptr; }
 	uint32_t getPosition() { return pos/44100; };
 	uint32_t getLength() { return length; }
+
+	void seek(int song, int seconds = -1);
 
 	SongInfo getPlayingInfo();
 
