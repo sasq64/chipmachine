@@ -36,6 +36,68 @@ using namespace utils;
 using namespace grappix;
 using namespace bbs;
 
+/*
+pl0 = result[0:20]
+
+
+*/
+
+class CommandParser {
+public:
+	typedef std::function<void(const std::vector<std::string> &args)> Function;
+
+	struct Command {
+		std::string name;
+		Function callback;
+	};
+
+	CommandParser() {
+		defineType('i', [](std::string &arg) -> bool {
+			stoi(arg);
+			return true;
+		});
+	}
+
+	void defineType(char c, std::function<bool(std::string &arg)> verifier);
+
+	void add(const std::string &name, const std::string &desc, Function f);
+
+	vector<Command> matchCommands(const std::string &line);
+
+	void applyCommand(const Command &cmd, const std::vector<std::string> &args);
+
+
+	void parse(const std::string &line) {
+/*
+		auto parts = split(line);
+		if(parts.size() < 1)
+			return true;
+
+		vector<Command*> foundCommands;
+
+		int l = parts[0].length();
+		for(auto &c : commands) {
+			if(c.name.substr(l) == parts[0]) {
+				foundCommands.push_back(&c);
+			}
+		}
+
+		if(foundCommands.size() == 1) {
+			for(int i=1; i<parts.size(); i++) {
+				char c = command.args[i-1].type;
+				auto verifier = types[c].verifier;
+				verifier(parts[i]);
+			}
+			foundCommands[0].callback(parts);
+		} else {
+			for(auto &c : foundCommands) {
+			}
+		}*/
+	}
+
+};
+
+
 class PlayerScreen {
 public:
 
@@ -92,9 +154,20 @@ private:
 
 };
 
+
+
+
 class ChipMachine {
 public:
 	ChipMachine() : eq(SpectrumAnalyzer::eq_slots)  {
+
+
+		lua.registerFunction<void, int>("play", [=](int a) {
+		});
+
+		lua.registerFunction<int>("play_seconds", [=]() -> int {
+			return 123;
+		});
 
 		modland.init();
 
@@ -112,8 +185,41 @@ public:
 			}
 			console->flush();
 			std::vector<SongInfo> songs;
+
+			LuaInterpreter lip;
+
+			lip.setOuputFunction([&](const std::string &s) {
+				console->write(s);
+			});
+
+			lip.registerFunction<void, string>("find", [&](const string &q) {
+				songs = modland.search(q);
+				int i = 0;
+				for(const auto &s : songs) {
+					console->write(format("%02d. %s - %s (%s)\n", i++, s.composer, s.title, s.format));
+				}				
+			});
+
+			lip.registerFunction<void, int>("play", [&](int which) {
+				play(songs[which]);
+				next();
+			});
+
 			while(true) {
 				auto l = console->getLine(">");
+				auto parts = split(l, " ");
+				if(isalpha(parts[0]) && (parts.size() == 1 || parts[1][0] != '=')) {
+					l = parts[0] + "(";
+					for(int i=1; i<parts.size(); i++) {
+						if(i!=1) l += ",";
+						l += parts[i];
+					}
+					l += ")";
+					LOGD("Changed to %s", l);
+				}
+				if(!lip.load(l))
+					console->write("** SYNTAX ERROR\n");
+			/*
 				auto cmd = split(l, " ", 1);
 				//LOGD("%s '%s'", cmd[0], cmd[1]);
 				if(cmd[0] == "status") {
@@ -134,7 +240,7 @@ public:
 					play(songs[which]);
 				} else if (cmd[0] == "next") {
 					next();
-				}
+				}*/
 			}
 		});
 		telnet->runThread();
