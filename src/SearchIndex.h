@@ -1,6 +1,8 @@
 #ifndef SEARCH_INDEX_H
 #define SEARCH_INDEX_H
 
+#include <coreutils/file.h>
+
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -70,6 +72,10 @@ public:
 
 	int add(const std::string &str, bool stringonly = false);
 
+
+	void dump(utils::File &f);
+	void load(utils::File &f);
+
 	static void simplify(std::string &s);
 	static unsigned int tlcode(const char *s);
 
@@ -82,11 +88,9 @@ private:
 	static std::vector<uint8_t> to7bit;
 	static std::vector<uint8_t> to7bitlow;
 
-
-
 	// Maps coded 3-letters to a list of indexes
-	std::unordered_map<uint16_t, std::vector<int>> stringMap;
-
+	//std::unordered_map<uint16_t, std::vector<int>> stringMap;
+	std::vector<int> stringMap[65536];
 	// The actual strings
 	std::vector<std::string> strings;
 

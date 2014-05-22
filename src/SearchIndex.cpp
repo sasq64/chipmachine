@@ -120,6 +120,7 @@ void IncrementalQuery::addLetter(char c) {
 		if(query.size() == 0 || query.back() == ' ')
 			return;
 	}
+	LOGD("Adding %c", c);
 	query.push_back(c);	
 	if(query.size() > 0) {
 		search();
@@ -355,6 +356,44 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 	}
 
 	return result.size();
+}
+
+void SearchIndex::dump(utils::File &f) {
+
+	for(int i=0; i<65536; i++) {
+		auto sz = stringMap[i].size();
+		f.write<uint32_t>(sz);
+		if(sz > 0)
+			f.write((uint8_t*)&stringMap[i][0], sz*sizeof(uint32_t));
+	}
+	f.write<uint32_t>(strings.size());
+	for(int i=0; i<(int)strings.size(); i++) {
+		f.write<uint8_t>(strings[i].length());
+		f.write(strings[i]);
+	}
+}
+
+void SearchIndex::load(utils::File &f) {
+
+	if(!transInited) {
+		initTrans();
+	}
+
+	for(int i=0; i<65536; i++) {
+		auto sz = f.read<uint32_t>();
+		stringMap[i].resize(sz);
+		if(sz > 0)
+			f.read((uint8_t*)&stringMap[i][0], sz*sizeof(uint32_t));
+	}
+	uint8_t temp[256];
+	auto sz = f.read<uint32_t>();
+	strings.resize(sz);
+	for(int i=0; i<(int)strings.size(); i++) {
+		auto l = f.read<uint8_t>();
+		f.read(temp, l);
+		temp[l] = 0;
+		strings[i] = (char*)temp;
+	}
 }
 
 int SearchIndex::add(const string &str, bool stringonly) {

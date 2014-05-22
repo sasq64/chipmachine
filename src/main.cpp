@@ -242,12 +242,15 @@ public:
 
 		auto k = screen.get_key();
 
-		/*if(k >= '1' && k <= '9') {
+		if(k >= '1' && k <= '9') {
 			// TODO : If more than 9 songs, require 2 presses
 			// and also display pressed digits in corner
-			mp.seek(k - '1');
-			length = mp.getLength();
-		} else */ if(k >= 'A' && k<='Z') {
+			currentScreen = &searchScreen;
+			iquery.addLetter(tolower(k));
+			//mp.seek(k - '1');
+			//length = mp.getLength();
+		} else if(k >= 'A' && k<='Z') {
+			currentScreen = &searchScreen;
 			iquery.addLetter(tolower(k));
 		} else {
 			switch(k) {
@@ -258,13 +261,16 @@ public:
 				currentScreen = &searchScreen;
 				break;
 			case Window::SPACE:
+				currentScreen = &searchScreen;
 				iquery.addLetter(' ');
 				//next();
 				break;
 			case Window::BACKSPACE:
+				currentScreen = &searchScreen;
 				iquery.removeLast();
 				break;
 			case Window::F9:
+				currentScreen = &mainScreen;
 				next();
 				break;
 			case Window::F12:
@@ -276,14 +282,25 @@ public:
 			case Window::DOWN:
 				marked++;
 				break;
+			case Window::PAGEUP:
+				marked -= 20;
+				break;
+			case Window::PAGEDOWN:
+				marked += 20;
+				break;
 			case Window::ENTER:
 				{
 					auto r = iquery.getFull(marked);
 					auto parts = split(r, "\t");
 					LOGD("######### %s", parts[2]);
 					SongInfo si(string("ftp://ftp.modland.com/pub/modules/") + parts[2], parts[0], parts[1]);
-					playList.push_back(si);
-					//next();
+					if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_LEFT))) {
+						playList.clear();
+						playList.push_back(si);
+						next();
+						currentScreen = &mainScreen;
+					} else 
+						playList.push_back(si);
 				}
 				break;
 			}
@@ -338,17 +355,28 @@ public:
 			titleField->text = currentInfo.title;
 			composerField->text = currentInfo.composer;
 
+			currentTween.finish();
+
+			currentTween = make_tween().from(*prevTitleField, *titleField)
+			.from(*prevComposerField, *composerField)
+			.from(*titleField, *nextTitleField)
+			.from(*composerField, *nextComposerField)
+			.from(nextTitleField->pos.x, 800)
+			.from(nextComposerField->pos.x, 800).seconds(1.5);
+
+		}
+
+		int psz = playList.size();
+
+		if(psz > 0 && nextPath != playList.front().path) {
 			SongInfo next("");
 
-			int psz = playList.size();
-
-			if(psz > 0) {
-				auto &n = playList.front();
-				if(n.title == "") {
-					n.title = utils::path_filename(urldecode(n.path, ""));
-				}
-				next = n;
+			auto &n = playList.front();
+			if(n.title == "") {
+				n.title = utils::path_filename(urldecode(n.path, ""));
 			}
+			next = n;
+			nextPath = n.path;
 
 			if(psz == 0)
 				nextField->text = "";
@@ -359,15 +387,6 @@ public:
 
 			nextTitleField->text = next.title;
 			nextComposerField->text = next.composer;
-
-			currentTween.finish();
-
-			currentTween = make_tween().from(*prevTitleField, *titleField)
-			.from(*prevComposerField, *composerField)
-			.from(*titleField, *nextTitleField)
-			.from(*composerField, *nextComposerField)
-			.from(nextTitleField->pos.x, 800)
-			.from(nextComposerField->pos.x, 800).seconds(1.5);
 
 		}
 
@@ -401,32 +420,59 @@ public:
 		timeField->text = format("%02d:%02d", p/60, p%60);
 		lengthField->text = format("(%02d:%02d)", length/60, length%60);
 
+		auto oldscrollpos = scrollpos;
+		int nh = iquery.numHits();
+
+		if(marked < 0) marked = 0;
+		if(marked >= nh)
+			marked = nh-1;
+
+		if(marked < 0) marked = 0;
+
+		if(marked < scrollpos)
+			scrollpos = marked;
+		if(marked >= scrollpos + 20)
+			scrollpos = marked-20+1;
+
+
 		searchField->text = "#" + iquery.getString();
-		if(iquery.newResult()) {
-			int nh = iquery.numHits();
-			if(nh > 20) nh = 20;
-			const auto &res = iquery.getResult(0, nh);
-			for(int i=0; i<20; i++) {
-				if(i < nh) {
-					auto parts = split(res[i], "\t");
-					resultField[i]->text = format("%s / %s", parts[0], parts[1]);
-				} else resultField[i]->text = "";
+		if(iquery.newResult() || scrollpos != oldscrollpos) {
+
+			//if(nh > 20) nh = 20;
+			auto count = 20;
+			if(nh > 0) {
+				if(scrollpos + count >= nh) count = nh - scrollpos;
+				const auto &res = iquery.getResult(scrollpos, count);
+				LOGD("HITS %d COUNT %d", nh, count);
+				for(int i=0; i<20; i++) {
+					if(i < count) {
+						auto parts = split(res[i], "\t");
+						resultField[i]->text = format("%s / %s", parts[0], parts[1]);
+					} else resultField[i]->text = "";
+				}
+			} else {
+				for(int i=0; i<20; i++)
+					resultField[i]->text = "";
 			}
 		}
 
 		//resultField[marked]->scale = sin(counter*2.0*M_PI/100.0)+1)*0.75;
 		//counter = (counter+1)%100;
 
-		if(marked != old_marked) {
+		marked_field = marked-scrollpos;
+
+		if(marked_field != old_marked) {
+
+			LOGD("MARKED %d SCROLLPOS %d", marked, scrollpos);
 			
 			if(markTween.valid()) {
 				markTween.cancel();
-				make_tween().to(resultField[old_marked]->scale, 0.8F).to(resultField[old_marked]->g, 0.5f).seconds(1.0);
+				make_tween().to(resultField[old_marked]->g, 0.5f).seconds(1.0);
 			}
-			markTween = make_tween().sine().repeating().from(resultField[marked]->scale, 1.0F).from(resultField[marked]->g, 1.0f).seconds(1.0);
-			old_marked = marked;
+			resultField[marked_field]->g = 0.5;
+			markTween = make_tween().sine().repeating().from(resultField[marked_field]->g, 1.0f).seconds(1.0);
+			old_marked = marked_field;
 		}
-
 
 		currentScreen->render(delta);
 
@@ -467,7 +513,10 @@ private:
 
 	int marked = 0;
 	int old_marked = -1;
+	int scrollpos = 0;
+	int marked_field = 0;
 	TweenHolder markTween;
+	string nextPath;
 
 	int length = 0;
 	atomic<int> pos;

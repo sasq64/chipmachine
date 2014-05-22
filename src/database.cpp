@@ -144,6 +144,23 @@ void ModlandDatabase::generateIndex() {
 
 	lock_guard<mutex>{dbMutex};
 
+	File f { "index.dat" };
+
+	if(f.exists()) {
+		auto sz = f.read<uint32_t>();
+		titleToComposer.resize(sz);
+		f.read((uint8_t*)&titleToComposer[0], titleToComposer.size()*sizeof(uint32_t));
+
+		sz = f.read<uint32_t>();
+		composerToTitle.resize(sz);
+		f.read((uint8_t*)&composerToTitle[0], composerToTitle.size()*sizeof(uint32_t));
+
+		titleIndex.load(f);
+		composerIndex.load(f);
+		f.close();
+		return;
+	}
+
 	string oldComposer;
 	auto query = db.query<string, string, string>("SELECT title, composer, path FROM song");
 
@@ -189,4 +206,18 @@ void ModlandDatabase::generateIndex() {
 		titleToComposer.push_back(cindex);
 	}
 	LOGD("INDEX CREATED (%d) (%d)", titleToComposer.size(), composerToTitle.size());
+
+	//return;
+
+	//File f { "index.dat" };
+
+	f.write<uint32_t>(titleToComposer.size());
+	f.write((uint8_t*)&titleToComposer[0], titleToComposer.size()*sizeof(uint32_t));
+
+	f.write<uint32_t>(composerToTitle.size());
+	f.write((uint8_t*)&composerToTitle[0], composerToTitle.size()*sizeof(uint32_t));
+
+	titleIndex.dump(f);
+	composerIndex.dump(f);
+	f.close();
 }
