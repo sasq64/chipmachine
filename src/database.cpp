@@ -156,10 +156,16 @@ void ModlandDatabase::generateIndex() {
 	titleIndex.reserve(438000);
 	composerIndex.reserve(37000);
 
+	int step = 438000 / 20;
+
 	while(count < 1000000) {
 		count++;
 		if(!query.step())
 			break;
+
+		if(count % step == 0) {
+			LOGD("%d songs indexed", count);
+		}
 
 		string title, composer, path;
 		tie(title, composer, path) = query.get_tuple();

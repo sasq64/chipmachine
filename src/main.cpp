@@ -43,7 +43,7 @@ class PlayerScreen {
 public:
 
 	struct TextField {
-		TextField(const std::string &text, float x, float y, float scale, uint32_t color) : text(text), pos(x, y), scale(scale), f {&pos.x, &pos.y, &scale, &r, &g, &b, &alpha} {
+		TextField(const std::string &text, float x, float y, float sc, uint32_t color) : text(text), pos(x, y), scale(sc), f {&pos.x, &pos.y, &scale, &r, &g, &b, &alpha} {
 			r = ((color>>16)&0xff)/255.0;
 			g = ((color>>8)&0xff)/255.0;
 			b = (color&0xff)/255.0;
@@ -201,21 +201,21 @@ public:
 		prevTitleField = mainScreen.addField("", -3200, 64, 10.2, 0x00e0e080);
 		prevComposerField = mainScreen.addField("", -3200, 130, 8.2, 0x00e0e080);
 
-		titleField = mainScreen.addField("NO TITLE", 90, 64, 2.2, 0xffe0e080);
-		composerField = mainScreen.addField("NO COMPOSER", 90, 130, 1.2, 0xffe0e080);
+		titleField = mainScreen.addField("NO TITLE", tv0.x, tv0.y, 2.0, 0xffe0e080);
+		composerField = mainScreen.addField("NO COMPOSER", tv0.x, tv0.y+60, 1.0, 0xffe0e080);
 
-		nextField = mainScreen.addField("next", 400, 320, 0.5, 0xe080c0ff);		
-		nextTitleField = mainScreen.addField("NEXT TITLE", 400, 340, 0.8, 0xffe0e080);
-		nextComposerField = mainScreen.addField("NEXT COMPOSER", 400, 370, 0.7, 0xffe0e080);
-
-
-		timeField = mainScreen.addField("00:00", 90, 170, 1.0, 0xff888888);
-		lengthField = mainScreen.addField("(00:00)", 200, 170, 1.0, 0xff888888);
+		nextField = mainScreen.addField("next", 440, 320, 0.5, 0xe080c0ff);		
+		nextTitleField = mainScreen.addField("NEXT TITLE", 440, 340, 0.8, 0xffe0e080);
+		nextComposerField = mainScreen.addField("NEXT COMPOSER", 440, 370, 0.7, 0xffe0e080);
 
 
-		searchField = searchScreen.addField(">", 10, 10, 1.0, 0xff888888);
+		timeField = mainScreen.addField("00:00", tv0.x, 148, 1.0, 0xff888888);
+		lengthField = mainScreen.addField("(00:00)", 200, 148, 1.0, 0xff888888);
+
+
+		searchField = searchScreen.addField(">", tv0.x, tv0.y, 1.0, 0xff888888);
 		for(int i=0; i<20; i++) {
-			resultField.push_back(searchScreen.addField("result"+to_string(i), 10, 40+i*22, 0.8, 0xff008000));
+			resultField.push_back(searchScreen.addField("", tv0.x, tv0.y+30+i*22, 0.8, 0xff008000));
 		}
 
 
@@ -224,6 +224,11 @@ public:
 	void play(const SongInfo &si) {
 		lock_guard<mutex> guard(plMutex);
 		playList.push_back(si);
+	}
+
+	void clear() {
+		lock_guard<mutex> guard(plMutex);
+		playList.clear();
 	}
 
 	void next() {
@@ -237,12 +242,12 @@ public:
 
 		auto k = screen.get_key();
 
-		if(k >= '1' && k <= '9') {
+		/*if(k >= '1' && k <= '9') {
 			// TODO : If more than 9 songs, require 2 presses
 			// and also display pressed digits in corner
 			mp.seek(k - '1');
 			length = mp.getLength();
-		} else if(k >= 'A' && k<='Z') {
+		} else */ if(k >= 'A' && k<='Z') {
 			iquery.addLetter(tolower(k));
 		} else {
 			switch(k) {
@@ -259,6 +264,12 @@ public:
 			case Window::BACKSPACE:
 				iquery.removeLast();
 				break;
+			case Window::F9:
+				next();
+				break;
+			case Window::F12:
+				clear();
+				break;		
 			case Window::UP:
 				marked--;
 				break;
@@ -270,9 +281,9 @@ public:
 					auto r = iquery.getFull(marked);
 					auto parts = split(r, "\t");
 					LOGD("######### %s", parts[2]);
-					SongInfo si(string("ftp://ftp.modland.com/pub/modules/") + parts[2]);
+					SongInfo si(string("ftp://ftp.modland.com/pub/modules/") + parts[2], parts[0], parts[1]);
 					playList.push_back(si);
-					next();
+					//next();
 				}
 				break;
 			}
@@ -356,7 +367,7 @@ public:
 			.from(*titleField, *nextTitleField)
 			.from(*composerField, *nextComposerField)
 			.from(nextTitleField->pos.x, 800)
-			.from(nextComposerField->pos.x, 800).seconds(1.0);
+			.from(nextComposerField->pos.x, 800).seconds(1.5);
 
 		}
 
@@ -365,6 +376,8 @@ public:
 		screen.clear();
 		//screen.text(font, title, 90, 64, 0xe080c0ff, 2.2);
 		//screen.text(font, composer, 90, 130, 0xe080c0ff, 1.2);
+
+		//screen.rectangle(tv0, tv1-tv0, 0xff444488);
 
 		auto spectrum = mp.getSpectrum();
 		for(int i=0; i<(int)mp.spectrumSize(); i++) {
@@ -376,7 +389,7 @@ public:
 		}
 
 		for(int i=0; i<(int)eq.size(); i++) {
-			screen.rectangle(140 + 20*i, 500-eq[i], 18, eq[i], 0xffffffff);
+			screen.rectangle(tv0.x-10 + 24*i, tv1.y+20-eq[i], 23, eq[i], 0xffffffff);
 			if(eq[i] >= 4)
 				eq[i]-=2;
 			else
@@ -448,6 +461,9 @@ private:
 
 	std::vector<shared_ptr<PlayerScreen::TextField>> resultField;
 	shared_ptr<PlayerScreen::TextField> searchField;
+
+	vec2i tv0 = { 80, 54 };
+	vec2i tv1 = { 636, 520 };
 
 	int marked = 0;
 	int old_marked = -1;
