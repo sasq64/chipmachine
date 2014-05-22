@@ -1,7 +1,27 @@
 
-No non logging output from plugins (VicePlugin especially)
+LUA
 
-Inplace/non-fullscreen console - possible?
+pl = find('stardust memories')
+play(pl)
+
+
+InfoScreen.add('Hello')
+
+function InfoScreen.add(text, x, y, scale, color)
+	infoscreen_add(text, x, y, scale_color);
+end
+
+
+playlist.mt = {}
+
+function Playlist.new()
+	local pl = {}
+	setmetatable(pl, Playlist.mt)
+	return pl
+end
+
+
+
 
 
 struct SongData {
@@ -44,3 +64,61 @@ class InfoScreen {
 auto t = screen.add_text();
 
 tween(t.x
+
+
+
+
+class CommandParser {
+public:
+	typedef std::function<void(const std::vector<std::string> &args)> Function;
+
+	struct Command {
+		std::string name;
+		Function callback;
+	};
+
+	CommandParser() {
+		defineType('i', [](std::string &arg) -> bool {
+			stoi(arg);
+			return true;
+		});
+	}
+
+	void defineType(char c, std::function<bool(std::string &arg)> verifier);
+
+	void add(const std::string &name, const std::string &desc, Function f);
+
+	vector<Command> matchCommands(const std::string &line);
+
+	void applyCommand(const Command &cmd, const std::vector<std::string> &args);
+
+
+	void parse(const std::string &line) {
+/*
+		auto parts = split(line);
+		if(parts.size() < 1)
+			return true;
+
+		vector<Command*> foundCommands;
+
+		int l = parts[0].length();
+		for(auto &c : commands) {
+			if(c.name.substr(l) == parts[0]) {
+				foundCommands.push_back(&c);
+			}
+		}
+
+		if(foundCommands.size() == 1) {
+			for(int i=1; i<parts.size(); i++) {
+				char c = command.args[i-1].type;
+				auto verifier = types[c].verifier;
+				verifier(parts[i]);
+			}
+			foundCommands[0].callback(parts);
+		} else {
+			for(auto &c : foundCommands) {
+			}
+		}*/
+	}
+
+};

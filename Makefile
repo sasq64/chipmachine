@@ -27,10 +27,12 @@ include $(MODULE_DIR)/musicplayer/plugins/UADEPlugin/module.mk
 include $(MODULE_DIR)/crypto/module.mk
 
 TARGET := chipmachine
-LOCAL_FILES += main.cpp MusicPlayer.cpp
+LOCAL_FILES += main.cpp database.cpp SearchIndex.cpp MusicPlayer.cpp
 LIBS += -lz
 
-USE_CCACHE=1
+USE_CCACHE:=1
+USE_CLANG:=1
+
 
 #CFLAGS += -I$(PI)/usr/include -I$(PI)/vc/include
 #LDFLAGS += -L$(PI)/lib -L$(PI)/lib/arm-linux-gnueabihf

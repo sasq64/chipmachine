@@ -62,6 +62,9 @@ public:
 
 	SearchIndex() {}
 	~SearchIndex() {}
+
+	void reserve(uint32_t sz) { strings.reserve(sz); }
+
 	int search(const std::string &word, std::vector<int> &result, unsigned int searchLimit) override;
 	std::string getString(int index) const override { return strings[index]; }
 

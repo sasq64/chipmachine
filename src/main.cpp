@@ -19,6 +19,7 @@
 #include <musicplayer/plugins/SC68Plugin/SC68Plugin.h>
 #include <musicplayer/plugins/UADEPlugin/UADEPlugin.h>
 
+#include <tween/tween.h>
 #include <grappix/grappix.h>
 
 #include <coreutils/utils.h>
@@ -35,103 +36,38 @@ using namespace std;
 using namespace utils;
 using namespace grappix;
 using namespace bbs;
-
-/*
-pl0 = result[0:20]
-
-
-*/
-
-class CommandParser {
-public:
-	typedef std::function<void(const std::vector<std::string> &args)> Function;
-
-	struct Command {
-		std::string name;
-		Function callback;
-	};
-
-	CommandParser() {
-		defineType('i', [](std::string &arg) -> bool {
-			stoi(arg);
-			return true;
-		});
-	}
-
-	void defineType(char c, std::function<bool(std::string &arg)> verifier);
-
-	void add(const std::string &name, const std::string &desc, Function f);
-
-	vector<Command> matchCommands(const std::string &line);
-
-	void applyCommand(const Command &cmd, const std::vector<std::string> &args);
-
-
-	void parse(const std::string &line) {
-/*
-		auto parts = split(line);
-		if(parts.size() < 1)
-			return true;
-
-		vector<Command*> foundCommands;
-
-		int l = parts[0].length();
-		for(auto &c : commands) {
-			if(c.name.substr(l) == parts[0]) {
-				foundCommands.push_back(&c);
-			}
-		}
-
-		if(foundCommands.size() == 1) {
-			for(int i=1; i<parts.size(); i++) {
-				char c = command.args[i-1].type;
-				auto verifier = types[c].verifier;
-				verifier(parts[i]);
-			}
-			foundCommands[0].callback(parts);
-		} else {
-			for(auto &c : foundCommands) {
-			}
-		}*/
-	}
-
-};
+using namespace tween;
 
 
 class PlayerScreen {
 public:
 
 	struct TextField {
-		TextField(const std::string &text, float x, float y, float scale, uint32_t color) : text(text), pos(x, y), scale(scale), color(color&0xffffff), alpha(((color>>24)&0xff)/255.0) {
+		TextField(const std::string &text, float x, float y, float scale, uint32_t color) : text(text), pos(x, y), scale(scale), f {&pos.x, &pos.y, &scale, &r, &g, &b, &alpha} {
+			r = ((color>>16)&0xff)/255.0;
+			g = ((color>>8)&0xff)/255.0;
+			b = (color&0xff)/255.0;
+			alpha = ((color>>24)&0xff)/255.0;
 		}
 		std::string text;
 		vec2f pos;
+
 		float scale;
-		uint32_t color;
+		float r;
+		float g;
+		float b;
 		float alpha;
 
-		float& operator[](int i) {
-			switch(i) {
-			case 0:
-				return pos.x;
-			case 1:
-				return pos.y;
-			case 2:
-				return scale;
-			case 3:
-				return alpha;
-			}
-			return alpha;
-		}
+		float& operator[](int i) { return *f[i]; }
 
-		int size() { return 4; }
-
-
+		int size() { return 7; }
+	private:
+		float* f[8];
 	};
 
 	void render(uint32_t d) {
 		for(auto &f : fields) {
-			uint32_t c = f->color | ((int)(f->alpha*255)<<24);
+			uint32_t c = ((int)(f->alpha*255)<<24) | ((int)(f->r*255)<<16) | ((int)(f->g*255)<<8) | (int)(f->b*255);
 			screen.text(font, f->text, f->pos.x, f->pos.y, c, f->scale);
 		}
 	}
@@ -159,8 +95,9 @@ private:
 
 class ChipMachine {
 public:
-	ChipMachine() : eq(SpectrumAnalyzer::eq_slots)  {
+	ChipMachine() : currentScreen(&mainScreen), eq(SpectrumAnalyzer::eq_slots)  {
 
+		iquery = modland.createQuery();
 
 		lua.registerFunction<void, int>("play", [=](int a) {
 		});
@@ -168,6 +105,8 @@ public:
 		lua.registerFunction<int>("play_seconds", [=]() -> int {
 			return 123;
 		});
+
+		lua.loadFile("lua/init.lua");
 
 		modland.init();
 
@@ -192,8 +131,14 @@ public:
 				console->write(s);
 			});
 
+			lip.loadFile("lua/init.lua");
+
+			lip.registerFunction<int, string, int, int, float, int>("Infoscreen.add", [&](const string &q, int x, int y, float scale, int color) -> int {
+				return 0;
+			});
+
 			lip.registerFunction<void, string>("find", [&](const string &q) {
-				songs = modland.search(q);
+				songs = modland.find(q);
 				int i = 0;
 				for(const auto &s : songs) {
 					console->write(format("%02d. %s - %s (%s)\n", i++, s.composer, s.title, s.format));
@@ -210,7 +155,7 @@ public:
 				auto parts = split(l, " ");
 				if(isalpha(parts[0]) && (parts.size() == 1 || parts[1][0] != '=')) {
 					l = parts[0] + "(";
-					for(int i=1; i<parts.size(); i++) {
+					for(int i=1; i<(int)parts.size(); i++) {
 						if(i!=1) l += ",";
 						l += parts[i];
 					}
@@ -245,24 +190,34 @@ public:
 		});
 		telnet->runThread();
 
-		font = Font("data/ObelixPro.ttf", 32, 256 | Font::DISTANCE_MAP);
 		memset(&eq[0], 2, eq.size());
 
-		plScreen.setFont(font);
+		auto mfont = Font("data/ObelixPro.ttf", 32, 256 | Font::DISTANCE_MAP);
+		auto sfont = Font("data/topaz.ttf", 16, 128 | Font::DISTANCE_MAP);
 
-		prevTitleField = plScreen.addField("", -3200, 64, 10.2, 0x00e0e080);
-		prevComposerField = plScreen.addField("", -3200, 130, 8.2, 0x00e0e080);
+		mainScreen.setFont(mfont);
+		searchScreen.setFont(mfont);
 
-		titleField = plScreen.addField("NO TITLE", 90, 64, 2.2, 0xffe0e080);
-		composerField = plScreen.addField("NO COMPOSER", 90, 130, 1.2, 0xffe0e080);
+		prevTitleField = mainScreen.addField("", -3200, 64, 10.2, 0x00e0e080);
+		prevComposerField = mainScreen.addField("", -3200, 130, 8.2, 0x00e0e080);
 
-		nextField = plScreen.addField("next", 400, 320, 0.5, 0xe080c0ff);		
-		nextTitleField = plScreen.addField("NEXT TITLE", 400, 340, 0.8, 0xffe0e080);
-		nextComposerField = plScreen.addField("NEXT COMPOSER", 400, 370, 0.7, 0xffe0e080);
+		titleField = mainScreen.addField("NO TITLE", 90, 64, 2.2, 0xffe0e080);
+		composerField = mainScreen.addField("NO COMPOSER", 90, 130, 1.2, 0xffe0e080);
+
+		nextField = mainScreen.addField("next", 400, 320, 0.5, 0xe080c0ff);		
+		nextTitleField = mainScreen.addField("NEXT TITLE", 400, 340, 0.8, 0xffe0e080);
+		nextComposerField = mainScreen.addField("NEXT COMPOSER", 400, 370, 0.7, 0xffe0e080);
 
 
-		timeField = plScreen.addField("00:00", 90, 170, 1.0, 0xff888888);
-		lengthField = plScreen.addField("(00:00)", 200, 170, 1.0, 0xff888888);
+		timeField = mainScreen.addField("00:00", 90, 170, 1.0, 0xff888888);
+		lengthField = mainScreen.addField("(00:00)", 200, 170, 1.0, 0xff888888);
+
+
+		searchField = searchScreen.addField(">", 10, 10, 1.0, 0xff888888);
+		for(int i=0; i<20; i++) {
+			resultField.push_back(searchScreen.addField("result"+to_string(i), 10, 40+i*22, 0.8, 0xff008000));
+		}
+
 
 	}
 
@@ -281,16 +236,46 @@ public:
 	void render(uint32_t delta) {
 
 		auto k = screen.get_key();
-		switch(k) {
-		case Window::SPACE:
-			next();
-		}
 
-		// TODO : If more than 9 songs, require 2 presses
-		// and also display pressed digits in corner
 		if(k >= '1' && k <= '9') {
+			// TODO : If more than 9 songs, require 2 presses
+			// and also display pressed digits in corner
 			mp.seek(k - '1');
 			length = mp.getLength();
+		} else if(k >= 'A' && k<='Z') {
+			iquery.addLetter(tolower(k));
+		} else {
+			switch(k) {
+			case Window::F1:
+				currentScreen = &mainScreen;
+				break;
+			case Window::F2:
+				currentScreen = &searchScreen;
+				break;
+			case Window::SPACE:
+				iquery.addLetter(' ');
+				//next();
+				break;
+			case Window::BACKSPACE:
+				iquery.removeLast();
+				break;
+			case Window::UP:
+				marked--;
+				break;
+			case Window::DOWN:
+				marked++;
+				break;
+			case Window::ENTER:
+				{
+					auto r = iquery.getFull(marked);
+					auto parts = split(r, "\t");
+					LOGD("######### %s", parts[2]);
+					SongInfo si(string("ftp://ftp.modland.com/pub/modules/") + parts[2]);
+					playList.push_back(si);
+					next();
+				}
+				break;
+			}
 		}
 
 		if(state == PLAYING && !mp.playing()) {
@@ -366,7 +351,7 @@ public:
 
 			currentTween.finish();
 
-			currentTween = tween::make_tween().from(*prevTitleField, *titleField)
+			currentTween = make_tween().from(*prevTitleField, *titleField)
 			.from(*prevComposerField, *composerField)
 			.from(*titleField, *nextTitleField)
 			.from(*composerField, *nextComposerField)
@@ -403,16 +388,48 @@ public:
 		timeField->text = format("%02d:%02d", p/60, p%60);
 		lengthField->text = format("(%02d:%02d)", length/60, length%60);
 
-		plScreen.render(delta);
+		searchField->text = "#" + iquery.getString();
+		if(iquery.newResult()) {
+			int nh = iquery.numHits();
+			if(nh > 20) nh = 20;
+			const auto &res = iquery.getResult(0, nh);
+			for(int i=0; i<20; i++) {
+				if(i < nh) {
+					auto parts = split(res[i], "\t");
+					resultField[i]->text = format("%s / %s", parts[0], parts[1]);
+				} else resultField[i]->text = "";
+			}
+		}
+
+		//resultField[marked]->scale = sin(counter*2.0*M_PI/100.0)+1)*0.75;
+		//counter = (counter+1)%100;
+
+		if(marked != old_marked) {
+			
+			if(markTween.valid()) {
+				markTween.cancel();
+				make_tween().to(resultField[old_marked]->scale, 0.8F).to(resultField[old_marked]->g, 0.5f).seconds(1.0);
+			}
+			markTween = make_tween().sine().repeating().from(resultField[marked]->scale, 1.0F).from(resultField[marked]->g, 1.0f).seconds(1.0);
+			old_marked = marked;
+		}
+
+
+		currentScreen->render(delta);
 
 		screen.flip();
 	}
 
 private:
 
+	IncrementalQuery query;
+
 	MusicPlayer mp;
 
-	PlayerScreen plScreen;
+	PlayerScreen mainScreen;
+	PlayerScreen searchScreen;
+
+	PlayerScreen *currentScreen;
 
 	unique_ptr<TelnetServer> telnet;
 
@@ -429,6 +446,13 @@ private:
 	shared_ptr<PlayerScreen::TextField> lengthField;
 	shared_ptr<PlayerScreen::TextField> nextField;
 
+	std::vector<shared_ptr<PlayerScreen::TextField>> resultField;
+	shared_ptr<PlayerScreen::TextField> searchField;
+
+	int marked = 0;
+	int old_marked = -1;
+	TweenHolder markTween;
+
 	int length = 0;
 	atomic<int> pos;
 	// shared_ptr<ChipPlayer> player;
@@ -440,7 +464,7 @@ private:
 
 	Font font;
 
-	tween::Holder currentTween;
+	TweenHolder currentTween;
 
 	enum State {
 		STOPPED,
@@ -455,6 +479,8 @@ private:
 	SongInfo currentInfo;
 
 	std::vector<uint8_t> eq;
+
+	IncrementalQuery iquery;
 
 };
 

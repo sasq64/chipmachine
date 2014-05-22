@@ -53,7 +53,8 @@ MusicPlayer::MusicPlayer() : plugins {
 
 void MusicPlayer::seek(int song, int seconds) {
 	lock_guard<mutex> guard(m);
-	player->seekTo(song, seconds);
+	if(player)
+		player->seekTo(song, seconds);
 }
 
 void MusicPlayer::playFile(const std::string &fileName) {
@@ -71,8 +72,10 @@ void MusicPlayer::playFile(const std::string &fileName) {
 SongInfo MusicPlayer::getPlayingInfo() {
 	lock_guard<mutex> guard(m);
 	SongInfo si;
-	si.title = player->getMeta("title");
-	si.composer = player->getMeta("composer");
+	if(player) {
+		si.title = player->getMeta("title");
+		si.composer = player->getMeta("composer");
+	}
 	return si;
 }
 
