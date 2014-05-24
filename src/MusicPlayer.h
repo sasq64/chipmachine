@@ -1,6 +1,5 @@
 
-//#include "ChipPlayer.h"
-#include "songinfo.h"
+#include "SongInfo.h"
 
 #include <fft/spectrum.h>
 

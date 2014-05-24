@@ -1,7 +1,7 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include "songinfo.h"
+#include "SongInfo.h"
 
 #include "SearchIndex.h"
 
@@ -12,6 +12,8 @@
 #include <mutex>
 #include <vector>
 #include <string>
+
+namespace chipmachine {
 
 class not_found_exception : public std::exception {
 public:
@@ -66,6 +68,6 @@ private:
 	sqlite3db::Database db;
 };
 
-
+}
 
 #endif // DATABASE_H

@@ -3,7 +3,6 @@ include $(MODULE_DIR)/config.mk
 
 OBJDIR := obj/
 CFLAGS += -O2 -Wall -I$(MODULE_DIR) -Wno-switch
-#CXXFLAGS := -std=c++0x
 SRCDIR := src/
 
 #SDL_AUDIO := 1
@@ -27,20 +26,10 @@ include $(MODULE_DIR)/musicplayer/plugins/UADEPlugin/module.mk
 include $(MODULE_DIR)/crypto/module.mk
 
 TARGET := chipmachine
-LOCAL_FILES += main.cpp database.cpp SearchIndex.cpp MusicPlayer.cpp
+LOCAL_FILES += main.cpp MusicDatabase.cpp SearchIndex.cpp MusicPlayerList.cpp MusicPlayer.cpp TelnetInterface.cpp
 LIBS += -lz
 
 USE_CCACHE:=1
 USE_CLANG:=1
 
-
-#CFLAGS += -I$(PI)/usr/include -I$(PI)/vc/include
-#LDFLAGS += -L$(PI)/lib -L$(PI)/lib/arm-linux-gnueabihf
-#LDFLAGS += -L$(PI)/usr/lib -L$(PI)/usr/lib/arm-linux-gnueabihf
-
-# TelnetInterface.cpp SongDb.cpp SearchIndex.cpp URLPlayer.cpp
-
-#CC=ccache clang -Qunused-arguments
-#CXX=ccache clang++ -Qunused-arguments
-#AR=llvm-ar
 include $(MODULE_DIR)/build.mk

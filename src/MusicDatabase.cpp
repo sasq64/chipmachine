@@ -1,7 +1,9 @@
-#include "database.h"
+#include "MusicDatabase.h"
 
 using namespace std;
 using namespace utils;
+
+namespace chipmachine {
 
 void ModlandDatabase::init() {
 
@@ -28,7 +30,7 @@ void ModlandDatabase::init() {
 	auto query = db.query("INSERT INTO song (title, game, composer, format, path) VALUES (?, ?, ?, ?, ?)");
 
 	db.exec("BEGIN TRANSACTION");
-	File file { "allmods.txt" };
+	File file { "data/allmods.txt" };
 	for(const auto &s : file.getLines()) {
 
 		auto path = split(s, "\t")[1];
@@ -227,4 +229,5 @@ void ModlandDatabase::generateIndex() {
 	titleIndex.dump(f);
 	composerIndex.dump(f);
 	f.close();
+}
 }

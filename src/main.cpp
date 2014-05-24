@@ -1,24 +1,8 @@
-#include "database.h"
+#include "MusicDatabase.h"
 
-#include <musicplayer/chipplayer.h>
-
-#include "MusicPlayer.h"
+#include "MusicPlayerList.h"
 #include "PlayerScreen.h"
-
-#include <bbsutils/telnetserver.h>
-#include <bbsutils/console.h>
-#include <bbsutils/ansiconsole.h>
-#include <bbsutils/petsciiconsole.h>
-
-#include <lua/luainterpreter.h>
-#include <webutils/webgetter.h>
-
-#include <musicplayer/plugins/ModPlugin/ModPlugin.h>
-#include <musicplayer/plugins/VicePlugin/VicePlugin.h>
-#include <musicplayer/plugins/SexyPSFPlugin/SexyPSFPlugin.h>
-#include <musicplayer/plugins/GMEPlugin/GMEPlugin.h>
-#include <musicplayer/plugins/SC68Plugin/SC68Plugin.h>
-#include <musicplayer/plugins/UADEPlugin/UADEPlugin.h>
+#include "TelnetInterface.h"
 
 #include <tween/tween.h>
 #include <grappix/grappix.h>
@@ -28,133 +12,14 @@
 #include <cstdio>
 #include <vector>
 #include <string>
-#include <deque>
-#include <atomic>
 #include <memory>
 
-using namespace chipmachine;
 using namespace std;
 using namespace utils;
 using namespace grappix;
-using namespace bbs;
 using namespace tween;
 
-class MusicPlayerList {
-public:
-	enum State {
-		STOPPED,
-		WAITING,
-		STARTED,
-		PLAY_STARTED,
-		PLAYING
-	};
-
-	void addSong(const SongInfo &si) {
-		lock_guard<mutex> guard(plMutex);
-		playList.push_back(si);
-	}
-
-	void clearSongs() {
-		lock_guard<mutex> guard(plMutex);
-		playList.clear();
-	}
-
-	void nextSong() {
-		lock_guard<mutex> guard(plMutex);
-		mp.stop();
-		state = WAITING;
-	}
-
-	void playFile(const std::string &fileName) {
-		lock_guard<mutex> guard(plMutex);
-		mp.playFile(fileName);
-		state = PLAY_STARTED;
-		length = mp.getLength();
-		auto si = mp.getPlayingInfo();
-		if(si.title != "")
-			currentInfo.title = si.title;
-		if(si.composer != "")
-			currentInfo.composer = si.composer;
-		if(si.format != "")
-			currentInfo.format = si.format;
-	}
-
-	State update() {
-		if(state == PLAYING && !mp.playing()) {
-			LOGD("#### Music ended");
-			if(playList.size() == 0)
-				state = STOPPED;
-			else
-				state = WAITING;
-		}
-
-		if(state == PLAY_STARTED) {
-			state = PLAYING;
-		}
-
-		if(state == WAITING && playList.size() > 0) {
-			{
-				lock_guard<mutex> guard(plMutex);
-				state = STARTED;
-				currentInfo = playList.front();
-				playList.pop_front();
-				//pos = 0;
-			}
-			LOGD("##### New song: %s", currentInfo.path);
-
-			auto proto = split(currentInfo.path, ":");
-			if(proto.size() > 0 && (proto[0] == "http" || proto[0] == "ftp")) {
-				webgetter.getURL(currentInfo.path, [=](const WebGetter::Job &job) {
-					playFile(job.getFile());
-				});
-			} else {
-				playFile(currentInfo.path);
-			}
-		}
-
-		return state;
-	}
-
-	uint16_t *getSpectrum() {
-		return mp.getSpectrum();
-	}
-
-	int spectrumSize() {
-		return mp.spectrumSize();
-	}
-
-	SongInfo getInfo(int index = 0) {
-		if(index == 0)
-			return currentInfo;
-		else
-			return playList[index-1];
-	}
-
-	int getLength() {
-		return length;
-	}
-
-	int getPosition() {
-		return mp.getPosition();
-	}
-
-	int listSize() {
-		return playList.size();
-	}
-
-private:
-	MusicPlayer mp;
-	std::mutex plMutex;
-	std::deque<SongInfo> playList;
-
-	WebGetter webgetter { "_files" };
-
-	State state = STOPPED;
-	int length;
-	SongInfo currentInfo;
-
-};
-
+namespace chipmachine {
 
 class ChipMachine {
 public:
@@ -162,102 +27,12 @@ public:
 
 		iquery = modland.createQuery();
 
-		lua.registerFunction<void, int>("play", [=](int a) {
-		});
-
-		lua.registerFunction<int>("play_seconds", [=]() -> int {
-			return 123;
-		});
-
-		lua.loadFile("lua/init.lua");
-
 		modland.init();
-
-		telnet = make_unique<TelnetServer>(12345);
-		telnet->setOnConnect([&](TelnetServer::Session &session) {
-			session.echo(false);
-			string termType = session.getTermType();		
-			LOGD("New connection, TERMTYPE '%s'", termType);
-
-			unique_ptr<Console> console;
-			if(termType.length() > 0) {
-				console = unique_ptr<Console>(new AnsiConsole { session });
-			} else {
-				console = unique_ptr<Console>(new PetsciiConsole { session });
-			}
-			console->flush();
-			std::vector<SongInfo> songs;
-
-			LuaInterpreter lip;
-
-			lip.setOuputFunction([&](const std::string &s) {
-				console->write(s);
-			});
-
-			lip.loadFile("lua/init.lua");
-
-			lip.registerFunction<int, string, int, int, float, int>("Infoscreen.add", [&](const string &q, int x, int y, float scale, int color) -> int {
-				return 0;
-			});
-
-			lip.registerFunction<void, string>("find", [&](const string &q) {
-				songs = modland.find(q);
-				int i = 0;
-				for(const auto &s : songs) {
-					console->write(format("%02d. %s - %s (%s)\n", i++, s.composer, s.title, s.format));
-				}				
-			});
-
-			lip.registerFunction<void, int>("play", [&](int which) {
-				player.clearSongs();
-				player.addSong(songs[which]);
-				player.nextSong();
-			});
-
-			while(true) {
-				auto l = console->getLine(">");
-				auto parts = split(l, " ");
-				if(isalpha(parts[0]) && (parts.size() == 1 || parts[1][0] != '=')) {
-					l = parts[0] + "(";
-					for(int i=1; i<(int)parts.size(); i++) {
-						if(i!=1) l += ",";
-						l += parts[i];
-					}
-					l += ")";
-					LOGD("Changed to %s", l);
-				}
-				if(!lip.load(l))
-					console->write("** SYNTAX ERROR\n");
-			/*
-				auto cmd = split(l, " ", 1);
-				//LOGD("%s '%s'", cmd[0], cmd[1]);
-				if(cmd[0] == "status") {
-					//LOGD("%s %s", composer, title);
-					//console->write(format("%s - %s\n", composer, title));
-				} else if (cmd[0] == "find") {
-					songs = modland.search(cmd[1]);
-					int i = 0;
-					for(const auto &s : songs) {
-						console->write(format("%02d. %s - %s (%s)\n", i++, s.composer, s.title, s.format));
-					}
-				} else if (cmd[0] == "play") {
-					int which = atoi(cmd[1].c_str());
-					play(songs[which]);
-					next();
-				} else if (cmd[0] == "q") {
-					int which = atoi(cmd[1].c_str());
-					play(songs[which]);
-				} else if (cmd[0] == "next") {
-					next();
-				}*/
-			}
-		});
-		telnet->runThread();
-
+		telnet = make_unique<TelnetInterface>(modland, player);
+		telnet->start();
 		memset(&eq[0], 2, eq.size());
 
 		auto mfont = Font("data/ObelixPro.ttf", 32, 256 | Font::DISTANCE_MAP);
-		auto sfont = Font("data/topaz.ttf", 16, 128 | Font::DISTANCE_MAP);
 
 		mainScreen.setFont(mfont);
 		searchScreen.setFont(mfont);
@@ -269,10 +44,8 @@ public:
 
 		nextField = mainScreen.addField("next", 440, 320, 0.5, 0xe080c0ff);		
 
-
 		timeField = mainScreen.addField("00:00", tv0.x, 188, 1.0, 0xff888888);
 		lengthField = mainScreen.addField("(00:00)", 200, 188, 1.0, 0xff888888);
-
 
 		searchField = searchScreen.addField("#", tv0.x, tv0.y, 1.0, 0xff888888);
 		for(int i=0; i<20; i++) {
@@ -285,19 +58,7 @@ public:
 	void play(const SongInfo &si) {
 		player.addSong(si);
 	}
-/*
-	void clear() {
-		lock_guard<mutex> guard(plMutex);
-		playList.clear();
-	}
 
-	void next() {
-		lock_guard<mutex> guard(plMutex);
-		//player = nullptr;
-		mp.stop();
-		state = WAITING;
-	}
-*/
 	void render(uint32_t delta) {
 
 		auto k = screen.get_key();
@@ -328,6 +89,10 @@ public:
 			case Window::BACKSPACE:
 				currentScreen = &searchScreen;
 				iquery.removeLast();
+				break;
+			case Window::F10:
+				currentScreen = &searchScreen;
+				iquery.clear();
 				break;
 			case Window::F9:
 				currentScreen = &mainScreen;
@@ -369,55 +134,6 @@ public:
 				break;
 			}
 		}
-/*
-		if(state == PLAYING && !mp.playing()) {
-			LOGD("#### Music ended");
-			if(playList.size() == 0)
-				state = STOPPED;
-			else
-				state = WAITING;
-		}
-
-		if(state == WAITING && playList.size() > 0) {
-			lock_guard<mutex> guard(plMutex);
-			state = STARTED;
-			currentInfo = playList.front();
-			playList.pop_front();
-			pos = 0;
-			LOGD("##### New song: %s", currentInfo.path);
-			//title = si.title;
-			//composer = si.composer;
-
-			auto proto = split(currentInfo.path, ":");
-			if(proto.size() > 0 && (proto[0] == "http" || proto[0] == "ftp")) {
-				webgetter.getURL(currentInfo.path, [=](const WebGetter::Job &job) {
-					mp.playFile(job.getFile());
-					state = PLAY_STARTED;
-					length = mp.getLength();
-					auto si = mp.getPlayingInfo();
-					if(si.title != "")
-						currentInfo.title = si.title;
-					if(si.composer != "")
-						currentInfo.composer = si.composer;
-					if(si.format != "")
-						currentInfo.format = si.format;
-			});
-			} else {
-				mp.playFile(currentInfo.path);
-				state = PLAY_STARTED;
-				length = mp.getLength();
-				auto si = mp.getPlayingInfo();
-				if(si.title != "")
-					currentInfo.title = si.title;
-				if(si.composer != "")
-					currentInfo.composer = si.composer;
-				if(si.format != "")
-					currentInfo.format = si.format;
-			}
-		}
-*/
-
-		//if(state == PLAY_STARTED) {
 		if(player.update() == MusicPlayerList::PLAY_STARTED) {
 			//state = PLAYING;
 			prevInfoField.setInfo(currentInfoField.getInfo());
@@ -445,39 +161,12 @@ public:
 				nextInfoField.setInfo(n);
 				currentNextPath = n.path;
 			}
-		} else
+		} else if(nextField->text != "") {
+			nextInfoField.setInfo(SongInfo());
 			nextField->text = "";
-
-/*
-		int psz = playList.size();
-
-		if(psz > 0 && nextPath != playList.front().path) {
-			SongInfo next("");
-
-			auto &n = playList.front();
-			if(n.title == "") {
-				n.title = utils::path_filename(urldecode(n.path, ""));
-			}
-			next = n;
-			nextPath = n.path;
-
-			if(psz == 0)
-				nextField->text = "";
-			else if(psz == 1)
-				nextField->text = "Next";
-			else
-				nextField->text = format("Next (%d)", psz);
-
-			//nextTitleField->text = next.title;
-			//nextComposerField->text = next.composer;
-			nextInfoField.setInfo(next);
 		}
-*/
-		//vec2i xy = { 100, 100 };
 
 		screen.clear();
-		//screen.text(font, title, 90, 64, 0xe080c0ff, 2.2);
-		//screen.text(font, composer, 90, 130, 0xe080c0ff, 1.2);
 
 		//screen.rectangle(tv0, tv1-tv0, 0xff444488);
 
@@ -526,7 +215,7 @@ public:
 			if(nh > 0) {
 				if(scrollpos + count >= nh) count = nh - scrollpos;
 				const auto &res = iquery.getResult(scrollpos, count);
-				LOGD("HITS %d COUNT %d", nh, count);
+				LOGD("HITS %d COUNT %d, RESSIZE %d", nh, count, res.size());
 				for(int i=0; i<20; i++) {
 					if(i < count) {
 						auto parts = split(res[i], "\t");
@@ -539,10 +228,7 @@ public:
 			}
 		}
 
-		//resultField[marked]->scale = sin(counter*2.0*M_PI/100.0)+1)*0.75;
-		//counter = (counter+1)%100;
-
-		marked_field = marked-scrollpos;
+		auto marked_field = marked-scrollpos;
 
 		if(marked_field != old_marked) {
 
@@ -552,10 +238,10 @@ public:
 				markTween.cancel();
 				make_tween().to(resultField[old_marked]->g, 0.5f).seconds(1.0);
 			}
-			if(iquery.numHits() > 0) {
-				const auto &res = iquery.getFull(scrollpos+marked);
-				LOGD("%s", res);
-			}
+			//if(iquery.numHits() > 0) {
+				//const auto &res = iquery.getFull(scrollpos+marked);
+				//LOGD("%s", res);
+			//}
 /*
 			for(int i=0; i<20; i++) {
 				float y = i/20.0;
@@ -580,7 +266,6 @@ private:
 
 	IncrementalQuery query;
 
-	//MusicPlayer mp;
 	MusicPlayerList player;
 
 	PlayerScreen mainScreen;
@@ -588,23 +273,15 @@ private:
 
 	PlayerScreen *currentScreen;
 
-	unique_ptr<TelnetServer> telnet;
+	unique_ptr<TelnetInterface> telnet;
 
 	ModlandDatabase modland;
-	//string title = "NO TITLE";
-	//string composer = "NO COMPOSER";
+
 	SongInfoField currentInfoField;
 	SongInfoField nextInfoField;
 	SongInfoField prevInfoField;
 	SongInfoField outsideInfoField;
-/*
-	shared_ptr<PlayerScreen::TextField> titleField;
-	shared_ptr<PlayerScreen::TextField> composerField;
-	shared_ptr<PlayerScreen::TextField> nextTitleField;
-	shared_ptr<PlayerScreen::TextField> nextComposerField;
-	shared_ptr<PlayerScreen::TextField> prevTitleField;
-	shared_ptr<PlayerScreen::TextField> prevComposerField;
-*/
+
 	shared_ptr<PlayerScreen::TextField> timeField;
 	shared_ptr<PlayerScreen::TextField> lengthField;
 	shared_ptr<PlayerScreen::TextField> nextField;
@@ -618,46 +295,25 @@ private:
 	int marked = 0;
 	int old_marked = -1;
 	int scrollpos = 0;
-	int marked_field = 0;
+	//int marked_field = 0;
 	TweenHolder markTween;
 	string currentNextPath;
-
-	//atomic<int> pos;
-	// shared_ptr<ChipPlayer> player;
-	LuaInterpreter lua;
-
 
 	Font font;
 
 	TweenHolder currentTween;
-/*
-	std::mutex plMutex;
-	int length = 0;
-	std::deque<SongInfo> playList;
-	WebGetter webgetter { "_files" };
-
-	enum State {
-		STOPPED,
-		WAITING,
-		STARTED,
-		PLAY_STARTED,
-		PLAYING
-	};
-
-	State state = STOPPED;
-
-	SongInfo currentInfo;
-*/
 	std::vector<uint8_t> eq;
 
 	IncrementalQuery iquery;
 
 };
 
+} // namespace chipmachine
+
 int main(int argc, char* argv[]) {
 
 	screen.open(720, 576, false);
-	static ChipMachine app;
+	static chipmachine::ChipMachine app;
 
 	if(argc >= 2) {
 		for(int i=1; i<argc; i++)
@@ -669,3 +325,4 @@ int main(int argc, char* argv[]) {
 	}, 20);
 	return 0;	
 }
+

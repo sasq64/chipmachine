@@ -2,7 +2,7 @@
 #include <coreutils/vec.h>
 #include <grappix/grappix.h>
 
-#include "songinfo.h"
+#include "SongInfo.h"
 
 class PlayerScreen {
 public:
