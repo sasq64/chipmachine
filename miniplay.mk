@@ -10,15 +10,17 @@ include $(MODULE_DIR)/coreutils/module.mk
 include $(MODULE_DIR)/audioplayer/module.mk
 include $(MODULE_DIR)/grappix/module.mk
 
-include src/plugins/ModPlugin/module.mk
-include src/plugins/VicePlugin/module.mk
-include src/plugins/GMEPlugin/module.mk
-include src/plugins/SexyPSFPlugin/module.mk
-include src/plugins/SC68Plugin/module.mk
-include src/plugins/UADEPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/ModPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/VicePlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/GMEPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/SexyPSFPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/SC68Plugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/UADEPlugin/module.mk
+
+include $(MODULE_DIR)/crypto/module.mk
 
 TARGET := play
-LOCAL_FILES += miniplay.cpp MusicPlayer.cpp
+LOCAL_FILES += miniplay.cpp
 LIBS += -lz
 
 CC=ccache clang -Qunused-arguments

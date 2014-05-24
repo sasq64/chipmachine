@@ -1,5 +1,5 @@
 
-#include "ChipPlayer.h"
+//#include "chipplayer.h"
 
 #include <ModPlugin/ModPlugin.h>
 #include <VicePlugin/VicePlugin.h>
