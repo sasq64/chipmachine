@@ -75,6 +75,7 @@ SongInfo MusicPlayer::getPlayingInfo() {
 	if(player) {
 		si.title = player->getMeta("title");
 		si.composer = player->getMeta("composer");
+		si.format = player->getMeta("format");
 	}
 	return si;
 }

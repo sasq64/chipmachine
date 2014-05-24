@@ -3,6 +3,7 @@
 #include <musicplayer/chipplayer.h>
 
 #include "MusicPlayer.h"
+#include "PlayerScreen.h"
 
 #include <bbsutils/telnetserver.h>
 #include <bbsutils/console.h>
@@ -38,59 +39,121 @@ using namespace grappix;
 using namespace bbs;
 using namespace tween;
 
-
-class PlayerScreen {
+class MusicPlayerList {
 public:
-
-	struct TextField {
-		TextField(const std::string &text, float x, float y, float sc, uint32_t color) : text(text), pos(x, y), scale(sc), f {&pos.x, &pos.y, &scale, &r, &g, &b, &alpha} {
-			r = ((color>>16)&0xff)/255.0;
-			g = ((color>>8)&0xff)/255.0;
-			b = (color&0xff)/255.0;
-			alpha = ((color>>24)&0xff)/255.0;
-		}
-		std::string text;
-		vec2f pos;
-
-		float scale;
-		float r;
-		float g;
-		float b;
-		float alpha;
-
-		float& operator[](int i) { return *f[i]; }
-
-		int size() { return 7; }
-	private:
-		float* f[8];
+	enum State {
+		STOPPED,
+		WAITING,
+		STARTED,
+		PLAY_STARTED,
+		PLAYING
 	};
 
-	void render(uint32_t d) {
-		for(auto &f : fields) {
-			uint32_t c = ((int)(f->alpha*255)<<24) | ((int)(f->r*255)<<16) | ((int)(f->g*255)<<8) | (int)(f->b*255);
-			screen.text(font, f->text, f->pos.x, f->pos.y, c, f->scale);
+	void addSong(const SongInfo &si) {
+		lock_guard<mutex> guard(plMutex);
+		playList.push_back(si);
+	}
+
+	void clearSongs() {
+		lock_guard<mutex> guard(plMutex);
+		playList.clear();
+	}
+
+	void nextSong() {
+		lock_guard<mutex> guard(plMutex);
+		mp.stop();
+		state = WAITING;
+	}
+
+	void playFile(const std::string &fileName) {
+		lock_guard<mutex> guard(plMutex);
+		mp.playFile(fileName);
+		state = PLAY_STARTED;
+		length = mp.getLength();
+		auto si = mp.getPlayingInfo();
+		if(si.title != "")
+			currentInfo.title = si.title;
+		if(si.composer != "")
+			currentInfo.composer = si.composer;
+		if(si.format != "")
+			currentInfo.format = si.format;
+	}
+
+	State update() {
+		if(state == PLAYING && !mp.playing()) {
+			LOGD("#### Music ended");
+			if(playList.size() == 0)
+				state = STOPPED;
+			else
+				state = WAITING;
 		}
+
+		if(state == PLAY_STARTED) {
+			state = PLAYING;
+		}
+
+		if(state == WAITING && playList.size() > 0) {
+			{
+				lock_guard<mutex> guard(plMutex);
+				state = STARTED;
+				currentInfo = playList.front();
+				playList.pop_front();
+				//pos = 0;
+			}
+			LOGD("##### New song: %s", currentInfo.path);
+
+			auto proto = split(currentInfo.path, ":");
+			if(proto.size() > 0 && (proto[0] == "http" || proto[0] == "ftp")) {
+				webgetter.getURL(currentInfo.path, [=](const WebGetter::Job &job) {
+					playFile(job.getFile());
+				});
+			} else {
+				playFile(currentInfo.path);
+			}
+		}
+
+		return state;
 	}
 
-	void setFont(const Font &font) {
-		this->font = font;
+	uint16_t *getSpectrum() {
+		return mp.getSpectrum();
 	}
 
-	std::shared_ptr<TextField> addField(const std::string &text, float x = 0, float y = 0, float scale = 1.0, uint32_t color = 0xffffffff) {
-		fields.push_back(make_shared<TextField>(text, x, y, scale, color));
-		return fields.back();
+	int spectrumSize() {
+		return mp.spectrumSize();
 	}
+
+	SongInfo getInfo(int index = 0) {
+		if(index == 0)
+			return currentInfo;
+		else
+			return playList[index-1];
+	}
+
+	int getLength() {
+		return length;
+	}
+
+	int getPosition() {
+		return mp.getPosition();
+	}
+
+	int listSize() {
+		return playList.size();
+	}
+
 private:
+	MusicPlayer mp;
+	std::mutex plMutex;
+	std::deque<SongInfo> playList;
 
-	grappix::Font font;
+	WebGetter webgetter { "_files" };
 
-	std::vector<std::shared_ptr<TextField>> fields;
-
-	//std::unordered_map<std::string, std::shared_ptr<TextField>> fields;
+	State state = STOPPED;
+	int length;
+	SongInfo currentInfo;
 
 };
-
-
 
 
 class ChipMachine {
@@ -146,8 +209,9 @@ public:
 			});
 
 			lip.registerFunction<void, int>("play", [&](int which) {
-				play(songs[which]);
-				next();
+				player.clearSongs();
+				player.addSong(songs[which]);
+				player.nextSong();
 			});
 
 			while(true) {
@@ -198,22 +262,19 @@ public:
 		mainScreen.setFont(mfont);
 		searchScreen.setFont(mfont);
 
-		prevTitleField = mainScreen.addField("", -3200, 64, 10.2, 0x00e0e080);
-		prevComposerField = mainScreen.addField("", -3200, 130, 8.2, 0x00e0e080);
-
-		titleField = mainScreen.addField("NO TITLE", tv0.x, tv0.y, 2.0, 0xffe0e080);
-		composerField = mainScreen.addField("NO COMPOSER", tv0.x, tv0.y+60, 1.0, 0xffe0e080);
+		prevInfoField = SongInfoField(mainScreen, -3200, 64, 10.0, 0x00e0e080);
+		currentInfoField = SongInfoField(mainScreen, tv0.x, tv0.y, 2.0, 0xffe0e080);
+		nextInfoField = SongInfoField(mainScreen, 440, 340, 0.8, 0xffe0e080);
+		outsideInfoField = SongInfoField(800, 340, 0.8, 0xffe0e080);
 
 		nextField = mainScreen.addField("next", 440, 320, 0.5, 0xe080c0ff);		
-		nextTitleField = mainScreen.addField("NEXT TITLE", 440, 340, 0.8, 0xffe0e080);
-		nextComposerField = mainScreen.addField("NEXT COMPOSER", 440, 370, 0.7, 0xffe0e080);
 
 
-		timeField = mainScreen.addField("00:00", tv0.x, 148, 1.0, 0xff888888);
-		lengthField = mainScreen.addField("(00:00)", 200, 148, 1.0, 0xff888888);
+		timeField = mainScreen.addField("00:00", tv0.x, 188, 1.0, 0xff888888);
+		lengthField = mainScreen.addField("(00:00)", 200, 188, 1.0, 0xff888888);
 
 
-		searchField = searchScreen.addField(">", tv0.x, tv0.y, 1.0, 0xff888888);
+		searchField = searchScreen.addField("#", tv0.x, tv0.y, 1.0, 0xff888888);
 		for(int i=0; i<20; i++) {
 			resultField.push_back(searchScreen.addField("", tv0.x, tv0.y+30+i*22, 0.8, 0xff008000));
 		}
@@ -222,10 +283,9 @@ public:
 	}
 
 	void play(const SongInfo &si) {
-		lock_guard<mutex> guard(plMutex);
-		playList.push_back(si);
+		player.addSong(si);
 	}
-
+/*
 	void clear() {
 		lock_guard<mutex> guard(plMutex);
 		playList.clear();
@@ -237,7 +297,7 @@ public:
 		mp.stop();
 		state = WAITING;
 	}
-
+*/
 	void render(uint32_t delta) {
 
 		auto k = screen.get_key();
@@ -271,10 +331,10 @@ public:
 				break;
 			case Window::F9:
 				currentScreen = &mainScreen;
-				next();
+				player.nextSong();
 				break;
 			case Window::F12:
-				clear();
+				player.clearSongs();
 				break;		
 			case Window::UP:
 				marked--;
@@ -292,20 +352,24 @@ public:
 				{
 					auto r = iquery.getFull(marked);
 					auto parts = split(r, "\t");
-					LOGD("######### %s", parts[2]);
-					SongInfo si(string("ftp://ftp.modland.com/pub/modules/") + parts[2], parts[0], parts[1]);
+					LOGD("######### %s", parts[0]);
+					SongInfo si(string("ftp://ftp.modland.com/pub/modules/") + parts[0], parts[1], parts[2], parts[3]);
 					if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_LEFT))) {
-						playList.clear();
-						playList.push_back(si);
-						next();
+						player.clearSongs();
+						player.addSong(si);
+						player.nextSong();
+						//playList.clear();
+						//playList.push_back(si);
+						//next();
 						currentScreen = &mainScreen;
-					} else 
-						playList.push_back(si);
+					} else
+						player.addSong(si); 
+						//playList.push_back(si);
 				}
 				break;
 			}
 		}
-
+/*
 		if(state == PLAYING && !mp.playing()) {
 			LOGD("#### Music ended");
 			if(playList.size() == 0)
@@ -335,6 +399,8 @@ public:
 						currentInfo.title = si.title;
 					if(si.composer != "")
 						currentInfo.composer = si.composer;
+					if(si.format != "")
+						currentInfo.format = si.format;
 			});
 			} else {
 				mp.playFile(currentInfo.path);
@@ -345,27 +411,44 @@ public:
 					currentInfo.title = si.title;
 				if(si.composer != "")
 					currentInfo.composer = si.composer;
+				if(si.format != "")
+					currentInfo.format = si.format;
 			}
 		}
+*/
 
-		if(state == PLAY_STARTED) {
-			state = PLAYING;
-			prevTitleField->text = titleField->text;
-			prevComposerField->text = composerField->text;
-			titleField->text = currentInfo.title;
-			composerField->text = currentInfo.composer;
+		//if(state == PLAY_STARTED) {
+		if(player.update() == MusicPlayerList::PLAY_STARTED) {
+			//state = PLAYING;
+			prevInfoField.setInfo(currentInfoField.getInfo());
+			currentInfoField.setInfo(player.getInfo());
 
 			currentTween.finish();
-
-			currentTween = make_tween().from(*prevTitleField, *titleField)
-			.from(*prevComposerField, *composerField)
-			.from(*titleField, *nextTitleField)
-			.from(*composerField, *nextComposerField)
-			.from(nextTitleField->pos.x, 800)
-			.from(nextComposerField->pos.x, 800).seconds(1.5);
-
+			currentTween = make_tween().from(prevInfoField, currentInfoField).
+			from(currentInfoField, nextInfoField).
+			from(nextInfoField, outsideInfoField).seconds(1.5);
 		}
 
+
+		auto psz = player.listSize();
+		if(psz > 0) {
+			auto n = player.getInfo(1);
+			if(n.path != currentNextPath) {
+				if(n.title == "") {
+					n.title = utils::path_filename(urldecode(n.path, ""));
+				}
+
+				if(psz == 1)
+					nextField->text = "Next";
+				else
+					nextField->text = format("Next (%d)", psz);
+				nextInfoField.setInfo(n);
+				currentNextPath = n.path;
+			}
+		} else
+			nextField->text = "";
+
+/*
 		int psz = playList.size();
 
 		if(psz > 0 && nextPath != playList.front().path) {
@@ -385,11 +468,11 @@ public:
 			else
 				nextField->text = format("Next (%d)", psz);
 
-			nextTitleField->text = next.title;
-			nextComposerField->text = next.composer;
-
+			//nextTitleField->text = next.title;
+			//nextComposerField->text = next.composer;
+			nextInfoField.setInfo(next);
 		}
-
+*/
 		//vec2i xy = { 100, 100 };
 
 		screen.clear();
@@ -398,8 +481,8 @@ public:
 
 		//screen.rectangle(tv0, tv1-tv0, 0xff444488);
 
-		auto spectrum = mp.getSpectrum();
-		for(int i=0; i<(int)mp.spectrumSize(); i++) {
+		auto spectrum = player.getSpectrum();
+		for(int i=0; i<(int)player.spectrumSize(); i++) {
 			if(spectrum[i] > 5) {
 				float f = log(spectrum[i]) * 20;
 				if(f > eq[i])
@@ -415,8 +498,8 @@ public:
 				eq[i] = 2;
 		}
 
-		auto p = mp.getPosition();
-		//length = mp.getLength();
+		auto p = player.getPosition();
+		int length = player.getLength();
 		timeField->text = format("%02d:%02d", p/60, p%60);
 		lengthField->text = format("(%02d:%02d)", length/60, length%60);
 
@@ -469,6 +552,20 @@ public:
 				markTween.cancel();
 				make_tween().to(resultField[old_marked]->g, 0.5f).seconds(1.0);
 			}
+			if(iquery.numHits() > 0) {
+				const auto &res = iquery.getFull(scrollpos+marked);
+				LOGD("%s", res);
+			}
+/*
+			for(int i=0; i<20; i++) {
+				float y = i/20.0;
+				y = pow(y, 0.9);
+				float s = 0.8 / y;
+				y = tv0.y+30+(y*20.0*22.0);
+				LOGD("%f", y);
+				make_tween().to(resultField[i]->scale, s).to(resultField[i]->pos.y, y);
+			}
+*/
 			resultField[marked_field]->g = 0.5;
 			markTween = make_tween().sine().repeating().from(resultField[marked_field]->g, 1.0f).seconds(1.0);
 			old_marked = marked_field;
@@ -483,7 +580,8 @@ private:
 
 	IncrementalQuery query;
 
-	MusicPlayer mp;
+	//MusicPlayer mp;
+	MusicPlayerList player;
 
 	PlayerScreen mainScreen;
 	PlayerScreen searchScreen;
@@ -495,12 +593,18 @@ private:
 	ModlandDatabase modland;
 	//string title = "NO TITLE";
 	//string composer = "NO COMPOSER";
+	SongInfoField currentInfoField;
+	SongInfoField nextInfoField;
+	SongInfoField prevInfoField;
+	SongInfoField outsideInfoField;
+/*
 	shared_ptr<PlayerScreen::TextField> titleField;
 	shared_ptr<PlayerScreen::TextField> composerField;
 	shared_ptr<PlayerScreen::TextField> nextTitleField;
 	shared_ptr<PlayerScreen::TextField> nextComposerField;
 	shared_ptr<PlayerScreen::TextField> prevTitleField;
 	shared_ptr<PlayerScreen::TextField> prevComposerField;
+*/
 	shared_ptr<PlayerScreen::TextField> timeField;
 	shared_ptr<PlayerScreen::TextField> lengthField;
 	shared_ptr<PlayerScreen::TextField> nextField;
@@ -516,20 +620,21 @@ private:
 	int scrollpos = 0;
 	int marked_field = 0;
 	TweenHolder markTween;
-	string nextPath;
+	string currentNextPath;
 
-	int length = 0;
-	atomic<int> pos;
+	//atomic<int> pos;
 	// shared_ptr<ChipPlayer> player;
-	std::mutex plMutex;
-	std::deque<SongInfo> playList;
 	LuaInterpreter lua;
 
-	WebGetter webgetter { "_files" };
 
 	Font font;
 
 	TweenHolder currentTween;
+/*
+	std::mutex plMutex;
+	int length = 0;
+	std::deque<SongInfo> playList;
+	WebGetter webgetter { "_files" };
 
 	enum State {
 		STOPPED,
@@ -542,7 +647,7 @@ private:
 	State state = STOPPED;
 
 	SongInfo currentInfo;
-
+*/
 	std::vector<uint8_t> eq;
 
 	IncrementalQuery iquery;
@@ -557,7 +662,6 @@ int main(int argc, char* argv[]) {
 	if(argc >= 2) {
 		for(int i=1; i<argc; i++)
 			app.play(SongInfo(argv[i]));
-		app.next();
 	}
 
 	screen.render_loop([](uint32_t delta) {

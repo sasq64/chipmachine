@@ -98,10 +98,15 @@ string ModlandDatabase::getFullString(int id) const {
 	id++;
 	LOGD("ID %d", id);
 
-	auto q = db.query<string, string, string>("SELECT title, composer, path FROM song WHERE ROWID = ?", id);
+	auto q = db.query<string, string, string, string, string>("SELECT title, game, composer, format, path FROM song WHERE ROWID = ?", id);
 	if(q.step()) {
 		auto t = q.get_tuple();
-		string r = format("%s\t%s\t%s", get<0>(t), get<1>(t), get<2>(t));
+		auto title = get<0>(t);
+		auto game = get<1>(t);
+		if(game != "")
+			title = format("%s [%s]", game, title);
+
+		string r = format("%s\t%s\t%s\t%s", get<4>(t), title, get<2>(t), get<3>(t));
 		LOGD("RESULT %s", r);
 		return r;
 	}
@@ -162,7 +167,7 @@ void ModlandDatabase::generateIndex() {
 	}
 
 	string oldComposer;
-	auto query = db.query<string, string, string>("SELECT title, composer, path FROM song");
+	auto query = db.query<string, string, string, string>("SELECT title, game, composer, path FROM song");
 
 	int count = 0;
 	//int maxTotal = 3;
@@ -184,12 +189,14 @@ void ModlandDatabase::generateIndex() {
 			LOGD("%d songs indexed", count);
 		}
 
-		string title, composer, path;
-		tie(title, composer, path) = query.get_tuple();
+		string title, game, composer, path;
+		tie(title, game, composer, path) = query.get_tuple();
 		//string ext = path_extention(path);
 		//makeLower(ext);
 		//int fmt = formatMap[ext];
 		//formats.push_back(fmt);
+		if(game != "")
+			title = format("%s [%s]", game, title);
 
 		// The title index maps one-to-one with the database
 		int tindex = titleIndex.add(title);
