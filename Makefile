@@ -21,6 +21,7 @@ include $(MODULE_DIR)/musicplayer/plugins/VicePlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/GMEPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/SexyPSFPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/SC68Plugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/StSoundPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/UADEPlugin/module.mk
 
 include $(MODULE_DIR)/crypto/module.mk

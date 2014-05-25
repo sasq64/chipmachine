@@ -10,6 +10,7 @@
 #include <musicplayer/plugins/SexyPSFPlugin/SexyPSFPlugin.h>
 #include <musicplayer/plugins/GMEPlugin/GMEPlugin.h>
 #include <musicplayer/plugins/SC68Plugin/SC68Plugin.h>
+#include <musicplayer/plugins/StSoundPlugin/StSoundPlugin.h>
 #include <musicplayer/plugins/UADEPlugin/UADEPlugin.h>
 
 
@@ -23,6 +24,7 @@ MusicPlayer::MusicPlayer() : plugins {
 		new SexyPSFPlugin {},
 		new GMEPlugin {},
 		new SC68Plugin {"data/sc68"},
+		new StSoundPlugin {},
 		new UADEPlugin {}
 	}
 {
