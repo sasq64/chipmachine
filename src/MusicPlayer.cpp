@@ -11,6 +11,7 @@
 #include <musicplayer/plugins/GMEPlugin/GMEPlugin.h>
 #include <musicplayer/plugins/SC68Plugin/SC68Plugin.h>
 #include <musicplayer/plugins/StSoundPlugin/StSoundPlugin.h>
+#include <musicplayer/plugins/AdPlugin/AdPlugin.h>
 #include <musicplayer/plugins/UADEPlugin/UADEPlugin.h>
 
 
@@ -25,6 +26,7 @@ MusicPlayer::MusicPlayer() : plugins {
 		new GMEPlugin {},
 		new SC68Plugin {"data/sc68"},
 		new StSoundPlugin {},
+		new AdPlugin {},
 		new UADEPlugin {}
 	}
 {
@@ -55,8 +57,14 @@ MusicPlayer::MusicPlayer() : plugins {
 
 void MusicPlayer::seek(int song, int seconds) {
 	lock_guard<mutex> guard(m);
-	if(player)
+	if(player) {
+		if(seconds < 0)
+			pos = 0;
+		else
+			pos = seconds * 44100;
 		player->seekTo(song, seconds);
+		length = player->getMetaInt("length");
+	}
 }
 
 void MusicPlayer::playFile(const std::string &fileName) {
@@ -78,6 +86,9 @@ SongInfo MusicPlayer::getPlayingInfo() {
 		si.title = player->getMeta("title");
 		si.composer = player->getMeta("composer");
 		si.format = player->getMeta("format");
+		si.length = player->getMetaInt("length");
+		si.numtunes = player->getMetaInt("songs");
+		si.starttune = player->getMetaInt("startSong");
 	}
 	return si;
 }

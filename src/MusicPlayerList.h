@@ -17,6 +17,7 @@ public:
 	enum State {
 		STOPPED,
 		WAITING,
+		LOADING,
 		STARTED,
 		PLAY_STARTED,
 		PLAYING
@@ -34,10 +35,17 @@ public:
 	int getPosition();
 	int listSize();
 
+	void seek(int song, int seconds = -1) {
+		mp.seek(song, seconds);
+	}
+
 private:
 	MusicPlayer mp;
 	std::mutex plMutex;
 	std::deque<SongInfo> playList;
+
+	std::atomic<int> files;
+	std::string loadedFile;
 
 	WebGetter webgetter { "_files" };
 

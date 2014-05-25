@@ -193,7 +193,7 @@ void ModlandDatabase::generateIndex() {
 
 		string title, game, composer, path;
 		tie(title, game, composer, path) = query.get_tuple();
-		//string ext = path_extention(path);
+		//string ext = path_extension(path);
 		//makeLower(ext);
 		//int fmt = formatMap[ext];
 		//formats.push_back(fmt);

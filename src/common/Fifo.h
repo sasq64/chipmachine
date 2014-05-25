@@ -68,7 +68,7 @@ void Fifo::processBytes(char *src, int bytelen) {
 
 void Fifo::putBytes(char *src, int bytelen) {
 	memcpy(bufPtr, src, bytelen);
-	processBytes(src, bytelen);
+	//processBytes(src, bytelen);
 	bufPtr += bytelen;
 }
 

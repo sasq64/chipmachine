@@ -2,7 +2,7 @@ MODULE_DIR = ../cpp-mods
 include $(MODULE_DIR)/config.mk
 
 OBJDIR := obj/
-CFLAGS += -O2 -Wall -I$(MODULE_DIR) -Wno-switch
+CFLAGS += -O2 -g -Wall -I$(MODULE_DIR) -Wno-switch
 SRCDIR := src/
 
 #SDL_AUDIO := 1
@@ -22,6 +22,7 @@ include $(MODULE_DIR)/musicplayer/plugins/GMEPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/SexyPSFPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/SC68Plugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/StSoundPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/AdPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/UADEPlugin/module.mk
 
 include $(MODULE_DIR)/crypto/module.mk

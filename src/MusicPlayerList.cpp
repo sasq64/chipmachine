@@ -38,6 +38,10 @@ void MusicPlayerList::playFile(const std::string &fileName) {
 		currentInfo.composer = si.composer;
 	if(si.format != "")
 		currentInfo.format = si.format;
+	if(si.length > 0)
+		currentInfo.length = si.length;
+	currentInfo.numtunes = si.numtunes;
+	currentInfo.starttune = si.starttune;
 }
 
 MusicPlayerList::State MusicPlayerList::update() {
@@ -53,6 +57,12 @@ MusicPlayerList::State MusicPlayerList::update() {
 		state = PLAYING;
 	}
 
+	if(state == LOADING) {
+		if(files == 0) {
+			playFile(loadedFile);
+		}
+	}
+
 	if(state == WAITING && playList.size() > 0) {
 		{
 			lock_guard<mutex> guard(plMutex);
@@ -65,8 +75,23 @@ MusicPlayerList::State MusicPlayerList::update() {
 
 		auto proto = split(currentInfo.path, ":");
 		if(proto.size() > 0 && (proto[0] == "http" || proto[0] == "ftp")) {
+			state = LOADING;
+			auto ext = path_extension(currentInfo.path);
+			makeLower(ext);
+			LOGD("EXT: %s", ext);
+			files = 1;
+			if(ext == "mdat") {
+				files++;
+				auto smpl_file = path_directory(currentInfo.path) + "/" + path_basename(currentInfo.path) + ".smpl";
+				LOGD("LOADING %s", smpl_file);
+
+				webgetter.getURL(smpl_file, [=](const WebGetter::Job &job) {
+					files--;
+				});
+			}
 			webgetter.getURL(currentInfo.path, [=](const WebGetter::Job &job) {
-				playFile(job.getFile());
+				loadedFile = job.getFile();
+				files--;
 			});
 		} else {
 			playFile(currentInfo.path);

@@ -107,6 +107,16 @@ public:
 			case Window::DOWN:
 				marked++;
 				break;
+			case Window::LEFT:
+				if(currentTune > 0) {
+					player.seek(--currentTune);
+				}
+				break;
+			case Window::RIGHT:
+				if(currentTune < currentInfo.numtunes) {
+					player.seek(++currentTune);
+				}
+				break;
 			case Window::PAGEUP:
 				marked -= 20;
 				break;
@@ -136,8 +146,9 @@ public:
 		}
 		if(player.update() == MusicPlayerList::PLAY_STARTED) {
 			//state = PLAYING;
+			currentInfo = player.getInfo();
 			prevInfoField.setInfo(currentInfoField.getInfo());
-			currentInfoField.setInfo(player.getInfo());
+			currentInfoField.setInfo(currentInfo);
 
 			currentTween.finish();
 			currentTween = make_tween().from(prevInfoField, currentInfoField).
@@ -190,7 +201,7 @@ public:
 		auto p = player.getPosition();
 		int length = player.getLength();
 		timeField->text = format("%02d:%02d", p/60, p%60);
-		lengthField->text = format("(%02d:%02d)", length/60, length%60);
+		lengthField->text = format("(%02d:%02d) [%02d/%02d]", length/60, length%60, currentTune+1, currentInfo.numtunes);
 
 		auto oldscrollpos = scrollpos;
 		int nh = iquery.numHits();
@@ -298,6 +309,8 @@ private:
 	//int marked_field = 0;
 	TweenHolder markTween;
 	string currentNextPath;
+	SongInfo currentInfo;
+	int currentTune = 0;
 
 	Font font;
 

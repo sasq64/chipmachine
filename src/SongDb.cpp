@@ -101,7 +101,7 @@ void SongDatabase::generateIndex() {
 
 		string title, composer, path;
 		tie(title, composer, path) = query.get_tuple();
-		string ext = path_extention(path);
+		string ext = path_extension(path);
 		makeLower(ext);
 		int fmt = formatMap[ext];
 		formats.push_back(fmt);

@@ -20,6 +20,9 @@ struct SongInfo {
 	std::string title;
 	std::string composer;
 	std::string format;
+	uint32_t length = 0;
+	uint32_t numtunes = 0;
+	uint32_t starttune = 0;
 };
 
 
