@@ -35,11 +35,10 @@ public:
 	int getPosition();
 	int listSize();
 
-	void seek(int song, int seconds = -1) {
-		mp.seek(song, seconds);
-	}
-
+	void seek(int song, int seconds = -1);
 private:
+	void updateInfo();
+
 	MusicPlayer mp;
 	std::mutex plMutex;
 	std::deque<SongInfo> playList;
@@ -50,7 +49,6 @@ private:
 	WebGetter webgetter { "_files" };
 
 	State state = STOPPED;
-	int length;
 	SongInfo currentInfo;
 
 };

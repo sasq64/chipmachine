@@ -1,9 +1,15 @@
 #include "MusicDatabase.h"
+#include "secondary.h"
+
+#include <set>
 
 using namespace std;
 using namespace utils;
 
 namespace chipmachine {
+
+static const std::set<std::string> secondary = { "smpl", "sam", "ins", "smp" };
+
 
 void ModlandDatabase::init() {
 
@@ -46,6 +52,10 @@ void ModlandDatabase::init() {
 
 		string title = path_basename(parts[i--]);
 		string game;
+		string ext = path_extension(path);
+		if(secondary.count(ext) > 0) {
+			continue;
+		}
 
 		if(ownDir && l >= 4) {
 			game = parts[i--];

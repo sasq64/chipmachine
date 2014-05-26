@@ -144,33 +144,43 @@ public:
 				break;
 			}
 		}
-		if(player.update() == MusicPlayerList::PLAY_STARTED) {
+		auto state = player.update();
+		if(state == MusicPlayerList::PLAY_STARTED) {
 			//state = PLAYING;
 			currentInfo = player.getInfo();
 			prevInfoField.setInfo(currentInfoField.getInfo());
 			currentInfoField.setInfo(currentInfo);
+			currentTune = currentInfo.starttune;
+
+			int tw = mainScreen.getFont().get_width(currentInfo.title, 2.0);
 
 			currentTween.finish();
 			currentTween = make_tween().from(prevInfoField, currentInfoField).
 			from(currentInfoField, nextInfoField).
-			from(nextInfoField, outsideInfoField).seconds(1.5);
+			from(nextInfoField, outsideInfoField).seconds(1.5).on_complete([=]() {
+				auto d = (tw-(tv1.x-tv0.x-20));
+				if(d > 20)
+					make_tween().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
+			});
 		}
 
 
 		auto psz = player.listSize();
 		if(psz > 0) {
-			auto n = player.getInfo(1);
-			if(n.path != currentNextPath) {
-				if(n.title == "") {
-					n.title = utils::path_filename(urldecode(n.path, ""));
-				}
+			if((state != MusicPlayerList::LOADING) && (state != MusicPlayerList::STARTED)) {
+				auto n = player.getInfo(1);
+				if(n.path != currentNextPath) {
+					if(n.title == "") {
+						n.title = utils::path_filename(urldecode(n.path, ""));
+					}
 
-				if(psz == 1)
-					nextField->text = "Next";
-				else
-					nextField->text = format("Next (%d)", psz);
-				nextInfoField.setInfo(n);
-				currentNextPath = n.path;
+					if(psz == 1)
+						nextField->text = "Next";
+					else
+						nextField->text = format("Next (%d)", psz);
+					nextInfoField.setInfo(n);
+					currentNextPath = n.path;
+				}
 			}
 		} else if(nextField->text != "") {
 			nextInfoField.setInfo(SongInfo());

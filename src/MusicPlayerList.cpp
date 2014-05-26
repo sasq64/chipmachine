@@ -26,11 +26,7 @@ void MusicPlayerList::nextSong() {
 	}
 }
 
-void MusicPlayerList::playFile(const std::string &fileName) {
-	lock_guard<mutex> guard(plMutex);
-	mp.playFile(fileName);
-	state = PLAY_STARTED;
-	length = mp.getLength();
+void MusicPlayerList::updateInfo() {
 	auto si = mp.getPlayingInfo();
 	if(si.title != "")
 		currentInfo.title = si.title;
@@ -43,6 +39,19 @@ void MusicPlayerList::playFile(const std::string &fileName) {
 	currentInfo.numtunes = si.numtunes;
 	currentInfo.starttune = si.starttune;
 }
+
+void MusicPlayerList::playFile(const std::string &fileName) {
+	lock_guard<mutex> guard(plMutex);
+	mp.playFile(fileName);
+	state = PLAY_STARTED;
+	updateInfo();
+}
+
+void MusicPlayerList::seek(int song, int seconds) {
+	mp.seek(song, seconds);
+	updateInfo();
+}
+
 
 MusicPlayerList::State MusicPlayerList::update() {
 	if(state == PLAYING && !mp.playing()) {
@@ -117,7 +126,7 @@ SongInfo MusicPlayerList::getInfo(int index) {
 }
 
 int MusicPlayerList::getLength() {
-	return length;
+	return currentInfo.length;
 }
 
 int MusicPlayerList::getPosition() {

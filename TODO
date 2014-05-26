@@ -1,4 +1,13 @@
 
+* Dont index secondary files
+* Reset current song
+* Update songlength after subsong
+* Check for subsong name
+
+* FIX ADLIB
+
+
+
 LUA
 
 pl = find('stardust memories')

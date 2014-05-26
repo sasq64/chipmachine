@@ -5,6 +5,9 @@ OBJDIR := obj/
 CFLAGS += -O2 -g -Wall -I$(MODULE_DIR) -Wno-switch
 SRCDIR := src/
 
+USE_CCACHE := 1
+USE_CLANG := 1
+
 #SDL_AUDIO := 1
 
 include $(MODULE_DIR)/coreutils/module.mk
@@ -30,8 +33,5 @@ include $(MODULE_DIR)/crypto/module.mk
 TARGET := chipmachine
 LOCAL_FILES += main.cpp MusicDatabase.cpp SearchIndex.cpp MusicPlayerList.cpp MusicPlayer.cpp TelnetInterface.cpp
 LIBS += -lz
-
-USE_CCACHE:=1
-USE_CLANG:=1
 
 include $(MODULE_DIR)/build.mk

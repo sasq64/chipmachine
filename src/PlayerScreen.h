@@ -41,6 +41,10 @@ public:
 		this->font = font;
 	}
 
+	grappix::Font& getFont() {
+		return font;
+	}
+
 	std::shared_ptr<TextField> addField(const std::string &text, float x = 0, float y = 0, float scale = 1.0, uint32_t color = 0xffffffff) {
 		fields.push_back(std::make_shared<TextField>(text, x, y, scale, color));
 		return fields.back();
