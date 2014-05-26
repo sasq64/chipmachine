@@ -55,6 +55,7 @@ void MusicPlayerList::seek(int song, int seconds) {
 
 MusicPlayerList::State MusicPlayerList::update() {
 	if(state == PLAYING && !mp.playing()) {
+		lock_guard<mutex> guard(plMutex);
 		LOGD("#### Music ended");
 		if(playList.size() == 0)
 			state = STOPPED;
@@ -99,7 +100,9 @@ MusicPlayerList::State MusicPlayerList::update() {
 				});
 			}
 			webgetter.getURL(currentInfo.path, [=](const WebGetter::Job &job) {
+				LOGD("Got file");
 				loadedFile = job.getFile();
+				LOGD("loadedFile %s", loadedFile);
 				files--;
 			});
 		} else {

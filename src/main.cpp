@@ -19,6 +19,14 @@ using namespace utils;
 using namespace grappix;
 using namespace tween;
 
+static std::unordered_set<std::string> tracker_formats = { "Protracker", "Fasttracker 2", "Screamtracker 3", "Screamtracker 2", "Impulsetracker" };
+static std::unordered_set<std::string> game_formats = { "Super Nintendo Sound Format", "Gameboy Sound System", "Playstation Sound Format" };
+static std::unordered_set<std::string> sid_formats = { "PlaySID", "RealSID"};
+static std::unordered_set<std::string> amiga_formats = { "Delitracker Custom", "TFMX", "AHX", "Future Composer 1.3", "Future Composer 1.4", "Future Composer BSI" };
+static std::unordered_set<std::string> atari_formats = { "SC68", "SNDH" };
+
+
+
 namespace chipmachine {
 
 class ChipMachine {
@@ -32,17 +40,17 @@ public:
 		telnet->start();
 		memset(&eq[0], 2, eq.size());
 
-		auto mfont = Font("data/ObelixPro.ttf", 32, 256 | Font::DISTANCE_MAP);
+		auto mfont = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
 
 		mainScreen.setFont(mfont);
 		searchScreen.setFont(mfont);
 
 		prevInfoField = SongInfoField(mainScreen, -3200, 64, 10.0, 0x00e0e080);
 		currentInfoField = SongInfoField(mainScreen, tv0.x, tv0.y, 2.0, 0xffe0e080);
-		nextInfoField = SongInfoField(mainScreen, 440, 340, 0.8, 0xffe0e080);
-		outsideInfoField = SongInfoField(800, 340, 0.8, 0xffe0e080);
+		nextInfoField = SongInfoField(mainScreen, 440, 340, 1.0, 0xffe0e080);
+		outsideInfoField = SongInfoField(800, 340, 1.0, 0xffe0e080);
 
-		nextField = mainScreen.addField("next", 440, 320, 0.5, 0xe080c0ff);		
+		nextField = mainScreen.addField("next", 440, 320, 0.6, 0xe080c0ff);		
 
 		timeField = mainScreen.addField("00:00", tv0.x, 188, 1.0, 0xff888888);
 		lengthField = mainScreen.addField("(00:00)", 200, 188, 1.0, 0xff888888);
@@ -63,16 +71,21 @@ public:
 
 		auto k = screen.get_key();
 
+		bool searchUpdated = false;
+		int omark = marked;
+
 		if(k >= '1' && k <= '9') {
 			// TODO : If more than 9 songs, require 2 presses
 			// and also display pressed digits in corner
 			currentScreen = &searchScreen;
 			iquery.addLetter(tolower(k));
+			searchUpdated = true;
 			//mp.seek(k - '1');
 			//length = mp.getLength();
 		} else if(k >= 'A' && k<='Z') {
 			currentScreen = &searchScreen;
 			iquery.addLetter(tolower(k));
+			searchUpdated = true;
 		} else {
 			switch(k) {
 			case Window::F1:
@@ -84,15 +97,19 @@ public:
 			case Window::SPACE:
 				currentScreen = &searchScreen;
 				iquery.addLetter(' ');
+				searchUpdated = true;
 				//next();
 				break;
 			case Window::BACKSPACE:
 				currentScreen = &searchScreen;
 				iquery.removeLast();
+				searchUpdated = true;
 				break;
 			case Window::F10:
+			case Window::ESCAPE:
 				currentScreen = &searchScreen;
 				iquery.clear();
+				searchUpdated = true;
 				break;
 			case Window::F9:
 				currentScreen = &mainScreen;
@@ -137,8 +154,10 @@ public:
 						//playList.push_back(si);
 						//next();
 						currentScreen = &mainScreen;
-					} else
+					} else {
 						player.addSong(si); 
+						marked++;
+					}
 						//playList.push_back(si);
 				}
 				break;
@@ -201,7 +220,7 @@ public:
 		}
 
 		for(int i=0; i<(int)eq.size(); i++) {
-			screen.rectangle(tv0.x-10 + 24*i, tv1.y+20-eq[i], 23, eq[i], 0xffffffff);
+			screen.rectangle(tv0.x-10 + 24*i, tv1.y+50-eq[i], 23, eq[i], 0xffffffff);
 			if(eq[i] >= 4)
 				eq[i]-=2;
 			else
@@ -227,27 +246,50 @@ public:
 		if(marked >= scrollpos + 20)
 			scrollpos = marked-20+1;
 
-
-		searchField->text = "#" + iquery.getString();
+		if(searchUpdated) {
+			searchField->text = "#" + iquery.getString();
+			searchField->setColor(0xffffffff);
+		}
 		if(iquery.newResult() || scrollpos != oldscrollpos) {
 
 			//if(nh > 20) nh = 20;
 			auto count = 20;
+			string fmt = "";
 			if(nh > 0) {
 				if(scrollpos + count >= nh) count = nh - scrollpos;
 				const auto &res = iquery.getResult(scrollpos, count);
 				LOGD("HITS %d COUNT %d, RESSIZE %d", nh, count, res.size());
 				for(int i=0; i<20; i++) {
 					if(i < count) {
+						uint32_t color = 0xff008000;
 						auto parts = split(res[i], "\t");
+						/*auto p = iquery.getFull(scrollpos+i);//atoi(parts[2].c_str()));
+						auto f = split(p, "\t")[3];
+						if(sid_formats.count(f) > 0) color = 0xff800000;
+						else if(tracker_formats.count(f) > 0) color = 0xff000080;
+						else if(amiga_formats.count(f) > 0) color = 0xff808000;
+						else if(atari_formats.count(f) > 0) color = 0xff008080;
+						resultField[i]->setColor(color);*/
 						resultField[i]->text = format("%s / %s", parts[0], parts[1]);
-					} else resultField[i]->text = "";
+					} else
+						resultField[i]->text = "";
 				}
 			} else {
 				for(int i=0; i<20; i++)
 					resultField[i]->text = "";
 			}
 		}
+
+		if(omark != marked && iquery.numHits() > 0) {
+			auto p = iquery.getFull(marked);//atoi(parts[2].c_str()));
+			auto parts = split(p, "\t");
+			auto ext = path_extension(parts[0]);
+			searchField->text = format("Format: %s (%s)", parts[3], ext);
+			searchField->setColor(0xffcccc66);
+			//const auto &res = iquery.getFull(scrollpos+marked);
+			//LOGD("%s", res);
+		}
+
 
 		auto marked_field = marked-scrollpos;
 
@@ -257,12 +299,9 @@ public:
 			
 			if(markTween.valid()) {
 				markTween.cancel();
-				make_tween().to(resultField[old_marked]->g, 0.5f).seconds(1.0);
+				make_tween().to(resultField[old_marked]->add, 0.0f).seconds(1.0);
 			}
-			//if(iquery.numHits() > 0) {
-				//const auto &res = iquery.getFull(scrollpos+marked);
-				//LOGD("%s", res);
-			//}
+
 /*
 			for(int i=0; i<20; i++) {
 				float y = i/20.0;
@@ -273,8 +312,8 @@ public:
 				make_tween().to(resultField[i]->scale, s).to(resultField[i]->pos.y, y);
 			}
 */
-			resultField[marked_field]->g = 0.5;
-			markTween = make_tween().sine().repeating().from(resultField[marked_field]->g, 1.0f).seconds(1.0);
+			resultField[marked_field]->add = 0.0;
+			markTween = make_tween().sine().repeating().from(resultField[marked_field]->add, 1.0f).seconds(1.0);
 			old_marked = marked_field;
 		}
 

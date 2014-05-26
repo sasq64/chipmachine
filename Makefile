@@ -2,7 +2,7 @@ MODULE_DIR = ../cpp-mods
 include $(MODULE_DIR)/config.mk
 
 OBJDIR := obj/
-CFLAGS += -O2 -g -Wall -I$(MODULE_DIR) -Wno-switch
+CFLAGS += -g -Wall -I$(MODULE_DIR) -Wno-switch
 SRCDIR := src/
 
 USE_CCACHE := 1
