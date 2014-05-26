@@ -53,7 +53,8 @@ public:
 		nextField = mainScreen.addField("next", 440, 320, 0.6, 0xe080c0ff);		
 
 		timeField = mainScreen.addField("00:00", tv0.x, 188, 1.0, 0xff888888);
-		lengthField = mainScreen.addField("(00:00)", 200, 188, 1.0, 0xff888888);
+		lengthField = mainScreen.addField("(00:00)", tv0.x + 100, 188, 1.0, 0xff888888);
+		songField = mainScreen.addField("[00/00]", tv0.x + 220, 188, 1.0, 0xff888888);
 
 		searchField = searchScreen.addField("#", tv0.x, tv0.y, 1.0, 0xff888888);
 		for(int i=0; i<20; i++) {
@@ -127,11 +128,15 @@ public:
 			case Window::LEFT:
 				if(currentTune > 0) {
 					player.seek(--currentTune);
+					songField->add = 0.0;
+					make_tween().sine().to(songField->add, 1.0).seconds(0.5);
 				}
 				break;
 			case Window::RIGHT:
 				if(currentTune < currentInfo.numtunes) {
 					player.seek(++currentTune);
+					songField->add = 0.0;
+					make_tween().sine().to(songField->add, 1.0).seconds(0.5);
 				}
 				break;
 			case Window::PAGEUP:
@@ -230,7 +235,15 @@ public:
 		auto p = player.getPosition();
 		int length = player.getLength();
 		timeField->text = format("%02d:%02d", p/60, p%60);
-		lengthField->text = format("(%02d:%02d) [%02d/%02d]", length/60, length%60, currentTune+1, currentInfo.numtunes);
+		if(length > 0)
+			lengthField->text = format("(%02d:%02d)", length/60, length%60);
+		else
+			lengthField->text = "";
+
+		if(currentInfo.numtunes > 0)
+			songField->text = format("[%02d/%02d]", currentTune+1, currentInfo.numtunes);
+		else
+			songField->text = "";
 
 		auto oldscrollpos = scrollpos;
 		int nh = iquery.numHits();
@@ -344,6 +357,7 @@ private:
 
 	shared_ptr<PlayerScreen::TextField> timeField;
 	shared_ptr<PlayerScreen::TextField> lengthField;
+	shared_ptr<PlayerScreen::TextField> songField;
 	shared_ptr<PlayerScreen::TextField> nextField;
 
 	std::vector<shared_ptr<PlayerScreen::TextField>> resultField;

@@ -42,7 +42,8 @@ void MusicPlayerList::updateInfo() {
 
 void MusicPlayerList::playFile(const std::string &fileName) {
 	lock_guard<mutex> guard(plMutex);
-	mp.playFile(fileName);
+	if(fileName != "")
+		mp.playFile(fileName);
 	state = PLAY_STARTED;
 	updateInfo();
 }
@@ -86,6 +87,7 @@ MusicPlayerList::State MusicPlayerList::update() {
 		auto proto = split(currentInfo.path, ":");
 		if(proto.size() > 0 && (proto[0] == "http" || proto[0] == "ftp")) {
 			state = LOADING;
+			loadedFile = "";
 			auto ext = path_extension(currentInfo.path);
 			makeLower(ext);
 			LOGD("EXT: %s", ext);
@@ -101,8 +103,11 @@ MusicPlayerList::State MusicPlayerList::update() {
 			}
 			webgetter.getURL(currentInfo.path, [=](const WebGetter::Job &job) {
 				LOGD("Got file");
-				loadedFile = job.getFile();
-				LOGD("loadedFile %s", loadedFile);
+				if(job.getReturnCode() == 0) {
+					loadedFile = job.getFile();
+					LOGD("loadedFile %s", loadedFile);
+				} else
+					LOGD("Song failed");
 				files--;
 			});
 		} else {

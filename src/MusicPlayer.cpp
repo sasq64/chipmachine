@@ -26,7 +26,7 @@ MusicPlayer::MusicPlayer() : plugins {
 		new GMEPlugin {},
 		new SC68Plugin {"data/sc68"},
 		new StSoundPlugin {},
-		new AdPlugin {},
+		//new AdPlugin {},
 		new UADEPlugin {}
 	}
 {

@@ -4,6 +4,10 @@
 * Update songlength after subsong
 * Check for subsong name
 
+* SNES length too large
+* GB length negative - dont print
+*
+
 * FIX ADLIB
 
 
