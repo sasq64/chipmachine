@@ -20,14 +20,9 @@ void ModlandDatabase::init() {
 
 	LOGD("Indexing...\n");
 
-	static const unordered_set<string> ownDirFormats = {
-		"Dreamcast Sound Format",
-		"Gameboy Sound Format",
-		"Nintendo Sound Format",
-		"Nintendo SPC",
-		"Video Game Music",
-		"Ultra64 Sound Format",
-		"Playstation Sound Format"
+	static const unordered_set<string> hasSubFormats = {
+		"Ad Lib",
+		"Video Game Music"
 	};
 
 	//db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING)");
@@ -40,6 +35,12 @@ void ModlandDatabase::init() {
 	for(const auto &s : file.getLines()) {
 
 		auto path = split(s, "\t")[1];
+
+		string ext = path_extension(path);
+		if(secondary.count(ext) > 0) {
+			continue;
+		}
+
 		auto parts = split(path, "/");
 		auto l = parts.size();
 		if(l < 3) {
@@ -47,31 +48,29 @@ void ModlandDatabase::init() {
 			continue;
 		}
 
-		int i = l-1;
-		bool ownDir = (ownDirFormats.count(parts[0]) > 0);
+		int i = 0;
+		string fmt = parts[i++];
+		if(hasSubFormats.count(fmt) > 0)
+			i++;//fmt = fmt + "/" + parts[i++];
+		string composer = parts[i++];
 
-		string title = path_basename(parts[i--]);
-		string game;
-		string ext = path_extension(path);
-		if(secondary.count(ext) > 0) {
-			continue;
+		if(fmt == "MDX") {
+			i--;
+			composer = "?";
 		}
-
-		if(ownDir && l >= 4) {
-			game = parts[i--];
-		}
-
-		string composer = parts[i--];
 
 		if(composer == "- unknown")
 			composer = "?";
 
-		if(composer.substr(0, 5) == "coop-")
-			composer = parts[i--] + "+" + composer.substr(5);
+		if(parts[i].substr(0, 5) == "coop-")
+			composer = composer + "+" + parts[i++].substr(5);
 
-		string format = parts[i--];
+		string game;
+		if(l-i == 2)
+			game = parts[i++];
+		string title = path_basename(parts[i++]);
 
-		query.bind(title, game, composer, format, path);
+		query.bind(title, game, composer, fmt, path);
 		
 		query.step();
 	}
