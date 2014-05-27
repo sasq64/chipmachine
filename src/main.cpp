@@ -19,13 +19,11 @@ using namespace utils;
 using namespace grappix;
 using namespace tween;
 
-static std::unordered_set<std::string> tracker_formats = { "Protracker", "Fasttracker 2", "Screamtracker 3", "Screamtracker 2", "Impulsetracker" };
-static std::unordered_set<std::string> game_formats = { "Super Nintendo Sound Format", "Gameboy Sound System", "Playstation Sound Format" };
-static std::unordered_set<std::string> sid_formats = { "PlaySID", "RealSID"};
-static std::unordered_set<std::string> amiga_formats = { "Delitracker Custom", "TFMX", "AHX", "Future Composer 1.3", "Future Composer 1.4", "Future Composer BSI" };
-static std::unordered_set<std::string> atari_formats = { "SC68", "SNDH" };
-
-
+//static std::unordered_set<std::string> tracker_formats = { "Protracker", "Fasttracker 2", "Screamtracker 3", "Screamtracker 2", "Impulsetracker" };
+//static std::unordered_set<std::string> game_formats = { "Super Nintendo Sound Format", "Gameboy Sound System", "Playstation Sound Format" };
+//static std::unordered_set<std::string> sid_formats = { "PlaySID", "RealSID"};
+//static std::unordered_set<std::string> amiga_formats = { "Delitracker Custom", "TFMX", "AHX", "Future Composer 1.3", "Future Composer 1.4", "Future Composer BSI" };
+//static std::unordered_set<std::string> atari_formats = { "SC68", "SNDH" };
 
 namespace chipmachine {
 
@@ -40,10 +38,10 @@ public:
 		telnet->start();
 		memset(&eq[0], 2, eq.size());
 
-		auto mfont = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
+		auto font = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
 
-		mainScreen.setFont(mfont);
-		searchScreen.setFont(mfont);
+		mainScreen.setFont(font);
+		searchScreen.setFont(font);
 
 		prevInfoField = SongInfoField(mainScreen, -3200, 64, 10.0, 0x00e0e080);
 		currentInfoField = SongInfoField(mainScreen, tv0.x, tv0.y, 2.0, 0xffe0e080);
@@ -52,7 +50,7 @@ public:
 
 		nextField = mainScreen.addField("next", 440, 320, 0.6, 0xe080c0ff);		
 
-		timeField = mainScreen.addField("00:00", tv0.x, 188, 1.0, 0xff888888);
+		timeField = mainScreen.addField("", tv0.x, 188, 1.0, 0xff888888);
 		lengthField = mainScreen.addField("(00:00)", tv0.x + 100, 188, 1.0, 0xff888888);
 		songField = mainScreen.addField("[00/00]", tv0.x + 220, 188, 1.0, 0xff888888);
 
@@ -70,6 +68,16 @@ public:
 
 	void render(uint32_t delta) {
 
+		auto show_main = [=]() {
+			currentScreen = &mainScreen;
+			make_tween().to(spectrumColor, Color<float>(0xff00aaee)).seconds(1.0);
+		};
+
+		auto show_search = [=]() {
+			currentScreen = &searchScreen;
+			make_tween().to(spectrumColor, Color<float>(0xff111155)).seconds(1.0);
+		};
+
 		auto k = screen.get_key();
 
 		bool searchUpdated = false;
@@ -78,42 +86,42 @@ public:
 		if(k >= '1' && k <= '9') {
 			// TODO : If more than 9 songs, require 2 presses
 			// and also display pressed digits in corner
-			currentScreen = &searchScreen;
+			show_search();
 			iquery.addLetter(tolower(k));
 			searchUpdated = true;
 			//mp.seek(k - '1');
 			//length = mp.getLength();
 		} else if(k >= 'A' && k<='Z') {
-			currentScreen = &searchScreen;
+			show_search();
 			iquery.addLetter(tolower(k));
 			searchUpdated = true;
 		} else {
 			switch(k) {
 			case Window::F1:
-				currentScreen = &mainScreen;
+				show_main();
 				break;
 			case Window::F2:
-				currentScreen = &searchScreen;
+				show_search();
 				break;
 			case Window::SPACE:
-				currentScreen = &searchScreen;
+				show_search();
 				iquery.addLetter(' ');
 				searchUpdated = true;
 				//next();
 				break;
 			case Window::BACKSPACE:
-				currentScreen = &searchScreen;
+				show_search();
 				iquery.removeLast();
 				searchUpdated = true;
 				break;
 			case Window::F10:
 			case Window::ESCAPE:
-				currentScreen = &searchScreen;
+				show_search();
 				iquery.clear();
 				searchUpdated = true;
 				break;
 			case Window::F9:
-				currentScreen = &mainScreen;
+				show_main();
 				player.nextSong();
 				break;
 			case Window::F12:
@@ -155,15 +163,11 @@ public:
 						player.clearSongs();
 						player.addSong(si);
 						player.nextSong();
-						//playList.clear();
-						//playList.push_back(si);
-						//next();
-						currentScreen = &mainScreen;
+						show_main();
 					} else {
 						player.addSong(si); 
 						marked++;
 					}
-						//playList.push_back(si);
 				}
 				break;
 			}
@@ -225,7 +229,7 @@ public:
 		}
 
 		for(int i=0; i<(int)eq.size(); i++) {
-			screen.rectangle(tv0.x-10 + 24*i, tv1.y+50-eq[i], 23, eq[i], 0xffffffff);
+			screen.rectangle(tv0.x-10 + 24*i, tv1.y+50-eq[i], 23, eq[i], spectrumColor);
 			if(eq[i] >= 4)
 				eq[i]-=2;
 			else
@@ -271,18 +275,9 @@ public:
 			if(nh > 0) {
 				if(scrollpos + count >= nh) count = nh - scrollpos;
 				const auto &res = iquery.getResult(scrollpos, count);
-				LOGD("HITS %d COUNT %d, RESSIZE %d", nh, count, res.size());
 				for(int i=0; i<20; i++) {
 					if(i < count) {
-						uint32_t color = 0xff008000;
 						auto parts = split(res[i], "\t");
-						/*auto p = iquery.getFull(scrollpos+i);//atoi(parts[2].c_str()));
-						auto f = split(p, "\t")[3];
-						if(sid_formats.count(f) > 0) color = 0xff800000;
-						else if(tracker_formats.count(f) > 0) color = 0xff000080;
-						else if(amiga_formats.count(f) > 0) color = 0xff808000;
-						else if(atari_formats.count(f) > 0) color = 0xff008080;
-						resultField[i]->setColor(color);*/
 						resultField[i]->text = format("%s / %s", parts[0], parts[1]);
 					} else
 						resultField[i]->text = "";
@@ -294,13 +289,11 @@ public:
 		}
 
 		if(omark != marked && iquery.numHits() > 0) {
-			auto p = iquery.getFull(marked);//atoi(parts[2].c_str()));
+			auto p = iquery.getFull(marked);
 			auto parts = split(p, "\t");
 			auto ext = path_extension(parts[0]);
 			searchField->text = format("Format: %s (%s)", parts[3], ext);
 			searchField->setColor(0xffcccc66);
-			//const auto &res = iquery.getFull(scrollpos+marked);
-			//LOGD("%s", res);
 		}
 
 
@@ -315,16 +308,6 @@ public:
 				make_tween().to(resultField[old_marked]->add, 0.0f).seconds(1.0);
 			}
 
-/*
-			for(int i=0; i<20; i++) {
-				float y = i/20.0;
-				y = pow(y, 0.9);
-				float s = 0.8 / y;
-				y = tv0.y+30+(y*20.0*22.0);
-				LOGD("%f", y);
-				make_tween().to(resultField[i]->scale, s).to(resultField[i]->pos.y, y);
-			}
-*/
 			resultField[marked_field]->add = 0.0;
 			markTween = make_tween().sine().repeating().from(resultField[marked_field]->add, 1.0f).seconds(1.0);
 			old_marked = marked_field;
@@ -333,7 +316,12 @@ public:
 		currentScreen->render(delta);
 
 		screen.flip();
+
+		currentScreen->getFont().update_cache();
+		//searchScreen.getFont().update_cache();
+
 	}
+
 
 private:
 
@@ -366,6 +354,8 @@ private:
 	vec2i tv0 = { 80, 54 };
 	vec2i tv1 = { 636, 520 };
 
+	Color<float> spectrumColor { 0xffffffff };
+
 	int marked = 0;
 	int old_marked = -1;
 	int scrollpos = 0;
@@ -375,7 +365,7 @@ private:
 	SongInfo currentInfo;
 	int currentTune = 0;
 
-	Font font;
+	//Font font;
 
 	TweenHolder currentTween;
 	std::vector<uint8_t> eq;

@@ -74,7 +74,7 @@ struct SongInfoField {
 
 		SongInfoField(int x, int y, float sc = 1.0, uint32_t color = 0xffffffff) {
 			fields[0] = std::make_shared<PlayerScreen::TextField>("", x, y, sc, color);
-			fields[1] = std::make_shared<PlayerScreen::TextField>("", x, y+60*sc, sc*0.6, color);
+			fields[1] = std::make_shared<PlayerScreen::TextField>("", x, y+50*sc, sc*0.6, color);
 			fields[2] = std::make_shared<PlayerScreen::TextField>("", x, y+100*sc, sc*0.4, color);
 		}
 
