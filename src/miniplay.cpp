@@ -44,7 +44,14 @@ int main(int argc, char* argv[]) {
 			break;
 		}
 	}
-
+/*
+	vector<int16_t> buffer(8192);
+	File f { "dump.raw" };
+	while(true) {
+		player->getSamples(&buffer[0], buffer.size());
+		f.write(
+	}
+*/
 	if(player) {
 		AudioPlayer ap ([&](int16_t *ptr, int size) {
 			player->getSamples(ptr, size);

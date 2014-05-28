@@ -1,30 +1,43 @@
+------
+-- Lua settings
+--
+print("IN LUA0");
 
--- Playlist
+TEXT_COLOR = 0xffe0e080
+DIGITS_COLOR = 0xffb0b0a0
 
-Playlist = {}
-Playlist.mt = {}
+X0 = 80
+Y0 = 54
+X1 = 636
+Y1 = 520
+Settings.top_left = { X0, Y0 }
+Settings.down_right = { X1, Y1 }
 
-function Playlist.new()
-	local pl = {}
-	setmetatable(pl, Playlist.mt)
-	return pl
-end
+scale = 3.0
+Settings.main_title = { X0, Y0, scale, TEXT_COLOR }
+Settings.main_composer = { X0, Y0+25*scale, scale*0.6, TEXT_COLOR }
+Settings.main_format = { X0, Y0+45*scale, scale*0.3, TEXT_COLOR }
 
-function Playlist.concat(a, b)
-	local res = Set.new{}
-	for _,v in ipairs(a) do res[#t+1] = v end
-	for _,v in ipairs(b) do res[#t+1] = v end
-	return res
-end
+scale = 1.2
+x = 440
+y = 340
+Settings.next_field = { x, y-14, 0.5, 0xff444477 }
+Settings.next_title = { x, y, scale, TEXT_COLOR }
+Settings.next_composer = { x, y+25*scale, scale*0.6, TEXT_COLOR }
+Settings.next_format = { x, y+45*scale, scale*0.3, TEXT_COLOR }
 
-Console = {}
-currentPlayList = {}
+scale = 80.0
+Settings.prev_title = { -3200, Y0, scale, 0 }
+Settings.prev_composer = { -3200, Y0+25*scale, scale*0.6, 0 }
+Settings.prev_format = { -3200, Y0+45*scale, scale*0.3, 0 }
 
-function Console.find(...)
-	s = ''
-	for i = 1, #arg do
-		if i > 1 then s = s..' ' end
-		s = s..arg[i]
-	end
-	result = db_find(s)
-end
+Settings.time_field = { X0, Y0 + 200, 1.0, DIGITS_COLOR }
+Settings.length_field = { X0 + 100, Y0 + 200, 1.0, DIGITS_COLOR }
+Settings.song_field = { X0 + 220, Y0 + 200, 1.0, DIGITS_COLOR }
+
+Settings.spectrum = { X0-80, Y1+50, 28, 16.0 }
+
+
+Settings.font = "data/Neutra.otf"
+------
+print("Lua parsing done")
