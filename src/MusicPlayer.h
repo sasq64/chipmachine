@@ -30,6 +30,12 @@ public:
 	uint32_t getPosition() { return pos/44100; };
 	uint32_t getLength() { return length; }
 
+	void pause(bool dopause = true);
+
+	bool isPaused() {
+		return paused;
+	}
+
 	void seek(int song, int seconds = -1);
 
 	SongInfo getPlayingInfo();
@@ -48,14 +54,18 @@ public:
 private:
 	Fifo fifo;
 	std::shared_ptr<ChipPlayer> fromFile(const std::string &fileName);
+
+	//Fifo fifo;
 	SpectrumAnalyzer fft;
 	std::vector<ChipPlugin*> plugins;
+	bool paused = false;
 	std::array<uint16_t, SpectrumAnalyzer::eq_slots> spectrum;
 	//std::string toPlay;
 	std::mutex m;
 	std::shared_ptr<ChipPlayer> player;
 	int pos;
 	int length;
+
 };
 
 }

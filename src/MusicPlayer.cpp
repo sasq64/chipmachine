@@ -32,16 +32,8 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 {
 	AudioPlayer::play([=](int16_t *ptr, int size) mutable {
 		lock_guard<mutex> guard(m);
-/*		if(toPlay != "") {
-			player = nullptr;
-			player = fromFile(toPlay);
-			toPlay = "";
-			if(player) {
-				pos = 0;
-				length = player->getMetaInt("length");
-			}
-		} */
-		if(player) {
+
+		if(!paused && player) {
 			int sz = size;
 			while(true) {
 				if(sz <= 0)
@@ -88,6 +80,7 @@ void MusicPlayer::playFile(const std::string &fileName) {
 	player = fromFile(fileName);
 	//toPlay = "";
 	if(player) {
+		pause(false);
 		pos = 0;
 		length = player->getMetaInt("length");
 	}
@@ -107,6 +100,11 @@ SongInfo MusicPlayer::getPlayingInfo() {
 	return si;
 }
 
+void MusicPlayer::pause(bool dopause) {
+	if(dopause) AudioPlayer::pause_audio();
+	else AudioPlayer::resume_audio();
+	paused = dopause;
+}
 
 shared_ptr<ChipPlayer> MusicPlayer::fromFile(const std::string &fileName) {
 	shared_ptr<ChipPlayer> player;

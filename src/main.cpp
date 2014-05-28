@@ -103,6 +103,14 @@ public:
 			case Window::F2:
 				show_search();
 				break;
+			case Window::F5:
+				player.pause(!player.isPaused());
+				if(player.isPaused()) {
+					LOGD("TWEEN IT");
+					make_tween().sine().repeating().to(timeField->r, 1.0);
+				} else
+					make_tween().to(timeField->r, 0.0);
+				break;
 			case Window::SPACE:
 				show_search();
 				iquery.addLetter(' ');
@@ -231,10 +239,12 @@ public:
 
 		for(int i=0; i<(int)eq.size(); i++) {
 			screen.rectangle(tv0.x-10 + 24*i, tv1.y+50-eq[i], 23, eq[i], spectrumColor);
-			if(eq[i] >= 4)
-				eq[i]-=2;
-			else
-				eq[i] = 2;
+			if(!player.isPaused()) {
+				if(eq[i] >= 4)
+					eq[i]-=2;
+				else
+					eq[i] = 2;
+			}
 		}
 
 		auto p = player.getPosition();

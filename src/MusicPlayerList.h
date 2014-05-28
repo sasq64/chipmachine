@@ -36,6 +36,8 @@ public:
 	int listSize();
 
 	bool playing() { return mp.playing(); }
+	void pause(bool dopause = true) { mp.pause(dopause); }
+	bool isPaused() { return mp.isPaused(); }
 
 	void seek(int song, int seconds = -1);
 private:
