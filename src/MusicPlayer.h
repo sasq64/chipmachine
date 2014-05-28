@@ -1,6 +1,8 @@
 
 #include "SongInfo.h"
 
+#include <musicplayer/common/fifo.h>
+
 #include <fft/spectrum.h>
 
 #include <atomic>
@@ -44,6 +46,7 @@ public:
 	int spectrumSize() { return fft.eq_slots; }
 
 private:
+	Fifo fifo;
 	std::shared_ptr<ChipPlayer> fromFile(const std::string &fileName);
 	SpectrumAnalyzer fft;
 	std::vector<ChipPlugin*> plugins;

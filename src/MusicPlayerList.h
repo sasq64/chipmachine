@@ -35,6 +35,8 @@ public:
 	int getPosition();
 	int listSize();
 
+	bool playing() { return mp.playing(); }
+
 	void seek(int song, int seconds = -1);
 private:
 	void updateInfo();

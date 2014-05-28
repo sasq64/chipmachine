@@ -19,14 +19,14 @@ using namespace std;
 
 namespace chipmachine {
 
-MusicPlayer::MusicPlayer() : plugins {
+MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		new ModPlugin {},
 		new VicePlugin {"data/c64"},
 		new SexyPSFPlugin {},
 		new GMEPlugin {},
 		new SC68Plugin {"data/sc68"},
 		new StSoundPlugin {},
-		//new AdPlugin {},
+		new AdPlugin {},
 		new UADEPlugin {}
 	}
 {
@@ -42,14 +42,28 @@ MusicPlayer::MusicPlayer() : plugins {
 			}
 		} */
 		if(player) {
-			int rc = player->getSamples(ptr, size);
-			if(rc > 0)
-				fft.addAudio(ptr, size);
-			if(rc < 0) {
-				player = nullptr;
-				LOGD("GOT %d", rc);
+			int sz = size;
+			while(true) {
+				if(sz <= 0)
+					LOGD("WTF!");
+				int rc = player->getSamples((int16_t*)fifo.ptr(), sz);
+				
+				//LOGD("SILENCE %d", fifo.getSilence());
+				if(rc < 0 || fifo.getSilence() > 88200*5) {
+					LOGD("GOT %d", rc);
+					player = nullptr;
+					break;
+				}
+				fifo.putShorts(nullptr, rc);
+				pos += rc/2;
+				sz -= rc;
+				if(fifo.filled() >= size*2) {
+					fifo.getShorts(ptr, size);
+					fft.addAudio(ptr, size);
+					break;
+				}
 			}
-			else pos += size/2;
+
 		} else
 			memset(ptr, 0, size*2);
 	});

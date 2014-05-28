@@ -218,13 +218,14 @@ public:
 		screen.clear();
 
 		//screen.rectangle(tv0, tv1-tv0, 0xff444488);
-
-		auto spectrum = player.getSpectrum();
-		for(int i=0; i<(int)player.spectrumSize(); i++) {
-			if(spectrum[i] > 5) {
-				float f = log(spectrum[i]) * 20;
-				if(f > eq[i])
-					eq[i] = f;
+		if(player.playing()) {
+			auto spectrum = player.getSpectrum();
+			for(int i=0; i<(int)player.spectrumSize(); i++) {
+				if(spectrum[i] > 5) {
+					float f = log(spectrum[i]) * 20;
+					if(f > eq[i])
+						eq[i] = f;
+				}
 			}
 		}
 
@@ -317,8 +318,8 @@ public:
 
 		screen.flip();
 
-		currentScreen->getFont().update_cache();
-		//searchScreen.getFont().update_cache();
+		mainScreen.getFont().update_cache();
+		searchScreen.getFont().update_cache();
 
 	}
 
