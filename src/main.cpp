@@ -107,9 +107,9 @@ public:
 				player.pause(!player.isPaused());
 				if(player.isPaused()) {
 					LOGD("TWEEN IT");
-					make_tween().sine().repeating().to(timeField->r, 1.0);
+					make_tween().sine().repeating().to(timeField->add, 1.0);
 				} else
-					make_tween().to(timeField->r, 0.0);
+					make_tween().to(timeField->add, 0.0);
 				break;
 			case Window::SPACE:
 				show_search();

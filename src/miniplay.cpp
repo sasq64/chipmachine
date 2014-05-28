@@ -1,6 +1,3 @@
-
-//#include "chipplayer.h"
-
 #include <ModPlugin/ModPlugin.h>
 #include <VicePlugin/VicePlugin.h>
 #include <SexyPSFPlugin/SexyPSFPlugin.h>
@@ -13,6 +10,7 @@
 #include <cstdio>
 #include <vector>
 #include <string>
+#include <memory>
 
 using namespace chipmachine;
 using namespace std;
@@ -25,13 +23,13 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	vector<ChipPlugin*> plugins = {
-		new ModPlugin {},
-		new VicePlugin {"data/c64"},
-		new SexyPSFPlugin {},
-		new GMEPlugin {},
-		new SC68Plugin {"data/sc68"},
-		new UADEPlugin {}
+	vector<shared_ptr<ChipPlugin>> plugins = {
+		make_shared<ModPlugin>(),
+		make_shared<VicePlugin>("data/c64"),
+		make_shared<SexyPSFPlugin>(),
+		make_shared<GMEPlugin>(),
+		make_shared<SC68Plugin>("data/sc68"),
+		make_shared<UADEPlugin>()
 	};
 
 	File file { argv[1] };
@@ -39,7 +37,7 @@ int main(int argc, char* argv[]) {
 
 	string name = file.getName();
 	makeLower(name);
-	for(auto *plugin : plugins) {
+	for(auto plugin : plugins) {
 		if(plugin->canHandle(name)) {
 			printf("Playing with %s\n", plugin->name().c_str());
 			player = plugin->fromFile(file.getName());
