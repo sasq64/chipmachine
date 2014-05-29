@@ -65,6 +65,7 @@ private:
 	std::shared_ptr<ChipPlayer> player;
 	int pos;
 	int length;
+	int fadeOut;
 
 };
 

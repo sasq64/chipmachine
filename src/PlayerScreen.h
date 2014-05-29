@@ -8,27 +8,15 @@ class PlayerScreen {
 public:
 
 	struct TextField {
-		TextField(const std::string &text, float x, float y, float sc, uint32_t col) : text(text), pos(x, y), scale(sc), color(col), f {&pos.x, &pos.y, &scale, &color.r, &color.g, &color.b, &color.a, &add} {
-			//setColor(color);
-			add = 0;
+		TextField(const std::string &text, float x, float y, float sc, uint32_t col) : text(text), pos(x, y), scale(sc), color(col), add(0), f {&pos.x, &pos.y, &scale, &color.r, &color.g, &color.b, &color.a, &add} {
 		}
+
 		std::string text;
 		utils::vec2f pos;
 
 		float scale;
 		grappix::Color color;
-		//float r;
-		//float g;
-		//float b;
-		float alpha;
 		float add;
-
-		/*void setColor(uint32_t color) {
-			r = ((color>>16)&0xff)/255.0;
-			g = ((color>>8)&0xff)/255.0;
-			b = (color&0xff)/255.0;
-			alpha = ((color>>24)&0xff)/255.0;
-		}*/
 
 		float& operator[](int i) { return *f[i]; }
 
@@ -39,16 +27,6 @@ public:
 
 	void render(uint32_t d) {
 		for(auto &f : fields) {
-/*
-			auto col = f->color + 
-
-			auto r = f->r + f->add;
-			if(r > 1.0) r = 1.0;
-			auto g = f->g + f->add;
-			if(g > 1.0) g = 1.0;
-			auto b = f->b + f->add;
-			if(b > 1.0) b = 1.0;
-			uint32_t c = ((int)(f->alpha*255)<<24) | ((int)(r*255)<<16) | ((int)(g*255)<<8) | (int)(b*255); */
 			grappix::screen.text(font, f->text, f->pos.x, f->pos.y, f->color + f->add, f->scale);
 		}
 	}
@@ -65,6 +43,17 @@ public:
 		fields.push_back(std::make_shared<TextField>(text, x, y, scale, color));
 		return fields.back();
 	}
+
+	void removeField(const std::shared_ptr<TextField> &field) {
+		auto it = fields.begin();
+		while(it != fields.end()) {
+			if(field.get() == it->get())
+				it = fields.erase(it);
+			else
+				it++;
+		}
+	}
+
 private:
 
 	grappix::Font font;

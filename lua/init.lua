@@ -1,7 +1,6 @@
 ------
 -- Lua settings
---
-print("IN LUA0");
+------
 
 TEXT_COLOR = 0xffe0e080
 DIGITS_COLOR = 0xffb0b0a0
@@ -18,6 +17,10 @@ Settings.main_title = { X0, Y0, scale, TEXT_COLOR }
 Settings.main_composer = { X0, Y0+25*scale, scale*0.6, TEXT_COLOR }
 Settings.main_format = { X0, Y0+45*scale, scale*0.3, TEXT_COLOR }
 
+Settings.time_field = { X0, Y0 + 200, 1.0, DIGITS_COLOR }
+Settings.length_field = { X0 + 100, Y0 + 200, 1.0, DIGITS_COLOR }
+Settings.song_field = { X0 + 220, Y0 + 200, 1.0, DIGITS_COLOR }
+
 scale = 1.2
 x = 440
 y = 340
@@ -31,12 +34,13 @@ Settings.prev_title = { -3200, Y0, scale, 0 }
 Settings.prev_composer = { -3200, Y0+25*scale, scale*0.6, 0 }
 Settings.prev_format = { -3200, Y0+45*scale, scale*0.3, 0 }
 
-Settings.time_field = { X0, Y0 + 200, 1.0, DIGITS_COLOR }
-Settings.length_field = { X0 + 100, Y0 + 200, 1.0, DIGITS_COLOR }
-Settings.song_field = { X0 + 220, Y0 + 200, 1.0, DIGITS_COLOR }
 
-Settings.spectrum = { X0-80, Y1+50, 28, 16.0 }
+Settings.spectrum = { X0-50, Y1+40, 26, 16.0 }
 
+Settings.search_field = { X0, Y0, 1.0, 0xffaaaaff }
+
+Settings.result_field = { X0, Y0+30, 0.8 }
+Settings.result_lines = 20
 
 Settings.font = "data/Neutra.otf"
 ------

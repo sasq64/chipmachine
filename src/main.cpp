@@ -50,10 +50,9 @@ public:
 
 		spectrumPos = { tv0.x-10, tv1.y+50 };
 
+		resultFieldTemplate = make_shared<PlayerScreen::TextField>("", tv0.x, tv0.y+30, 0.8, 0xff008000);
+
 		searchField = searchScreen.addField("#", tv0.x, tv0.y, 1.0, 0xff888888);
-		for(int i=0; i<numLines; i++) {
-			resultField.push_back(searchScreen.addField("", tv0.x, tv0.y+30+i*22, 0.8, 0xff008000));
-		}
 
 		static unordered_map<string, PlayerScreen::TextField*> fields = {
 			{ "main_title", &currentInfoField[0] },
@@ -68,26 +67,32 @@ public:
 			{ "length_field", lengthField.get() },
 			{ "time_field", timeField.get() },
 			{ "song_field", songField.get() },
-			{ "next_field", nextField.get() }
+			{ "next_field", nextField.get() },
+			{ "search_field", searchField.get() },
+			{ "result_field", resultFieldTemplate.get() },
 		};
 
-		lua.registerFunction<void, string, int, string>("set_var", [=](string name, int index, string val) {
+		lua.registerFunction<void, string, uint32_t, string>("set_var", [=](string name, uint32_t index, string val) {
 			LOGD("%s(%d) = %s", name, index, val);
 
 			if(fields.count(name) > 0) {
 				auto &f = (*fields[name]);
 				if(index == 4) {
-					f.color = Color(stol(val));
+					f.color = Color(stoll(val));
 				} else
-				f[index-1] = stod(val);
+					f[index-1] = stod(val);
 			} else
 			if(name == "spectrum") {
 				if(index <= 2)
 					spectrumPos[index-1] = stol(val);
 				else if(index == 3)
 					spectrumWidth = stol(val);
-				else
+				else if(index == 4)
 					spectrumHeight = stod(val);
+				else if(index == 5)
+					spectrumColorMain = Color(stoll(val));
+				else
+					spectrumColorSearch = Color(stoll(val));
 			} else
 			if(name == "top_left") {
 				//currentInfoField.fields[0].color = stol(val);
@@ -103,6 +108,13 @@ public:
 					mainScreen.setFont(font);
 					searchScreen.setFont(font);
 				}
+			} else
+			if(name == "result_lines") {
+				numLines = stol(val);
+				for(int i=0; i<resultField.size(); i++) {
+					searchScreen.removeField(resultField[i]);
+				}
+				resultField.clear();
 			}
 		});
 
@@ -115,7 +127,6 @@ public:
 			//LOGD(contents);
 			lua.load(R"(
 				for a,b in pairs(Settings) do 
-					print(a,b)
 					if type(b) == 'table' then
 						for a1,b1 in ipairs(b) do
 							set_var(a, a1, b1)
@@ -139,12 +150,12 @@ public:
 
 		auto show_main = [=]() {
 			currentScreen = &mainScreen;
-			make_tween().to(spectrumColor, Color(0xff00aaee)).seconds(1.0);
+			make_tween().to(spectrumColor, spectrumColorMain).seconds(1.0);
 		};
 
 		auto show_search = [=]() {
 			currentScreen = &searchScreen;
-			make_tween().to(spectrumColor, Color(0xff111155)).seconds(1.0);
+			make_tween().to(spectrumColor, spectrumColorSearch).seconds(1.0);
 		};
 
 		auto k = screen.get_key();
@@ -218,7 +229,7 @@ public:
 				}
 				break;
 			case Window::RIGHT:
-				if(currentTune < currentInfo.numtunes) {
+				if(currentTune < currentInfo.numtunes-1) {
 					player.seek(++currentTune);
 					songField->add = 0.0;
 					make_tween().sine().to(songField->add, 1.0).seconds(0.5);
@@ -260,9 +271,11 @@ public:
 			auto sc = currentInfoField[0].scale;
 
 			int tw = mainScreen.getFont().get_width(currentInfo.title, sc);
+			LOGD("'%s' is %d pixels", currentInfo.title, tw);
 			currentTween = make_tween().from(prevInfoField, currentInfoField).
 			from(currentInfoField, nextInfoField).
 			from(nextInfoField, outsideInfoField).seconds(1.5).on_complete([=]() {
+				LOGD("currentInfo is at x=%d", currentInfoField[0].pos.x);
 				auto d = (tw-(tv1.x-tv0.x-20));
 				if(d > 20)
 					make_tween().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
@@ -341,6 +354,15 @@ public:
 			scrollpos = marked;
 		if(marked >= scrollpos + numLines)
 			scrollpos = marked-numLines+1;
+
+
+
+		if(resultField.size() == 0) {
+			const auto &rft = resultFieldTemplate;
+			for(int i=0; i<numLines; i++) {
+				resultField.push_back(searchScreen.addField("", rft->pos.x, rft->pos.y + i*28*rft->scale, rft->scale, rft->color));
+			}
+		}
 
 		if(searchUpdated) {
 			searchField->text = "#" + iquery.getString();
@@ -431,11 +453,14 @@ private:
 
 	std::vector<shared_ptr<PlayerScreen::TextField>> resultField;
 	shared_ptr<PlayerScreen::TextField> searchField;
+	shared_ptr<PlayerScreen::TextField>resultFieldTemplate;
 
 	vec2i tv0 = { 80, 54 };
 	vec2i tv1 = { 636, 520 };
 
 	Color spectrumColor { 0xffffffff };
+	Color spectrumColorMain { 0xff00aaee };
+	Color spectrumColorSearch { 0xff111155 };
 	double spectrumHeight = 20.0;
 	int spectrumWidth = 24;
 	vec2i spectrumPos;
@@ -465,8 +490,8 @@ private:
 
 int main(int argc, char* argv[]) {
 
-	//screen.open(720, 576, false);
-	screen.open(true);
+	screen.open(720, 576, false);
+	//screen.open(true);
 	static chipmachine::ChipMachine app;
 
 	if(argc >= 2) {
