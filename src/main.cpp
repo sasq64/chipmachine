@@ -22,11 +22,44 @@ using namespace tween;
 
 namespace chipmachine {
 
+static const string starShaderF = R"(
+#ifdef GL_ES
+	precision mediump float;
+#endif
+	uniform sampler2D sTexture;
+	uniform float scrollpos; // 0 -> 1
+
+	const vec4 color0 = vec4(0.0, 1.0, 0.0, 1.0);
+	const vec4 color1 = vec4(1.0, 0.3, 0.3, 1.0);
+
+	varying vec2 UV;
+
+	void main() {
+		float m = mod(gl_FragCoord.y, 3);
+		float uvx = mod(UV.x + scrollpos * m, 1.0);
+		gl_FragColor = m * texture2D(sTexture, vec2(uvx, UV.y));
+	}
+)";
+
+
 class ChipMachine {
 public:
 	ChipMachine() : currentScreen(&mainScreen), eq(SpectrumAnalyzer::eq_slots)  {
 
 		iquery = modland.createQuery();
+
+		image::bitmap bm(screen.width(), screen.height());
+		bm.clear(0x00000000);
+		for(int y=0; y<bm.height(); y++) {
+			auto x = rand() % bm.width();
+			bm[y*bm.width()+x] = bm[y*bm.width()+x + 1] = 0xff888888;
+			bm[y*bm.width()+x + 2] = 0xff666666;
+		}
+		starTexture = Texture(bm);
+
+		starProgram = get_program(TEXTURED_PROGRAM).clone();
+		starProgram.setFragmentSource(starShaderF);
+		//starProgram.createProgram();
 
 		modland.init();
 		telnet = make_unique<TelnetInterface>(modland, player);
@@ -418,6 +451,11 @@ public:
 
 		currentScreen->render(delta);
 
+		starProgram.use();
+		starProgram.setUniform("scrollpos", starPos += (0.000173 * delta));
+
+		screen.draw(starTexture, starProgram);
+
 		screen.flip();
 
 		mainScreen.getFont().update_cache();
@@ -484,6 +522,9 @@ private:
 
 	LuaInterpreter lua;
 
+	Texture starTexture;
+	Program starProgram;
+	float starPos = 0.0;
 };
 
 } // namespace chipmachine
