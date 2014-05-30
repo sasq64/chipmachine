@@ -6,7 +6,8 @@
 
 #include <audioplayer/audioplayer.h>
 
-#include <musicplayer/plugins/ModPlugin/ModPlugin.h>
+#include <musicplayer/plugins/OpenMPTPlugin/OpenMPTPlugin.h>
+#include <musicplayer/plugins/HTPlugin/HTPlugin.h>
 #include <musicplayer/plugins/VicePlugin/VicePlugin.h>
 #include <musicplayer/plugins/SexyPSFPlugin/SexyPSFPlugin.h>
 #include <musicplayer/plugins/GMEPlugin/GMEPlugin.h>
@@ -22,7 +23,9 @@ using namespace utils;
 namespace chipmachine {
 
 MusicPlayer::MusicPlayer() : fifo(32786), plugins {
-		new ModPlugin {},
+		//new ModPlugin {},
+		new OpenMPTPlugin {},
+		new HTPlugin {},
 		new VicePlugin {"data/c64"},
 		new SexyPSFPlugin {},
 		new GMEPlugin {},

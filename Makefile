@@ -20,6 +20,8 @@ include $(MODULE_DIR)/grappix/module.mk
 include $(MODULE_DIR)/fft/module.mk
 
 include $(MODULE_DIR)/musicplayer/plugins/ModPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/OpenMPTPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/HTPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/VicePlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/GMEPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/SexyPSFPlugin/module.mk
