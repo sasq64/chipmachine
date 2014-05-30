@@ -2,6 +2,7 @@
 #include "MusicPlayer.h"
 
 #include <coreutils/utils.h>
+#include <coreutils/format.h>
 
 #include <audioplayer/audioplayer.h>
 
@@ -16,6 +17,7 @@
 
 
 using namespace std;
+using namespace utils;
 
 namespace chipmachine {
 
@@ -66,7 +68,7 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 				//LOGD("SILENCE %d", fifo.getSilence());
 				if(fadeOut != 0)
 					fifo.setVolume((fadeOut - pos) / (3.0*44100.0));
-				fifo.putShorts(nullptr, rc);
+				fifo.processShorts(nullptr, rc);
 				pos += rc/2;
 				sz -= rc;
 				if(fifo.filled() >= size*2) {
@@ -113,7 +115,14 @@ SongInfo MusicPlayer::getPlayingInfo() {
 	lock_guard<mutex> guard(m);
 	SongInfo si;
 	if(player) {
+		auto game = player->getMeta("game");
 		si.title = player->getMeta("title");
+		if(game != "") {
+			if(si.title != "") {
+				si.title = format("%s (%s)", game, si.title);
+			} else
+			si.title = game;
+		}
 		si.composer = player->getMeta("composer");
 		si.format = player->getMeta("format");
 		si.length = player->getMetaInt("length");

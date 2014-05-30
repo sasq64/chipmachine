@@ -29,9 +29,6 @@ static const string starShaderF = R"(
 	uniform sampler2D sTexture;
 	uniform float scrollpos; // 0 -> 1
 
-	const vec4 color0 = vec4(0.0, 1.0, 0.0, 1.0);
-	const vec4 color1 = vec4(1.0, 0.3, 0.3, 1.0);
-
 	varying vec2 UV;
 
 	void main() {
@@ -196,7 +193,7 @@ public:
 		bool searchUpdated = false;
 		int omark = marked;
 
-		if(k >= '1' && k <= '9') {
+		if(k >= '0' && k <= '9') {
 			// TODO : If more than 9 songs, require 2 presses
 			// and also display pressed digits in corner
 			show_search();
@@ -219,7 +216,6 @@ public:
 			case Window::F5:
 				player.pause(!player.isPaused());
 				if(player.isPaused()) {
-					LOGD("TWEEN IT");
 					make_tween().sine().repeating().to(timeField->add, 1.0);
 				} else
 					make_tween().to(timeField->add, 0.0);
@@ -259,6 +255,8 @@ public:
 					player.seek(--currentTune);
 					songField->add = 0.0;
 					make_tween().sine().to(songField->add, 1.0).seconds(0.5);
+					currentInfo = player.getInfo();
+					currentInfoField.setInfo(currentInfo);
 				}
 				break;
 			case Window::RIGHT:
@@ -266,6 +264,8 @@ public:
 					player.seek(++currentTune);
 					songField->add = 0.0;
 					make_tween().sine().to(songField->add, 1.0).seconds(0.5);
+					currentInfo = player.getInfo();
+					currentInfoField.setInfo(currentInfo);
 				}
 				break;
 			case Window::PAGEUP:
@@ -304,12 +304,10 @@ public:
 			auto sc = currentInfoField[0].scale;
 
 			int tw = mainScreen.getFont().get_width(currentInfo.title, sc);
-			LOGD("'%s' is %d pixels", currentInfo.title, tw);
 			currentTween = make_tween().from(prevInfoField, currentInfoField).
 			from(currentInfoField, nextInfoField).
 			from(nextInfoField, outsideInfoField).seconds(1.5).on_complete([=]() {
 				auto d = (tw-(tv1.x-tv0.x-20));
-				LOGD("currentInfo is at x=%d, scrolling %d-(%d-%d-20) = %d pixels left", currentInfoField[0].pos.x, tw,tv1.x,tv0.x,d);
 				if(d > 20)
 					make_tween().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
 			});
