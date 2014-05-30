@@ -35,7 +35,7 @@ static const string starShaderF = R"(
 	varying vec2 UV;
 
 	void main() {
-		float m = mod(gl_FragCoord.y, 3);
+		float m = mod(gl_FragCoord.y, 3.0);
 		float uvx = mod(UV.x + scrollpos * m, 1.0);
 		gl_FragColor = m * texture2D(sTexture, vec2(uvx, UV.y));
 	}
@@ -52,8 +52,8 @@ public:
 		bm.clear(0x00000000);
 		for(int y=0; y<bm.height(); y++) {
 			auto x = rand() % bm.width();
-			bm[y*bm.width()+x] = bm[y*bm.width()+x + 1] = 0xff888888;
-			bm[y*bm.width()+x + 2] = 0xff666666;
+			bm[y*bm.width()+x] = bm[y*bm.width()+x + 1] = 0xff666666;
+			bm[y*bm.width()+x + 2] = 0xff444444;
 		}
 		starTexture = Texture(bm);
 
@@ -133,7 +133,7 @@ public:
 			} else
 			if(name == "down_right") {
 				//currentInfoField.fields[0].color = stol(val);
-				tv0[index-1] = stol(val);
+				tv1[index-1] = stol(val);
 			} else
 			if(name == "font") {
 				if(File::exists(val)) {
@@ -308,8 +308,8 @@ public:
 			currentTween = make_tween().from(prevInfoField, currentInfoField).
 			from(currentInfoField, nextInfoField).
 			from(nextInfoField, outsideInfoField).seconds(1.5).on_complete([=]() {
-				LOGD("currentInfo is at x=%d", currentInfoField[0].pos.x);
 				auto d = (tw-(tv1.x-tv0.x-20));
+				LOGD("currentInfo is at x=%d, scrolling %d-(%d-%d-20) = %d pixels left", currentInfoField[0].pos.x, tw,tv1.x,tv0.x,d);
 				if(d > 20)
 					make_tween().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
 			});
@@ -452,7 +452,7 @@ public:
 		currentScreen->render(delta);
 
 		starProgram.use();
-		starProgram.setUniform("scrollpos", starPos += (0.000173 * delta));
+		starProgram.setUniform("scrollpos", starPos += (0.3 / screen.width()));
 
 		screen.draw(starTexture, starProgram);
 

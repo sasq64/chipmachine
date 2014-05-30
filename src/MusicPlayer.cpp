@@ -57,7 +57,7 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 				if(sz <= 0)
 					LOGD("WTF!");
 				int rc = player->getSamples((int16_t*)fifo.ptr(), sz);				
-				if(rc < 0) {
+				if(rc <= 0) {
 					LOGD("RC %d", rc);
 					player = nullptr;
 					break;
