@@ -8,6 +8,10 @@
 
 #include <musicplayer/plugins/OpenMPTPlugin/OpenMPTPlugin.h>
 #include <musicplayer/plugins/HTPlugin/HTPlugin.h>
+#include <musicplayer/plugins/HEPlugin/HEPlugin.h>
+#include <musicplayer/plugins/GSFPlugin/GSFPlugin.h>
+#include <musicplayer/plugins/NDSPlugin/NDSPlugin.h>
+#include <musicplayer/plugins/USFPlugin/USFPlugin.h>
 #include <musicplayer/plugins/VicePlugin/VicePlugin.h>
 #include <musicplayer/plugins/SexyPSFPlugin/SexyPSFPlugin.h>
 #include <musicplayer/plugins/GMEPlugin/GMEPlugin.h>
@@ -26,6 +30,10 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		//new ModPlugin {},
 		new OpenMPTPlugin {},
 		new HTPlugin {},
+		new HEPlugin {"data/hebios.bin"},
+		new GSFPlugin {},
+		new NDSPlugin {},
+		new USFPlugin {},
 		new VicePlugin {"data/c64"},
 		new SexyPSFPlugin {},
 		new GMEPlugin {},
@@ -46,7 +54,7 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		if(!paused && player) {
 			int sz = size;
 
-			if(fadeOut == 0) {
+			if(fadeOut == 0 && changedSong == false) {
 				if(length > 0 && pos/44100 > length) {
 					LOGD("#### SONGLENGTH");
 					fadeOut = pos + 44100*3;
@@ -95,6 +103,8 @@ void MusicPlayer::seek(int song, int seconds) {
 			pos = seconds * 44100;
 		player->seekTo(song, seconds);
 		length = player->getMetaInt("length");
+		if(song >= 0)
+			changedSong = true;
 	}
 }
 
@@ -108,6 +118,7 @@ void MusicPlayer::playFile(const std::string &fileName) {
 
 		fifo.clear();
 		fadeOut = 0;
+		changedSong = false;
 		pause(false);
 		pos = 0;
 		length = player->getMetaInt("length");

@@ -66,7 +66,7 @@ private:
 	int pos;
 	int length;
 	int fadeOut;
-
+	bool changedSong = false;
 };
 
 }

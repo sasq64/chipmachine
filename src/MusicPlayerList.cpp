@@ -1,5 +1,6 @@
 #include "MusicPlayerList.h"
 
+#include <musicplayer/PSFFile.h>
 #include <coreutils/log.h>
 #include <coreutils/utils.h>
 
@@ -106,6 +107,27 @@ MusicPlayerList::State MusicPlayerList::update() {
 				if(job.getReturnCode() == 0) {
 					loadedFile = job.getFile();
 					LOGD("loadedFile %s", loadedFile);
+					PSFFile f { loadedFile };
+					if(f.valid()) {
+						auto lib = f.tags()["_lib"];
+						if(lib != "") {
+
+							auto lib_target = path_directory(loadedFile) + "/" + lib;
+
+							// HACK BECAUSE WINDOWS (USERS) IS (ARE) STUPID
+							if(path_extension(lib) == "2sflib") {
+								// We assume that the case of Nintendo DS libs are incorrect
+								makeLower(lib);
+							}
+							auto lib_url = path_directory(currentInfo.path) + "/" + lib;
+							files++;
+							webgetter.getURL(lib_url, [=](const WebGetter::Job &job) {
+								LOGD("Got lib file %s, copying to %s", job.getFile(), lib_target);
+								File::copy(job.getFile(), lib_target);
+								files--;
+							});
+						}
+					}
 				} else
 					LOGD("Song failed");
 				files--;
