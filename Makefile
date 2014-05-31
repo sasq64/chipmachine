@@ -2,7 +2,7 @@ MODULE_DIR = ../cpp-mods
 include $(MODULE_DIR)/config.mk
 
 OBJDIR := obj/
-CFLAGS += -g -O2 -Wall -I$(MODULE_DIR) -Wno-switch
+CFLAGS += -g -Wall -I$(MODULE_DIR) -Wno-switch
 SRCDIR := src/
 
 USE_CCACHE := 1
@@ -22,6 +22,10 @@ include $(MODULE_DIR)/fft/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/ModPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/OpenMPTPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/HTPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/HEPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/GSFPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/NDSPlugin/module.mk
+include $(MODULE_DIR)/musicplayer/plugins/USFPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/VicePlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/GMEPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/SexyPSFPlugin/module.mk
@@ -33,7 +37,7 @@ include $(MODULE_DIR)/musicplayer/plugins/UADEPlugin/module.mk
 include $(MODULE_DIR)/crypto/module.mk
 
 TARGET := chipmachine
-LOCAL_FILES += main.cpp MusicDatabase.cpp SearchIndex.cpp MusicPlayerList.cpp MusicPlayer.cpp TelnetInterface.cpp
+LOCAL_FILES += main.cpp ChipMachine.cpp MusicDatabase.cpp SearchIndex.cpp MusicPlayerList.cpp MusicPlayer.cpp TelnetInterface.cpp
 LIBS += -lz
 
 include $(MODULE_DIR)/build.mk

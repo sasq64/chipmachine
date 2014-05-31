@@ -1,3 +1,5 @@
+#ifndef TEXT_SCREEN_H
+#define TEXT_SCREEN_H
 
 #include <memory>
 #include <coreutils/vec.h>
@@ -58,3 +60,6 @@ private:
 	grappix::Font font;
 	std::vector<std::shared_ptr<TextField>> fields;
 };
+
+
+#endif // TEXT_SCREEN_H
