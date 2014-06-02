@@ -30,6 +30,7 @@ public:
 	void setString(const std::string &s);
 	const std::string getString();
 	const std::vector<std::string> &getResult(int start, int size);
+	const std::string getResult(int start);
 	int numHits() const;
 	bool newResult() {
 		bool r = newRes;

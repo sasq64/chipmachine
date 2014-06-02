@@ -152,6 +152,11 @@ const string IncrementalQuery::getString() {
 	return string(&query[0], query.size());
 }
 
+const string IncrementalQuery::getResult(int i) {
+	int index = finalResult[i];
+	return provider->getString(index);
+}
+
 const vector<string> &IncrementalQuery::getResult(int start, int size) {
 
 	if(lastStart != start || lastSize < size) {

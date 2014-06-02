@@ -13,6 +13,7 @@
 #include <string>
 #include <memory>
 
+#include "List.h"
 
 using namespace tween;
 using namespace grappix;
@@ -20,11 +21,18 @@ using namespace utils;
 
 namespace chipmachine {
 
-class SearchScreen {
+class SearchScreen : public VerticalList::Renderer {
 
 public:
 
-	SearchScreen(MusicPlayerList &mpl) : player(mpl) {
+	virtual void render_item(Rectangle &rec, int y, uint64_t index, bool hilight) override {
+		//LOGD("%d %d %d %d", rec[0], rec[1], rec[2], rec[3]);
+		//auto res = iquery.getResult(index);
+		//auto parts = split(res, "\t");
+		//resultField[y]->text = format("%s / %s", parts[0], parts[1]);
+	};
+
+	SearchScreen(MusicPlayerList &mpl) : player(mpl), songList(this, Rectangle(tv0.x, tv0.y, tv1.x - tv0.x, tv1.y - tv0.y), 20) {
 		modland.init();
 
 		iquery = modland.createQuery();
@@ -77,6 +85,7 @@ public:
 	}
 
 	void render(uint32_t delta) {
+		songList.render();
 		searchScreen.render(delta);
 		searchScreen.getFont().update_cache();
 	}
@@ -236,6 +245,8 @@ private:
 	tween::TweenHolder markTween;
 
 	IncrementalQuery iquery;
+
+	VerticalList songList;
 
 };
 
