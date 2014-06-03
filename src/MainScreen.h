@@ -31,7 +31,7 @@ public:
 		prevInfoField = SongInfoField(mainScreen, -3200, 64, 10.0, 0x00e0e080);
 		currentInfoField = SongInfoField(mainScreen, tv0.x, tv0.y, 2.0, 0xffe0e080);
 		nextInfoField = SongInfoField(mainScreen, 440, 340, 1.0, 0xffe0e080);
-		outsideInfoField = SongInfoField(800, 340, 1.0, 0xffe0e080);
+		outsideInfoField = SongInfoField(screen.width()+10, 340, 1.0, 0xffe0e080);
 
 		nextField = mainScreen.addField("next", 440, 320, 0.6, 0xe080c0ff);		
 
@@ -135,7 +135,7 @@ public:
 		} else
 		if(name == "font") {
 			if(File::exists(val)) {
-				auto font = Font(val, 32, 256 | Font::DISTANCE_MAP);
+				auto font = Font(val, 48, 512 | Font::DISTANCE_MAP);
 				mainScreen.setFont(font);
 			}
 		}

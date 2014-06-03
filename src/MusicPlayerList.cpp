@@ -122,8 +122,10 @@ MusicPlayerList::State MusicPlayerList::update() {
 							auto lib_url = path_directory(currentInfo.path) + "/" + lib;
 							files++;
 							webgetter.getURL(lib_url, [=](const WebGetter::Job &job) {
-								LOGD("Got lib file %s, copying to %s", job.getFile(), lib_target);
-								File::copy(job.getFile(), lib_target);
+								if(job.getReturnCode() == 0) {
+									LOGD("Got lib file %s, copying to %s", job.getFile(), lib_target);
+									File::copy(job.getFile(), lib_target);
+								}
 								files--;
 							});
 						}

@@ -2,6 +2,7 @@
 #include "MusicPlayerList.h"
 #include "TextScreen.h"
 #include "SongInfoField.h"
+#include "SongList.h"
 
 #include <tween/tween.h>
 #include <grappix/grappix.h>
@@ -13,7 +14,8 @@
 #include <string>
 #include <memory>
 
-#include "List.h"
+//#include "List.h"
+#include <grappix/gui/list.h>
 
 using namespace tween;
 using namespace grappix;
@@ -21,26 +23,30 @@ using namespace utils;
 
 namespace chipmachine {
 
-class SearchScreen : public VerticalList::Renderer {
+class SearchScreen : public SongList::Renderer {
 
 public:
 
-	virtual void render_item(Rectangle &rec, int y, uint64_t index, bool hilight) override {
-		//LOGD("%d %d %d %d", rec[0], rec[1], rec[2], rec[3]);
-		//auto res = iquery.getResult(index);
-		//auto parts = split(res, "\t");
-		//resultField[y]->text = format("%s / %s", parts[0], parts[1]);
+	virtual void render_item(Rectangle &rec, int y, uint32_t index, bool hilight) override {
+		auto res = iquery.getResult(index);
+		auto parts = split(res, "\t");
+		auto text = format("%s / %s", parts[0], parts[1]);
+		auto c = hilight ? markColor : resultFieldTemplate->color;
+		grappix::screen.text(font, text, rec.x, rec.y, c, resultFieldTemplate->scale);
 	};
 
-	SearchScreen(MusicPlayerList &mpl) : player(mpl), songList(this, Rectangle(tv0.x, tv0.y, tv1.x - tv0.x, tv1.y - tv0.y), 20) {
+	SearchScreen(MusicPlayerList &mpl) : player(mpl), songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
 		modland.init();
 
 		iquery = modland.createQuery();
 
-		auto font = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
+		font = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
 		searchScreen.setFont(font);
 
 		resultFieldTemplate = make_shared<TextScreen::TextField>("", tv0.x, tv0.y+30, 0.8, 0xff008000);
+		markColor = resultFieldTemplate->color;
+		markTween = make_tween().sine().repeating().from(markColor, Color(0xffffffff)).seconds(1.0);
+
 		searchField = searchScreen.addField("#", tv0.x, tv0.y, 1.0, 0xff888888);
 
 	}
@@ -64,23 +70,22 @@ public:
 		if(name == "top_left") {
 			//currentInfoField.fields[0].color = stol(val);
 			tv0[index-1] = stol(val);
+			songList.set_area(Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28));
 		} else
 		if(name == "down_right") {
 			//currentInfoField.fields[0].color = stol(val);
 			tv1[index-1] = stol(val);
+			songList.set_area(Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28));
 		} else
 		if(name == "font") {
 			if(File::exists(val)) {
-				auto font = Font(val, 32, 256 | Font::DISTANCE_MAP);
+				font = Font(val, 32, 256 | Font::DISTANCE_MAP);
 				searchScreen.setFont(font);
 			}
 		} else
 		if(name == "result_lines") {
 			numLines = stol(val);
-			for(int i=0; i<resultField.size(); i++) {
-				searchScreen.removeField(resultField[i]);
-			}
-			resultField.clear();
+			songList.set_visible(numLines);
 		}
 	}
 
@@ -92,15 +97,10 @@ public:
 
 	void on_key(grappix::Window::key k) {
 
-		if(resultField.size() == 0) {
-			const auto &rft = resultFieldTemplate;
-			for(int i=0; i<numLines; i++) {
-				resultField.push_back(searchScreen.addField("", rft->pos.x, rft->pos.y + i*28*rft->scale, rft->scale, rft->color));
-			}
-		}
-
 		bool searchUpdated = false;
-		int omark = marked;
+		auto last_selection = songList.selected();
+
+		songList.on_key(k);
 
 		if(k >= '0' && k <= '9') {
 			iquery.addLetter(tolower(k));
@@ -123,21 +123,21 @@ public:
 				iquery.clear();
 				searchUpdated = true;
 				break;
-			case Window::UP:
-				marked--;
+/*			case Window::UP:
+				songList.select(songList.selected()-1);
 				break;
 			case Window::DOWN:
-				marked++;
+				songList.select(songList.selected()+1);
 				break;
 			case Window::PAGEUP:
-				marked -= numLines;
+				songList.pageup();
 				break;
 			case Window::PAGEDOWN:
-				marked += numLines;
-				break;
+				songList.pagedown();
+				break; */
 			case Window::ENTER:
 				{
-					auto r = iquery.getFull(marked);
+					auto r = iquery.getFull(songList.selected());
 					auto parts = split(r, "\t");
 					LOGD("######### %s", parts[0]);
 					SongInfo si(string("ftp://ftp.modland.com/pub/modules/") + parts[0], parts[1], parts[2], parts[3]);
@@ -148,55 +148,24 @@ public:
 						//show_main();
 					} else {
 						player.addSong(si); 
-						marked++;
+						songList.select(songList.selected()+1);
+						//marked++;
 					}
 				}
 				break;
 			}
 		}
 
-		auto oldscrollpos = scrollpos;
-		int nh = iquery.numHits();
-
-		if(marked < 0) marked = 0;
-		if(marked >= nh)
-			marked = nh-1;
-
-		if(marked < 0) marked = 0;
-
-		if(marked < scrollpos)
-			scrollpos = marked;
-		if(marked >= scrollpos + numLines)
-			scrollpos = marked-numLines+1;
-
 		if(searchUpdated) {
 			searchField->text = "#" + iquery.getString();
 			//searchField->setColor(0xffffffff);
 			searchField->color = Color(0xffffffff);
 		}
-		if(iquery.newResult() || scrollpos != oldscrollpos) {
+		if(iquery.newResult())
+			songList.set_total(iquery.numHits());
 
-			//if(nh > numLines) nh = numLines;
-			auto count = numLines;
-			string fmt = "";
-			if(nh > 0) {
-				if(scrollpos + count >= nh) count = nh - scrollpos;
-				const auto &res = iquery.getResult(scrollpos, count);
-				for(int i=0; i<numLines; i++) {
-					if(i < count) {
-						auto parts = split(res[i], "\t");
-						resultField[i]->text = format("%s / %s", parts[0], parts[1]);
-					} else
-						resultField[i]->text = "";
-				}
-			} else {
-				for(int i=0; i<numLines; i++)
-					resultField[i]->text = "";
-			}
-		}
-
-		if(omark != marked && iquery.numHits() > 0) {
-			auto p = iquery.getFull(marked);
+		if(songList.selected() != last_selection && iquery.numHits() > 0) {
+			auto p = iquery.getFull(songList.selected());
 			auto parts = split(p, "\t");
 			auto ext = path_extension(parts[0]);
 			searchField->text = format("Format: %s (%s)", parts[3], ext);
@@ -204,22 +173,6 @@ public:
 			searchField->color = Color(0xffcccc66);
 		}
 
-
-		auto marked_field = marked-scrollpos;
-
-		if(marked_field != old_marked) {
-
-			LOGD("MARKED %d SCROLLPOS %d", marked, scrollpos);
-			
-			if(markTween.valid()) {
-				markTween.cancel();
-				make_tween().to(resultField[old_marked]->add, 0.0f).seconds(1.0);
-			}
-
-			resultField[marked_field]->add = 0.0;
-			markTween = make_tween().sine().repeating().from(resultField[marked_field]->add, 1.0f).seconds(1.0);
-			old_marked = marked_field;
-		}
 	}
 
 
@@ -230,7 +183,7 @@ private:
 
 	ModlandDatabase modland;
 
-	std::vector<std::shared_ptr<TextScreen::TextField>> resultField;
+	//std::vector<std::shared_ptr<TextScreen::TextField>> resultField;
 	std::shared_ptr<TextScreen::TextField> searchField;
 	std::shared_ptr<TextScreen::TextField>resultFieldTemplate;
 
@@ -239,14 +192,14 @@ private:
 
 	int numLines = 20;
 
-	int marked = 0;
-	int old_marked = -1;
-	int scrollpos = 0;
 	tween::TweenHolder markTween;
+
+	Color markColor;
 
 	IncrementalQuery iquery;
 
-	VerticalList songList;
+	SongList songList;
+	Font font;
 
 };
 
