@@ -35,6 +35,7 @@ public:
 
 private:
 
+	ModlandDatabase modland;
 
 	MusicPlayerList player;
 

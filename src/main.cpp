@@ -4,9 +4,14 @@
 #include <grappix/grappix.h>
 #include <musicplayer/PSFFile.h>
 
+#include <vector>
+
+using namespace std;
+
 int main(int argc, char* argv[]) {
 
 	bool fullScreen = false;
+	vector<SongInfo> songs;
 
 	if(argc >= 2) {
 		for(int i=1; i<argc; i++) {
@@ -16,9 +21,7 @@ int main(int argc, char* argv[]) {
 					fullScreen = true;
 				}
 			} else {
-				PSFFile f { argv[i] };
-				f.getTagData();
-				//app.play(SongInfo(argv[i]));
+				songs.push_back(SongInfo(argv[i]));
 			}
 		}
 	}
@@ -28,6 +31,10 @@ int main(int argc, char* argv[]) {
 	else
 		grappix::screen.open(720, 576, false);
 	static chipmachine::ChipMachine app;
+
+	for(auto &s : songs) {
+		app.play(s);
+	}
 
 	grappix::screen.render_loop([](uint32_t delta) {
 		app.update();

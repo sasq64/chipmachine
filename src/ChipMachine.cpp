@@ -25,7 +25,7 @@ static const string starShaderF = R"(
 )";
 
 
-ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player), currentScreen(0), eq(SpectrumAnalyzer::eq_slots)  {
+ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, modland), currentScreen(0), eq(SpectrumAnalyzer::eq_slots)  {
 
 	image::bitmap bm(screen.width(), screen.height());
 	bm.clear(0x00000000);
@@ -39,16 +39,16 @@ ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player), currentSc
 	starProgram = get_program(TEXTURED_PROGRAM).clone();
 	starProgram.setFragmentSource(starShaderF);
 
-	//telnet = make_unique<TelnetInterface>(modland, player);
-	//telnet->start();
+	modland.init();
+
+	telnet = make_unique<TelnetInterface>(modland, player);
+	telnet->start();
 
 	memset(&eq[0], 2, eq.size());
 
 	spectrumPos = { tv0.x-10, tv1.y+50 };
 
 	initLua();
-
-	player.nextSong();
 }
 
 void ChipMachine::initLua() {
@@ -113,6 +113,7 @@ void ChipMachine::initLua() {
 
 void ChipMachine::play(const SongInfo &si) {
 	player.addSong(si);
+	player.nextSong();
 }
 
 void ChipMachine::update() {
@@ -143,6 +144,11 @@ void ChipMachine::update() {
 			case Window::F10:
 			case Window::ESCAPE:
 				show_search();
+				break;
+			case Window::ENTER:
+				if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_LEFT))) {
+					show_main();
+				}
 				break;
 			}
 		}

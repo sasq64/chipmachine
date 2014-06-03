@@ -35,10 +35,9 @@ public:
 		grappix::screen.text(font, text, rec.x, rec.y, c, resultFieldTemplate->scale);
 	};
 
-	SearchScreen(MusicPlayerList &mpl) : player(mpl), songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
-		modland.init();
+	SearchScreen(MusicPlayerList &mpl, ModlandDatabase &mdb) : player(mpl), mdb(mdb), songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
 
-		iquery = modland.createQuery();
+		iquery = mdb.createQuery();
 
 		font = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
 		searchScreen.setFont(font);
@@ -181,7 +180,7 @@ private:
 
 	TextScreen searchScreen;
 
-	ModlandDatabase modland;
+	ModlandDatabase &mdb;
 
 	//std::vector<std::shared_ptr<TextScreen::TextField>> resultField;
 	std::shared_ptr<TextScreen::TextField> searchField;

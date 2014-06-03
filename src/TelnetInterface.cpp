@@ -31,6 +31,8 @@ void TelnetInterface::start() {
 
 		LuaInterpreter lip;
 
+		console->write("### CHIPMACHINE LUA INTERPRETER\n");
+
 		lip.setOuputFunction([&](const std::string &s) {
 			console->write(s);
 		});
@@ -61,6 +63,8 @@ void TelnetInterface::start() {
 			if(isalpha(parts[0]) && (parts.size() == 1 || parts[1][0] != '=')) {
 				l = parts[0] + "(";
 				for(int i=1; i<(int)parts.size(); i++) {
+					if(isalpha(parts[i]))
+						parts[i] = format("'%s'", parts[i]);
 					if(i!=1) l += ",";
 					l += parts[i];
 				}

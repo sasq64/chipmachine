@@ -1,18 +1,40 @@
 
+
+BUGS
+
 * Dont index secondary files
-* Reset current song
-* Update songlength after subsong
-* Check for subsong name
+* Dont duplicate fonts
+* openmpt type name too long
+* Freeze when starting mods?
+* Speed up inc search? Remember last set?
 
-* SNES length too large
-* GB length negative - dont print
-*
+FX
 
-* FIX ADLIB
+* Scroll screens (& stars) left right
+* Scroll stars up/down with playlist scrolling
+
+
+GUI
+
+* Edit playlist screen
+* KEY brings up EDITOR of CURRENT list
+* Can save to any list name and replaces old
+* Find show playlist hits first
+
+TABLE playlist
+ NAME INDEX
+
+TABLE plmapping
+ PLINDEX IDX SONGINDEX
+
 
 
 
 LUA
+
+* Return/Input VECTOR = Table
+*
+
 
 pl = find('stardust memories')
 play(pl)
