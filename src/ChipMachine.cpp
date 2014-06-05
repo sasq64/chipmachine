@@ -25,8 +25,8 @@ static const string starShaderF = R"(
 )";
 
 
-ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, modland), currentScreen(0), eq(SpectrumAnalyzer::eq_slots)  {
-
+ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, modland), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen) {
+/*
 	image::bitmap bm(screen.width(), screen.height());
 	bm.clear(0x00000000);
 	for(int y=0; y<bm.height(); y++) {
@@ -38,7 +38,7 @@ ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, modland), 
 
 	starProgram = get_program(TEXTURED_PROGRAM).clone();
 	starProgram.setFragmentSource(starShaderF);
-
+*/
 	modland.init();
 
 	telnet = make_unique<TelnetInterface>(modland, player);
@@ -185,10 +185,13 @@ void ChipMachine::render(uint32_t delta) {
 
 	screen.clear();
 
+	starEffect.render(delta);
+	scrollEffect.render(delta);
+/*
 	starProgram.use();
 	starProgram.setUniform("scrollpos", starPos += (0.3 / screen.width()));
 	screen.draw(starTexture, starProgram);
-
+*/
 	for(int i=0; i<(int)eq.size(); i++) {
 		screen.rectangle(spectrumPos.x + (spectrumWidth)*i, spectrumPos.y-eq[i], spectrumWidth-1, eq[i], spectrumColor);
 	}
