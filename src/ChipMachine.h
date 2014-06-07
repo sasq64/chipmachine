@@ -59,9 +59,6 @@ private:
 	grappix::RenderTarget &target;
 
 	const std::string starShaderF = R"(
-	#ifdef GL_ES
-		precision mediump float;
-	#endif
 		uniform sampler2D sTexture;
 		uniform float scrollpos; // 0 -> 1
 
@@ -88,7 +85,7 @@ public:
 
 		fprogram = get_program(FONT_PROGRAM_DF).clone();
 		fprogram.setFragmentSource(fontShaderF);
-		font.setProgram(fprogram);
+		//font.setProgram(fprogram);
 	}
 
 	virtual void render(uint32_t delta) override {
@@ -109,9 +106,6 @@ private:
 	Texture scr;
 
 	const std::string sineShaderF = R"(
-	#ifdef GL_ES
-		precision mediump float;
-	#endif
 		uniform sampler2D sTexture;
 
 		const vec4 color0 = vec4(0.0, 1.0, 0.0, 1.0);
@@ -120,16 +114,17 @@ private:
 		varying vec2 UV;
 
 		void main() {
+
 			vec4 rgb = mix(color0, color1, UV.y);
-			gl_FragColor = rgb * texture2D(sTexture, UV);
+			// MODIFY UV HERE
+			vec4 color = texture2D(sTexture, UV);
+			// MODIFY COLOR HERE
+			gl_FragColor = rgb * color; 
 		}
 	)";
 
 
 	const std::string fontShaderF = R"(
-	#ifdef GL_ES
-		precision mediump float;
-	#endif
 		uniform vec4 vColor;
 		uniform vec4 vScale;
 		uniform sampler2D sTexture;

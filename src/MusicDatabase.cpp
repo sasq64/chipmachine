@@ -18,6 +18,9 @@ void ModlandDatabase::init() {
 		return;
 	}
 
+	//db.exec("CREATE TABLE playlist (title STRING)");
+	//db.exec("CREATE TABLE plmap (playlist INT, index INT, STRING path_extension)");
+
 	LOGD("Indexing...\n");
 
 	static const unordered_set<string> hasSubFormats = {

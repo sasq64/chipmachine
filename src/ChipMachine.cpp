@@ -36,7 +36,7 @@ ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, modland), 
 	}
 	starTexture = Texture(bm);
 
-	starProgram = get_program(TEXTURED_PROGRAM).clone();
+	starProgram = get_program(TEXTURED_PROGRAM);
 	starProgram.setFragmentSource(starShaderF);
 */
 	modland.init();
@@ -62,7 +62,7 @@ void ChipMachine::initLua() {
 	});
 
 	lua.registerFunction<void, string, uint32_t, string>("set_var", [=](string name, uint32_t index, string val) {
-		LOGD("%s(%d) = %s", name, index, val);
+		//LOGD("%s(%d) = %s", name, index, val);
 
 		mainScreen.set_variable(name, index, val);
 		searchScreen.set_variable(name, index, val);
