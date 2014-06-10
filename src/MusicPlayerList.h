@@ -40,6 +40,11 @@ public:
 	bool isPaused() { return mp.isPaused(); }
 
 	void seek(int song, int seconds = -1);
+
+	std::string getMeta(const std::string &what) {
+		return mp.getMeta(what);
+	}
+
 private:
 	void updateInfo();
 

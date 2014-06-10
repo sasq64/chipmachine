@@ -49,6 +49,8 @@ public:
 
 	}
 
+	std::string getMeta(const std::string &what);
+
 	int spectrumSize() { return fft.eq_slots; }
 
 private:

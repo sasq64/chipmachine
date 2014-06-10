@@ -166,4 +166,13 @@ shared_ptr<ChipPlayer> MusicPlayer::fromFile(const std::string &fileName) {
 	return player;
 }
 
+string MusicPlayer::getMeta(const string &what) {
+	lock_guard<mutex> guard(m);
+	if(player)
+		return player->getMeta(what);
+	else
+		return "";
+}
+
+
 }

@@ -27,6 +27,13 @@ namespace chipmachine {
 class Effect {
 public:
 	virtual void render(uint32_t delta) = 0;
+
+	virtual void set(const std::string &what, const std::string &val) {
+	}
+
+	virtual void set(const std::string &what, int val) {
+	}
+
 	virtual void fadeIn() {
 	}
 	virtual void fadeOut() {
@@ -78,21 +85,38 @@ private:
 
 class Scroller : public Effect {
 public:
-	Scroller(grappix::RenderTarget &target) : target(target), scr(screen.width()+200, 440) {
-		font = Font("data/ObelixPro.ttf", 24, Font::UPPER_CASE | Font::DISTANCE_MAP);
+	Scroller(grappix::RenderTarget &target) : target(target), scr(screen.width()+200, 180) {
+		font = Font("data/ObelixPro.ttf", 24, 512 | Font::DISTANCE_MAP);
 		program = get_program(TEXTURED_PROGRAM).clone();
-		program.setFragmentSource(sineShaderF);
 
-		fprogram = get_program(FONT_PROGRAM_DF).clone();
-		fprogram.setFragmentSource(fontShaderF);
+
+		Resources::getInstance().load<std::string>("sine_shader.glsl",
+			[=](const std::string &source) {
+				program.setFragmentSource(source);
+			},
+			[=]() -> std::string {
+				return sineShaderF;
+			}
+		);
+
+
+		//fprogram = get_program(FONT_PROGRAM_DF).clone();
+		//fprogram.setFragmentSource(fontShaderF);
 		//font.setProgram(fprogram);
 	}
 
+	virtual void set(const std::string &what, const std::string &val) {
+		scrollText = val;
+		xpos = target.width() + 100;
+		scrollLen = font.get_width(val, 4.0);
+	}
+
+
 	virtual void render(uint32_t delta) override {
-		if(xpos < -3600)
-			xpos = target.width() + 200;
+		if(xpos < -scrollLen)
+			xpos = target.width() + 100;
 		scr.clear(0x00000000);
-		scr.text(font, "BALLS ON THE SCREEN!!", xpos-=4, 10, 0xe080c0ff, 4.0);
+		scr.text(font, scrollText, xpos-=8, 10, 0xffffffff, 4.0);
 		program.use();
 		static float uvs[] = { 0,0,1,0,0,1,1,1 };
 		target.draw(scr, 0.0f, 350.0f, scr.width(), scr.height(), uvs, program);
@@ -104,6 +128,8 @@ private:
 	Program fprogram;
 	int xpos = -9999;
 	Texture scr;
+	std::string scrollText;
+	int scrollLen;
 
 	const std::string sineShaderF = R"(
 		uniform sampler2D sTexture;

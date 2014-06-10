@@ -87,7 +87,7 @@ void ChipMachine::initLua() {
 		}
 	});
 
-	Resources::getInstance().load_text("lua/init.lua", [=](const std::string &contents) {
+	Resources::getInstance().load<string>("lua/init.lua", [=](const std::string &contents) {
 		LOGD("init.lua");
 		lua.load(R"(
 			Config = {}
@@ -127,6 +127,19 @@ void ChipMachine::update() {
 		currentScreen = 1;
 		make_tween().to(spectrumColor, spectrumColorSearch).seconds(1.0);
 	};
+
+	static string msg;
+	auto m = player.getMeta("message");
+	if(m != msg) {
+		msg = m;
+		LOGD("msg %s", msg);
+
+		auto last = unique(m.begin(), m.end());
+		m.resize(last - m.begin());
+
+		scrollEffect.set("scrolltext", m);
+	}
+
 
 	auto k = screen.get_key();
 	if(k != Window::NO_KEY) {
@@ -187,6 +200,8 @@ void ChipMachine::render(uint32_t delta) {
 
 	starEffect.render(delta);
 	scrollEffect.render(delta);
+
+
 /*
 	starProgram.use();
 	starProgram.setUniform("scrollpos", starPos += (0.3 / screen.width()));
