@@ -230,7 +230,7 @@ void IncrementalQuery::search() {
 	}
 }
 
-#include <iconv.h>
+//#include <iconv.h>
 
 bool SearchIndex::transInited = false;
 std::vector<uint8_t> SearchIndex::to7bit(256);

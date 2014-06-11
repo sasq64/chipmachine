@@ -26,19 +26,7 @@ static const string starShaderF = R"(
 
 
 ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, modland), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen) {
-/*
-	image::bitmap bm(screen.width(), screen.height());
-	bm.clear(0x00000000);
-	for(int y=0; y<bm.height(); y++) {
-		auto x = rand() % bm.width();
-		bm[y*bm.width()+x] = bm[y*bm.width()+x + 1] = 0xff666666;
-		bm[y*bm.width()+x + 2] = 0xff444444;
-	}
-	starTexture = Texture(bm);
 
-	starProgram = get_program(TEXTURED_PROGRAM);
-	starProgram.setFragmentSource(starShaderF);
-*/
 	modland.init();
 
 	telnet = make_unique<TelnetInterface>(modland, player);
@@ -132,14 +120,14 @@ void ChipMachine::update() {
 	auto m = player.getMeta("message");
 	if(m != msg) {
 		msg = m;
-		LOGD("msg %s", msg);
-
-		auto last = unique(m.begin(), m.end());
+		replace(m.begin(), m.end(), '\n', ' ');
+		auto last = unique(m.begin(), m.end(), [](const char &a, const char &b) -> bool {
+			return (a == ' ' && b == ' ');
+		});
 		m.resize(last - m.begin());
-
+		LOGD("MSG:%s", m);
 		scrollEffect.set("scrolltext", m);
 	}
-
 
 	auto k = screen.get_key();
 	if(k != Window::NO_KEY) {
@@ -201,12 +189,6 @@ void ChipMachine::render(uint32_t delta) {
 	starEffect.render(delta);
 	scrollEffect.render(delta);
 
-
-/*
-	starProgram.use();
-	starProgram.setUniform("scrollpos", starPos += (0.3 / screen.width()));
-	screen.draw(starTexture, starProgram);
-*/
 	for(int i=0; i<(int)eq.size(); i++) {
 		screen.rectangle(spectrumPos.x + (spectrumWidth)*i, spectrumPos.y-eq[i], spectrumWidth-1, eq[i], spectrumColor);
 	}
