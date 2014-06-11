@@ -37,6 +37,8 @@ ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, modland), 
 	spectrumPos = { tv0.x-10, tv1.y+50 };
 
 	initLua();
+
+	scrollEffect.set("scrolltext", "Chipmachine Beta 1 -- Type letters/digits to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F9 for next song -- F5 for pause -- F12 to clear queue -- F10 to clear search text ----- ");
 }
 
 void ChipMachine::initLua() {

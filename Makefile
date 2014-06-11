@@ -4,7 +4,7 @@ include $(MODULE_DIR)/config.mk
 OBJDIR := obj/
 CFLAGS += -g -O2 -Wall -I$(MODULE_DIR) -Wno-switch
 SRCDIR := src/
-
+#LDFLAGS += -pg
 USE_CCACHE := 1
 USE_CLANG := 1
 
