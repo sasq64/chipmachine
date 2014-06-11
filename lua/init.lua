@@ -29,14 +29,17 @@ DIGITS_COLOR = 0xffb0b0a0
 Settings.top_left = { X0, Y0 }
 Settings.down_right = { X1, Y1 }
 
+Settings.scroll = { Y1 - 100, 2.0, 4 }
+
 scale = 3.0
 Settings.main_title = { X0, Y0, scale, TEXT_COLOR }
 Settings.main_composer = { X0, Y0+25*scale, scale*0.6, TEXT_COLOR }
 Settings.main_format = { X0, Y0+45*scale, scale*0.3, TEXT_COLOR }
 
-Settings.time_field = { X0, Y0 + 200, 1.0, DIGITS_COLOR }
-Settings.length_field = { X0 + 100, Y0 + 200, 1.0, DIGITS_COLOR }
-Settings.song_field = { X0 + 220, Y0 + 200, 1.0, DIGITS_COLOR }
+OFFS = 180
+Settings.time_field = { X0, Y0 + OFFS, 1.0, DIGITS_COLOR }
+Settings.length_field = { X0 + 100, Y0 + OFFS, 1.0, DIGITS_COLOR }
+Settings.song_field = { X0 + 220, Y0 + OFFS, 1.0, DIGITS_COLOR }
 
 scale = 1.2
 x = 440

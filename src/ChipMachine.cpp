@@ -8,23 +8,6 @@ using namespace tween;
 
 namespace chipmachine {
 
-static const string starShaderF = R"(
-#ifdef GL_ES
-	precision mediump float;
-#endif
-	uniform sampler2D sTexture;
-	uniform float scrollpos; // 0 -> 1
-
-	varying vec2 UV;
-
-	void main() {
-		float m = mod(gl_FragCoord.y, 3.0);
-		float uvx = mod(UV.x + scrollpos * m, 1.0);
-		gl_FragColor = m * texture2D(sTexture, vec2(uvx, UV.y));
-	}
-)";
-
-
 ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, modland), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen) {
 
 	modland.init();
@@ -72,6 +55,20 @@ void ChipMachine::initLua() {
 		} else
 		if(name == "down_right") {
 			tv1[index-1] = stol(val);
+		} else
+		if(name == "scroll") {
+			switch(index) {
+			case 1:
+				scrollEffect.scrolly = stol(val);
+				break;
+			case 2:
+				scrollEffect.scrollsize = stod(val);
+				break;
+			case 3:
+				scrollEffect.scrollspeed = stol(val);
+				break;
+			}
+			LOGD("%d %f %d", scrollEffect.scrolly, scrollEffect.scrollsize, scrollEffect.scrollspeed);
 		}
 	});
 
