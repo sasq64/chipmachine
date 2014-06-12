@@ -92,7 +92,11 @@ public:
 
 		Resources::getInstance().load<std::string>("sine_shader.glsl",
 			[=](const std::string &source) {
-				program.setFragmentSource(source);
+				try {
+					program.setFragmentSource(source);
+				} catch(shader_exception &e) {
+				}
+
 			},
 			[=]() -> std::string {
 				return sineShaderF;
@@ -108,7 +112,7 @@ public:
 	virtual void set(const std::string &what, const std::string &val) {
 		scrollText = val;
 		xpos = target.width() + 100;
-		scrollLen = font.get_width(val, 4.0);
+		scrollLen = font.get_width(val, scrollsize);
 	}
 
 

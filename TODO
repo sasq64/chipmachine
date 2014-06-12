@@ -2,6 +2,9 @@
 
 BUGS
 
+* PI cant always keep up with fft audio
+* PI jerky scroll, high cpu when more than ~15 texts on search screen?
+
 * Dont index secondary files
 * Dont duplicate fonts
 * openmpt type name too long

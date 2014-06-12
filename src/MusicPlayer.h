@@ -42,9 +42,13 @@ public:
 
 	uint16_t *getSpectrum() {
 		if(fft.size() > AUDIO_DELAY) {
+			while(fft.size() > AUDIO_DELAY*2)
+				fft.popLevels();
+			//LOGD("GET");
 			spectrum = fft.getLevels();
 			fft.popLevels();
-		}
+
+		} //else LOGD("WAIT");
 		return &spectrum[0];
 
 	}
