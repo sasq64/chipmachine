@@ -116,11 +116,16 @@ public:
 		if(xpos < -scrollLen)
 			xpos = target.width() + 100;
 		scr.clear(0x00000000);
-		scr.text(font, scrollText, xpos-=8, 10, 0xffffffff, 4.0);
+		scr.text(font, scrollText, xpos-=scrollspeed, 10, 0xffffffff, scrollsize);
 		program.use();
 		static float uvs[] = { 0,0,1,0,0,1,1,1 };
-		target.draw(scr, 0.0f, 350.0f, scr.width(), scr.height(), uvs, program);
+		target.draw(scr, 0.0f, scrolly, scr.width(), scr.height(), uvs, program);
 	}
+
+	int scrollspeed = 4;
+	int scrolly = 0;
+	float scrollsize = 4.0;
+
 private:
 	grappix::RenderTarget target;
 	Font font;
@@ -130,6 +135,7 @@ private:
 	Texture scr;
 	std::string scrollText;
 	int scrollLen;
+
 
 	const std::string sineShaderF = R"(
 		uniform sampler2D sTexture;
@@ -241,7 +247,6 @@ private:
 */
 	StarField starEffect;
 	Scroller scrollEffect;
-
 };
 
 }
