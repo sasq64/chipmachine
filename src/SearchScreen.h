@@ -42,7 +42,7 @@ public:
 		font = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
 		searchScreen.setFont(font);
 
-		resultFieldTemplate = make_shared<TextScreen::TextField>("", tv0.x, tv0.y+30, 0.8, 0xff008000);
+		resultFieldTemplate = make_shared<TextScreen::TextField>("", tv0.x, tv0.y+30, 0.8, 0xff20c020);
 		markColor = resultFieldTemplate->color;
 		markTween = make_tween().sine().repeating().from(markColor, Color(0xffffffff)).seconds(1.0);
 

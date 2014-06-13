@@ -43,9 +43,15 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		new UADEPlugin {}
 	}
 {
+	dontPlay = false;
 	AudioPlayer::play([=](int16_t *ptr, int size) mutable {
-		lock_guard<mutex> guard(m);
 
+		if(dontPlay) {
+			memset(ptr, 0, size*2);
+			return;
+		}
+
+		LOCK_GUARD(playerMutex);
 
 		if(fadeOut > 0 && fadeOut <= pos) {
 			player = nullptr;
@@ -55,7 +61,7 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 			int sz = size;
 
 			if(fadeOut == 0 && changedSong == false) {
-				if(length > 0 && pos/44100 > length) {
+				if(playingInfo.length > 0 && pos/44100 > playingInfo.length) {
 					LOGD("#### SONGLENGTH");
 					fadeOut = pos + 44100*3;
 				}
@@ -84,6 +90,7 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 				sz -= rc;
 				if(fifo.filled() >= size*2) {
 					fifo.getShorts(ptr, size);
+					std::lock_guard<std::mutex> guard(fftMutex);
 					fft.addAudio(ptr, size);
 					break;
 				}
@@ -95,25 +102,32 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 }
 
 void MusicPlayer::seek(int song, int seconds) {
-	lock_guard<mutex> guard(m);
+	LOCK_GUARD(playerMutex);
 	if(player) {
 		if(seconds < 0)
 			pos = 0;
 		else
 			pos = seconds * 44100;
 		player->seekTo(song, seconds);
-		length = player->getMetaInt("length");
+		//length = player->getMetaInt("length");
 		if(song >= 0)
 			changedSong = true;
+		updatePlayingInfo();
 	}
 }
 
 void MusicPlayer::playFile(const std::string &fileName) {
-	lock_guard<mutex> guard(m);
+
+	dontPlay = true;
+
+	LOCK_GUARD(playerMutex);
 	//toPlay = fileName;
 	player = nullptr;
 	player = fromFile(fileName);
 	//toPlay = "";
+
+	dontPlay = false;
+
 	if(player) {
 
 		fifo.clear();
@@ -121,12 +135,11 @@ void MusicPlayer::playFile(const std::string &fileName) {
 		changedSong = false;
 		pause(false);
 		pos = 0;
-		length = player->getMetaInt("length");
+		updatePlayingInfo();
 	}
 }
 
-SongInfo MusicPlayer::getPlayingInfo() {
-	lock_guard<mutex> guard(m);
+void MusicPlayer::updatePlayingInfo() {
 	SongInfo si;
 	if(player) {
 		auto game = player->getMeta("game");
@@ -142,8 +155,14 @@ SongInfo MusicPlayer::getPlayingInfo() {
 		si.length = player->getMetaInt("length");
 		si.numtunes = player->getMetaInt("songs");
 		si.starttune = player->getMetaInt("startSong");
+
+		message = player->getMeta("message");
+
 	}
-	return si;
+	{
+		LOCK_GUARD(infoMutex);
+		playingInfo = si;
+	}
 }
 
 void MusicPlayer::pause(bool dopause) {
@@ -151,6 +170,21 @@ void MusicPlayer::pause(bool dopause) {
 	else AudioPlayer::resume_audio();
 	paused = dopause;
 }
+
+string MusicPlayer::getMeta(const string &what) {
+	if(what == "message") {
+		LOCK_GUARD(infoMutex);
+		return message;
+	}
+
+	LOCK_GUARD(playerMutex);
+	if(player)
+		return player->getMeta(what);
+	else
+		return "";
+}
+
+// PRIVATE
 
 shared_ptr<ChipPlayer> MusicPlayer::fromFile(const std::string &fileName) {
 	shared_ptr<ChipPlayer> player;
@@ -164,14 +198,6 @@ shared_ptr<ChipPlayer> MusicPlayer::fromFile(const std::string &fileName) {
 		}
 	}
 	return player;
-}
-
-string MusicPlayer::getMeta(const string &what) {
-	lock_guard<mutex> guard(m);
-	if(player)
-		return player->getMeta(what);
-	else
-		return "";
 }
 
 

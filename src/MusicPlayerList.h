@@ -23,11 +23,12 @@ public:
 		PLAYING
 	};
 
+	MusicPlayerList();
+
 	void addSong(const SongInfo &si);
 	void clearSongs();
 	void nextSong();
-	void playFile(const std::string &fileName);
-	State update();
+	
 	uint16_t *getSpectrum();
 	int spectrumSize();
 	SongInfo getInfo(int index = 0);
@@ -45,7 +46,17 @@ public:
 		return mp.getMeta(what);
 	}
 
+	State getState() {
+		State rc = state;
+		if(rc == PLAY_STARTED)
+			state = PLAYING;
+		return rc;
+	}
+
 private:
+	void playFile(const std::string &fileName);
+
+	void update();
 	void updateInfo();
 
 	MusicPlayer mp;
@@ -57,8 +68,10 @@ private:
 
 	WebGetter webgetter { "_files" };
 
-	State state = STOPPED;
+	std::atomic<State> state;// = STOPPED;
 	SongInfo currentInfo;
+
+	std::thread playerThread;
 
 };
 

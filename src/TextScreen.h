@@ -10,6 +10,7 @@ public:
 
 	struct TextField {
 		TextField(const std::string &text, float x, float y, float sc, uint32_t col) : text(text), pos(x, y), scale(sc), color(col), add(0), f {&pos.x, &pos.y, &scale, &color.r, &color.g, &color.b, &color.a, &add} {
+			
 		}
 
 		std::string text;

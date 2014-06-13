@@ -42,11 +42,13 @@ public:
 
 	void update() {
 
-		auto state = player.update();
+		//player.update();
+		auto state = player.getState();
 		if(state == MusicPlayerList::PLAY_STARTED) {
 			LOGD("MUSIC STARTING");
 			//state = PLAYING;
 			currentInfo = player.getInfo();
+			LOGD("Prev song %s, new song %s", currentInfoField.getInfo().title, currentInfo.title);
 			prevInfoField.setInfo(currentInfoField.getInfo());
 			currentInfoField.setInfo(currentInfo);
 			currentTune = currentInfo.starttune;

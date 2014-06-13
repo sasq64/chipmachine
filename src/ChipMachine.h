@@ -58,6 +58,7 @@ public:
 
 	virtual void render(uint32_t delta) override {
 		starProgram.use();
+		if(starPos > 1.0) starPos -= 1.0;
 		starProgram.setUniform("scrollpos", starPos += (0.3 / target.width()));
 		target.draw(starTexture, starProgram);
 	};
@@ -117,14 +118,18 @@ public:
 
 
 	virtual void render(uint32_t delta) override {
+		if(alpha <= 0.01)
+			return;
 		if(xpos < -scrollLen)
 			xpos = target.width() + 100;
 		scr.clear(0x00000000);
-		scr.text(font, scrollText, xpos-=scrollspeed, 10, 0xffffffff, scrollsize);
+		scr.text(font, scrollText, xpos-=scrollspeed, 10, 0xffffff | ((int)(alpha*255) << 24), scrollsize);
 		program.use();
 		static float uvs[] = { 0,0,1,0,0,1,1,1 };
 		target.draw(scr, 0.0f, scrolly, scr.width(), scr.height(), uvs, program);
 	}
+
+	float alpha = 1.0;
 
 	int scrollspeed = 4;
 	int scrolly = 0;

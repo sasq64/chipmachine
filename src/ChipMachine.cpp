@@ -107,12 +107,14 @@ void ChipMachine::update() {
 
 	auto show_main = [=]() {
 		currentScreen = 0;
-		make_tween().to(spectrumColor, spectrumColorMain).seconds(1.0);
+		make_tween().to(spectrumColor, spectrumColorMain).seconds(0.5);
+		make_tween().to(scrollEffect.alpha, 1.0).seconds(0.5);
 	};
 
 	auto show_search = [=]() {
 		currentScreen = 1;
-		make_tween().to(spectrumColor, spectrumColorSearch).seconds(1.0);
+		make_tween().to(spectrumColor, spectrumColorSearch).seconds(0.5);
+		make_tween().to(scrollEffect.alpha, 0.0).seconds(0.5);
 	};
 
 	static string msg;
@@ -124,7 +126,7 @@ void ChipMachine::update() {
 			return (a == ' ' && b == ' ');
 		});
 		m.resize(last - m.begin());
-		LOGD("MSG:%s", m);
+		//LOGD("MSG:%s", m);
 		scrollEffect.set("scrolltext", m);
 	}
 

@@ -9,25 +9,37 @@ using namespace utils;
 
 namespace chipmachine {
 
+MusicPlayerList::MusicPlayerList() {
+	playerThread = thread([=]() {
+		state = STOPPED;
+		while(true) {
+			update();
+			sleepms(100);
+		}
+	});
+	//playerThread.start();
+}
+
 void MusicPlayerList::addSong(const SongInfo &si) {
-	lock_guard<mutex> guard(plMutex);
+	LOCK_GUARD(plMutex);
 	playList.push_back(si);
 }
 
 void MusicPlayerList::clearSongs() {
-	lock_guard<mutex> guard(plMutex);
+	LOCK_GUARD(plMutex);
 	playList.clear();
 }
 
 void MusicPlayerList::nextSong() {
-	lock_guard<mutex> guard(plMutex);
+	LOCK_GUARD(plMutex);
 	if(playList.size() > 0) {
-		mp.stop();
+		//mp.stop();
 		state = WAITING;
 	}
 }
 
 void MusicPlayerList::updateInfo() {
+	LOCK_GUARD(plMutex);
 	auto si = mp.getPlayingInfo();
 	if(si.title != "")
 		currentInfo.title = si.title;
@@ -41,23 +53,55 @@ void MusicPlayerList::updateInfo() {
 	currentInfo.starttune = si.starttune;
 }
 
-void MusicPlayerList::playFile(const std::string &fileName) {
-	lock_guard<mutex> guard(plMutex);
-	if(fileName != "")
-		mp.playFile(fileName);
-	state = PLAY_STARTED;
-	updateInfo();
-}
-
 void MusicPlayerList::seek(int song, int seconds) {
 	mp.seek(song, seconds);
 	updateInfo();
 }
 
+uint16_t *MusicPlayerList::getSpectrum() {
+	return mp.getSpectrum();
+}
 
-MusicPlayerList::State MusicPlayerList::update() {
+int MusicPlayerList::spectrumSize() {
+	return mp.spectrumSize();
+}
+
+SongInfo MusicPlayerList::getInfo(int index) {
+	LOCK_GUARD(plMutex);
+	if(index == 0)
+		return currentInfo;
+	else
+		return playList[index-1];
+}
+
+int MusicPlayerList::getLength() {
+	return currentInfo.length;
+}
+
+int MusicPlayerList::getPosition() {
+	return mp.getPosition();
+}
+
+int MusicPlayerList::listSize() {
+	return playList.size();
+}
+
+
+/// PRIVATE
+
+
+void MusicPlayerList::playFile(const std::string &fileName) {
+	//LOCK_GUARD(plMutex);
+	if(fileName != "")
+		mp.playFile(fileName);
+	updateInfo();
+	state = PLAY_STARTED;
+}
+
+void MusicPlayerList::update() {
+
 	if(state == PLAYING && !mp.playing()) {
-		lock_guard<mutex> guard(plMutex);
+		LOCK_GUARD(plMutex);
 		LOGD("#### Music ended");
 		if(playList.size() == 0)
 			state = STOPPED;
@@ -77,7 +121,7 @@ MusicPlayerList::State MusicPlayerList::update() {
 
 	if(state == WAITING && playList.size() > 0) {
 		{
-			lock_guard<mutex> guard(plMutex);
+			LOCK_GUARD(plMutex);
 			state = STARTED;
 			currentInfo = playList.front();
 			playList.pop_front();
@@ -138,35 +182,7 @@ MusicPlayerList::State MusicPlayerList::update() {
 			playFile(currentInfo.path);
 		}
 	}
-
-	return state;
 }
 
-uint16_t *MusicPlayerList::getSpectrum() {
-	return mp.getSpectrum();
-}
-
-int MusicPlayerList::spectrumSize() {
-	return mp.spectrumSize();
-}
-
-SongInfo MusicPlayerList::getInfo(int index) {
-	if(index == 0)
-		return currentInfo;
-	else
-		return playList[index-1];
-}
-
-int MusicPlayerList::getLength() {
-	return currentInfo.length;
-}
-
-int MusicPlayerList::getPosition() {
-	return mp.getPosition();
-}
-
-int MusicPlayerList::listSize() {
-	return playList.size();
-}
 
 }
