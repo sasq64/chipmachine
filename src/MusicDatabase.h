@@ -25,8 +25,11 @@ public:
 	MusicDatabase() : db("music.db") {}
 
 	void init();
-	void modlandInit();
-	void hvscInit();
+
+	void initDatabase(std::string name, std::unordered_map<std::string, std::string> &vars);
+
+	void modlandInit(const std::string &source, const std::string &song_list, int id);
+	void hvscInit(const std::string &source, int id);
 
 	void generateIndex();
 

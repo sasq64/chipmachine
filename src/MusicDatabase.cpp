@@ -25,27 +25,37 @@ void MusicDatabase::init() {
 	db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
 	//db.exec("CREATE VIRTUAL TABLE song USING fts4(title, game, composer, format, path,)");
 
-	hvscInit();
-	modlandInit();
-	generateIndex();
+	//hvscInit();
+	//modlandInit();
+	//generateIndex();
 
 }
 
-void MusicDatabase::hvscInit() {
+void MusicDatabase::initDatabase(string name, unordered_map<string, string> &vars) {
+	LOGD("Init db '%s'", name);
+	if(name == "modland")
+		modlandInit(vars["source"], vars["song_list"], stol(vars["id"]));
+	else if(name == "hvsc")
+		hvscInit(vars["source"], stol(vars["id"]));
+}
+
+void MusicDatabase::hvscInit(const string &source, int id) {
 
 	if(db.query("SELECT 1 FROM collection WHERE name = 'HVSC'").step())
 		return;
 
-	db.exec("CREATE TABLE IF NOT EXISTS hvscstil (title STRING)");
+	//db.exec("CREATE TABLE IF NOT EXISTS hvscstil (title STRING)");
 
 	LOGD("Indexing HVSC");
 
 	db.exec("BEGIN TRANSACTION");
 
-	string hvscPath = "C64Music/";
+	string hvscPath = source;
+	if(!endsWith(hvscPath, "/"))
+		hvscPath += "/";
 
 	db.exec("INSERT INTO collection (name, url, description, id) VALUES (?, ?, ?, ?)",
-		"HVSC", hvscPath, "HVSC database", 2);
+		"HVSC", hvscPath, "HVSC database", id);
 
 	vector<uint8_t> buffer(128);
 	char temp[33];
@@ -70,7 +80,7 @@ void MusicDatabase::hvscInit() {
 				name = name.substr(pos + hvscPath.length());
 			}
 
-			query.bind(title, "", composer, "SID", name, 2);
+			query.bind(title, "", composer, "C64 SID", name, id);
 			query.step();
 
 			} else if(f.isDir())
@@ -93,13 +103,12 @@ static std::unordered_set<std::string> exclude = {
 static std::unordered_set<std::string> exclude = { "RealSID", "PlaySID" };
 #endif
 
-void MusicDatabase::modlandInit() {
+void MusicDatabase::modlandInit(const string &source, const string &song_list, int id) {
 
 	if(db.query("SELECT 1 FROM collection WHERE name = 'modland'").step())
 		return;
 
 	LOGD("Creating modland collection");
-
 
 	LOGD("Indexing...\n");
 
@@ -108,14 +117,18 @@ void MusicDatabase::modlandInit() {
 		"Video Game Music"
 	};
 
+	string url = source;
+	if(!endsWith(url, "/"))
+		url += "/";
+
 	db.exec("BEGIN TRANSACTION");
 
 	db.exec("INSERT INTO collection (name, url, description, id) VALUES (?, ?, ?, ?)",
-		"modland", "ftp://ftp.modland.com/pub/modules/", "Modland database", 1);
+		"modland", url, "Modland database", id);
 
 	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?)");
 
-	File file { "data/allmods.txt" };
+	File file { song_list };
 	for(const auto &s : file.getLines()) {
 
 		auto path = split(s, "\t")[1];
@@ -158,7 +171,7 @@ void MusicDatabase::modlandInit() {
 			game = parts[i++];
 		string title = path_basename(parts[i++]);
 
-		query.bind(title, game, composer, fmt, path, 1);
+		query.bind(title, game, composer, fmt, path, id);
 		
 		query.step();
 	}

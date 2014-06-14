@@ -34,6 +34,18 @@ void ChipMachine::initLua() {
 		return -1;
 	});
 
+	unordered_map<string, string> dbmap;
+	lua.registerFunction<void, string, string>("set_db_var", [&](string name, string val) {
+		LOGD("%s %s", name, val); 
+		if(val == "start") {
+		} else if(val == "end") {
+			mdb.initDatabase(name, dbmap);
+			dbmap.clear();
+		} else {
+			dbmap[name] = val;
+		}
+	});
+
 	lua.registerFunction<void, string, uint32_t, string>("set_var", [=](string name, uint32_t index, string val) {
 		//LOGD("%s(%d) = %s", name, index, val);
 
@@ -76,6 +88,23 @@ void ChipMachine::initLua() {
 			LOGD("%d %f %d", scrollEffect.scrolly, scrollEffect.scrollsize, scrollEffect.scrollspeed);
 		}
 	});
+
+		lua.load(R"(
+			DB = {}
+		)");
+		lua.loadFile("lua/db.lua");
+		lua.load(R"(
+		for a,b in pairs(DB) do 
+			if type(b) == 'table' then
+				set_db_var(a, 'start')
+				for a1,b1 in pairs(b) do
+					set_db_var(a1, b1)
+				end
+				set_db_var(a, 'end')
+			end
+		end
+	)");
+	mdb.generateIndex();
 
 	Resources::getInstance().load<string>("lua/init.lua", [=](const std::string &contents) {
 		LOGD("init.lua");
