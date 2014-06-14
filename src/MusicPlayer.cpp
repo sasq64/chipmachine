@@ -96,6 +96,9 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 				}
 			}
 
+			sub_title = player->getMeta("sub_title");
+
+
 		} else
 			memset(ptr, 0, size*2);
 	});
@@ -157,6 +160,7 @@ void MusicPlayer::updatePlayingInfo() {
 		si.starttune = player->getMetaInt("startSong");
 
 		message = player->getMeta("message");
+		sub_title = player->getMeta("sub_title");
 
 	}
 	{
@@ -175,6 +179,11 @@ string MusicPlayer::getMeta(const string &what) {
 	if(what == "message") {
 		LOCK_GUARD(infoMutex);
 		return message;
+	}
+
+	if(what == "sub_title") {
+		LOCK_GUARD(infoMutex);
+		return sub_title;
 	}
 
 	LOCK_GUARD(playerMutex);

@@ -111,9 +111,13 @@ public:
 	}
 
 	virtual void set(const std::string &what, const std::string &val) {
-		scrollText = val;
-		xpos = target.width() + 100;
-		scrollLen = font.get_width(val, scrollsize);
+		if(what == "font") {
+			font = Font(val, 24, 512 | Font::DISTANCE_MAP);
+		} else {
+			scrollText = val;
+			xpos = target.width() + 100;
+			scrollLen = font.get_width(val, scrollsize);
+		}
 	}
 
 

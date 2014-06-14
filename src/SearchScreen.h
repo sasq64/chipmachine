@@ -134,17 +134,28 @@ public:
 			case Window::PAGEDOWN:
 				songList.pagedown();
 				break; */
+			case Window::DELETE:
+				{
+					auto r = iquery.getFull(songList.selected());
+					auto parts = split(r, "\t");
+					LOGD("######### %s", parts[0]);
+					SongInfo si(parts[0], parts[1], parts[2], parts[3]);
+					player.addSong(si); 
+					songList.select(songList.selected()+1);
+				}
+				break;
 			case Window::ENTER:
 				{
 					auto r = iquery.getFull(songList.selected());
 					auto parts = split(r, "\t");
 					LOGD("######### %s", parts[0]);
 					SongInfo si(parts[0], parts[1], parts[2], parts[3]);
-					if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_LEFT))) {
+					if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_RIGHT))) {
 						player.clearSongs();
 						player.addSong(si);
 						player.nextSong();
 						//show_main();
+						iquery.clear();
 					} else {
 						player.addSong(si); 
 						songList.select(songList.selected()+1);
@@ -156,7 +167,7 @@ public:
 		}
 
 		if(searchUpdated) {
-			searchField->text = "#" + iquery.getString();
+			searchField->setText("#" + iquery.getString());
 			//searchField->setColor(0xffffffff);
 			searchField->color = Color(0xffffffff);
 		}
@@ -167,7 +178,7 @@ public:
 			auto p = iquery.getFull(songList.selected());
 			auto parts = split(p, "\t");
 			auto ext = path_extension(parts[0]);
-			searchField->text = format("Format: %s (%s)", parts[3], ext);
+			searchField->setText(format("Format: %s (%s)", parts[3], ext));
 			//searchField->setColor(0xffcccc66);
 			searchField->color = Color(0xffcccc66);
 		}

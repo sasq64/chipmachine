@@ -9,11 +9,10 @@ class TextScreen {
 public:
 
 	struct TextField {
-		TextField(const std::string &text, float x, float y, float sc, uint32_t col) : text(text), pos(x, y), scale(sc), color(col), add(0), f {&pos.x, &pos.y, &scale, &color.r, &color.g, &color.b, &color.a, &add} {
+		TextField(const std::string &text, float x, float y, float sc, uint32_t col) : pos(x, y), scale(sc), color(col), add(0), f {&pos.x, &pos.y, &scale, &color.r, &color.g, &color.b, &color.a, &add}, text(text) {
 			
 		}
 
-		std::string text;
 		utils::vec2f pos;
 
 		float scale;
@@ -23,13 +22,31 @@ public:
 		float& operator[](int i) { return *f[i]; }
 
 		int size() { return 8; }
+
+		void setText(const std::string &t) {
+			text = t;
+			tlen = -1;
+		}
+
+		std::string getText() { return text; }
+
 	private:
 		float* f[8];
+		std::string text;
+		int tlen;
+
+		friend TextScreen;
 	};
 
 	void render(uint32_t d) {
 		for(auto &f : fields) {
-			grappix::screen.text(font, f->text, f->pos.x, f->pos.y, f->color + f->add, f->scale);
+			auto x = f->pos.x;
+			auto y = f->pos.y;
+			if(f->tlen == -1)
+				f->tlen = font.get_width(f->text, f->scale);
+			//if(x < 0) x = grappix::screen.width() - f->tlen + x;
+			//if(y < 0) y = grappix::screen.height() + y;
+			grappix::screen.text(font, f->text, x, y, f->color + f->add, f->scale);
 		}
 	}
 

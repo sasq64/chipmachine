@@ -82,6 +82,7 @@ private:
 	std::mutex infoMutex;
 	std::shared_ptr<ChipPlayer> player;
 	std::string message;
+	std::string sub_title;
 	int pos;
 	//int length;
 	int fadeOut;

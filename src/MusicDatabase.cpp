@@ -83,6 +83,16 @@ void MusicDatabase::hvscInit() {
 	db.exec("COMMIT");
 }
 
+
+#ifdef RASPBERRYPI
+static std::unordered_set<std::string> exclude = { 
+	"Nintendo DS Sound Format", "Gameboy Sound Format", "Dreamcast Sound Format", "Ultra64 Sound Format",
+	"Saturn Sound Format", "RealSID", "PlaySID"
+};
+#else
+static std::unordered_set<std::string> exclude = { "RealSID", "PlaySID" };
+#endif
+
 void MusicDatabase::modlandInit() {
 
 	if(db.query("SELECT 1 FROM collection WHERE name = 'modland'").step())
@@ -126,6 +136,10 @@ void MusicDatabase::modlandInit() {
 		string fmt = parts[i++];
 		if(hasSubFormats.count(fmt) > 0)
 			i++;//fmt = fmt + "/" + parts[i++];
+
+		if(exclude.count(fmt) > 0)
+			continue;
+
 		string composer = parts[i++];
 
 		if(fmt == "MDX") {

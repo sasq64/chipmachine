@@ -33,6 +33,8 @@ public:
 		nextInfoField = SongInfoField(mainScreen, 440, 340, 1.0, 0xffe0e080);
 		outsideInfoField = SongInfoField(screen.width()+10, 340, 1.0, 0xffe0e080);
 
+		xinfoField = mainScreen.addField("xinfo", tv1.x-100, tv0.y, 0.8, 0x50a0c0ff);		
+
 		nextField = mainScreen.addField("next", 440, 320, 0.6, 0xe080c0ff);		
 
 		timeField = mainScreen.addField("", tv0.x, 188, 1.0, 0xff888888);
@@ -55,10 +57,13 @@ public:
 			currentTween.finish();
 			auto sc = currentInfoField[0].scale;
 
+			auto sub_title = player.getMeta("sub_title");
+
 			int tw = mainScreen.getFont().get_width(currentInfo.title, sc);
 			currentTween = make_tween().from(prevInfoField, currentInfoField).
 			from(currentInfoField, nextInfoField).
 			from(nextInfoField, outsideInfoField).seconds(1.5).on_complete([=]() {
+				xinfoField->setText(sub_title);
 				auto d = (tw-(tv1.x-tv0.x-20));
 				if(d > 20)
 					make_tween().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
@@ -75,32 +80,34 @@ public:
 					}
 
 					if(psz == 1)
-						nextField->text = "Next";
+						nextField->setText("Next");
 					else
-						nextField->text = format("Next (%d)", psz);
+						nextField->setText(format("Next (%d)", psz));
 					nextInfoField.setInfo(n);
 					currentNextPath = n.path;
 				}
 			}
-		} else if(nextField->text != "") {
+		} else if(nextField->getText() != "") {
 			nextInfoField.setInfo(SongInfo());
-			nextField->text = "";
+			nextField->setText("");
 		}
 
 		auto p = player.getPosition();
 		int length = player.getLength();
-		timeField->text = format("%02d:%02d", p/60, p%60);
+		timeField->setText(format("%02d:%02d", p/60, p%60));
 		if(length > 0)
-			lengthField->text = format("(%02d:%02d)", length/60, length%60);
+			lengthField->setText(format("(%02d:%02d)", length/60, length%60));
 		else
-			lengthField->text = "";
+			lengthField->setText("");
 
 		if(currentInfo.numtunes > 0)
-			songField->text = format("[%02d/%02d]", currentTune+1, currentInfo.numtunes);
+			songField->setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
 		else
-			songField->text = "";
+			songField->setText("");
 
-
+		auto sub_title = player.getMeta("sub_title");
+		if(sub_title != xinfoField->getText())
+			xinfoField->setText(sub_title);
 	}
 
 	void set_variable(const std::string &name, int index, const std::string &val) {
@@ -118,14 +125,16 @@ public:
 			{ "time_field", timeField.get() },
 			{ "song_field", songField.get() },
 			{ "next_field", nextField.get() },
+			{ "xinfo_field", xinfoField.get() },
 		};
 
 		if(fields.count(name) > 0) {
 			auto &f = (*fields[name]);
 			if(index == 4) {
 				f.color = Color(stoll(val));
-			} else
+			} else {
 				f[index-1] = stod(val);
+			}
 		} else
 		if(name == "top_left") {
 			//currentInfoField.fields[0].color = stol(val);
@@ -158,6 +167,7 @@ public:
 				make_tween().to(timeField->add, 0.0);
 			break;
 		case Window::F9:
+		case Window::ENTER:
 			player.nextSong();
 			break;
 		case Window::F12:
@@ -169,6 +179,8 @@ public:
 				songField->add = 0.0;
 				make_tween().sine().to(songField->add, 1.0).seconds(0.5);
 				currentInfo = player.getInfo();
+				auto sub_title = player.getMeta("sub_title");
+				xinfoField->setText(sub_title);
 				currentInfoField.setInfo(currentInfo);
 			}
 			break;
@@ -178,6 +190,8 @@ public:
 				songField->add = 0.0;
 				make_tween().sine().to(songField->add, 1.0).seconds(0.5);
 				currentInfo = player.getInfo();
+				auto sub_title = player.getMeta("sub_title");
+				xinfoField->setText(sub_title);
 				currentInfoField.setInfo(currentInfo);
 			}
 			break;
@@ -199,6 +213,7 @@ private:
 	std::shared_ptr<TextScreen::TextField> lengthField;
 	std::shared_ptr<TextScreen::TextField> songField;
 	std::shared_ptr<TextScreen::TextField> nextField;
+	std::shared_ptr<TextScreen::TextField> xinfoField;
 
 	string currentNextPath;
 	SongInfo currentInfo;

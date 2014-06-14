@@ -69,6 +69,9 @@ void ChipMachine::initLua() {
 			case 3:
 				scrollEffect.scrollspeed = stol(val);
 				break;
+			case 4:
+				scrollEffect.set("font", val);
+				break;
 			}
 			LOGD("%d %f %d", scrollEffect.scrolly, scrollEffect.scrollsize, scrollEffect.scrollspeed);
 		}
@@ -144,20 +147,33 @@ void ChipMachine::update() {
 			case Window::SPACE:
 			case Window::BACKSPACE:
 			case Window::F10:
-			case Window::ESCAPE:
+			case Window::UP:
+			case Window::DOWN:
 				show_search();
-				break;
-			case Window::ENTER:
-				if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_LEFT))) {
-					show_main();
-				}
 				break;
 			}
 		}
 
+	if(currentScreen == 0)
 		mainScreen.on_key(k);
+	else
 		searchScreen.on_key(k);
 	}
+
+	switch(k) {
+	case Window::ENTER:
+		if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_RIGHT))) {
+			show_main();
+		}
+		break;
+	case Window::F10:
+	case Window::ESCAPE:
+		show_main();
+		break;
+	}
+
+
+
 	mainScreen.update();
 	searchScreen.update();
 
