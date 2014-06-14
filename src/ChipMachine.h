@@ -225,7 +225,7 @@ public:
 
 private:
 
-	ModlandDatabase modland;
+	MusicDatabase mdb;
 
 	MusicPlayerList player;
 

@@ -20,18 +20,13 @@ public:
 	virtual const char *what() const throw() { return "Not found exception"; }
 };
 
-class MusicDatabase {
+class MusicDatabase : public SearchProvider {
 public:
-	virtual void init() {}
-	virtual bool ready() { return true; }
-	virtual std::vector<SongInfo> find(const std::string &pattern) = 0;
-};
+	MusicDatabase() : db("music.db") {}
 
-class ModlandDatabase : public MusicDatabase, public SearchProvider {
-public:
-	ModlandDatabase() : db("modland.db") {}
-
-	void init() override;
+	void init();
+	void modlandInit();
+	void hvscInit();
 
 	void generateIndex();
 
@@ -51,7 +46,7 @@ public:
 		return composerIndex.getString(titleToComposer[index]);
 	}
 
-	virtual std::vector<SongInfo> find(const std::string &pattern) override;
+	virtual std::vector<SongInfo> find(const std::string &pattern);
 
 	IncrementalQuery createQuery() {
 		std::lock_guard<std::mutex>{dbMutex};

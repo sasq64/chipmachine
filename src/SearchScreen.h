@@ -35,7 +35,7 @@ public:
 		grappix::screen.text(font, text, rec.x, rec.y, c, resultFieldTemplate->scale);
 	};
 
-	SearchScreen(MusicPlayerList &mpl, ModlandDatabase &mdb) : player(mpl), mdb(mdb), songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
+	SearchScreen(MusicPlayerList &mpl, MusicDatabase &mdb) : player(mpl), mdb(mdb), songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
 
 		iquery = mdb.createQuery();
 
@@ -139,7 +139,7 @@ public:
 					auto r = iquery.getFull(songList.selected());
 					auto parts = split(r, "\t");
 					LOGD("######### %s", parts[0]);
-					SongInfo si(string("ftp://ftp.modland.com/pub/modules/") + parts[0], parts[1], parts[2], parts[3]);
+					SongInfo si(parts[0], parts[1], parts[2], parts[3]);
 					if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_LEFT))) {
 						player.clearSongs();
 						player.addSong(si);
@@ -180,7 +180,7 @@ private:
 
 	TextScreen searchScreen;
 
-	ModlandDatabase &mdb;
+	MusicDatabase &mdb;
 
 	//std::vector<std::shared_ptr<TextScreen::TextField>> resultField;
 	std::shared_ptr<TextScreen::TextField> searchField;

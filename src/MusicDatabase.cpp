@@ -11,15 +11,85 @@ namespace chipmachine {
 static const std::set<std::string> secondary = { "smpl", "sam", "ins", "smp" };
 
 
-void ModlandDatabase::init() {
+void MusicDatabase::init() {
 
-	if(db.has_table("song")) {
-		generateIndex();
+
+	//if(db.has_table("song")) {
+	//	generateIndex();
+	//	return;
+	//}
+
+	db.exec("CREATE TABLE IF NOT EXISTS playlist (title STRING)");
+	db.exec("CREATE TABLE IF NOT EXISTS plmap (playlist INT, pos INT, path STRING)");
+	db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, description STRING, id INTEGER, version INTEGER)");
+	db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
+	//db.exec("CREATE VIRTUAL TABLE song USING fts4(title, game, composer, format, path,)");
+
+	hvscInit();
+	modlandInit();
+	generateIndex();
+
+}
+
+void MusicDatabase::hvscInit() {
+
+	if(db.query("SELECT 1 FROM collection WHERE name = 'HVSC'").step())
 		return;
-	}
 
-	//db.exec("CREATE TABLE playlist (title STRING)");
-	//db.exec("CREATE TABLE plmap (playlist INT, index INT, STRING path_extension)");
+	db.exec("CREATE TABLE IF NOT EXISTS hvscstil (title STRING)");
+
+	LOGD("Indexing HVSC");
+
+	db.exec("BEGIN TRANSACTION");
+
+	string hvscPath = "C64Music/";
+
+	db.exec("INSERT INTO collection (name, url, description, id) VALUES (?, ?, ?, ?)",
+		"HVSC", hvscPath, "HVSC database", 2);
+
+	vector<uint8_t> buffer(128);
+	char temp[33];
+	temp[32] = 0;
+
+	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?)");
+
+	function<void(File &)> checkDir;
+	checkDir = [&](File &root) {
+		LOGD("Checking %s", root.getName());
+		for(auto f : root.listFiles()) {
+			auto name = f.getName();
+			if(path_extension(f.getName()) == "sid") {
+				f.read(&buffer[0], buffer.size());
+
+			auto title = string((const char*)&buffer[0x16], 0x20);
+			auto composer = string((const char*)&buffer[0x36], 0x20);
+			//auto copyright = string((const char*)&buffer[0x56], 0x20);
+
+			int pos = name.find(hvscPath);
+			if(pos != string::npos) {
+				name = name.substr(pos + hvscPath.length());
+			}
+
+			query.bind(title, "", composer, "SID", name, 2);
+			query.step();
+
+			} else if(f.isDir())
+				checkDir(f);
+		}
+	};
+	auto hf = File(hvscPath);
+	checkDir(hf);
+
+	db.exec("COMMIT");
+}
+
+void MusicDatabase::modlandInit() {
+
+	if(db.query("SELECT 1 FROM collection WHERE name = 'modland'").step())
+		return;
+
+	LOGD("Creating modland collection");
+
 
 	LOGD("Indexing...\n");
 
@@ -28,12 +98,13 @@ void ModlandDatabase::init() {
 		"Video Game Music"
 	};
 
-	//db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING)");
-	db.exec("CREATE VIRTUAL TABLE song USING fts4(title, game, composer, format, path)");
-
-	auto query = db.query("INSERT INTO song (title, game, composer, format, path) VALUES (?, ?, ?, ?, ?)");
-
 	db.exec("BEGIN TRANSACTION");
+
+	db.exec("INSERT INTO collection (name, url, description, id) VALUES (?, ?, ?, ?)",
+		"modland", "ftp://ftp.modland.com/pub/modules/", "Modland database", 1);
+
+	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?)");
+
 	File file { "data/allmods.txt" };
 	for(const auto &s : file.getLines()) {
 
@@ -73,17 +144,16 @@ void ModlandDatabase::init() {
 			game = parts[i++];
 		string title = path_basename(parts[i++]);
 
-		query.bind(title, game, composer, fmt, path);
+		query.bind(title, game, composer, fmt, path, 1);
 		
 		query.step();
 	}
 	db.exec("COMMIT");
 
-	generateIndex();
 }
 
 
-int ModlandDatabase::search(const string &query, vector<int> &result, unsigned int searchLimit) {
+int MusicDatabase::search(const string &query, vector<int> &result, unsigned int searchLimit) {
 
 	lock_guard<mutex>{dbMutex};
 	
@@ -107,12 +177,12 @@ int ModlandDatabase::search(const string &query, vector<int> &result, unsigned i
 	return result.size();
 }
 
-string ModlandDatabase::getFullString(int id) const {
+string MusicDatabase::getFullString(int id) const {
 
 	id++;
 	LOGD("ID %d", id);
 
-	auto q = db.query<string, string, string, string, string>("SELECT title, game, composer, format, path FROM song WHERE ROWID = ?", id);
+	auto q = db.query<string, string, string, string, string, string>("SELECT title, game, composer, format, song.path, collection.url FROM song, collection WHERE song.ROWID = ? AND song.collection = collection.id", id);
 	if(q.step()) {
 		auto t = q.get_tuple();
 		auto title = get<0>(t);
@@ -120,14 +190,14 @@ string ModlandDatabase::getFullString(int id) const {
 		if(game != "")
 			title = format("%s [%s]", game, title);
 
-		string r = format("%s\t%s\t%s\t%s", get<4>(t), title, get<2>(t), get<3>(t));
+		string r = format("%s\t%s\t%s\t%s", get<5>(t) + get<4>(t), title, get<2>(t), get<3>(t));
 		LOGD("RESULT %s", r);
 		return r;
 	}
 	throw not_found_exception();
 }
 
-vector<SongInfo> ModlandDatabase::find(const string &pattern) {
+vector<SongInfo> MusicDatabase::find(const string &pattern) {
 
 	lock_guard<mutex> guard(dbMutex);
 
@@ -159,7 +229,7 @@ vector<SongInfo> ModlandDatabase::find(const string &pattern) {
 	return songs;
 }
 
-void ModlandDatabase::generateIndex() {
+void MusicDatabase::generateIndex() {
 
 	lock_guard<mutex>{dbMutex};
 
@@ -205,6 +275,7 @@ void ModlandDatabase::generateIndex() {
 
 		string title, game, composer, path;
 		tie(title, game, composer, path) = query.get_tuple();
+		//LOGD("%s %s", title, path);
 		//string ext = path_extension(path);
 		//makeLower(ext);
 		//int fmt = formatMap[ext];

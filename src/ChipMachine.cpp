@@ -8,11 +8,11 @@ using namespace tween;
 
 namespace chipmachine {
 
-ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, modland), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen) {
+ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, mdb), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen) {
 
-	modland.init();
+	mdb.init();
 
-	telnet = make_unique<TelnetInterface>(modland, player);
+	telnet = make_unique<TelnetInterface>(mdb, player);
 	telnet->start();
 
 	memset(&eq[0], 2, eq.size());
