@@ -20,14 +20,98 @@
 #include <musicplayer/plugins/AdPlugin/AdPlugin.h>
 #include <musicplayer/plugins/UADEPlugin/UADEPlugin.h>
 
+#include <archive/archive.h>
 
 using namespace std;
 using namespace utils;
 
 namespace chipmachine {
 
+class RSNPlayer : public ChipPlayer {
+public:
+	RSNPlayer(const vector<string> &l, ChipPlugin *plugin) : songs(l), plugin(plugin) {
+		player = shared_ptr<ChipPlayer>(plugin->fromFile(l[0]));
+		player->onMeta([=](const std::vector<std::string> &meta, ChipPlayer* player) {			
+			//for(const auto &m : meta) {
+			//	setMeta(m, player->getMeta(m));
+			//}
+		});
+		setMeta("title", player->getMeta("title"),
+			"game", player->getMeta("game"),
+			"composer", player->getMeta("composer"),
+			"length", player->getMeta("length"),
+			"format", player->getMeta("format"),
+			"songs", l.size());
+	}
+
+	virtual int getSamples(int16_t *target, int noSamples) override {
+		if(player)
+			return player->getSamples(target, noSamples);
+		return 0;
+	}
+
+	virtual void seekTo(int song, int seconds) {
+		player = nullptr;
+		player = shared_ptr<ChipPlayer>(plugin->fromFile(songs[song]));
+		if(player) {
+			setMeta("title", player->getMeta("title"),
+			"game", player->getMeta("game"),
+			"composer", player->getMeta("composer"),
+			"length", player->getMeta("length"),
+			"format", player->getMeta("format"));
+			if(seconds > 0)
+				player->seekTo(-1, seconds);
+		}
+	}
+private:
+	vector<string> songs;
+	std::shared_ptr<ChipPlayer> player;
+	ChipPlugin *plugin;
+
+};
+
+class RSNPlugin : public ChipPlugin {
+public:
+	RSNPlugin(std::vector<ChipPlugin*> &plugins) : plugins(plugins) {}
+
+	virtual std::string name() const { return "RSNPlugin"; }
+
+	virtual ChipPlayer *fromFile(const std::string &fileName) {
+		vector<string> l;
+		makedir(".rsn");
+		auto *a = Archive::open(fileName, ".rsn");
+		for(auto s : *a) {
+			if(path_extension(s) == "spc") {
+				a->extract(s);
+				LOGD("Found %s", s);
+				l.push_back(string(".rsn/") + s);
+			}
+		};
+
+		if(l.size() > 0) {
+			auto name = l[0];
+			utils::makeLower(name);
+			for(auto plugin : plugins) {
+				if(plugin->canHandle(name)) {
+					return new RSNPlayer(l, plugin);
+				}
+			}
+		}
+		return nullptr;
+
+	};
+
+	virtual bool canHandle(const std::string &name) {
+		return (path_extension(name) == "rsn");
+	}
+private:
+	std::vector<ChipPlugin*> &plugins;
+
+};
+
 MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		//new ModPlugin {},
+		new RSNPlugin { this->plugins },
 		new OpenMPTPlugin {},
 		new HTPlugin {},
 		new HEPlugin {"data/hebios.bin"},
@@ -59,6 +143,8 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 
 		if(!paused && player) {
 			int sz = size;
+
+			sub_title = player->getMeta("sub_title");
 
 			if(fadeOut == 0 && changedSong == false) {
 				if(playingInfo.length > 0 && pos/44100 > playingInfo.length) {
@@ -95,9 +181,6 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 					break;
 				}
 			}
-
-			sub_title = player->getMeta("sub_title");
-
 
 		} else
 			memset(ptr, 0, size*2);

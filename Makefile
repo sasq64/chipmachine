@@ -18,6 +18,7 @@ include $(MODULE_DIR)/audioplayer/module.mk
 include $(MODULE_DIR)/lua/module.mk
 include $(MODULE_DIR)/grappix/module.mk
 include $(MODULE_DIR)/fft/module.mk
+include $(MODULE_DIR)/archive/module.mk
 
 include $(MODULE_DIR)/musicplayer/plugins/ModPlugin/module.mk
 include $(MODULE_DIR)/musicplayer/plugins/OpenMPTPlugin/module.mk
