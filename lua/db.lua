@@ -19,8 +19,8 @@ DB.hvsc = {
 
 DB.rsn = {
 	type = "rsn",
-	song_list = "data/rsnsets.dat",
-	source = "snes"
+	id = 3,
+	source = "spcsets"
 };
 
 -- DB.NSFE = {

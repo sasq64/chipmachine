@@ -31,12 +31,13 @@ class RSNPlayer : public ChipPlayer {
 public:
 	RSNPlayer(const vector<string> &l, ChipPlugin *plugin) : songs(l), plugin(plugin) {
 		player = shared_ptr<ChipPlayer>(plugin->fromFile(l[0]));
-		player->onMeta([=](const std::vector<std::string> &meta, ChipPlayer* player) {			
+		//player->onMeta([=](const std::vector<std::string> &meta, ChipPlayer* player) {			
 			//for(const auto &m : meta) {
 			//	setMeta(m, player->getMeta(m));
 			//}
-		});
+		//});
 		setMeta("title", player->getMeta("title"),
+			"sub_title", player->getMeta("sub_title"),
 			"game", player->getMeta("game"),
 			"composer", player->getMeta("composer"),
 			"length", player->getMeta("length"),
@@ -54,11 +55,12 @@ public:
 		player = nullptr;
 		player = shared_ptr<ChipPlayer>(plugin->fromFile(songs[song]));
 		if(player) {
-			setMeta("title", player->getMeta("title"),
-			"game", player->getMeta("game"),
-			"composer", player->getMeta("composer"),
-			"length", player->getMeta("length"),
-			"format", player->getMeta("format"));
+			setMeta("sub_title", player->getMeta("sub_title"),
+			//"game", player->getMeta("game"),
+			//"composer", player->getMeta("composer"),
+			"length", player->getMeta("length")
+			//"format", player->getMeta("format")
+			);
 			if(seconds > 0)
 				player->seekTo(-1, seconds);
 		}
@@ -79,7 +81,7 @@ public:
 	virtual ChipPlayer *fromFile(const std::string &fileName) {
 		vector<string> l;
 		makedir(".rsn");
-		auto *a = Archive::open(fileName, ".rsn");
+		auto *a = Archive::open(fileName, ".rsn", Archive::TYPE_RAR);
 		for(auto s : *a) {
 			if(path_extension(s) == "spc") {
 				a->extract(s);
@@ -87,6 +89,7 @@ public:
 				l.push_back(string(".rsn/") + s);
 			}
 		};
+		delete a;
 
 		if(l.size() > 0) {
 			auto name = l[0];
@@ -147,7 +150,7 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 			sub_title = player->getMeta("sub_title");
 
 			if(fadeOut == 0 && changedSong == false) {
-				if(playingInfo.length > 0 && pos/44100 > playingInfo.length) {
+				if(length > 0 && pos/44100 > length) {
 					LOGD("#### SONGLENGTH");
 					fadeOut = pos + 44100*3;
 				}
@@ -238,10 +241,11 @@ void MusicPlayer::updatePlayingInfo() {
 		}
 		si.composer = player->getMeta("composer");
 		si.format = player->getMeta("format");
-		si.length = player->getMetaInt("length");
+		//si.length = player->getMetaInt("length");
 		si.numtunes = player->getMetaInt("songs");
 		si.starttune = player->getMetaInt("startSong");
 
+		length = player->getMetaInt("length");
 		message = player->getMeta("message");
 		sub_title = player->getMeta("sub_title");
 

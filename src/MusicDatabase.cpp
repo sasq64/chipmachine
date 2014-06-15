@@ -1,6 +1,7 @@
 #include "MusicDatabase.h"
 #include "secondary.h"
-
+#include <coreutils/utils.h>
+#include <archive/archive.h>
 #include <set>
 
 using namespace std;
@@ -37,6 +38,74 @@ void MusicDatabase::initDatabase(string name, unordered_map<string, string> &var
 		modlandInit(vars["source"], vars["song_list"], stol(vars["id"]));
 	else if(name == "hvsc")
 		hvscInit(vars["source"], stol(vars["id"]));
+	else if(name == "rsn")
+		rsnInit(vars["source"], stol(vars["id"]));
+}
+
+void MusicDatabase::rsnInit(const string &source, int id) {
+
+
+	if(db.query("SELECT 1 FROM collection WHERE name = 'RSNSET'").step())
+		return;
+
+	LOGD("Indexing RSN");
+
+	db.exec("BEGIN TRANSACTION");
+
+	string rsnPath = source;
+	if(!endsWith(rsnPath, "/"))
+		rsnPath += "/";
+
+	db.exec("INSERT INTO collection (name, url, description, id) VALUES (?, ?, ?, ?)",
+		"RSNSET", rsnPath, "SNES RSN set", id);
+
+	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?)");
+
+	vector<uint8_t> buffer(0xd8);
+
+	makedir(".rsntemp");
+
+	File root { source };
+
+	for(const auto &rf : root.listFiles()) {
+		auto name = rf.getName();
+		//LOGD("########### NAME:%s", name);
+		if(path_extension(name) == "rsn") {
+			auto *a = Archive::open(name, ".rsntemp", Archive::TYPE_RAR);
+			//LOGD("ARCHIVE %p", a);
+			bool done = false;
+			for(auto s : *a) {
+				//LOGD("FILE %s", s);
+				if(done) continue;
+				if(path_extension(s) == "spc") {
+					a->extract(s);
+					File f { ".rsntemp/" + s };
+					f.read(&buffer[0], buffer.size());
+					f.close();
+					if(buffer[0x23] == 0x1a) {
+						//auto title = string((const char*)&buffer[0x2e], 0x20);
+						auto game = string((const char*)&buffer[0x4e], 0x20);
+						auto composer = string((const char*)&buffer[0xb1], 0x20);
+
+						int pos = name.find(rsnPath);
+						if(pos != string::npos) {
+							name = name.substr(pos + rsnPath.length());
+						}
+						LOGD("### %s : %s - %s", name, composer, game);
+
+						query.bind("", game, composer, "Supner Nintendo RSN", name, id);
+						query.step();
+
+						break;
+						//done = true;
+					}
+				}
+			}
+			delete a;
+		}
+	}
+	db.exec("COMMIT");
+
 }
 
 void MusicDatabase::hvscInit(const string &source, int id) {
@@ -70,19 +139,18 @@ void MusicDatabase::hvscInit(const string &source, int id) {
 			auto name = f.getName();
 			if(path_extension(f.getName()) == "sid") {
 				f.read(&buffer[0], buffer.size());
+				auto title = string((const char*)&buffer[0x16], 0x20);
+				auto composer = string((const char*)&buffer[0x36], 0x20);
+				//auto copyright = string((const char*)&buffer[0x56], 0x20);
 
-			auto title = string((const char*)&buffer[0x16], 0x20);
-			auto composer = string((const char*)&buffer[0x36], 0x20);
-			//auto copyright = string((const char*)&buffer[0x56], 0x20);
+				int pos = name.find(hvscPath);
+				if(pos != string::npos) {
+					name = name.substr(pos + hvscPath.length());
+				}
 
-			int pos = name.find(hvscPath);
-			if(pos != string::npos) {
-				name = name.substr(pos + hvscPath.length());
-			}
-
-			query.bind(title, "", composer, "C64 SID", name, id);
-			query.step();
-
+				query.bind(title, "", composer, "C64 SID", name, id);
+				query.step();
+				f.close();
 			} else if(f.isDir())
 				checkDir(f);
 		}
@@ -307,8 +375,11 @@ void MusicDatabase::generateIndex() {
 		//makeLower(ext);
 		//int fmt = formatMap[ext];
 		//formats.push_back(fmt);
-		if(game != "")
-			title = format("%s [%s]", game, title);
+		if(game != "") {
+			if(title != "")
+				title = format("%s [%s]", game, title);
+			else title = game;
+		}
 
 		// The title index maps one-to-one with the database
 		int tindex = titleIndex.add(title);

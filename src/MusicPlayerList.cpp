@@ -47,8 +47,8 @@ void MusicPlayerList::updateInfo() {
 		currentInfo.composer = si.composer;
 	if(si.format != "")
 		currentInfo.format = si.format;
-	if(si.length > 0)
-		currentInfo.length = si.length;
+	//if(si.length > 0)
+	//	currentInfo.length = si.length;
 	currentInfo.numtunes = si.numtunes;
 	currentInfo.starttune = si.starttune;
 }
@@ -75,7 +75,7 @@ SongInfo MusicPlayerList::getInfo(int index) {
 }
 
 int MusicPlayerList::getLength() {
-	return currentInfo.length;
+	return mp.getLength();//currentInfo.length;
 }
 
 int MusicPlayerList::getPosition() {

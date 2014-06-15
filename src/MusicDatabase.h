@@ -30,6 +30,7 @@ public:
 
 	void modlandInit(const std::string &source, const std::string &song_list, int id);
 	void hvscInit(const std::string &source, int id);
+	void rsnInit(const std::string &source, int id);
 
 	void generateIndex();
 

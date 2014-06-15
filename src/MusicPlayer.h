@@ -32,7 +32,7 @@ public:
 	bool playing() { return player != nullptr; }
 	void stop() { LOCK_GUARD(playerMutex); player = nullptr; }
 	uint32_t getPosition() { return pos/44100; };
-	uint32_t getLength() { return playingInfo.length; }
+	uint32_t getLength() { return length; }
 
 	void pause(bool dopause = true);
 
@@ -84,7 +84,7 @@ private:
 	std::string message;
 	std::string sub_title;
 	int pos;
-	//int length;
+	int length;
 	int fadeOut;
 	bool changedSong = false;
 	std::atomic<bool> dontPlay;
