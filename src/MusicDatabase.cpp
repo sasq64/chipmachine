@@ -87,13 +87,29 @@ void MusicDatabase::rsnInit(const string &source, int id) {
 						auto game = string((const char*)&buffer[0x4e], 0x20);
 						auto composer = string((const char*)&buffer[0xb1], 0x20);
 
-						int pos = name.find(rsnPath);
+						f.seek(0x10200);
+						int rc = f.read(&buffer[0], buffer.size());
+						if(rc > 12) {
+							auto id = string((const char*)&buffer[0], 4);
+							if(id == "xid6") {
+								//int i = 0;
+								if(buffer[8] == 0x2) {
+									int l = buffer[10];
+									game = string((const char*)&buffer[12], l);
+								} else if(buffer[8] == 0x3) {
+									int l = buffer[10];
+									composer = string((const char*)&buffer[12], l);
+								}
+							}
+						}
+
+						auto pos = name.find(rsnPath);
 						if(pos != string::npos) {
 							name = name.substr(pos + rsnPath.length());
 						}
 						LOGD("### %s : %s - %s", name, composer, game);
 
-						query.bind("", game, composer, "Supner Nintendo RSN", name, id);
+						query.bind("", game, composer, "Super Nintendo", name, id);
 						query.step();
 
 						break;
@@ -127,8 +143,8 @@ void MusicDatabase::hvscInit(const string &source, int id) {
 		"HVSC", hvscPath, "HVSC database", id);
 
 	vector<uint8_t> buffer(128);
-	char temp[33];
-	temp[32] = 0;
+	//char temp[33];
+	//temp[32] = 0;
 
 	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?)");
 
@@ -143,12 +159,12 @@ void MusicDatabase::hvscInit(const string &source, int id) {
 				auto composer = string((const char*)&buffer[0x36], 0x20);
 				//auto copyright = string((const char*)&buffer[0x56], 0x20);
 
-				int pos = name.find(hvscPath);
+				auto pos = name.find(hvscPath);
 				if(pos != string::npos) {
 					name = name.substr(pos + hvscPath.length());
 				}
 
-				query.bind(title, "", composer, "C64 SID", name, id);
+				query.bind(title, "", composer, "Commodore 64", name, id);
 				query.step();
 				f.close();
 			} else if(f.isDir())
