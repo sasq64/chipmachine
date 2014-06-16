@@ -205,14 +205,31 @@ void MusicPlayer::seek(int song, int seconds) {
 	}
 }
 
-void MusicPlayer::playFile(const std::string &fileName) {
+bool MusicPlayer::playFile(const std::string &fileName) {
 
 	dontPlay = true;
 
+	{
+		LOCK_GUARD(infoMutex);
+		playingInfo = SongInfo();
+	}
+
+	string name = fileName;
+
+	if(endsWith(name, ".rar")) {
+		auto *a = Archive::open(name, "_files");\
+		for(const auto &s : *a) {
+			a->extract(s);
+			name = "_files/" + s;
+			LOGD("Extracted %s", name);
+			break;
+		}
+	}
+
 	LOCK_GUARD(playerMutex);
-	//toPlay = fileName;
+	//toPlay = name;
 	player = nullptr;
-	player = fromFile(fileName);
+	player = fromFile(name);
 	//toPlay = "";
 
 	dontPlay = false;
@@ -225,12 +242,15 @@ void MusicPlayer::playFile(const std::string &fileName) {
 		pause(false);
 		pos = 0;
 		updatePlayingInfo();
+		return true;
 	}
+	return false;
 }
 
 void MusicPlayer::updatePlayingInfo() {
 	SongInfo si;
 	if(player) {
+
 		auto game = player->getMeta("game");
 		si.title = player->getMeta("title");
 		if(game != "") {
@@ -239,6 +259,7 @@ void MusicPlayer::updatePlayingInfo() {
 			} else
 			si.title = game;
 		}
+
 		si.composer = player->getMeta("composer");
 		si.format = player->getMeta("format");
 		//si.length = player->getMetaInt("length");

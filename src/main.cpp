@@ -12,6 +12,8 @@ int main(int argc, char* argv[]) {
 
 	bool fullScreen = false;
 	vector<SongInfo> songs;
+	int w = 720;
+	int h = 576;
 
 	if(argc >= 2) {
 		for(int i=1; i<argc; i++) {
@@ -19,6 +21,11 @@ int main(int argc, char* argv[]) {
 				switch(argv[i][1]) {
 				case 'f':
 					fullScreen = true;
+					break;
+				case 'h':
+					w = 1200;
+					h = 800;
+					break;
 				}
 			} else {
 				songs.push_back(SongInfo(argv[i]));
@@ -29,7 +36,7 @@ int main(int argc, char* argv[]) {
 	if(fullScreen)
 		grappix::screen.open(true);
 	else
-		grappix::screen.open(720, 576, false);
+		grappix::screen.open(w, h, false);
 	static chipmachine::ChipMachine app;
 
 	for(auto &s : songs) {

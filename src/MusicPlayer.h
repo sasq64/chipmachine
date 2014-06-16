@@ -28,7 +28,7 @@ class ChipPlayer;
 class MusicPlayer {
 public:
 	MusicPlayer();
-	void playFile(const std::string &fileName);
+	bool playFile(const std::string &fileName);
 	bool playing() { return player != nullptr; }
 	void stop() { LOCK_GUARD(playerMutex); player = nullptr; }
 	uint32_t getPosition() { return pos/44100; };

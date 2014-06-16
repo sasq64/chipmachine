@@ -253,6 +253,10 @@ void MusicDatabase::modlandInit(const string &source, const string &song_list, i
 		string game;
 		if(l-i == 2)
 			game = parts[i++];
+
+		if(endsWith(parts[i], ".rar"))
+			parts[i] = parts[i].substr(0, parts[i].length()-4);
+
 		string title = path_basename(parts[i++]);
 
 		query.bind(title, game, composer, fmt, path, id);

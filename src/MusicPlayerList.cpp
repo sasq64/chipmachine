@@ -43,6 +43,7 @@ void MusicPlayerList::updateInfo() {
 	auto si = mp.getPlayingInfo();
 	if(si.title != "")
 		currentInfo.title = si.title;
+	LOGD("UPDATE title %s", si.title);
 	if(si.composer != "")
 		currentInfo.composer = si.composer;
 	if(si.format != "")
@@ -55,7 +56,7 @@ void MusicPlayerList::updateInfo() {
 
 void MusicPlayerList::seek(int song, int seconds) {
 	mp.seek(song, seconds);
-	updateInfo();
+	//updateInfo();
 }
 
 uint16_t *MusicPlayerList::getSpectrum() {
@@ -92,10 +93,14 @@ int MusicPlayerList::listSize() {
 
 void MusicPlayerList::playFile(const std::string &fileName) {
 	//LOCK_GUARD(plMutex);
-	if(fileName != "")
-		mp.playFile(fileName);
-	updateInfo();
-	state = PLAY_STARTED;
+	if(fileName != "") {
+		if(mp.playFile(fileName)) {
+			updateInfo();
+			state = PLAY_STARTED;
+		} else {
+			state = STOPPED;
+		}
+	}
 }
 
 void MusicPlayerList::update() {
@@ -124,10 +129,11 @@ void MusicPlayerList::update() {
 			LOCK_GUARD(plMutex);
 			state = STARTED;
 			currentInfo = playList.front();
+			LOGD("INFO SET");
 			playList.pop_front();
 			//pos = 0;
 		}
-		LOGD("##### New song: %s", currentInfo.path);
+		LOGD("##### New song: %s (%s)", currentInfo.path, currentInfo.title);
 
 		auto proto = split(currentInfo.path, ":");
 		if(proto.size() > 0 && (proto[0] == "http" || proto[0] == "ftp")) {

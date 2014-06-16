@@ -60,10 +60,13 @@ public:
 			auto sub_title = player.getMeta("sub_title");
 
 			int tw = mainScreen.getFont().get_width(currentInfo.title, sc);
+
+			auto &fromWhat = player.listSize() > 0 ? nextInfoField : outsideInfoField;
+
 			currentTween = make_tween().from(prevInfoField, currentInfoField).
-			from(currentInfoField, nextInfoField).
+			from(currentInfoField, fromWhat).
 			from(nextInfoField, outsideInfoField).seconds(1.5).on_complete([=]() {
-				xinfoField->setText(sub_title);
+			xinfoField->setText(sub_title);
 				auto d = (tw-(tv1.x-tv0.x-20));
 				if(d > 20)
 					make_tween().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
@@ -72,7 +75,7 @@ public:
 
 		auto psz = player.listSize();
 		if(psz > 0) {
-			if((state != MusicPlayerList::LOADING) && (state != MusicPlayerList::STARTED)) {
+			if(state == MusicPlayerList::PLAYING || state == MusicPlayerList::STOPPED) {
 				auto n = player.getInfo(1);
 				if(n.path != currentNextPath) {
 					if(n.title == "") {

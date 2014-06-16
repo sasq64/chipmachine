@@ -3,7 +3,7 @@
 ------
 
 HD = false
-if Config.screen_width >= 1200 then
+if Config.screen_width >= 800 then
 	HD = true
 end
 
@@ -21,6 +21,8 @@ X1 = Config.screen_width-10
 Y1 = Config.screen_height-10
 end
 
+GSCALE = 1.0
+--Config.screen_height / 576
 
 
 TEXT_COLOR = 0xffe0e080
@@ -30,24 +32,23 @@ DIGITS_COLOR = 0xff70b050
 Settings.top_left = { X0, Y0 }
 Settings.down_right = { X1, Y1 }
 
-Settings.scroll = { Y1 - 100, 2.0, 4, "data/Bello.otf" }
 
-scale = 3.0
+scale = 3.0 * GSCALE
 Settings.main_title = { X0, Y0, scale, TEXT_COLOR }
 Settings.main_composer = { X0, Y0+25*scale, scale*0.6, TEXT_COLOR }
 Settings.main_format = { X0, Y0+42*scale, scale*0.25, TEXT_COLOR }
 
 
-OFFS = 180
-Settings.song_field = { X0, Y0 + OFFS, 1.0, DIGITS_COLOR }
-Settings.time_field = { X0 + 130, Y0 + OFFS, 1.0, DIGITS_COLOR }
-Settings.length_field = { X0 + 220, Y0 + OFFS, 1.0, DIGITS_COLOR }
+SY = Settings.main_format[2] + 32
+Settings.song_field = { X0, SY, 1.0, DIGITS_COLOR }
+Settings.time_field = { X0 + 130, SY, 1.0, DIGITS_COLOR }
+Settings.length_field = { X0 + 220, SY, 1.0, DIGITS_COLOR }
 
-Settings.xinfo_field = { X0 - 4, Y0+OFFS + 35, 0.7, 0xffffffff }
+Settings.xinfo_field = { X0 - 4, SY + 35, 0.7, 0xffffffff }
 
 
-scale = 1.2
-x = 440
+scale = 1.2 * GSCALE
+x = Config.screen_width - 350
 y = 340
 Settings.next_field = { x, y-14, 0.5, 0xff444477 }
 Settings.next_title = { x, y, scale, TEXT_COLOR }
@@ -60,8 +61,10 @@ Settings.prev_composer = { -3200, Y0+25*scale, scale*0.6, 0 }
 Settings.prev_format = { -3200, Y0+45*scale, scale*0.3, 0 }
 
 if HD then
+  Settings.scroll = { Y1 - 200, 3.0, 4, "data/Bello.otf" }
   Settings.spectrum = { X0, Y1, 32, 24.0 }
 else
+  Settings.scroll = { Y1 - 100, 2.0, 4, "data/Bello.otf" }
   Settings.spectrum = { X0-50, Y1+40, 26, 16.0 }
 end
 
