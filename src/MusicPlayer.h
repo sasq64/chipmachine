@@ -21,7 +21,7 @@ class ChipPlayer;
 #ifdef RASPBERRYPI
 #define AUDIO_DELAY 12
 #else
-#define AUDIO_DELAY 20
+#define AUDIO_DELAY 19
 #endif
 
 // MUST BE THREAD SAFE

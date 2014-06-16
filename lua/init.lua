@@ -14,14 +14,16 @@ Y0 = 54
 X1 = 636
 Y1 = 520
 
+GSCALE = 1.0
+
 if HD then
 X0 = 10
 Y0 = 10
 X1 = Config.screen_width-10
 Y1 = Config.screen_height-10
+GSCALE = 2.0
 end
 
-GSCALE = 1.0
 --Config.screen_height / 576
 
 
@@ -39,17 +41,26 @@ Settings.main_composer = { X0, Y0+25*scale, scale*0.6, TEXT_COLOR }
 Settings.main_format = { X0, Y0+42*scale, scale*0.25, TEXT_COLOR }
 
 
-SY = Settings.main_format[2] + 32
-Settings.song_field = { X0, SY, 1.0, DIGITS_COLOR }
-Settings.time_field = { X0 + 130, SY, 1.0, DIGITS_COLOR }
-Settings.length_field = { X0 + 220, SY, 1.0, DIGITS_COLOR }
+SY = Settings.main_format[2] + 32 * GSCALE
+Settings.song_field = { X0, SY, GSCALE, DIGITS_COLOR }
+Settings.time_field = { X0 + 130 * GSCALE, SY, GSCALE, DIGITS_COLOR }
+Settings.length_field = { X0 + 220 * GSCALE, SY, GSCALE, DIGITS_COLOR }
 
-Settings.xinfo_field = { X0 - 4, SY + 35, 0.7, 0xffffffff }
+Settings.xinfo_field = { X0 - 4, SY + 35 * GSCALE, GSCALE * 0.75, 0xffffffff }
 
+if HD then
+  Settings.scroll = { Y1 - 200, 3.0, 4, "data/Bello.otf" }
+  Settings.spectrum = { X0, Y1, 32, 24.0 }
+else
+  Settings.scroll = { Y1 - 100, 2.0, 4, "data/Bello.otf" }
+  Settings.spectrum = { X0-50, Y1+40, 26, 16.0 }
+end
+
+
+x = Config.screen_width - 300 * GSCALE
+y = Settings.scroll[1] - 80 * GSCALE
 
 scale = 1.2 * GSCALE
-x = Config.screen_width - 350
-y = 340
 Settings.next_field = { x, y-14, 0.5, 0xff444477 }
 Settings.next_title = { x, y, scale, TEXT_COLOR }
 Settings.next_composer = { x, y+26*scale, scale*0.6, TEXT_COLOR }
@@ -59,14 +70,6 @@ scale = 80.0
 Settings.prev_title = { -3200, Y0, scale, 0 }
 Settings.prev_composer = { -3200, Y0+25*scale, scale*0.6, 0 }
 Settings.prev_format = { -3200, Y0+45*scale, scale*0.3, 0 }
-
-if HD then
-  Settings.scroll = { Y1 - 200, 3.0, 4, "data/Bello.otf" }
-  Settings.spectrum = { X0, Y1, 32, 24.0 }
-else
-  Settings.scroll = { Y1 - 100, 2.0, 4, "data/Bello.otf" }
-  Settings.spectrum = { X0-50, Y1+40, 26, 16.0 }
-end
 
 Settings.search_field = { X0, Y0, 1.0, 0xffaaaaff }
 
