@@ -33,7 +33,7 @@ public:
 		nextInfoField = SongInfoField(mainScreen, 440, 340, 1.0, 0xffe0e080);
 		outsideInfoField = SongInfoField(screen.width()+10, 340, 1.0, 0xffe0e080);
 
-		xinfoField = mainScreen.addField("xinfo", tv1.x-100, tv0.y, 0.8, 0x50a0c0ff);		
+		xinfoField = mainScreen.addField("", tv1.x-100, tv0.y, 0.8, 0x50a0c0ff);		
 
 		nextField = mainScreen.addField("next", 440, 320, 0.6, 0xe080c0ff);		
 
@@ -66,7 +66,7 @@ public:
 			currentTween = make_tween().from(prevInfoField, currentInfoField).
 			from(currentInfoField, fromWhat).
 			from(nextInfoField, outsideInfoField).seconds(1.5).on_complete([=]() {
-			xinfoField->setText(sub_title);
+				xinfoField->setText(sub_title);
 				auto d = (tw-(tv1.x-tv0.x-20));
 				if(d > 20)
 					make_tween().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
@@ -135,6 +135,12 @@ public:
 			auto &f = (*fields[name]);
 			if(index == 4) {
 				f.color = Color(stoll(val));
+				if(name == "main_title" || name == "next_title")
+					outsideInfoField[0].color = f.color;
+				else if(name == "main_composer" || name == "next_composer")
+					outsideInfoField[1].color = f.color;
+				else if(name == "main_format" || name == "next_format")
+					outsideInfoField[2].color = f.color;				
 			} else {
 				f[index-1] = stod(val);
 			}

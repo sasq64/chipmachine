@@ -64,6 +64,12 @@ void ChipMachine::initLua() {
 			else
 				spectrumColorSearch = Color(stoll(val));
 		} else
+		if(name == "background") {
+			bgcolor = stol(val);
+		} else
+		if(name == "stars") {
+			starsOn = stol(val) != 0;
+		} else
 		if(name == "top_left") {
 			tv0[index-1] = stol(val);
 		} else
@@ -230,9 +236,10 @@ void ChipMachine::update() {
 
 void ChipMachine::render(uint32_t delta) {
 
-	screen.clear();
+	screen.clear(0xff000000 | bgcolor);
 
-	starEffect.render(delta);
+	if(starsOn)
+		starEffect.render(delta);
 	scrollEffect.render(delta);
 
 	for(int i=0; i<(int)eq.size(); i++) {

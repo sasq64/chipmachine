@@ -251,6 +251,8 @@ private:
 	utils::vec2i spectrumPos;
 	std::vector<uint8_t> eq;
 
+	uint32_t bgcolor = 0;
+	bool starsOn = true;
 
 	LuaInterpreter lua;
 /*

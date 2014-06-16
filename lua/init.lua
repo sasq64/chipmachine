@@ -26,10 +26,21 @@ end
 
 --Config.screen_height / 576
 
-
-TEXT_COLOR = 0xffe0e080
-DIGITS_COLOR = 0xff70b050
-
+if true then
+ TEXT_COLOR = 0xffe0e080
+ DIGITS_COLOR = 0xff70b050
+ SEARCH_COLOR = 0xffaaaaff
+else
+ TEXT_COLOR = 0xff000000
+ DIGITS_COLOR = 0xff202080
+ RESULT_COLOR = 0xff202040
+ SEARCH_COLOR = 0xffffaaaa
+ FORMAT_COLOR = 0xffffffaa
+ SPECTRUM_COLOR0 = 0xff000000
+ SPECTRUM_COLOR1 = 0xff404040
+ Settings.background = 0x888888
+ Settings.stars = 0
+end
 
 Settings.top_left = { X0, Y0 }
 Settings.down_right = { X1, Y1 }
@@ -50,12 +61,11 @@ Settings.xinfo_field = { X0 - 4, SY + 35 * GSCALE, GSCALE * 0.75, 0xffffffff }
 
 if HD then
   Settings.scroll = { Y1 - 200, 3.0, 4, "data/Bello.otf" }
-  Settings.spectrum = { X0, Y1, 32, 24.0 }
+  Settings.spectrum = { X0, Y1, 32, 24.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
 else
   Settings.scroll = { Y1 - 100, 2.0, 4, "data/Bello.otf" }
-  Settings.spectrum = { X0-50, Y1+40, 26, 16.0 }
+  Settings.spectrum = { X0-50, Y1+40, 26, 16.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
 end
-
 
 x = Config.screen_width - 300 * GSCALE
 y = Settings.scroll[1] - 80 * GSCALE
@@ -71,9 +81,9 @@ Settings.prev_title = { -3200, Y0, scale, 0 }
 Settings.prev_composer = { -3200, Y0+25*scale, scale*0.6, 0 }
 Settings.prev_format = { -3200, Y0+45*scale, scale*0.3, 0 }
 
-Settings.search_field = { X0, Y0, 1.0, 0xffaaaaff }
+Settings.search_field = { X0, Y0, 1.0, SEARCH_COLOR, FORMAT_COLOR }
 
-Settings.result_field = { X0, Y0+30, 0.8 }
+Settings.result_field = { X0, Y0+30, 0.8, RESULT_COLOR }
 Settings.result_lines = (Y1-Y0)/23
 
 Settings.font = "data/Neutra.otf"

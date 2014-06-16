@@ -44,7 +44,8 @@ public:
 
 		resultFieldTemplate = make_shared<TextScreen::TextField>("", tv0.x, tv0.y+30, 0.8, 0xff20c020);
 		markColor = resultFieldTemplate->color;
-		markTween = make_tween().sine().repeating().from(markColor, Color(0xffffffff)).seconds(1.0);
+		hilightColor = Color(0xffffffff);
+		markTween = make_tween().sine().repeating().from(markColor, hilightColor).seconds(1.0);
 
 		searchField = searchScreen.addField("#", tv0.x, tv0.y, 1.0, 0xff888888);
 
@@ -61,10 +62,27 @@ public:
 
 		if(fields.count(name) > 0) {
 			auto &f = (*fields[name]);
-			if(index == 4) {
-				f.color = Color(stoll(val));
+			if(index >= 4) {
+				auto c = Color(stoll(val));
+				if(name == "search_field") {
+					if(index == 5) {
+						formatColor = c;
+						return;
+					} else
+						searchColor = c;
+				}
+				f.color = c;
+				if(name == "result_field") {
+					markColor = c;
+					markTween = make_tween().sine().repeating().from(markColor, hilightColor).seconds(1.0);
+				}
 			} else
 				f[index-1] = stod(val);
+
+		}  else
+		if(name == "hilight_color") {
+			hilightColor = Color(stoll(val));
+			markTween = make_tween().sine().repeating().from(markColor, hilightColor).seconds(1.0);
 		} else
 		if(name == "top_left") {
 			//currentInfoField.fields[0].color = stol(val);
@@ -169,7 +187,7 @@ public:
 		if(searchUpdated) {
 			searchField->setText("#" + iquery.getString());
 			//searchField->setColor(0xffffffff);
-			searchField->color = Color(0xffffffff);
+			searchField->color = searchColor;
 		}
 		if(iquery.newResult())
 			songList.set_total(iquery.numHits());
@@ -180,7 +198,7 @@ public:
 			auto ext = path_extension(parts[0]);
 			searchField->setText(format("Format: %s (%s)", parts[3], ext));
 			//searchField->setColor(0xffcccc66);
-			searchField->color = Color(0xffcccc66);
+			searchField->color = Color(formatColor);
 		}
 
 	}
@@ -205,6 +223,10 @@ private:
 	tween::TweenHolder markTween;
 
 	Color markColor;
+	Color hilightColor;
+
+	Color searchColor = Color(0xffffffff);
+	Color formatColor = Color(0xffcccc66);
 
 	IncrementalQuery iquery;
 
