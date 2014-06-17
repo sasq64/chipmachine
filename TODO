@@ -1,4 +1,14 @@
 
+SUBSONG does not work after ending in
+USF64
+
+Silence at start should have higher threshhold
+
+DC and DS needs to rename libnames to lowercase
+
+
+
+
 * Subtitle in USF65 (and dreamcast?)
 * Old info returns if song cant be played
 * position next info to right edge

@@ -62,7 +62,7 @@ public:
 			int tw = mainScreen.getFont().get_width(currentInfo.title, sc);
 
 			auto &fromWhat = player.listSize() > 0 ? nextInfoField : outsideInfoField;
-
+			
 			currentTween = make_tween().from(prevInfoField, currentInfoField).
 			from(currentInfoField, fromWhat).
 			from(nextInfoField, outsideInfoField).seconds(1.5).on_complete([=]() {

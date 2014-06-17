@@ -251,8 +251,13 @@ void MusicDatabase::modlandInit(const string &source, const string &song_list, i
 			composer = composer + "+" + parts[i++].substr(5);
 
 		string game;
-		if(l-i == 2)
+		if(l-i >= 2)
 			game = parts[i++];
+
+		if(i == l) {
+			LOGD("Bad file %s", path);
+			continue;
+		}
 
 		if(endsWith(parts[i], ".rar"))
 			parts[i] = parts[i].substr(0, parts[i].length()-4);

@@ -21,6 +21,8 @@
 #include <musicplayer/plugins/UADEPlugin/UADEPlugin.h>
 
 #include <archive/archive.h>
+#include <set>
+#include <algorithm>
 
 using namespace std;
 using namespace utils;
@@ -30,7 +32,10 @@ namespace chipmachine {
 class RSNPlayer : public ChipPlayer {
 public:
 	RSNPlayer(const vector<string> &l, ChipPlugin *plugin) : songs(l), plugin(plugin) {
+		LOGD("Playing with %s", plugin->name());
 		player = shared_ptr<ChipPlayer>(plugin->fromFile(l[0]));
+		if(player == nullptr)
+			throw player_exception();
 		//player->onMeta([=](const std::vector<std::string> &meta, ChipPlayer* player) {			
 			//for(const auto &m : meta) {
 			//	setMeta(m, player->getMeta(m));
@@ -79,24 +84,37 @@ public:
 	virtual std::string name() const { return "RSNPlugin"; }
 
 	virtual ChipPlayer *fromFile(const std::string &fileName) {
+
+		static const set<string> song_formats { "spc", "psf", "minipsf", "psf2", "minipsf2", "miniusf", "usflib", "dsf", "minidsf", "mini2sf", "minigsf" };
+
 		vector<string> l;
 		makedir(".rsn");
+		for(auto f : File(".rsn").listFiles())
+			f.remove();
+
 		auto *a = Archive::open(fileName, ".rsn", Archive::TYPE_RAR);
 		for(auto s : *a) {
-			if(path_extension(s) == "spc") {
-				a->extract(s);
+			a->extract(s);
+			if(song_formats.count(path_extension(s)) > 0) {				
 				LOGD("Found %s", s);
 				l.push_back(string(".rsn/") + s);
 			}
 		};
 		delete a;
 
+		sort(l.begin(), l.end());
+
 		if(l.size() > 0) {
-			auto name = l[0];
-			utils::makeLower(name);
-			for(auto plugin : plugins) {
-				if(plugin->canHandle(name)) {
-					return new RSNPlayer(l, plugin);
+			for(auto name : l) {
+				utils::makeLower(name);
+				for(auto plugin : plugins) {
+					if(plugin->name() != "UADE" && plugin->canHandle(name)) {
+						try {
+							return new RSNPlayer(l, plugin);
+						} catch(player_exception &e) {
+							LOGD("FAILED");
+						}
+					}
 				}
 			}
 		}
@@ -104,9 +122,13 @@ public:
 
 	};
 
-	virtual bool canHandle(const std::string &name) {
-		return (path_extension(name) == "rsn");
-	}
+
+
+bool canHandle(const std::string &name) {
+	static const set<string> supported_ext { "rsn", "rps", "rdc", "rds", "rgs", "r64" };
+	return supported_ext.count(utils::path_extension(name)) > 0;
+}
+
 private:
 	std::vector<ChipPlugin*> &plugins;
 
