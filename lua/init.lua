@@ -24,6 +24,7 @@ Y1 = Config.screen_height-10
 GSCALE = 2.0
 end
 
+background = 0x808080
 --Config.screen_height / 576
 
 if true then

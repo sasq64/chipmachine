@@ -96,7 +96,7 @@ public:
 		} else
 		if(name == "font") {
 			if(File::exists(val)) {
-				font = Font(val, 32, 256 | Font::DISTANCE_MAP);
+				font = Font(val, 32, 256);// | Font::DISTANCE_MAP);
 				searchScreen.setFont(font);
 			}
 		} else

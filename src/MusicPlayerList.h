@@ -20,7 +20,8 @@ public:
 		LOADING,
 		STARTED,
 		PLAY_STARTED,
-		PLAYING
+		PLAYING,
+		FADING
 	};
 
 	MusicPlayerList();
@@ -72,6 +73,8 @@ private:
 	SongInfo currentInfo;
 
 	std::thread playerThread;
+
+	bool changedSong = false;
 
 };
 

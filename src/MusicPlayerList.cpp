@@ -56,6 +56,9 @@ void MusicPlayerList::updateInfo() {
 
 void MusicPlayerList::seek(int song, int seconds) {
 	mp.seek(song, seconds);
+	if(song >= 0)
+		changedSong = true;
+
 	//updateInfo();
 }
 
@@ -95,6 +98,7 @@ void MusicPlayerList::playFile(const std::string &fileName) {
 	//LOCK_GUARD(plMutex);
 	if(fileName != "") {
 		if(mp.playFile(fileName)) {
+			changedSong = false;
 			updateInfo();
 			state = PLAY_STARTED;
 		} else {
@@ -105,13 +109,34 @@ void MusicPlayerList::playFile(const std::string &fileName) {
 
 void MusicPlayerList::update() {
 
-	if(state == PLAYING && !mp.playing()) {
-		LOCK_GUARD(plMutex);
-		LOGD("#### Music ended");
-		if(playList.size() == 0)
-			state = STOPPED;
-		else
-			state = WAITING;
+	if(state == PLAYING) {
+
+		auto pos = mp.getPosition();
+		auto length = mp.getLength();
+		if(!changedSong && playList.size() > 0) {
+			//LOGD("%d vs %d (SIL %d)", pos, length, mp.getSilence());
+			if(length > 0 && pos > length) {
+				LOGD("#### SONGLENGTH");
+				mp.fadeOut(3.0);
+				state = FADING;
+			}
+			if(mp.getSilence() > 44100*6) {
+				LOGD("############# SILENCE");
+				mp.fadeOut(0.5);
+				state = FADING;
+			}
+		}
+	}
+
+	if(state == FADING) {
+		if(mp.getVolume() <= 0.01) {
+			LOCK_GUARD(plMutex);
+			LOGD("#### Music ended");
+			if(playList.size() == 0)
+				state = STOPPED;
+			else
+				state = WAITING;
+		}
 	}
 
 	if(state == PLAY_STARTED) {

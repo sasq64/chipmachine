@@ -95,14 +95,8 @@ public:
 			[=](const std::string &source) {
 				try {
 					program.setFragmentSource(source);
-				} catch(shader_exception &e) {
-				}
-
-			},
-			[=]() -> std::string {
-				return sineShaderF;
-			}
-		);
+				} catch(shader_exception &e) {}
+			}, sineShaderF);
 
 
 		//fprogram = get_program(FONT_PROGRAM_DF).clone();

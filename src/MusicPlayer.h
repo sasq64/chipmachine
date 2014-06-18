@@ -65,6 +65,15 @@ public:
 
 	int spectrumSize() { LOCK_GUARD(fftMutex); return fft.eq_slots; }
 
+	// Returns silence (from now) in seconds
+	int getSilence();
+
+	// Fadeout music
+	void fadeOut(float secs);
+	float getVolume() {
+		return fifo.getVolume();
+	}
+
 private:
 	std::shared_ptr<ChipPlayer> fromFile(const std::string &fileName);
 	void updatePlayingInfo();
@@ -85,8 +94,10 @@ private:
 	std::string sub_title;
 	int pos;
 	int length;
-	int fadeOut;
-	bool changedSong = false;
+	int fadeLength;
+	int fadeOutPos;
+	int silentFrames;
+	//bool changedSong = false;
 	std::atomic<bool> dontPlay;
 };
 

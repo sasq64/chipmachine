@@ -85,7 +85,7 @@ public:
 
 	virtual ChipPlayer *fromFile(const std::string &fileName) {
 
-		static const set<string> song_formats { "spc", "psf", "minipsf", "psf2", "minipsf2", "miniusf", "usflib", "dsf", "minidsf", "mini2sf", "minigsf" };
+		static const set<string> song_formats { "spc", "psf", "minipsf", "psf2", "minipsf2", "miniusf", "dsf", "minidsf", "mini2sf", "minigsf" };
 
 		vector<string> l;
 		makedir(".rsn");
@@ -162,26 +162,16 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 
 		LOCK_GUARD(playerMutex);
 
-		if(fadeOut > 0 && fadeOut <= pos) {
-			player = nullptr;
-		}
+		//if(fadeOutPos > 0 && fadeOutPos <= pos) {
+		//	player = nullptr;
+		//}
 
 		if(!paused && player) {
 			int sz = size;
 
 			sub_title = player->getMeta("sub_title");
 
-			if(fadeOut == 0 && changedSong == false) {
-				if(length > 0 && pos/44100 > length) {
-					LOGD("#### SONGLENGTH");
-					fadeOut = pos + 44100*3;
-				}
-				if(fifo.getSilence() > 44100*5) {
-					LOGD("############# SILENCE");
-					//fadeOut = pos + 44100*3;
-					fadeOut = pos;
-				}
-			}
+			silentFrames = fifo.getSilence();
 
 			while(true) {
 				if(sz <= 0)
@@ -194,8 +184,10 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 				}
 
 				//LOGD("SILENCE %d", fifo.getSilence());
-				if(fadeOut != 0)
-					fifo.setVolume((fadeOut - pos) / (3.0*44100.0));
+				if(fadeOutPos != 0) {
+					fifo.setVolume((fadeOutPos - pos) / (float)fadeLength);
+				}
+
 				fifo.processShorts(nullptr, rc);
 				pos += rc/2;
 				sz -= rc;
@@ -221,15 +213,25 @@ void MusicPlayer::seek(int song, int seconds) {
 			pos = seconds * 44100;
 		player->seekTo(song, seconds);
 		//length = player->getMetaInt("length");
-		if(song >= 0)
-			changedSong = true;
 		updatePlayingInfo();
 	}
 }
 
+int MusicPlayer::getSilence() {
+	return silentFrames;
+}
+
+// fadeOutPos music
+void MusicPlayer::fadeOut(float secs) {
+	fadeLength = secs * 44100;
+	fadeOutPos = pos + fadeLength;
+}
+
+
 bool MusicPlayer::playFile(const std::string &fileName) {
 
 	dontPlay = true;
+	silentFrames = 0;
 
 	{
 		LOCK_GUARD(infoMutex);
@@ -259,8 +261,8 @@ bool MusicPlayer::playFile(const std::string &fileName) {
 	if(player) {
 
 		fifo.clear();
-		fadeOut = 0;
-		changedSong = false;
+		fadeOutPos = 0;
+		//changedSong = false;
 		pause(false);
 		pos = 0;
 		updatePlayingInfo();

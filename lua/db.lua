@@ -6,10 +6,11 @@
 
 
 DB.modland = {
-	source = "/home/sasq/Modland",
+	--source = "/home/sasq/Modland",
+	source = "/media/sasq/fc254b57-8fff-4f96-9609-ea202d871acf/MUSIC/Modland/",
 	--"ftp://ftp.modland.com/pub/modules/",
 	id = 1,
-	song_list = "/home/sasq/Modland/allmods.txt"
+	song_list = "/media/sasq/fc254b57-8fff-4f96-9609-ea202d871acf/MUSIC/allmods.txt"
 	--"data/allmods.txt"
 };
 
