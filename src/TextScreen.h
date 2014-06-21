@@ -40,6 +40,8 @@ public:
 
 	void render(uint32_t d) {
 		for(auto &f : fields) {
+			if(f->color.a == 0.0)
+				continue;
 			auto x = f->pos.x;
 			auto y = f->pos.y;
 			if(f->tlen == -1)

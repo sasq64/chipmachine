@@ -14,7 +14,6 @@
 #include <string>
 #include <memory>
 
-//#include "List.h"
 #include <grappix/gui/list.h>
 
 using namespace tween;
@@ -119,7 +118,7 @@ public:
 
 		songList.on_key(k);
 
-		if(k >= '0' && k <= '9') {
+		if((k >= '0' && k <= '9') || k == '/') {
 			iquery.addLetter(tolower(k));
 			searchUpdated = true;
 		} else if(k >= 'A' && k<='Z') {
@@ -200,10 +199,8 @@ public:
 			//searchField->setColor(0xffcccc66);
 			searchField->color = Color(formatColor);
 		}
-
+		screen.text(font, "Hello", 50, 50, 0xffffff00, 1.0);
 	}
-
-
 private:
 	MusicPlayerList &player;
 

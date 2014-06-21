@@ -152,7 +152,7 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		new UADEPlugin {}
 	}
 {
-	dontPlay = false;
+	dontPlay = playEnded = false;
 	AudioPlayer::play([=](int16_t *ptr, int size) mutable {
 
 		if(dontPlay) {
@@ -179,8 +179,12 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 				int rc = player->getSamples((int16_t*)fifo.ptr(), sz);				
 				if(rc <= 0) {
 					LOGD("RC %d", rc);
-					player = nullptr;
+					playEnded = true;
+					//silentFrames = 
+					//player = nullptr;
 					break;
+					//memset(fifo.ptr(), 0, sz);
+					//rc = sz;
 				}
 
 				//LOGD("SILENCE %d", fifo.getSilence());
@@ -257,6 +261,7 @@ bool MusicPlayer::playFile(const std::string &fileName) {
 	//toPlay = "";
 
 	dontPlay = false;
+	playEnded = false;
 
 	if(player) {
 
@@ -293,7 +298,6 @@ void MusicPlayer::updatePlayingInfo() {
 		length = player->getMetaInt("length");
 		message = player->getMeta("message");
 		sub_title = player->getMeta("sub_title");
-
 	}
 	{
 		LOCK_GUARD(infoMutex);
@@ -318,6 +322,11 @@ string MusicPlayer::getMeta(const string &what) {
 		return sub_title;
 	}
 
+	//if(what == "song") {
+	//	LOCK_GUARD(infoMutex);
+	//	return current_song;
+	//}
+
 	LOCK_GUARD(playerMutex);
 	if(player)
 		return player->getMeta(what);
@@ -333,7 +342,7 @@ shared_ptr<ChipPlayer> MusicPlayer::fromFile(const std::string &fileName) {
 	utils::makeLower(name);
 	for(auto *plugin : plugins) {
 		if(plugin->canHandle(name)) {
-			printf("Playing with %s\n", plugin->name().c_str());
+			LOGD("Playing with %s\n", plugin->name());
 			player = shared_ptr<ChipPlayer>(plugin->fromFile(fileName));
 			break;
 		}

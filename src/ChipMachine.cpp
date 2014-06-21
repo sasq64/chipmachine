@@ -171,7 +171,7 @@ void ChipMachine::update() {
 	auto k = screen.get_key();
 	if(k != Window::NO_KEY) {
 
-		if((k >= '0' && k <= '9') || (k >= 'A' && k<='Z')) {
+		if((k >= '0' && k <= '9') || k == '/' || (k >= 'A' && k<='Z')) {
 			show_search();
 		} else {
 			switch(k) {

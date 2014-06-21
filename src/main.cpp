@@ -4,11 +4,16 @@
 #include <grappix/grappix.h>
 #include <musicplayer/PSFFile.h>
 
+#include "MusicPlayerList.h"
+
 #include <vector>
 
 using namespace std;
+using namespace chipmachine;
 
 int main(int argc, char* argv[]) {
+
+	//logging::setLevel(logging::WARNING);
 
 	bool fullScreen = false;
 	vector<SongInfo> songs;
@@ -32,6 +37,23 @@ int main(int argc, char* argv[]) {
 			}
 		}
 	}
+
+	if(songs.size() > 0) {
+		MusicPlayerList mpl;
+		for(auto &s : songs) {
+			LOGD("Adding %s", s.path);
+			mpl.addSong(s);
+		}
+		mpl.nextSong();
+		while(true) {
+			if(mpl.getState() == MusicPlayerList::PLAY_STARTED) {
+				auto si = mpl.getInfo();
+				printf("TITLE:%s LENGTH %d\n", si.title.c_str(), mpl.getLength());
+			}
+			sleepms(100);
+		}
+	}
+
 
 	if(fullScreen)
 		grappix::screen.open(true);

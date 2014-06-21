@@ -10,8 +10,8 @@ using namespace utils;
 namespace chipmachine {
 
 MusicPlayerList::MusicPlayerList() {
+	state = STOPPED;
 	playerThread = thread([=]() {
-		state = STOPPED;
 		while(true) {
 			update();
 			sleepms(100);
@@ -109,17 +109,23 @@ void MusicPlayerList::playFile(const std::string &fileName) {
 
 void MusicPlayerList::update() {
 
-	if(state == PLAYING) {
+	if(state == PLAYING || state == PLAY_STARTED) {
 
 		auto pos = mp.getPosition();
 		auto length = mp.getLength();
 		if(!changedSong && playList.size() > 0) {
 			//LOGD("%d vs %d (SIL %d)", pos, length, mp.getSilence());
+			if(!mp.playing()) {
+				if(playList.size() == 0)
+					state = STOPPED;
+				else
+					state = WAITING;
+			} else 
 			if(length > 0 && pos > length) {
 				LOGD("#### SONGLENGTH");
 				mp.fadeOut(3.0);
 				state = FADING;
-			}
+			} else
 			if(mp.getSilence() > 44100*6) {
 				LOGD("############# SILENCE");
 				mp.fadeOut(0.5);
@@ -139,9 +145,9 @@ void MusicPlayerList::update() {
 		}
 	}
 
-	if(state == PLAY_STARTED) {
-		state = PLAYING;
-	}
+	//if(state == PLAY_STARTED) {
+	//	state = PLAYING;
+	//}
 
 	if(state == LOADING) {
 		if(files == 0) {
@@ -190,10 +196,10 @@ void MusicPlayerList::update() {
 							auto lib_target = path_directory(loadedFile) + "/" + lib;
 
 							// HACK BECAUSE WINDOWS (USERS) IS (ARE) STUPID
-							if(path_extension(lib) == "2sflib") {
+							//if(path_extension(lib) == "2sflib") {
 								// We assume that the case of Nintendo DS libs are incorrect
-								makeLower(lib);
-							}
+							//	makeLower(lib);
+							//}
 							auto lib_url = path_directory(currentInfo.path) + "/" + lib;
 							files++;
 							webgetter.getURL(lib_url, [=](const WebGetter::Job &job) {

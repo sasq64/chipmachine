@@ -10,8 +10,8 @@
 #include <vector>
 #include <mutex>
 
-//#define LOCK_GUARD(x) if(x.try_lock()) x.unlock(); else LOGD("WAITING FOR LOCK"); std::lock_guard<std::mutex> guard(x)
-#define LOCK_GUARD(x) std::lock_guard<std::mutex> guard(x)
+#define LOCK_GUARD(x) if(x.try_lock()) x.unlock(); else LOGE("WAITING FOR LOCK"); std::lock_guard<std::mutex> guard(x)
+//#define LOCK_GUARD(x) std::lock_guard<std::mutex> guard(x)
 
 namespace chipmachine {
 
@@ -29,7 +29,7 @@ class MusicPlayer {
 public:
 	MusicPlayer();
 	bool playFile(const std::string &fileName);
-	bool playing() { return player != nullptr; }
+	bool playing() { return !playEnded && player != nullptr; }
 	void stop() { LOCK_GUARD(playerMutex); player = nullptr; }
 	uint32_t getPosition() { return pos/44100; };
 	uint32_t getLength() { return length; }
@@ -99,6 +99,7 @@ private:
 	int silentFrames;
 	//bool changedSong = false;
 	std::atomic<bool> dontPlay;
+	std::atomic<bool> playEnded;
 };
 
 }

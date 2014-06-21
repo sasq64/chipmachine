@@ -184,7 +184,7 @@ static std::unordered_set<std::string> exclude = {
 	"Saturn Sound Format", "RealSID", "PlaySID"
 };
 #else
-static std::unordered_set<std::string> exclude = { "RealSID", "PlaySID" };
+static std::unordered_set<std::string> exclude = { "RealSID", "PlaySID", "Saturn Sound Format" };
 #endif
 
 void MusicDatabase::modlandInit(const string &source, const string &song_list, int id) {
@@ -281,17 +281,31 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 	//if(query.size() < 3)
 	//	return 0;
 	//bool q3 = (q.size() <= 3);
+	string title_query = query;
+	string composer_query = query;
 
-	titleIndex.search(query, result, searchLimit);
+	auto p = split(query, "/");
+	if(p.size() > 1) {
+		LOGD("##QQ '%s', '%s'", p[0], p[1]);
+		title_query = p[0];
+		composer_query = p[1];
+	}
+
+	titleIndex.search(title_query, result, searchLimit);
 
 	vector<int> cresult;
-	composerIndex.search(query, cresult, searchLimit);
+	composerIndex.search(composer_query, cresult, searchLimit);
 	for(int index : cresult) {
+		int offset = composerTitleStart[index];
+		while(composerToTitle[offset] != -1)
+			result.push_back(composerToTitle[offset++]);
+/*
 		int title_index = composerToTitle[index];
 
 		while(titleToComposer[title_index] == index) {
 			result.push_back(title_index++);
 		}
+*/
 	}
 
 	return result.size();
@@ -349,6 +363,36 @@ vector<SongInfo> MusicDatabase::find(const string &pattern) {
 	return songs;
 }
 
+// console -- sid -- tracker -- amiga
+/*
+enum Formats {
+
+	GAME = 0x20,
+	NINTENDO,
+
+	ATARI
+
+	ADPLUG
+
+	PLAYSTATION
+	DREAMCAST
+	NINTENDO64
+
+	SID = 0x30
+
+	TRACKER = 0x10,
+	PROTRACKER,
+	SCREAMTRACKER,
+	IMPULSETRACKER,
+	FASTTRACKER,
+
+	UADE,
+};
+*/
+static uint8_t formatToByte(const std::string &f) {
+	return 0;
+}
+
 void MusicDatabase::generateIndex() {
 
 	lock_guard<mutex>{dbMutex};
@@ -364,6 +408,10 @@ void MusicDatabase::generateIndex() {
 		composerToTitle.resize(sz);
 		f.read((uint8_t*)&composerToTitle[0], composerToTitle.size()*sizeof(uint32_t));
 
+		sz = f.read<uint32_t>();
+		composerTitleStart.resize(sz);
+		f.read((uint8_t*)&composerTitleStart[0], composerTitleStart.size()*sizeof(uint32_t));
+
 		titleIndex.load(f);
 		composerIndex.load(f);
 		f.close();
@@ -371,7 +419,7 @@ void MusicDatabase::generateIndex() {
 	}
 
 	string oldComposer;
-	auto query = db.query<string, string, string, string>("SELECT title, game, composer, path FROM song");
+	auto query = db.query<string, string, string, string, string>("SELECT title, game, format, composer, path FROM song");
 
 	int count = 0;
 	//int maxTotal = 3;
@@ -384,6 +432,8 @@ void MusicDatabase::generateIndex() {
 
 	int step = 438000 / 20;
 
+	unordered_map<string, vector<uint32_t>> composers;
+
 	while(count < 1000000) {
 		count++;
 		if(!query.step())
@@ -393,8 +443,11 @@ void MusicDatabase::generateIndex() {
 			LOGD("%d songs indexed", count);
 		}
 
-		string title, game, composer, path;
-		tie(title, game, composer, path) = query.get_tuple();
+		string title, game, fmt, composer, path;
+		tie(title, game, fmt, composer, path) = query.get_tuple();
+
+		formats.push_back(formatToByte(fmt));
+
 		//LOGD("%s %s", title, path);
 		//string ext = path_extension(path);
 		//makeLower(ext);
@@ -409,6 +462,16 @@ void MusicDatabase::generateIndex() {
 		// The title index maps one-to-one with the database
 		int tindex = titleIndex.add(title);
 
+		auto &v = composers[composer];
+		if(v.size() == 0) {
+			cindex = composerIndex.add(composer);
+			composers[composer].push_back(cindex);
+		} else
+			cindex = composers[composer][0];
+
+		composers[composer].push_back(tindex);
+
+/*
 		if(composer != oldComposer) {
 			oldComposer = composer;
 			cindex = composerIndex.add(composer);
@@ -416,10 +479,23 @@ void MusicDatabase::generateIndex() {
 			// we save the first index in the database for that composer
 			composerToTitle.push_back(tindex);
 		}
-
+*/
 		// We also need to find the composer for a give title
 		titleToComposer.push_back(cindex);
 	}
+
+	// We need: list of titles for each composer in composerIndex;
+	// One big vector of indexes, one smaller f
+	composerTitleStart.resize(composers.size());
+	for(const auto &p : composers) {
+		// p,first == composer, p.second == vector
+		auto cindex = p.second[0];
+		composerTitleStart[cindex] = composerToTitle.size();
+		for(int i=1; i<p.second.size(); i++)
+			composerToTitle.push_back(p.second[i]);
+		composerToTitle.push_back(-1);
+	}
+
 	LOGD("INDEX CREATED (%d) (%d)", titleToComposer.size(), composerToTitle.size());
 
 	//return;
@@ -431,6 +507,9 @@ void MusicDatabase::generateIndex() {
 
 	f.write<uint32_t>(composerToTitle.size());
 	f.write((uint8_t*)&composerToTitle[0], composerToTitle.size()*sizeof(uint32_t));
+
+	f.write<uint32_t>(composerTitleStart.size());
+	f.write((uint8_t*)&composerTitleStart[0], composerTitleStart.size()*sizeof(uint32_t));
 
 	titleIndex.dump(f);
 	composerIndex.dump(f);

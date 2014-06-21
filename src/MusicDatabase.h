@@ -62,6 +62,8 @@ private:
 	SearchIndex titleIndex;
 	std::vector<int> titleToComposer;
 	std::vector<int> composerToTitle;
+	std::vector<int> composerTitleStart;
+	std::vector<uint8_t> formats;
 
 	std::mutex dbMutex;
 	sqlite3db::Database db;
