@@ -226,7 +226,7 @@ private:
 
 	string currentNextPath;
 	SongInfo currentInfo;
-	int currentTune = 0;
+	unsigned currentTune = 0;
 
 	utils::vec2i tv0 = { 80, 54 };
 	utils::vec2i tv1 = { 636, 520 };

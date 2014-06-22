@@ -181,10 +181,10 @@ void MusicDatabase::hvscInit(const string &source, int id) {
 #ifdef RASPBERRYPI
 static std::unordered_set<std::string> exclude = { 
 	"Nintendo DS Sound Format", "Gameboy Sound Format", "Dreamcast Sound Format", "Ultra64 Sound Format",
-	"Saturn Sound Format", "RealSID", "PlaySID"
+	"Saturn Sound Format" /*, "RealSID", "PlaySID" */
 };
 #else
-static std::unordered_set<std::string> exclude = { "RealSID", "PlaySID", "Saturn Sound Format" };
+static std::unordered_set<std::string> exclude = { /*"RealSID", "PlaySID",*/ "Saturn Sound Format" };
 #endif
 
 void MusicDatabase::modlandInit(const string &source, const string &song_list, int id) {

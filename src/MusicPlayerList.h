@@ -38,7 +38,11 @@ public:
 	int listSize();
 
 	bool playing() { return mp.playing(); }
-	void pause(bool dopause = true) { mp.pause(dopause); }
+	void pause(bool dopause = true) { 
+		if(!(permissions & CAN_PAUSE))
+			return;
+		mp.pause(dopause);
+	}
 	bool isPaused() { return mp.isPaused(); }
 
 	void seek(int song, int seconds = -1);
@@ -53,6 +57,15 @@ public:
 			state = PLAYING;
 		return rc;
 	}
+
+	enum {
+		CAN_SWITCH_SONG = 1,
+		CAN_SEEK = 2,
+		CAN_PAUSE = 4,
+		CAN_ADD_SONG = 8,
+		CAN_CLEAR_SONGS = 16
+	};
+
 
 private:
 	void playFile(const std::string &fileName);
@@ -75,6 +88,8 @@ private:
 	std::thread playerThread;
 
 	bool changedSong = false;
+
+	uint32_t permissions = 0xffff;
 
 };
 

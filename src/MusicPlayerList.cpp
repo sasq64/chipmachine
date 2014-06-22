@@ -21,16 +21,22 @@ MusicPlayerList::MusicPlayerList() {
 }
 
 void MusicPlayerList::addSong(const SongInfo &si) {
+	if(!(permissions & CAN_ADD_SONG))
+		return;
 	LOCK_GUARD(plMutex);
 	playList.push_back(si);
 }
 
 void MusicPlayerList::clearSongs() {
+	if(!(permissions & CAN_CLEAR_SONGS))
+		return;
 	LOCK_GUARD(plMutex);
 	playList.clear();
 }
 
 void MusicPlayerList::nextSong() {
+	if(!(permissions & CAN_SWITCH_SONG))
+		return;
 	LOCK_GUARD(plMutex);
 	if(playList.size() > 0) {
 		//mp.stop();
@@ -55,6 +61,8 @@ void MusicPlayerList::updateInfo() {
 }
 
 void MusicPlayerList::seek(int song, int seconds) {
+	if(!(permissions & CAN_SEEK))
+		return;
 	mp.seek(song, seconds);
 	if(song >= 0)
 		changedSong = true;
