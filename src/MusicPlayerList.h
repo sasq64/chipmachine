@@ -26,7 +26,7 @@ public:
 
 	MusicPlayerList();
 
-	void addSong(const SongInfo &si);
+	void addSong(const SongInfo &si, int pos = -1);
 	void clearSongs();
 	void nextSong();
 	

@@ -245,12 +245,18 @@ bool MusicPlayer::playFile(const std::string &fileName) {
 	string name = fileName;
 
 	if(endsWith(name, ".rar")) {
-		auto *a = Archive::open(name, "_files");\
-		for(const auto &s : *a) {
-			a->extract(s);
-			name = "_files/" + s;
-			LOGD("Extracted %s", name);
-			break;
+		try {
+			auto *a = Archive::open(name, "_files");\
+			for(const auto &s : *a) {
+				a->extract(s);
+				name = "_files/" + s;
+				LOGD("Extracted %s", name);
+				break;
+			}
+		} catch(archive_exception &ae) {
+			LOCK_GUARD(playerMutex);
+			player = nullptr;
+			return false;
 		}
 	}
 

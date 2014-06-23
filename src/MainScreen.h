@@ -61,21 +61,29 @@ public:
 
 			int tw = mainScreen.getFont().get_width(currentInfo.title, sc);
 
-			auto &fromWhat = player.listSize() > 0 ? nextInfoField : outsideInfoField;
-			
-			currentTween = make_tween().from(prevInfoField, currentInfoField).
-			from(currentInfoField, fromWhat).
-			from(nextInfoField, outsideInfoField).seconds(1.5).on_complete([=]() {
+			LOGD("%s vs %s", nextInfoField[0].getText(), currentInfoField[0].getText());			
+			bool fromNext = nextInfoField[0].getText() == currentInfoField[0].getText();
+
+			auto f = [=]() {
 				xinfoField->setText(sub_title);
 				auto d = (tw-(tv1.x-tv0.x-20));
 				if(d > 20)
 					make_tween().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
-			});
+			};
+			
+			if(fromNext) {
+				currentTween = make_tween().from(prevInfoField, currentInfoField).
+				from(currentInfoField, nextInfoField).
+				from(nextInfoField, outsideInfoField).seconds(1.5).on_complete(f);
+			} else {
+				currentTween = make_tween().from(prevInfoField, currentInfoField).
+				from(currentInfoField, outsideInfoField).seconds(1.5).on_complete(f);
+			}
 		}
 
-		auto psz = player.listSize();
-		if(psz > 0) {
-			if(state == MusicPlayerList::PLAYING || state == MusicPlayerList::STOPPED) {
+		if(state == MusicPlayerList::PLAYING || state == MusicPlayerList::STOPPED) {
+			auto psz = player.listSize();
+			if(psz > 0) {
 				auto n = player.getInfo(1);
 				if(n.path != currentNextPath) {
 					if(n.title == "") {
@@ -89,10 +97,10 @@ public:
 					nextInfoField.setInfo(n);
 					currentNextPath = n.path;
 				}
+			} else if(nextField->getText() != "") {
+				nextInfoField.setInfo(SongInfo());
+				nextField->setText("");
 			}
-		} else if(nextField->getText() != "") {
-			nextInfoField.setInfo(SongInfo());
-			nextField->setText("");
 		}
 
 		auto p = player.getPosition();

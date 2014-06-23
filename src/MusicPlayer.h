@@ -10,8 +10,8 @@
 #include <vector>
 #include <mutex>
 
-#define LOCK_GUARD(x) if(x.try_lock()) x.unlock(); else LOGE("WAITING FOR LOCK"); std::lock_guard<std::mutex> guard(x)
-//#define LOCK_GUARD(x) std::lock_guard<std::mutex> guard(x)
+//#define LOCK_GUARD(x) if(x.try_lock()) x.unlock(); else LOGE("WAITING FOR LOCK"); std::lock_guard<std::mutex> guard(x)
+#define LOCK_GUARD(x) std::lock_guard<std::mutex> guard(x)
 
 namespace chipmachine {
 

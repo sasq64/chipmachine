@@ -1,9 +1,27 @@
+PARTY MODE
+----------
+
+v1 SIMPLE
+* Song must play for at least 60 seconds before new song can be selected, unless ALT is held
+
+
+ALWAYS
+* Queue remains with ENTER 
+
+
+
+
+
+
 Own lock for fft 
 
 SUBSONG does not work after ending in
 USF64
 
 Silence at start should have higher threshhold
+
+
+
 
 DC and DS needs to rename libnames to lowercase
 

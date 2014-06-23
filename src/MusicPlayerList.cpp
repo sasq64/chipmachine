@@ -20,11 +20,15 @@ MusicPlayerList::MusicPlayerList() {
 	//playerThread.start();
 }
 
-void MusicPlayerList::addSong(const SongInfo &si) {
+void MusicPlayerList::addSong(const SongInfo &si, int pos) {
 	if(!(permissions & CAN_ADD_SONG))
 		return;
 	LOCK_GUARD(plMutex);
-	playList.push_back(si);
+	if(pos >= 0) {
+		if(playList.size() >= pos)
+			playList.insert(playList.begin() + pos, si);
+	} else
+		playList.push_back(si);
 }
 
 void MusicPlayerList::clearSongs() {

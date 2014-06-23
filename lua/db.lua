@@ -6,13 +6,13 @@
 
 
 DB.modland = {
-	-- source = "/home/sasq/Modland",
+	source = "/home/sasq/Modland",
 	-- source = "/media/sasq/fc254b57-8fff-4f96-9609-ea202d871acf/MUSIC/Modland/",
-	source = "ftp://ftp.modland.com/pub/modules/",
+	-- source = "ftp://ftp.modland.com/pub/modules/",
 	id = 1,
 	-- song_list = "/media/sasq/fc254b57-8fff-4f96-9609-ea202d871acf/MUSIC/allmods.txt"
-	-- song_list = "/home/sasq/allmods.txt"
-	song_list = "data/allmods.txt"
+	song_list = "/home/sasq/allmods.txt"
+	-- song_list = "data/allmods.txt"
 };
 
 DB.hvsc = {
