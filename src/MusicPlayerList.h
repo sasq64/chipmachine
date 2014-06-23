@@ -58,6 +58,23 @@ public:
 		return rc;
 	}
 
+	bool getAllowed() {
+		bool rc = wasAllowed;
+		wasAllowed = true;
+		return rc;
+	}
+
+	bool hasError() {
+		return errors.size() > 0;
+	}
+
+	std::string getError() {
+		LOCK_GUARD(plMutex);
+		auto e = errors.front();
+		errors.pop_front();
+		return e;
+	}
+
 	enum {
 		CAN_SWITCH_SONG = 1,
 		CAN_SEEK = 2,
@@ -66,16 +83,26 @@ public:
 		CAN_CLEAR_SONGS = 16
 	};
 
+	void setPermissions(uint32_t p) {
+		permissions = p;
+	}
+
 
 private:
-	void playFile(const std::string &fileName);
+	bool playFile(const std::string &fileName);
 
 	void update();
 	void updateInfo();
 
+	bool checkPermission(int flags);
+
+	std::deque<std::string> errors;
+
 	MusicPlayer mp;
 	std::mutex plMutex;
 	std::deque<SongInfo> playList;
+
+	std::atomic<bool> wasAllowed;
 
 	std::atomic<int> files;
 	std::string loadedFile;
@@ -89,7 +116,7 @@ private:
 
 	bool changedSong = false;
 
-	uint32_t permissions = 0xffff;
+	std::atomic<uint32_t> permissions;
 
 };
 

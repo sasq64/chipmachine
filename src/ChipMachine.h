@@ -114,7 +114,6 @@ public:
 		}
 	}
 
-
 	virtual void render(uint32_t delta) override {
 		if(alpha <= 0.01)
 			return;
@@ -221,6 +220,8 @@ public:
 	void update();
 	void render(uint32_t delta);
 
+	void toast(const std::string &txt, int type);
+
 private:
 
 	MusicDatabase mdb;
@@ -229,6 +230,9 @@ private:
 
 	MainScreen mainScreen;
 	SearchScreen searchScreen;
+
+	TextScreen textScreen;
+	std::shared_ptr<TextScreen::TextField> toastField;
 
 	int currentScreen = 0;
 

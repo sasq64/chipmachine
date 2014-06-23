@@ -33,7 +33,7 @@ public:
 	private:
 		float* f[8];
 		std::string text;
-		int tlen;
+		mutable int tlen;
 
 		friend TextScreen;
 	};
@@ -50,6 +50,13 @@ public:
 			//if(y < 0) y = grappix::screen.height() + y;
 			grappix::screen.text(font, f->text, x, y, f->color + f->add, f->scale);
 		}
+	}
+
+	int getWidth(const std::shared_ptr<TextField> &f) {
+		if(f->tlen == -1)
+			f->tlen = font.get_width(f->text, f->scale);
+		return f->tlen;
+
 	}
 
 	void setFont(const grappix::Font &font) {

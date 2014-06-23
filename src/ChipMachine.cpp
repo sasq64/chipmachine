@@ -22,6 +22,7 @@ ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, mdb), curr
 	initLua();
 
 	scrollEffect.set("scrolltext", "Chipmachine Beta 1 -- Type letters/digits to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F9 for next song -- F5 for pause -- F12 to clear queue -- F10 to clear search text ----- ");
+	toastField = textScreen.addField("", tv0.x, tv1.y - 134, 2.0, 0x00ffffff);
 }
 
 void ChipMachine::initLua() {
@@ -63,6 +64,12 @@ void ChipMachine::initLua() {
 				spectrumColorMain = Color(stoll(val));
 			else
 				spectrumColorSearch = Color(stoll(val));
+		} else
+		if(name == "font") {
+			if(File::exists(val)) {
+				auto font = Font(val, 48, 512 | Font::DISTANCE_MAP);
+				textScreen.setFont(font);
+			}
 		} else
 		if(name == "background") {
 			bgcolor = stol(val);
@@ -141,6 +148,8 @@ void ChipMachine::play(const SongInfo &si) {
 	player.nextSong();
 }
 
+
+
 void ChipMachine::update() {
 
 	auto show_main = [=]() {
@@ -205,12 +214,28 @@ void ChipMachine::update() {
 	case Window::ESCAPE:
 		show_main();
 		break;
+	case Window::F12:
+		toast("Playlist cleared", 2);
+		break;
+	case Window::F8:
+		player.setPermissions(0);
+		break;
+	case Window::F9:
+		player.setPermissions(0xffff);
+		break;
 	}
 
 
 
 	mainScreen.update();
 	searchScreen.update();
+
+	if(!player.getAllowed()) {
+		toast("Not allowed", 1);
+	} else
+	if(player.hasError()) {
+		toast(player.getError(), 1);
+	}
 
 	for(int i=0; i<(int)eq.size(); i++) {
 		if(!player.isPaused()) {
@@ -234,6 +259,20 @@ void ChipMachine::update() {
 
 }
 
+void ChipMachine::toast(const std::string &txt, int type) {
+
+	static vector<Color> colors = { 0xffffff, 0xff8888, 0x55aa55 }; // Alpha intentionally left at zero
+
+	toastField->setText(txt);
+	int tlen = textScreen.getWidth(toastField);
+	toastField->pos.x = tv0.x + ((tv1.x - tv0.x) - tlen) / 2;
+	toastField->color = colors[type];
+
+	make_tween().to(toastField->color.alpha, 1.0).seconds(0.5).on_complete([=]() {
+		make_tween().delay(2.0).to(toastField->color.alpha, 0.0).seconds(0.5);
+	});
+}
+
 void ChipMachine::render(uint32_t delta) {
 
 	screen.clear(0xff000000 | bgcolor);
@@ -250,6 +289,8 @@ void ChipMachine::render(uint32_t delta) {
 		mainScreen.render(delta);
 	else
 		searchScreen.render(delta);
+
+	textScreen.render(delta);
 
 	screen.flip();
 }

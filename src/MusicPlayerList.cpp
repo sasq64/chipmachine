@@ -11,6 +11,8 @@ namespace chipmachine {
 
 MusicPlayerList::MusicPlayerList() {
 	state = STOPPED;
+	wasAllowed = true;
+	permissions = 0xffffffff;
 	playerThread = thread([=]() {
 		while(true) {
 			update();
@@ -20,9 +22,17 @@ MusicPlayerList::MusicPlayerList() {
 	//playerThread.start();
 }
 
+bool MusicPlayerList::checkPermission(int flags) {
+	if(!(permissions & CAN_ADD_SONG)) {
+		wasAllowed = false;
+		return false;
+	}
+	return true;
+}
+
 void MusicPlayerList::addSong(const SongInfo &si, int pos) {
-	if(!(permissions & CAN_ADD_SONG))
-		return;
+
+	if(!checkPermission(CAN_ADD_SONG)) return;
 	LOCK_GUARD(plMutex);
 	if(pos >= 0) {
 		if(playList.size() >= pos)
@@ -32,15 +42,13 @@ void MusicPlayerList::addSong(const SongInfo &si, int pos) {
 }
 
 void MusicPlayerList::clearSongs() {
-	if(!(permissions & CAN_CLEAR_SONGS))
-		return;
+	if(!checkPermission(CAN_CLEAR_SONGS)) return;
 	LOCK_GUARD(plMutex);
 	playList.clear();
 }
 
 void MusicPlayerList::nextSong() {
-	if(!(permissions & CAN_SWITCH_SONG))
-		return;
+	if(!checkPermission(CAN_SWITCH_SONG)) return;
 	LOCK_GUARD(plMutex);
 	if(playList.size() > 0) {
 		//mp.stop();
@@ -65,8 +73,7 @@ void MusicPlayerList::updateInfo() {
 }
 
 void MusicPlayerList::seek(int song, int seconds) {
-	if(!(permissions & CAN_SEEK))
-		return;
+	if(!checkPermission(CAN_SEEK)) return;
 	mp.seek(song, seconds);
 	if(song >= 0)
 		changedSong = true;
@@ -106,17 +113,19 @@ int MusicPlayerList::listSize() {
 /// PRIVATE
 
 
-void MusicPlayerList::playFile(const std::string &fileName) {
+bool MusicPlayerList::playFile(const std::string &fileName) {
 	//LOCK_GUARD(plMutex);
 	if(fileName != "") {
 		if(mp.playFile(fileName)) {
 			changedSong = false;
 			updateInfo();
 			state = PLAY_STARTED;
+			return true;			
 		} else {
 			state = STOPPED;
 		}
 	}
+	return false;
 }
 
 void MusicPlayerList::update() {
@@ -223,12 +232,19 @@ void MusicPlayerList::update() {
 							});
 						}
 					}
-				} else
+				} else {
+					LOCK_GUARD(plMutex);
+					errors.push_back("Song download failed");
 					LOGD("Song failed");
+				}
 				files--;
 			});
 		} else {
-			playFile(currentInfo.path);
+			if(!playFile(currentInfo.path)) {
+				LOCK_GUARD(plMutex);
+				errors.push_back("Could not play song");
+				LOGD("Song failed");
+			}
 		}
 	}
 }

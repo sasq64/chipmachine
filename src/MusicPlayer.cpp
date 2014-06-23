@@ -92,15 +92,22 @@ public:
 		for(auto f : File(".rsn").listFiles())
 			f.remove();
 
-		auto *a = Archive::open(fileName, ".rsn", Archive::TYPE_RAR);
-		for(auto s : *a) {
-			a->extract(s);
-			if(song_formats.count(path_extension(s)) > 0) {				
-				LOGD("Found %s", s);
-				l.push_back(string(".rsn/") + s);
-			}
-		};
-		delete a;
+		if(!File::exists(fileName))
+			return nullptr;
+
+		try {
+			auto *a = Archive::open(fileName, ".rsn", Archive::TYPE_RAR);
+			for(auto s : *a) {
+				a->extract(s);
+				if(song_formats.count(path_extension(s)) > 0) {				
+					LOGD("Found %s", s);
+					l.push_back(string(".rsn/") + s);
+				}
+			};
+			delete a;
+		} catch (archive_exception &e) {
+			return nullptr;
+		}
 
 		sort(l.begin(), l.end());
 
