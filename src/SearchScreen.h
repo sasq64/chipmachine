@@ -119,12 +119,19 @@ public:
 		songList.on_key(k);
 
 		if((k >= '0' && k <= '9') || k == '/') {
+			if(switchedToMain)
+				iquery.clear();
+			switchedToMain = false;
 			iquery.addLetter(tolower(k));
 			searchUpdated = true;
 		} else if(k >= 'A' && k<='Z') {
+			if(switchedToMain)
+				iquery.clear();
+			switchedToMain = false;
 			iquery.addLetter(tolower(k));
 			searchUpdated = true;
 		} else {
+			switchedToMain = false;
 			switch(k) {
 			case Window::SPACE:
 				iquery.addLetter(' ');
@@ -171,8 +178,9 @@ public:
 						//player.clearSongs();
 						player.addSong(si, 0);
 						player.nextSong();
+						switchedToMain = true;
 						//show_main();
-						iquery.clear();
+						//iquery.clear();
 					} else {
 						player.addSong(si); 
 						songList.select(songList.selected()+1);
@@ -229,6 +237,8 @@ private:
 
 	SongList songList;
 	Font font;
+
+	bool switchedToMain = false;
 
 };
 

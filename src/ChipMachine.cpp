@@ -210,6 +210,11 @@ void ChipMachine::update() {
 			show_main();
 		}
 		break;
+	case Window::RIGHT_CLICK:
+	case Window::F9:
+		player.nextSong();
+		show_main();
+		break;
 	case Window::F10:
 	case Window::ESCAPE:
 		show_main();
@@ -220,7 +225,7 @@ void ChipMachine::update() {
 	case Window::F8:
 		player.setPermissions(0);
 		break;
-	case Window::F9:
+	case Window::F7:
 		player.setPermissions(0xffff);
 		break;
 	}

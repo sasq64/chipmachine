@@ -28,7 +28,7 @@ public:
 
 	void initDatabase(std::string name, std::unordered_map<std::string, std::string> &vars);
 
-	void modlandInit(const std::string &source, const std::string &song_list, int id);
+	void modlandInit(const std::string &source, const std::string &song_list, const std::string &xformats, int id);
 	void hvscInit(const std::string &source, int id);
 	void rsnInit(const std::string &source, int id);
 

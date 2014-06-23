@@ -35,7 +35,7 @@ void MusicDatabase::init() {
 void MusicDatabase::initDatabase(string name, unordered_map<string, string> &vars) {
 	LOGD("Init db '%s'", name);
 	if(name == "modland")
-		modlandInit(vars["source"], vars["song_list"], stol(vars["id"]));
+		modlandInit(vars["source"], vars["song_list"], vars["exclude_formats"], stol(vars["id"]));
 	else if(name == "hvsc")
 		hvscInit(vars["source"], stol(vars["id"]));
 	else if(name == "rsn")
@@ -187,7 +187,7 @@ static std::unordered_set<std::string> exclude = {
 static std::unordered_set<std::string> exclude = { /*"RealSID", "PlaySID",*/ "Saturn Sound Format" };
 #endif
 
-void MusicDatabase::modlandInit(const string &source, const string &song_list, int id) {
+void MusicDatabase::modlandInit(const string &source, const string &song_list, const string &xformats, int id) {
 
 	if(db.query("SELECT 1 FROM collection WHERE name = 'modland'").step())
 		return;
@@ -200,6 +200,13 @@ void MusicDatabase::modlandInit(const string &source, const string &song_list, i
 		"Ad Lib",
 		"Video Game Music"
 	};
+
+	auto ex_copy = exclude;
+	auto parts = split(xformats, ";");
+	for(const auto &p : parts) {
+		if(p.length())
+			ex_copy.insert(p);
+	}
 
 	string url = source;
 	if(!endsWith(url, "/"))
@@ -234,7 +241,7 @@ void MusicDatabase::modlandInit(const string &source, const string &song_list, i
 		if(hasSubFormats.count(fmt) > 0)
 			i++;//fmt = fmt + "/" + parts[i++];
 
-		if(exclude.count(fmt) > 0)
+		if(ex_copy.count(fmt) > 0)
 			continue;
 
 		string composer = parts[i++];

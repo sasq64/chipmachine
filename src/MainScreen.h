@@ -61,8 +61,7 @@ public:
 
 			int tw = mainScreen.getFont().get_width(currentInfo.title, sc);
 
-			LOGD("%s vs %s", nextInfoField[0].getText(), currentInfoField[0].getText());			
-			bool fromNext = nextInfoField[0].getText() == currentInfoField[0].getText();
+			LOGD("%s vs %s", nextInfoField.path, currentInfoField.path);
 
 			auto f = [=]() {
 				xinfoField->setText(sub_title);
@@ -71,7 +70,7 @@ public:
 					make_tween().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
 			};
 			
-			if(fromNext) {
+			if(nextInfoField == currentInfoField) {
 				currentTween = make_tween().from(prevInfoField, currentInfoField).
 				from(currentInfoField, nextInfoField).
 				from(nextInfoField, outsideInfoField).seconds(1.5).on_complete(f);
@@ -183,7 +182,7 @@ public:
 			} else
 				make_tween().to(timeField->add, 0.0);
 			break;
-		case Window::F9:
+		//case Window::F9:
 		case Window::ENTER:
 			player.nextSong();
 			break;

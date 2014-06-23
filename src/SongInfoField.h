@@ -21,6 +21,7 @@ struct SongInfoField {
 		fields[0]->setText(info.title);
 		fields[1]->setText(info.composer);
 		fields[2]->setText(info.format);
+		path = info.path;
 	}
 
 	SongInfo getInfo() {
@@ -28,13 +29,19 @@ struct SongInfoField {
 		si.title = fields[0]->getText();
 		si.composer = fields[1]->getText();
 		si.format = fields[2]->getText();
+		si.path = path;
 		return si;
+	}
+
+	bool operator==(const SongInfoField &other) const {
+		return other.path == path;
 	}
 
 	std::shared_ptr<TextScreen::TextField> fields[3];
 
 	TextScreen::TextField& operator[](int i) { return *fields[i]; }
 	int size() { return 3; }
+	std::string path;
 
 };
 
