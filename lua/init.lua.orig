@@ -7,6 +7,11 @@ if Config.screen_width >= 800 then
 	HD = true
 end
 
+GSCALE = 1.0
+
+if Config.screen_width >= 1280 then
+	GSCALE = 2.0
+end
 -- print('HD',Config.screen_width,Config.screen_height,HD)
 
 X0 = 80
@@ -14,14 +19,12 @@ Y0 = 54
 X1 = 636
 Y1 = 520
 
-GSCALE = 1.0
 
 if HD then
 X0 = 10
 Y0 = 10
 X1 = Config.screen_width-10
 Y1 = Config.screen_height-10
-GSCALE = 2.0
 end
 
 background = 0x808080

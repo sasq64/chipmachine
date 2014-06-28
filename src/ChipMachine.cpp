@@ -105,11 +105,17 @@ void ChipMachine::initLua() {
 		}
 	});
 
-		lua.load(R"(
-			DB = {}
-		)");
-		lua.loadFile("lua/db.lua");
-		lua.load(R"(
+	File f { "lua/db.lua" };
+	if(!f.exists()) {
+		f.copyFrom("lua/db.lua.orig");
+		f.close();
+	}
+
+	lua.load(R"(
+		DB = {}
+	)");
+	lua.loadFile("lua/db.lua");
+	lua.load(R"(
 		for a,b in pairs(DB) do 
 			if type(b) == 'table' then
 				set_db_var(a, 'start')
@@ -121,6 +127,12 @@ void ChipMachine::initLua() {
 		end
 	)");
 	mdb.generateIndex();
+
+	File f2 { "lua/init.lua" };
+	if(!f2.exists()) {
+		f2.copyFrom("lua/init.lua.orig");
+		f2.close();
+	}
 
 	Resources::getInstance().load<string>("lua/init.lua", [=](const std::string &contents) {
 		LOGD("init.lua");
