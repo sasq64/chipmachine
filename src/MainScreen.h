@@ -38,8 +38,8 @@ public:
 		nextField = mainScreen.addField("next", 440, 320, 0.6, 0xe080c0ff);		
 
 		timeField = mainScreen.addField("", tv0.x, 188, 1.0, 0xff888888);
-		lengthField = mainScreen.addField("(00:00)", tv0.x + 100, 188, 1.0, 0xff888888);
-		songField = mainScreen.addField("[00/00]", tv0.x + 220, 188, 1.0, 0xff888888);
+		lengthField = mainScreen.addField("", tv0.x + 100, 188, 1.0, 0xff888888);
+		songField = mainScreen.addField("", tv0.x + 220, 188, 1.0, 0xff888888);
 	}
 
 	void update() {
@@ -56,6 +56,11 @@ public:
 			currentTune = currentInfo.starttune;
 			currentTween.finish();
 			auto sc = currentInfoField[0].scale;
+
+			if(currentInfo.numtunes > 0)
+				songField->setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
+			else
+				songField->setText("");
 
 			auto sub_title = player.getMeta("sub_title");
 
@@ -102,22 +107,42 @@ public:
 			}
 		}
 
-		auto p = player.getPosition();
-		int length = player.getLength();
-		timeField->setText(format("%02d:%02d", p/60, p%60));
-		if(length > 0)
-			lengthField->setText(format("(%02d:%02d)", length/60, length%60));
-		else
-			lengthField->setText("");
-
-		if(currentInfo.numtunes > 0)
-			songField->setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
-		else
-			songField->setText("");
-
-		auto sub_title = player.getMeta("sub_title");
-		if(sub_title != xinfoField->getText())
+		auto tune = player.getTune();
+		if(currentTune != tune) {
+			songField->add = 0.0;
+			make_tween().sine().to(songField->add, 1.0).seconds(0.5);
+			currentInfo = player.getInfo();
+			auto sub_title = player.getMeta("sub_title");
 			xinfoField->setText(sub_title);
+			currentInfoField.setInfo(currentInfo);
+			currentTune = tune;
+			songField->setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
+		}
+
+		if(player.playing()) {
+
+			bool party = (player.getPermissions() & MusicPlayerList::PARTYMODE) != 0;
+			if(!lockDown && party) {
+				lockDown = true;
+				make_tween().to(timeField->color, Color(0xffff0000)).seconds(0.5);
+			} else if(lockDown && !party) {
+				lockDown = false;
+				make_tween().to(timeField->color, timeColor).seconds(2.0);
+			}
+
+
+			auto p = player.getPosition();
+			int length = player.getLength();
+			timeField->setText(format("%02d:%02d", p/60, p%60));
+			if(length > 0)
+				lengthField->setText(format("(%02d:%02d)", length/60, length%60));
+			else
+				lengthField->setText("");
+
+			auto sub_title = player.getMeta("sub_title");
+			if(sub_title != xinfoField->getText())
+				xinfoField->setText(sub_title);
+		}
 	}
 
 	void set_variable(const std::string &name, int index, const std::string &val) {
@@ -147,7 +172,9 @@ public:
 				else if(name == "main_composer" || name == "next_composer")
 					outsideInfoField[1].color = f.color;
 				else if(name == "main_format" || name == "next_format")
-					outsideInfoField[2].color = f.color;				
+					outsideInfoField[2].color = f.color;
+				else if(name == "time_field")
+					timeColor = f.color;
 			} else {
 				f[index-1] = stod(val);
 			}
@@ -178,20 +205,20 @@ public:
 		case Window::F5:
 			player.pause(!player.isPaused());
 			if(player.isPaused()) {
-				make_tween().sine().repeating().to(timeField->add, 1.0);
+				make_tween().sine().repeating().to(timeField->add, 1.0).seconds(0.5);
 			} else
-				make_tween().to(timeField->add, 0.0);
+				make_tween().to(timeField->add, 0.0).seconds(0.5);
 			break;
 		//case Window::F9:
 		case Window::ENTER:
 			player.nextSong();
 			break;
-		case Window::F12:
-			player.clearSongs();
-			break;		
+		//case Window::F12:
+		//	player.clearSongs();
+		//	break;		
 		case Window::LEFT:
 			if(currentTune > 0) {
-				player.seek(--currentTune);
+				player.seek(currentTune - 1);
 				songField->add = 0.0;
 				make_tween().sine().to(songField->add, 1.0).seconds(0.5);
 				currentInfo = player.getInfo();
@@ -202,7 +229,7 @@ public:
 			break;
 		case Window::RIGHT:
 			if(currentTune < currentInfo.numtunes-1) {
-				player.seek(++currentTune);
+				player.seek(currentTune + 1);
 				songField->add = 0.0;
 				make_tween().sine().to(songField->add, 1.0).seconds(0.5);
 				currentInfo = player.getInfo();
@@ -239,6 +266,8 @@ private:
 	utils::vec2i tv1 = { 636, 520 };
 
 	tween::TweenHolder currentTween;
+	Color timeColor;
+	bool lockDown = false;
 };
 
 }

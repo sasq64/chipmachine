@@ -31,12 +31,12 @@ namespace chipmachine {
 
 class RSNPlayer : public ChipPlayer {
 public:
-	RSNPlayer(const vector<string> &l, ChipPlugin *plugin) : songs(l), plugin(plugin) {
+	RSNPlayer(const vector<string> &l, shared_ptr<ChipPlugin> plugin) : songs(l), plugin(plugin) {
 		LOGD("Playing with %s", plugin->name());
 		player = shared_ptr<ChipPlayer>(plugin->fromFile(l[0]));
 		if(player == nullptr)
 			throw player_exception();
-		//player->onMeta([=](const std::vector<std::string> &meta, ChipPlayer* player) {			
+		//player->onMeta([=](const vector<string> &meta, ChipPlayer* player) {			
 			//for(const auto &m : meta) {
 			//	setMeta(m, player->getMeta(m));
 			//}
@@ -56,7 +56,7 @@ public:
 		return 0;
 	}
 
-	virtual void seekTo(int song, int seconds) {
+	virtual bool seekTo(int song, int seconds) {
 		player = nullptr;
 		player = shared_ptr<ChipPlayer>(plugin->fromFile(songs[song]));
 		if(player) {
@@ -68,22 +68,24 @@ public:
 			);
 			if(seconds > 0)
 				player->seekTo(-1, seconds);
+			return true;
 		}
+		return false;
 	}
 private:
 	vector<string> songs;
-	std::shared_ptr<ChipPlayer> player;
-	ChipPlugin *plugin;
+	shared_ptr<ChipPlayer> player;
+	shared_ptr<ChipPlugin> plugin;
 
 };
 
 class RSNPlugin : public ChipPlugin {
 public:
-	RSNPlugin(std::vector<ChipPlugin*> &plugins) : plugins(plugins) {}
+	RSNPlugin(vector<shared_ptr<ChipPlugin>> &plugins) : plugins(plugins) {}
 
-	virtual std::string name() const { return "RSNPlugin"; }
+	virtual string name() const { return "RSNPlugin"; }
 
-	virtual ChipPlayer *fromFile(const std::string &fileName) {
+	virtual ChipPlayer *fromFile(const string &fileName) {
 
 		static const set<string> song_formats { "spc", "psf", "minipsf", "psf2", "minipsf2", "miniusf", "dsf", "minidsf", "mini2sf", "minigsf" };
 
@@ -131,32 +133,32 @@ public:
 
 
 
-bool canHandle(const std::string &name) {
+bool canHandle(const string &name) {
 	static const set<string> supported_ext { "rsn", "rps", "rdc", "rds", "rgs", "r64" };
 	return supported_ext.count(utils::path_extension(name)) > 0;
 }
 
 private:
-	std::vector<ChipPlugin*> &plugins;
+	vector<shared_ptr<ChipPlugin>> &plugins;
 
 };
 
 MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		//new ModPlugin {},
-		new RSNPlugin { this->plugins },
-		new OpenMPTPlugin {},
-		new HTPlugin {},
-		new HEPlugin {"data/hebios.bin"},
-		new GSFPlugin {},
-		new NDSPlugin {},
-		new USFPlugin {},
-		new VicePlugin {"data/c64"},
-		new SexyPSFPlugin {},
-		new GMEPlugin {},
-		new SC68Plugin {"data/sc68"},
-		new StSoundPlugin {},
-		new AdPlugin {},
-		new UADEPlugin {}
+		make_shared<RSNPlugin>(this->plugins),
+		make_shared<OpenMPTPlugin>(),
+		make_shared<HTPlugin>(),
+		make_shared<HEPlugin>("data/hebios.bin"),
+		make_shared<GSFPlugin>(),
+		make_shared<NDSPlugin>(),
+		make_shared<USFPlugin>(),
+		make_shared<VicePlugin>("data/c64"),
+		make_shared<SexyPSFPlugin>(),
+		make_shared<GMEPlugin>(),
+		make_shared<SC68Plugin>("data/sc68"),
+		make_shared<StSoundPlugin>(),
+		make_shared<AdPlugin>(),
+		make_shared<UADEPlugin>()
 	}
 {
 	dontPlay = playEnded = false;
@@ -204,7 +206,7 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 				sz -= rc;
 				if(fifo.filled() >= size*2) {
 					fifo.getShorts(ptr, size);
-					std::lock_guard<std::mutex> guard(fftMutex);
+					lock_guard<mutex> guard(fftMutex);
 					fft.addAudio(ptr, size);
 					break;
 				}
@@ -215,6 +217,10 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 	});
 }
 
+MusicPlayer::~MusicPlayer() {
+	AudioPlayer::close();
+}
+
 void MusicPlayer::seek(int song, int seconds) {
 	LOCK_GUARD(playerMutex);
 	if(player) {
@@ -222,9 +228,11 @@ void MusicPlayer::seek(int song, int seconds) {
 			pos = 0;
 		else
 			pos = seconds * 44100;
-		player->seekTo(song, seconds);
-		//length = player->getMetaInt("length");
-		updatePlayingInfo();
+		if(player->seekTo(song, seconds)) {
+			//length = player->getMetaInt("length");
+			updatePlayingInfo();
+			currentTune = song;
+		}
 	}
 }
 
@@ -239,7 +247,7 @@ void MusicPlayer::fadeOut(float secs) {
 }
 
 
-bool MusicPlayer::playFile(const std::string &fileName) {
+bool MusicPlayer::playFile(const string &fileName) {
 
 	dontPlay = true;
 	silentFrames = 0;
@@ -284,6 +292,7 @@ bool MusicPlayer::playFile(const std::string &fileName) {
 		pause(false);
 		pos = 0;
 		updatePlayingInfo();
+		currentTune = playingInfo.starttune;
 		return true;
 	}
 	return false;
@@ -349,11 +358,11 @@ string MusicPlayer::getMeta(const string &what) {
 
 // PRIVATE
 
-shared_ptr<ChipPlayer> MusicPlayer::fromFile(const std::string &fileName) {
+shared_ptr<ChipPlayer> MusicPlayer::fromFile(const string &fileName) {
 	shared_ptr<ChipPlayer> player;
 	string name = fileName;
 	utils::makeLower(name);
-	for(auto *plugin : plugins) {
+	for(auto &plugin : plugins) {
 		if(plugin->canHandle(name)) {
 			LOGD("Playing with %s\n", plugin->name());
 			player = shared_ptr<ChipPlayer>(plugin->fromFile(fileName));

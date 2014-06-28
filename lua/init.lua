@@ -7,7 +7,7 @@ if Config.screen_width >= 800 then
 	HD = true
 end
 
-print('HD',Config.screen_width,Config.screen_height,HD)
+-- print('HD',Config.screen_width,Config.screen_height,HD)
 
 X0 = 80
 Y0 = 54
@@ -89,4 +89,4 @@ Settings.result_lines = (Y1-Y0)/23
 
 Settings.font = "data/Neutra.otf"
 ------
-print("Lua parsing done")
+-- print("Lua parsing done")

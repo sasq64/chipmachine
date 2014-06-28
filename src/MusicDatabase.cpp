@@ -20,8 +20,8 @@ void MusicDatabase::init() {
 	//	return;
 	//}
 
-	db.exec("CREATE TABLE IF NOT EXISTS playlist (title STRING)");
-	db.exec("CREATE TABLE IF NOT EXISTS plmap (playlist INT, pos INT, path STRING)");
+	//db.exec("CREATE TABLE IF NOT EXISTS playlist (title STRING)");
+	//db.exec("CREATE TABLE IF NOT EXISTS plmap (playlist INT, pos INT, path STRING)");
 	db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, description STRING, id INTEGER, version INTEGER)");
 	db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
 	//db.exec("CREATE VIRTUAL TABLE song USING fts4(title, game, composer, format, path,)");
@@ -48,7 +48,8 @@ void MusicDatabase::rsnInit(const string &source, int id) {
 	if(db.query("SELECT 1 FROM collection WHERE name = 'RSNSET'").step())
 		return;
 
-	LOGD("Indexing RSN");
+	//LOGD("Indexing RSN");
+	print_fmt("Creating RSN database\n");
 
 	db.exec("BEGIN TRANSACTION");
 
@@ -131,7 +132,8 @@ void MusicDatabase::hvscInit(const string &source, int id) {
 
 	//db.exec("CREATE TABLE IF NOT EXISTS hvscstil (title STRING)");
 
-	LOGD("Indexing HVSC");
+	//LOGD("Indexing HVSC");
+	print_fmt("Creating HVSC database\n");
 
 	db.exec("BEGIN TRANSACTION");
 
@@ -192,9 +194,8 @@ void MusicDatabase::modlandInit(const string &source, const string &song_list, c
 	if(db.query("SELECT 1 FROM collection WHERE name = 'modland'").step())
 		return;
 
-	LOGD("Creating modland collection");
-
-	LOGD("Indexing...\n");
+	//LOGD("Creating modland collection");
+	print_fmt("Creating Modland database\n");
 
 	static const unordered_set<string> hasSubFormats = {
 		"Ad Lib",
@@ -239,7 +240,7 @@ void MusicDatabase::modlandInit(const string &source, const string &song_list, c
 		int i = 0;
 		string fmt = parts[i++];
 		if(hasSubFormats.count(fmt) > 0)
-			i++;//fmt = fmt + "/" + parts[i++];
+			fmt = parts[i++];
 
 		if(ex_copy.count(fmt) > 0)
 			continue;
@@ -424,6 +425,8 @@ void MusicDatabase::generateIndex() {
 		f.close();
 		return;
 	}
+	
+	print_fmt("Creating Search Index...\n");
 
 	string oldComposer;
 	auto query = db.query<string, string, string, string, string>("SELECT title, game, format, composer, path FROM song");

@@ -1,6 +1,16 @@
 PARTY MODE
 ----------
 
+Tween probs: Pause and party red
+release lock after song end wven if no new song
+subsong++ -- when song not switched...
+
+
+2 second grace only allows sub song?
+only applies to songs started with ENTER
+
+
+
 v1 SIMPLE
 * Song must play for at least 60 seconds before new song can be selected, unless ALT is held
 

@@ -21,12 +21,18 @@ public:
 		STARTED,
 		PLAY_STARTED,
 		PLAYING,
-		FADING
+		FADING,
+		PLAY_NOW
 	};
 
 	MusicPlayerList();
+	~MusicPlayerList() {
+		quitThread = true;
+		playerThread.join();
+	}
 
-	void addSong(const SongInfo &si, int pos = -1);
+	bool addSong(const SongInfo &si, int pos = -1);
+	void playSong(const SongInfo &si);
 	void clearSongs();
 	void nextSong();
 	
@@ -38,6 +44,9 @@ public:
 	int listSize();
 
 	bool playing() { return mp.playing(); }
+
+	int getTune() { return mp.getTune(); }
+
 	void pause(bool dopause = true) { 
 		if(!(permissions & CAN_PAUSE))
 			return;
@@ -80,15 +89,20 @@ public:
 		CAN_SEEK = 2,
 		CAN_PAUSE = 4,
 		CAN_ADD_SONG = 8,
-		CAN_CLEAR_SONGS = 16
+		CAN_CLEAR_SONGS = 16,
+		PARTYMODE = 0x10000000
 	};
+
+	uint32_t getPermissions() { return permissions; }
 
 	void setPermissions(uint32_t p) {
 		permissions = p;
 	}
 
+	void setPartyMode(bool on, int lockSeconds = 60, int graceSec = 3);
 
 private:
+	void playCurrent();
 	bool playFile(const std::string &fileName);
 
 	void update();
@@ -103,6 +117,7 @@ private:
 	std::deque<SongInfo> playList;
 
 	std::atomic<bool> wasAllowed;
+	std::atomic<bool> quitThread;
 
 	std::atomic<int> files;
 	std::string loadedFile;
@@ -117,6 +132,11 @@ private:
 	bool changedSong = false;
 
 	std::atomic<uint32_t> permissions;
+
+	bool partyMode = false;
+	bool partyLockDown = false;
+	int graceSeconds = 3;
+	int lockSeconds = 60;
 
 };
 

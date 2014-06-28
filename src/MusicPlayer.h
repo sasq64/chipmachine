@@ -28,6 +28,7 @@ class ChipPlayer;
 class MusicPlayer {
 public:
 	MusicPlayer();
+	~MusicPlayer();
 	bool playFile(const std::string &fileName);
 	bool playing() { return !playEnded && player != nullptr; }
 	void stop() { LOCK_GUARD(playerMutex); player = nullptr; }
@@ -41,6 +42,8 @@ public:
 	}
 
 	void seek(int song, int seconds = -1);
+
+	int getTune() { return currentTune; }
 
 	SongInfo getPlayingInfo() {
 		LOCK_GUARD(infoMutex);
@@ -82,7 +85,7 @@ private:
 	SongInfo playingInfo;
 	//Fifo fifo;
 	SpectrumAnalyzer fft;
-	std::vector<ChipPlugin*> plugins;
+	std::vector<std::shared_ptr<ChipPlugin>> plugins;
 	bool paused = false;
 	std::array<uint16_t, SpectrumAnalyzer::eq_slots> spectrum;
 	//std::string toPlay;
@@ -97,6 +100,7 @@ private:
 	int fadeLength;
 	int fadeOutPos;
 	int silentFrames;
+	int currentTune;
 	//bool changedSong = false;
 	std::atomic<bool> dontPlay;
 	std::atomic<bool> playEnded;

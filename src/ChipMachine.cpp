@@ -1,5 +1,6 @@
 #include "ChipMachine.h"
 
+#include <ctype.h>
 
 using namespace std;
 using namespace utils;
@@ -12,8 +13,10 @@ ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, mdb), curr
 
 	mdb.init();
 
+#ifdef ENABLE_TELNET
 	telnet = make_unique<TelnetInterface>(mdb, player);
 	telnet->start();
+#endif
 
 	memset(&eq[0], 2, eq.size());
 
@@ -21,7 +24,7 @@ ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, mdb), curr
 
 	initLua();
 
-	scrollEffect.set("scrolltext", "Chipmachine Beta 1 -- Type letters/digits to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F9 for next song -- F5 for pause -- F12 to clear queue -- F10 to clear search text ----- ");
+	scrollEffect.set("scrolltext", "Chipmachine Beta 1 -- Begin typing to to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- F8 to clear queue -- ESCAPE to clear search text ----- ");
 	toastField = textScreen.addField("", tv0.x, tv1.y - 134, 2.0, 0x00ffffff);
 }
 
@@ -178,58 +181,79 @@ void ChipMachine::update() {
 	}
 
 	auto k = screen.get_key();
-	if(k != Window::NO_KEY) {
 
-		if((k >= '0' && k <= '9') || k == '/' || (k >= 'A' && k<='Z')) {
-			show_search();
-		} else {
-			switch(k) {
-			case Window::F1:
-				show_main();
-				break;
-			case Window::F2:
-			case Window::SPACE:
-			case Window::BACKSPACE:
-			case Window::F10:
-			case Window::UP:
-			case Window::DOWN:
-				show_search();
-				break;
+	if(screen.key_pressed(Window::CTRL_LEFT) || screen.key_pressed(Window::CTRL_RIGHT)) {
+
+		if(k >= '0' && k <= 'z') {
+			code.push_back(tolower(k));
+			LOGD("'%s'", code);
+			if(code == "party") {
+				toast("Party Mode ON", 2);
+				player.setPartyMode(true);
+				code = "";	
+			} else if(code == "chill") {
+				player.setPartyMode(false);
+				toast("Party Mode OFF", 2);
+				code = "";	
 			}
 		}
+	} else {
+		code = "";
+		
+		if(k != Window::NO_KEY) {
 
-	if(currentScreen == 0)
-		mainScreen.on_key(k);
-	else
-		searchScreen.on_key(k);
-	}
+			if((k >= '0' && k <= '9') || k == '/' || (k >= 'A' && k<='Z')) {
+				show_search();
+			} else {
+				switch(k) {
+				case Window::F1:
+					show_main();
+					break;
+				case Window::F2:
+				case Window::SPACE:
+				case Window::BACKSPACE:
+				case Window::F10:
+				case Window::UP:
+				case Window::DOWN:
+				case Window::PAGEUP:
+				case Window::PAGEDOWN:
+					show_search();
+					break;
+				}
+			}
 
-	switch(k) {
-	case Window::ENTER:
-		if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_RIGHT))) {
-			show_main();
+		if(currentScreen == 0)
+			mainScreen.on_key(k);
+		else
+			searchScreen.on_key(k);
 		}
-		break;
-	case Window::RIGHT_CLICK:
-	case Window::F9:
-		player.nextSong();
-		show_main();
-		break;
-	case Window::F10:
-	case Window::ESCAPE:
-		show_main();
-		break;
-	case Window::F12:
-		toast("Playlist cleared", 2);
-		break;
-	case Window::F8:
-		player.setPermissions(0);
-		break;
-	case Window::F7:
-		player.setPermissions(0xffff);
-		break;
-	}
 
+		switch(k) {
+		case Window::ENTER:
+			if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_RIGHT))) {
+				show_main();
+			}
+			break;
+		case Window::RIGHT_CLICK:
+		case Window::F6:
+			player.nextSong();
+			show_main();
+			break;
+		case Window::ESCAPE:
+			show_main();
+			break;
+		case Window::F8:
+			player.clearSongs();
+			toast("Playlist cleared", 2);
+			break;
+		case Window::F10:
+			player.setPermissions(0);
+			break;
+		case Window::F9:
+			player.setPermissions(0xffff);
+			break;
+		}
+	}
 
 
 	mainScreen.update();
@@ -273,8 +297,8 @@ void ChipMachine::toast(const std::string &txt, int type) {
 	toastField->pos.x = tv0.x + ((tv1.x - tv0.x) - tlen) / 2;
 	toastField->color = colors[type];
 
-	make_tween().to(toastField->color.alpha, 1.0).seconds(0.5).on_complete([=]() {
-		make_tween().delay(2.0).to(toastField->color.alpha, 0.0).seconds(0.5);
+	make_tween().to(toastField->color.alpha, 1.0).seconds(0.25).on_complete([=]() {
+		make_tween().delay(1.0).to(toastField->color.alpha, 0.0).seconds(0.25);
 	});
 }
 

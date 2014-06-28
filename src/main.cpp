@@ -6,14 +6,17 @@
 
 #include "MusicPlayerList.h"
 
+#include <bbsutils/console.h>
+
 #include <vector>
 
 using namespace std;
 using namespace chipmachine;
+using namespace bbs;
 
 int main(int argc, char* argv[]) {
 
-	//logging::setLevel(logging::WARNING);
+	logging::setLevel(logging::WARNING);
 
 	bool fullScreen = false;
 	vector<SongInfo> songs;
@@ -24,6 +27,9 @@ int main(int argc, char* argv[]) {
 		for(int i=1; i<argc; i++) {
 			if(argv[i][0] == '-') {
 				switch(argv[i][1]) {
+				case 'd':
+					logging::setLevel(logging::DEBUG);
+					break;
 				case 'f':
 					fullScreen = true;
 					break;
@@ -38,7 +44,11 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
+
 	if(songs.size() > 0) {
+
+		Console *c = Console::createLocalConsole();
+
 		MusicPlayerList mpl;
 		for(auto &s : songs) {
 			LOGD("Adding %s", s.path);
@@ -48,12 +58,23 @@ int main(int argc, char* argv[]) {
 		while(true) {
 			if(mpl.getState() == MusicPlayerList::PLAY_STARTED) {
 				auto si = mpl.getInfo();
-				printf("TITLE:%s LENGTH %d\n", si.title.c_str(), mpl.getLength());
+				//auto l = mpl.getLength();
+				print_fmt("%s - %s (%s)\n", si.composer, si.title, si.format);
 			}
-			sleepms(100);
+			auto k = c->getKey(100);
+			if(k !=Console::KEY_TIMEOUT) {
+				switch(k) {
+				case ' ':
+					break;
+				case Console::KEY_RIGHT:
+					break;
+				case Console::KEY_ENTER:
+					mpl.nextSong();
+					break;
+				}
+			}
 		}
 	}
-
 
 	if(fullScreen)
 		grappix::screen.open(true);

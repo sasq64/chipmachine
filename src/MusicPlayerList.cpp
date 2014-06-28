@@ -12,9 +12,10 @@ namespace chipmachine {
 MusicPlayerList::MusicPlayerList() {
 	state = STOPPED;
 	wasAllowed = true;
-	permissions = 0xffffffff;
+	permissions = 0xff;
+	quitThread = false;
 	playerThread = thread([=]() {
-		while(true) {
+		while(!quitThread) {
 			update();
 			sleepms(100);
 		}
@@ -23,22 +24,31 @@ MusicPlayerList::MusicPlayerList() {
 }
 
 bool MusicPlayerList::checkPermission(int flags) {
-	if(!(permissions & CAN_ADD_SONG)) {
+	if(!(permissions & flags)) {
 		wasAllowed = false;
 		return false;
 	}
 	return true;
 }
 
-void MusicPlayerList::addSong(const SongInfo &si, int pos) {
+bool MusicPlayerList::addSong(const SongInfo &si, int pos) {
 
-	if(!checkPermission(CAN_ADD_SONG)) return;
+	if(!checkPermission(CAN_ADD_SONG)) return false;
 	LOCK_GUARD(plMutex);
 	if(pos >= 0) {
 		if(playList.size() >= pos)
 			playList.insert(playList.begin() + pos, si);
-	} else
-		playList.push_back(si);
+	} else {
+		if(partyMode) {
+			if(playList.size() >= 50) {
+				wasAllowed = false;
+				return false;
+			}
+			playList.insert(playList.begin() + (rand() % (playList.size()+1)), si);
+		} else
+			playList.push_back(si);
+	}
+	return true;
 }
 
 void MusicPlayerList::clearSongs() {
@@ -54,6 +64,13 @@ void MusicPlayerList::nextSong() {
 		//mp.stop();
 		state = WAITING;
 	}
+}
+
+void MusicPlayerList::playSong(const SongInfo &si) {
+	if(!checkPermission(CAN_SWITCH_SONG)) return;
+	LOCK_GUARD(plMutex);
+	currentInfo = si;
+	state = PLAY_NOW;
 }
 
 void MusicPlayerList::updateInfo() {
@@ -128,7 +145,36 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 	return false;
 }
 
+void MusicPlayerList::setPartyMode(bool on, int lockSec, int graceSec) {
+	partyMode = on;
+	partyLockDown = false;
+	setPermissions(0xffff);
+	lockSeconds = lockSec;
+	graceSeconds = graceSec;
+}
+
 void MusicPlayerList::update() {
+
+	if(partyMode) {
+		auto p = getPosition();
+		if(partyLockDown) {
+			if(p >= lockSeconds) {
+				setPermissions(0xffff);
+				partyLockDown = false;
+			}
+		} else {
+			if(p >= graceSeconds && p < lockSeconds) {
+				partyLockDown = true;
+				setPermissions(CAN_PAUSE | CAN_ADD_SONG | PARTYMODE);
+			}
+		}
+	}
+
+	if(state == PLAY_NOW) {
+		state = STARTED;
+		LOGD("##### PLAY NOW: %s (%s)", currentInfo.path, currentInfo.title);
+		playCurrent();
+	}
 
 	if(state == PLAYING || state == PLAY_STARTED) {
 
@@ -142,7 +188,7 @@ void MusicPlayerList::update() {
 				else
 					state = WAITING;
 			} else 
-			if(length > 0 && pos > length) {
+			if((length > 0 && pos > length) || pos > 7*44100) {
 				LOGD("#### SONGLENGTH");
 				mp.fadeOut(3.0);
 				state = FADING;
@@ -151,6 +197,11 @@ void MusicPlayerList::update() {
 				LOGD("############# SILENCE");
 				mp.fadeOut(0.5);
 				state = FADING;
+			}
+		} else if(partyLockDown) {
+			if((length > 0 && pos > length) || mp.getSilence() > 44100*6) {
+				partyLockDown = false;
+				setPermissions(0xffff);
 			}
 		}
 	}
@@ -186,65 +237,80 @@ void MusicPlayerList::update() {
 			//pos = 0;
 		}
 		LOGD("##### New song: %s (%s)", currentInfo.path, currentInfo.title);
+		if(partyMode) {
+			partyLockDown = true;
+			setPermissions(CAN_PAUSE | CAN_ADD_SONG | PARTYMODE);
+		}
 
-		auto proto = split(currentInfo.path, ":");
-		if(proto.size() > 0 && (proto[0] == "http" || proto[0] == "ftp")) {
-			state = LOADING;
-			loadedFile = "";
-			auto ext = path_extension(currentInfo.path);
-			makeLower(ext);
-			LOGD("EXT: %s", ext);
-			files = 1;
-			if(ext == "mdat") {
-				files++;
-				auto smpl_file = path_directory(currentInfo.path) + "/" + path_basename(currentInfo.path) + ".smpl";
-				LOGD("LOADING %s", smpl_file);
+		playCurrent();
+	}
+}
 
-				webgetter.getURL(smpl_file, [=](const WebGetter::Job &job) {
-					files--;
-				});
-			}
-			webgetter.getURL(currentInfo.path, [=](const WebGetter::Job &job) {
-				LOGD("Got file");
-				if(job.getReturnCode() == 0) {
-					loadedFile = job.getFile();
-					LOGD("loadedFile %s", loadedFile);
-					PSFFile f { loadedFile };
-					if(f.valid()) {
-						auto lib = f.tags()["_lib"];
-						if(lib != "") {
+//	private static String [] pref0 = new String [] { "MDAT", "TFX", "SNG", "RJP", "JPN", "DUM", "mdat", "tfx", "sng", "rjp", "jpn", "dum" };
+//	private static String [] pref1 = new String [] { "SMPL", "SAM", "INS", "SMP", "SMP", "INS", "smpl", "sam", "ins", "smp", "smp", "ins" };
 
-							auto lib_target = path_directory(loadedFile) + "/" + lib;
+static std::unordered_map<string, string> fmt_2files = {
+	{ "mdat", "smpl" }, // TFMX
+	{ "sng", "ins" }, // Richard Joseph
+	{ "jpn", "smp" }, // Jason Page PREFIX
+	{ "dum", "ins" }, // Rob Hubbard 2
+};
 
-							// HACK BECAUSE WINDOWS (USERS) IS (ARE) STUPID
-							//if(path_extension(lib) == "2sflib") {
-								// We assume that the case of Nintendo DS libs are incorrect
-							//	makeLower(lib);
-							//}
-							auto lib_url = path_directory(currentInfo.path) + "/" + lib;
-							files++;
-							webgetter.getURL(lib_url, [=](const WebGetter::Job &job) {
-								if(job.getReturnCode() == 0) {
-									LOGD("Got lib file %s, copying to %s", job.getFile(), lib_target);
-									File::copy(job.getFile(), lib_target);
-								}
-								files--;
-							});
-						}
-					}
-				} else {
-					LOCK_GUARD(plMutex);
-					errors.push_back("Song download failed");
-					LOGD("Song failed");
-				}
+void MusicPlayerList::playCurrent() {
+	auto proto = split(currentInfo.path, ":");
+	if(proto.size() > 0 && (proto[0] == "http" || proto[0] == "ftp")) {
+		state = LOADING;
+		loadedFile = "";
+		auto ext = path_extension(currentInfo.path);
+		makeLower(ext);
+		LOGD("EXT: %s", ext);
+		files = 1;
+
+		auto ext2 = fmt_2files[ext];
+
+		if(ext2 != "") {
+		//if(ext == "mdat") {
+			files++;
+			auto smpl_file = path_directory(currentInfo.path) + "/" + path_basename(currentInfo.path) + "." + ext2; //".smpl";
+			LOGD("LOADING %s", smpl_file);
+
+			webgetter.getURL(smpl_file, [=](const WebGetter::Job &job) {
 				files--;
 			});
-		} else {
-			if(!playFile(currentInfo.path)) {
+		}
+		webgetter.getURL(currentInfo.path, [=](const WebGetter::Job &job) {
+			LOGD("Got file");
+			if(job.getReturnCode() == 0) {
+				loadedFile = job.getFile();
+				LOGD("loadedFile %s", loadedFile);
+				PSFFile f { loadedFile };
+				if(f.valid()) {
+					auto lib = f.tags()["_lib"];
+					if(lib != "") {
+						auto lib_target = path_directory(loadedFile) + "/" + lib;
+						auto lib_url = path_directory(currentInfo.path) + "/" + lib;
+						files++;
+						webgetter.getURL(lib_url, [=](const WebGetter::Job &job) {
+							if(job.getReturnCode() == 0) {
+								LOGD("Got lib file %s, copying to %s", job.getFile(), lib_target);
+								File::copy(job.getFile(), lib_target);
+							}
+							files--;
+						});
+					}
+				}
+			} else {
 				LOCK_GUARD(plMutex);
-				errors.push_back("Could not play song");
+				errors.push_back("Song download failed");
 				LOGD("Song failed");
 			}
+			files--;
+		});
+	} else {
+		if(!playFile(currentInfo.path)) {
+			LOCK_GUARD(plMutex);
+			errors.push_back("Could not play song");
+			LOGD("Song failed");
 		}
 	}
 }

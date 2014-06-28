@@ -34,7 +34,7 @@ public:
 		grappix::screen.text(font, text, rec.x, rec.y, c, resultFieldTemplate->scale);
 	};
 
-	SearchScreen(MusicPlayerList &mpl, MusicDatabase &mdb) : player(mpl), mdb(mdb), songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
+	SearchScreen(MusicPlayerList &mpl, MusicDatabase &mdb) : player(mpl), /* mdb(mdb), */ songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
 
 		iquery = mdb.createQuery();
 
@@ -164,8 +164,8 @@ public:
 					auto parts = split(r, "\t");
 					LOGD("######### %s", parts[0]);
 					SongInfo si(parts[0], parts[1], parts[2], parts[3]);
-					player.addSong(si); 
-					songList.select(songList.selected()+1);
+					if(player.addSong(si)) 
+						songList.select(songList.selected()+1);
 				}
 				break;
 			case Window::ENTER:
@@ -176,13 +176,14 @@ public:
 					SongInfo si(parts[0], parts[1], parts[2], parts[3]);
 					if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_RIGHT))) {
 						//player.clearSongs();
-						player.addSong(si, 0);
-						player.nextSong();
+						//player.addSong(si, 0);
+						//player.nextSong();
+						player.playSong(si);
 						switchedToMain = true;
 						//show_main();
 						//iquery.clear();
 					} else {
-						player.addSong(si); 
+					if(player.addSong(si)) 
 						songList.select(songList.selected()+1);
 						//marked++;
 					}
@@ -207,14 +208,13 @@ public:
 			//searchField->setColor(0xffcccc66);
 			searchField->color = Color(formatColor);
 		}
-		screen.text(font, "Hello", 50, 50, 0xffffff00, 1.0);
 	}
 private:
 	MusicPlayerList &player;
 
 	TextScreen searchScreen;
 
-	MusicDatabase &mdb;
+	//MusicDatabase &mdb;
 
 	//std::vector<std::shared_ptr<TextScreen::TextField>> resultField;
 	std::shared_ptr<TextScreen::TextField> searchField;

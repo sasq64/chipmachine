@@ -252,6 +252,8 @@ private:
 	uint32_t bgcolor = 0;
 	bool starsOn = true;
 
+	std::string code;
+
 	LuaInterpreter lua;
 /*
 	grappix::Texture starTexture;
