@@ -45,12 +45,16 @@ LIBS += -lz
 include $(CPP_MODS)/build.mk
 
 pkg:
+	rm -rf debian-pkg/*
 	mkdir -p debian-pkg/$(TARGET)/DEBIAN
 	mkdir -p debian-pkg/$(TARGET)/opt/chipmachine
 	mkdir -p debian-pkg/$(TARGET)/usr/bin
 	cp extra/dpkg.control debian-pkg/$(TARGET)/DEBIAN/control
+	cp MANUAL.md debian-pkg/$(TARGET)/opt/chipmachine
 	cp -a data debian-pkg/$(TARGET)/opt/chipmachine
+	rm -f debian-pkg/$(TARGET)/opt/chipmachine/data/*.dfield
 	cp -a lua debian-pkg/$(TARGET)/opt/chipmachine
+	rm -f debian-pkg/$(TARGET)/opt/chipmachine/lua/*~ debian-pkg/$(TARGET)/opt/chipmachine/lua/*.lua
 	cp chipmachine debian-pkg/$(TARGET)/opt/chipmachine
 	arm-linux-gnueabihf-strip debian-pkg/$(TARGET)/opt/chipmachine/chipmachine
 	cp extra/cm debian-pkg/$(TARGET)/usr/bin/chipmachine

@@ -258,12 +258,12 @@ void ChipMachine::update() {
 			player.clearSongs();
 			toast("Playlist cleared", 2);
 			break;
-		case Window::F10:
-			player.setPermissions(0);
-			break;
-		case Window::F9:
-			player.setPermissions(0xffff);
-			break;
+		//case Window::F10:
+		//	player.setPermissions(0);
+		//	break;
+		//case Window::F9:
+		//	player.setPermissions(0xffff);
+		//	break;
 		}
 	}
 

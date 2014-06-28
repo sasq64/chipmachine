@@ -14,21 +14,11 @@ static const std::set<std::string> secondary = { "smpl", "sam", "ins", "smp" };
 
 void MusicDatabase::init() {
 
-
-	//if(db.has_table("song")) {
-	//	generateIndex();
-	//	return;
-	//}
-
 	//db.exec("CREATE TABLE IF NOT EXISTS playlist (title STRING)");
 	//db.exec("CREATE TABLE IF NOT EXISTS plmap (playlist INT, pos INT, path STRING)");
 	db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, description STRING, id INTEGER, version INTEGER)");
 	db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
 	//db.exec("CREATE VIRTUAL TABLE song USING fts4(title, game, composer, format, path,)");
-
-	//hvscInit();
-	//modlandInit();
-	//generateIndex();
 
 }
 
