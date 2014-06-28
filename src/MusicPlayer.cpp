@@ -191,9 +191,9 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 					playEnded = true;
 					//silentFrames = 
 					//player = nullptr;
-					break;
-					//memset(fifo.ptr(), 0, sz);
-					//rc = sz;
+					//break;
+					memset(fifo.ptr(), 0, sz*2);
+					rc = sz;
 				}
 
 				//LOGD("SILENCE %d", fifo.getSilence());
