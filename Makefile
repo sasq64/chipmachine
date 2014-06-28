@@ -43,3 +43,15 @@ LOCAL_FILES += main.cpp ChipMachine.cpp MusicDatabase.cpp SearchIndex.cpp MusicP
 LIBS += -lz
 
 include $(CPP_MODS)/build.mk
+
+pkg:
+	mkdir -p debian-pkg/$(TARGET)/DEBIAN
+	mkdir -p debian-pkg/$(TARGET)/opt/chipmachine
+	mkdir -p debian-pkg/$(TARGET)/usr/bin
+	cp extra/dpkg.control debian-pkg/$(TARGET)/DEBIAN/control
+	cp -a data debian-pkg/$(TARGET)/opt/chipmachine
+	cp -a lua debian-pkg/$(TARGET)/opt/chipmachine
+	cp chipmachine debian-pkg/$(TARGET)/opt/chipmachine
+	arm-linux-gnueabihf-strip debian-pkg/$(TARGET)/opt/chipmachine/chipmachine
+	cp extra/cm debian-pkg/$(TARGET)/usr/bin/chipmachine
+	(cd debian-pkg ; dpkg-deb --build $(TARGET))
