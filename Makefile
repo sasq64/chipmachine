@@ -13,6 +13,7 @@ USE_CLANG := 1
 include $(CPP_MODS)/coreutils/module.mk
 include $(CPP_MODS)/bbsutils/module.mk
 include $(CPP_MODS)/webutils/module.mk
+include $(CPP_MODS)/json/module.mk
 include $(CPP_MODS)/sqlite3/module.mk
 include $(CPP_MODS)/audioplayer/module.mk
 include $(CPP_MODS)/lua/module.mk

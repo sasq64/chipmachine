@@ -1,4 +1,5 @@
 #include "TelnetInterface.h"
+#include "ChipMachine.h"
 
 #include <coreutils/log.h>
 #include <coreutils/utils.h>
@@ -11,7 +12,7 @@ using namespace bbs;
 
 namespace chipmachine {
 
-TelnetInterface::TelnetInterface(MusicDatabase &db, MusicPlayerList &player) : db(db), player(player) {}
+TelnetInterface::TelnetInterface(ChipMachine &cm) : chipmachine(cm) {}
 
 void TelnetInterface::start() {
 	telnet = make_unique<TelnetServer>(12345);
@@ -20,7 +21,6 @@ void TelnetInterface::start() {
 		string termType = session.getTermType();		
 		LOGD("New connection, TERMTYPE '%s'", termType);
 
-		unique_ptr<Console> console;
 		if(termType.length() > 0) {
 			console = unique_ptr<Console>(new AnsiConsole { session });
 		} else {
@@ -39,19 +39,24 @@ void TelnetInterface::start() {
 
 		lip.loadFile("lua/init.lua");
 
-		lip.registerFunction<int, string, int, int, float, int>("Infoscreen.add", [&](const string &q, int x, int y, float scale, int color) -> int {
-			return 0;
+		lip.registerFunction<void, string>("scrolltext", [=](const string &t) {
+			chipmachine.set_scrolltext(t);
 		});
 
-		lip.registerFunction<void, string>("find", [&](const string &q) {
-			songs = db.find(q);
+		lip.registerFunction<vector<string>, string>("find", [=](const string &q) -> vector<string> {
+
+			auto songs = chipmachine.music_database().find(q);
+			vector<string> res;
 			int i = 0;
 			for(const auto &s : songs) {
 				console->write(format("%02d. %s - %s (%s)\n", i++, s.composer, s.title, s.format));
+				res.push_back(s.path);
 			}				
+			return res;
 		});
 
 		lip.registerFunction<void, int>("play", [&](int which) {
+			auto &player = chipmachine.music_player();
 			player.clearSongs();
 			player.addSong(songs[which]);
 			player.nextSong();

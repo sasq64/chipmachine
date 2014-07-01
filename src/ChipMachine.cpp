@@ -1,11 +1,13 @@
 #include "ChipMachine.h"
 
-#include <ctype.h>
+#include <cctype>
 
 using namespace std;
 using namespace utils;
 using namespace grappix;
 using namespace tween;
+
+#define ENABLE_TELNET
 
 namespace chipmachine {
 
@@ -14,7 +16,7 @@ ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, mdb), curr
 	mdb.init();
 
 #ifdef ENABLE_TELNET
-	telnet = make_unique<TelnetInterface>(mdb, player);
+	telnet = make_unique<TelnetInterface>(*this);
 	telnet->start();
 #endif
 
@@ -26,6 +28,11 @@ ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, mdb), curr
 
 	scrollEffect.set("scrolltext", "Chipmachine Beta 1 -- Begin typing to to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- F8 to clear queue -- ESCAPE to clear search text ----- ");
 	toastField = textScreen.addField("", tv0.x, tv1.y - 134, 2.0, 0x00ffffff);
+	starEffect.fadeIn();
+}
+
+void ChipMachine::set_scrolltext(const std::string &txt) {
+	scrollEffect.set("scrolltext", txt);
 }
 
 void ChipMachine::initLua() {
@@ -105,6 +112,13 @@ void ChipMachine::initLua() {
 		}
 	});
 
+	File f3 { "lua/init.lua" };
+	if(!f3.exists()) {
+		f3.copyFrom("lua/init.lua.orig");
+		f3.close();
+	}
+
+
 	File f { "lua/db.lua" };
 	if(!f.exists()) {
 		f.copyFrom("lua/db.lua.orig");
@@ -128,9 +142,9 @@ void ChipMachine::initLua() {
 	)");
 	mdb.generateIndex();
 
-	File f2 { "lua/init.lua" };
+	File f2 { "lua/screen.lua" };
 	if(!f2.exists()) {
-		f2.copyFrom("lua/init.lua.orig");
+		f2.copyFrom("lua/screen.lua.orig");
 		f2.close();
 	}
 
@@ -258,12 +272,6 @@ void ChipMachine::update() {
 			player.clearSongs();
 			toast("Playlist cleared", 2);
 			break;
-		//case Window::F10:
-		//	player.setPermissions(0);
-		//	break;
-		//case Window::F9:
-		//	player.setPermissions(0xffff);
-		//	break;
 		}
 	}
 

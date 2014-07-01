@@ -2,9 +2,9 @@
 #define TELNET_INTERFACE_H
 
 
-#include "MusicDatabase.h"
-#include "MusicPlayerList.h"
-
+//#include "MusicDatabase.h"
+//#include "MusicPlayerList.h"
+//#include "ChipMachine.h"
 #include <bbsutils/telnetserver.h>
 #include <bbsutils/console.h>
 #include <bbsutils/ansiconsole.h>
@@ -14,14 +14,18 @@
 
 namespace chipmachine {
 
+class ChipMachine;
+
 class TelnetInterface {
 public:
-	TelnetInterface(MusicDatabase& db, MusicPlayerList& player);
+	TelnetInterface(ChipMachine &cm);
 	void start();
 private:
-	MusicDatabase& db;
-	MusicPlayerList& player;
+	//MusicDatabase& db;
+	//MusicPlayerList& player;
+	ChipMachine &chipmachine;
 	std::unique_ptr<bbs::TelnetServer> telnet;
+	std::unique_ptr<bbs::Console> console;
 };
 
 } // namespace bbs

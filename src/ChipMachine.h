@@ -11,6 +11,9 @@
 #include "MainScreen.h"
 #include "SearchScreen.h"
 
+#include "../demofx/Effect.h"
+#include "../demofx/StarField.h"
+
 #include <tween/tween.h>
 #include <grappix/grappix.h>
 #include <lua/luainterpreter.h>
@@ -24,67 +27,7 @@
 
 namespace chipmachine {
 
-class Effect {
-public:
-	virtual void render(uint32_t delta) = 0;
-
-	virtual void set(const std::string &what, const std::string &val) {
-	}
-
-	virtual void set(const std::string &what, int val) {
-	}
-
-	virtual void fadeIn() {
-	}
-	virtual void fadeOut() {
-	}
-};
-
-class StarField : public Effect {
-public:
-	StarField(grappix::RenderTarget &target) : target(target) {
-		image::bitmap bm(screen.width(), screen.height());
-		bm.clear(0x00000000);
-		for(int y=0; y<bm.height(); y++) {
-			auto x = rand() % bm.width();
-			bm[y*bm.width()+x] = bm[y*bm.width()+x + 1] = 0xff666666;
-			bm[y*bm.width()+x + 2] = 0xff444444;
-		}
-		starTexture = Texture(bm);
-
-		starProgram = get_program(TEXTURED_PROGRAM).clone();
-		starProgram.setFragmentSource(starShaderF);
-	}
-
-	virtual void render(uint32_t delta) override {
-		starProgram.use();
-		if(starPos > 1.0) starPos -= 1.0;
-		starProgram.setUniform("scrollpos", starPos += (0.3 / target.width()));
-		target.draw(starTexture, starProgram);
-	};
-private:
-
-	grappix::RenderTarget &target;
-
-	const std::string starShaderF = R"(
-		uniform sampler2D sTexture;
-		uniform float scrollpos; // 0 -> 1
-
-		varying vec2 UV;
-
-		void main() {
-			float m = mod(gl_FragCoord.y, 3.0);
-			float uvx = mod(UV.x + scrollpos * m, 1.0);
-			gl_FragColor = m * texture2D(sTexture, vec2(uvx, UV.y));
-		}
-	)";
-	grappix::Texture starTexture;
-	grappix::Program starProgram;
-	float starPos = 0.0;
-
-};
-
-class Scroller : public Effect {
+class Scroller : public demofx::Effect {
 public:
 	Scroller(grappix::RenderTarget &target) : target(target), scr(screen.width()+200, 180) {
 		font = Font("data/ObelixPro.ttf", 24, 512 | Font::DISTANCE_MAP);
@@ -99,12 +42,12 @@ public:
 			}, sineShaderF);
 
 
-		//fprogram = get_program(FONT_PROGRAM_DF).clone();
-		//fprogram.setFragmentSource(fontShaderF);
-		//font.setProgram(fprogram);
+		fprogram = get_program(FONT_PROGRAM_DF).clone();
+		fprogram.setFragmentSource(fontShaderF);
+		font.set_program(fprogram);
 	}
 
-	virtual void set(const std::string &what, const std::string &val) {
+	virtual void set(const std::string &what, const std::string &val, float seconds = 0.0) {
 		if(what == "font") {
 			font = Font(val, 24, 512 | Font::DISTANCE_MAP);
 		} else {
@@ -219,8 +162,12 @@ public:
 	void play(const SongInfo &si);
 	void update();
 	void render(uint32_t delta);
-
 	void toast(const std::string &txt, int type);
+
+	void set_scrolltext(const std::string &txt);
+
+	MusicDatabase &music_database() { return mdb; }
+	MusicPlayerList &music_player() { return player; }
 
 private:
 
@@ -241,9 +188,9 @@ private:
 	utils::vec2i tv0 = { 80, 54 };
 	utils::vec2i tv1 = { 636, 520 };
 
-	grappix::Color spectrumColor { 0xffffffff };
-	grappix::Color spectrumColorMain { 0xff00aaee };
-	grappix::Color spectrumColorSearch { 0xff111155 };
+	grappix::Color spectrumColor = 0xffffffff;
+	grappix::Color spectrumColorMain = 0xff00aaee;
+	grappix::Color spectrumColorSearch = 0xff111155;
 	double spectrumHeight = 20.0;
 	int spectrumWidth = 24;
 	utils::vec2i spectrumPos;
@@ -260,7 +207,7 @@ private:
 	grappix::Program starProgram;
 	float starPos = 0.0;
 */
-	StarField starEffect;
+	demofx::StarField starEffect;
 	Scroller scrollEffect;
 };
 

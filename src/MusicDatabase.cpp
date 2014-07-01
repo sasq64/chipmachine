@@ -340,12 +340,12 @@ vector<SongInfo> MusicDatabase::find(const string &pattern) {
 	for(int i=0; i<(int)parts.size(); i++) {
 		if(i > 0) {
 			qs.append("AND path LIKE ?");
-			parts[i] = format("%%%s%%",parts[i]);
 		} else
-			qs.append("path MATCH ?");
+			qs.append("path LIKE ?");
+		parts[i] = string("%") + parts[i] + string("%");
 	}
 	//qs.append(" COLLATE NOCASE");
-	LOGD("Query: %s", qs);
+	LOGD("Query: %s, [%s]", qs, parts);
 	auto q = db.query<string, string, string, string, string>(qs, parts);
 	//int i = 0;
 	try {
