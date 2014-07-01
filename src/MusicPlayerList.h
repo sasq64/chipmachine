@@ -5,6 +5,7 @@
 #include "MusicPlayer.h"
 
 #include <webutils/webgetter.h>
+#include <webutils/webrpc.h>
 
 #include <mutex>
 #include <cstdint>
@@ -137,6 +138,8 @@ private:
 	bool partyLockDown = false;
 	int graceSeconds = 3;
 	int lockSeconds = 60;
+
+	WebRPC rpc;
 
 };
 
