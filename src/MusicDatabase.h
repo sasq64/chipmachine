@@ -2,12 +2,12 @@
 #define DATABASE_H
 
 #include "SongInfo.h"
-
 #include "SearchIndex.h"
 
 #include <coreutils/file.h>
 #include <coreutils/utils.h>
 #include <sqlite3/database.h>
+
 #include <unordered_set>
 #include <mutex>
 #include <vector>
@@ -22,9 +22,12 @@ public:
 
 class MusicDatabase : public SearchProvider {
 public:
-	MusicDatabase() : db("music.db") {}
+	MusicDatabase() : db("music.db") {
+		db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, description STRING, id INTEGER, version INTEGER)");
+		db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
+	}
 
-	void init();
+	//void init();
 
 	void initDatabase(std::string name, std::unordered_map<std::string, std::string> &vars);
 
@@ -55,6 +58,19 @@ public:
 	IncrementalQuery createQuery() {
 		std::lock_guard<std::mutex>{dbMutex};
 		return IncrementalQuery(this);
+	}
+
+	struct Collection {
+		Collection(const std::string &name, const std::string url) : name(name), url(url) {}
+		std::string name;
+		std::string url;
+	};
+
+	std::string stripCollectionPath(std::string &path);
+
+	static MusicDatabase& getInstance() {
+		static MusicDatabase mdb;
+		return mdb;
 	}
 
 private:

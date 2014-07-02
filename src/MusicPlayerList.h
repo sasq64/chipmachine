@@ -3,15 +3,17 @@
 
 #include "SongInfo.h"
 #include "MusicPlayer.h"
+#include "PlayTracker.h"
 
 #include <webutils/webgetter.h>
-#include <webutils/webrpc.h>
 
 #include <mutex>
 #include <cstdint>
 #include <deque>
 
 namespace chipmachine {
+
+class ChipMachine;
 
 class MusicPlayerList {
 public:
@@ -27,6 +29,7 @@ public:
 	};
 
 	MusicPlayerList();
+
 	~MusicPlayerList() {
 		quitThread = true;
 		playerThread.join();
@@ -139,7 +142,7 @@ private:
 	int graceSeconds = 3;
 	int lockSeconds = 60;
 
-	WebRPC rpc;
+	//PlayTracker &tracker;
 
 };
 

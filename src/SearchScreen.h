@@ -34,9 +34,9 @@ public:
 		grappix::screen.text(font, text, rec.x, rec.y, c, resultFieldTemplate->scale);
 	};
 
-	SearchScreen(MusicPlayerList &mpl, MusicDatabase &mdb) : player(mpl), /* mdb(mdb), */ songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
+	SearchScreen(MusicPlayerList &mpl) : player(mpl), /* mdb(mdb), */ songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
 
-		iquery = mdb.createQuery();
+		iquery = MusicDatabase::getInstance().createQuery();
 
 		font = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
 		searchScreen.setFont(font);

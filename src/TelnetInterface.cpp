@@ -45,7 +45,7 @@ void TelnetInterface::start() {
 
 		lip.registerFunction<vector<string>, string>("find", [=](const string &q) -> vector<string> {
 
-			auto songs = chipmachine.music_database().find(q);
+			auto songs = MusicDatabase::getInstance().find(q);
 			vector<string> res;
 			int i = 0;
 			for(const auto &s : songs) {

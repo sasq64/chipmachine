@@ -11,9 +11,9 @@ using namespace tween;
 
 namespace chipmachine {
 
-ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player, mdb), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen) {
+ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen) {
 
-	mdb.init();
+	//mdb.init();
 
 #ifdef ENABLE_TELNET
 	telnet = make_unique<TelnetInterface>(*this);
@@ -50,7 +50,7 @@ void ChipMachine::initLua() {
 		LOGD("%s %s", name, val); 
 		if(val == "start") {
 		} else if(val == "end") {
-			mdb.initDatabase(name, dbmap);
+			MusicDatabase::getInstance().initDatabase(name, dbmap);
 			dbmap.clear();
 		} else {
 			dbmap[name] = val;
@@ -140,7 +140,7 @@ void ChipMachine::initLua() {
 			end
 		end
 	)");
-	mdb.generateIndex();
+	MusicDatabase::getInstance().generateIndex();
 
 	File f2 { "lua/screen.lua" };
 	if(!f2.exists()) {

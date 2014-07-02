@@ -12,15 +12,15 @@ namespace chipmachine {
 static const std::set<std::string> secondary = { "smpl", "sam", "ins", "smp" };
 
 
-void MusicDatabase::init() {
+// void MusicDatabase::init() {
 
-	//db.exec("CREATE TABLE IF NOT EXISTS playlist (title STRING)");
-	//db.exec("CREATE TABLE IF NOT EXISTS plmap (playlist INT, pos INT, path STRING)");
-	db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, description STRING, id INTEGER, version INTEGER)");
-	db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
-	//db.exec("CREATE VIRTUAL TABLE song USING fts4(title, game, composer, format, path,)");
+// 	//db.exec("CREATE TABLE IF NOT EXISTS playlist (title STRING)");
+// 	//db.exec("CREATE TABLE IF NOT EXISTS plmap (playlist INT, pos INT, path STRING)");
+// 	db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, description STRING, id INTEGER, version INTEGER)");
+// 	db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
+// 	//db.exec("CREATE VIRTUAL TABLE song USING fts4(title, game, composer, format, path,)");
 
-}
+// }
 
 void MusicDatabase::initDatabase(string name, unordered_map<string, string> &vars) {
 	LOGD("Init db '%s'", name);
@@ -389,6 +389,22 @@ enum Formats {
 */
 static uint8_t formatToByte(const std::string &f) {
 	return 0;
+}
+
+
+string MusicDatabase::stripCollectionPath(string &path) {
+	vector<Collection> colls;
+	auto q = db.query<string, string>("SELECT name,url FROM collection");
+	while(q.step()) {
+		colls.push_back(q.get<Collection>());
+	}
+	for(const auto &c : colls) {
+		if(startsWith(path, c.url)) {
+			path = path.substr(c.url.length());
+			return c.name;
+		}	
+	}
+	return "";
 }
 
 void MusicDatabase::generateIndex() {

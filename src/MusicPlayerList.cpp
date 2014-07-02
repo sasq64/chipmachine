@@ -9,7 +9,7 @@ using namespace utils;
 
 namespace chipmachine {
 
-MusicPlayerList::MusicPlayerList() : rpc("http://localhost:8080/") {
+MusicPlayerList::MusicPlayerList() {
 	state = STOPPED;
 	wasAllowed = true;
 	permissions = 0xff;
@@ -135,7 +135,7 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 	if(fileName != "") {
 		if(mp.playFile(fileName)) {
 
-			rpc.post("song_played", format("{ \"path\" : \"%s\" }", fileName));
+			PlayTracker::getInstance().play(fileName);
 
 			changedSong = false;
 			updateInfo();
