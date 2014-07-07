@@ -171,13 +171,68 @@ void MusicDatabase::hvscInit(const string &source, int id) {
 
 
 #ifdef RASPBERRYPI
-static std::unordered_set<std::string> exclude = { 
+static std::unordered_set<std::string> exclude = {
 	"Nintendo DS Sound Format", "Gameboy Sound Format", "Dreamcast Sound Format", "Ultra64 Sound Format",
 	"Saturn Sound Format" /*, "RealSID", "PlaySID" */
 };
 #else
 static std::unordered_set<std::string> exclude = { /*"RealSID", "PlaySID",*/ "Saturn Sound Format" };
 #endif
+
+
+bool MusicDatabase::parseModlandPath(SongInfo &song) {
+
+	static const unordered_set<string> hasSubFormats = {
+		"Ad Lib",
+		"Video Game Music"
+	};
+
+	string ext = path_extension(song.path);
+	if(secondary.count(ext) > 0) {
+		return false;
+	}
+
+	auto parts = split(song.path, "/");
+	auto l = parts.size();
+	if(l < 3) {
+		LOGD("%s", song.path);
+		return false;
+	}
+
+	int i = 0;
+	song.format = parts[i++];
+	if(hasSubFormats.count(song.format) > 0)
+		song.format = parts[i++];
+
+	song.composer = parts[i++];
+
+	if(song.format == "MDX") {
+		i--;
+		song.composer = "?";
+	}
+
+	if(song.composer == "- unknown")
+		song.composer = "?";
+
+	if(parts[i].substr(0, 5) == "coop-")
+		song.composer = song.composer + "+" + parts[i++].substr(5);
+
+	//string game;
+	if(l-i >= 2)
+		song.game = parts[i++];
+
+	if(i == l) {
+		LOGD("Bad file %s", song.path);
+		return false;
+	}
+
+	if(endsWith(parts[i], ".rar"))
+		parts[i] = parts[i].substr(0, parts[i].length()-4);
+
+	song.title = path_basename(parts[i++]);
+
+	return true;
+}
 
 void MusicDatabase::modlandInit(const string &source, const string &song_list, const string &xformats, int id) {
 
@@ -186,11 +241,6 @@ void MusicDatabase::modlandInit(const string &source, const string &song_list, c
 
 	//LOGD("Creating modland collection");
 	print_fmt("Creating Modland database\n");
-
-	static const unordered_set<string> hasSubFormats = {
-		"Ad Lib",
-		"Video Game Music"
-	};
 
 	auto ex_copy = exclude;
 	auto parts = split(xformats, ";");
@@ -213,57 +263,14 @@ void MusicDatabase::modlandInit(const string &source, const string &song_list, c
 	File file { song_list };
 	for(const auto &s : file.getLines()) {
 
-		auto path = split(s, "\t")[1];
+		SongInfo song(split(s, "\t")[1]);
 
-		string ext = path_extension(path);
-		if(secondary.count(ext) > 0) {
+		if(!parseModlandPath(song))
 			continue;
-		}
-
-		auto parts = split(path, "/");
-		auto l = parts.size();
-		if(l < 3) {
-			LOGD("%s", path);
-			continue;
-		}
-
-		int i = 0;
-		string fmt = parts[i++];
-		if(hasSubFormats.count(fmt) > 0)
-			fmt = parts[i++];
-
-		if(ex_copy.count(fmt) > 0)
+		if(ex_copy.count(song.format) > 0)
 			continue;
 
-		string composer = parts[i++];
-
-		if(fmt == "MDX") {
-			i--;
-			composer = "?";
-		}
-
-		if(composer == "- unknown")
-			composer = "?";
-
-		if(parts[i].substr(0, 5) == "coop-")
-			composer = composer + "+" + parts[i++].substr(5);
-
-		string game;
-		if(l-i >= 2)
-			game = parts[i++];
-
-		if(i == l) {
-			LOGD("Bad file %s", path);
-			continue;
-		}
-
-		if(endsWith(parts[i], ".rar"))
-			parts[i] = parts[i].substr(0, parts[i].length()-4);
-
-		string title = path_basename(parts[i++]);
-
-		query.bind(title, game, composer, fmt, path, id);
-		
+		query.bind(song.title, song.game, song.composer, song.format, song.path, id);
 		query.step();
 	}
 	db.exec("COMMIT");
@@ -274,7 +281,7 @@ void MusicDatabase::modlandInit(const string &source, const string &song_list, c
 int MusicDatabase::search(const string &query, vector<int> &result, unsigned int searchLimit) {
 
 	lock_guard<mutex>{dbMutex};
-	
+
 	result.resize(0);
 	//if(query.size() < 3)
 	//	return 0;
@@ -329,6 +336,15 @@ string MusicDatabase::getFullString(int id) const {
 	throw not_found_exception();
 }
 
+SongInfo MusicDatabase::pathToSongInfo(const std::string &path) {
+	SongInfo song(path);
+	auto coll = stripCollectionPath(song.path);
+	song.path = path;
+	if(coll == "modland")
+		parseModlandPath(song);
+	return song;
+}
+
 vector<SongInfo> MusicDatabase::find(const string &pattern) {
 
 	lock_guard<mutex> guard(dbMutex);
@@ -351,7 +367,7 @@ vector<SongInfo> MusicDatabase::find(const string &pattern) {
 	try {
 		while(q.step()) {
 			auto si = q.get<SongInfo>();
-			si.path = "ftp://ftp.modland.com/pub/modules/" + si.path; 
+			si.path = "ftp://ftp.modland.com/pub/modules/" + si.path;
 			songs.push_back(si);
 		}
 	} catch(invalid_argument &e) {
@@ -402,7 +418,7 @@ string MusicDatabase::stripCollectionPath(string &path) {
 		if(startsWith(path, c.url)) {
 			path = path.substr(c.url.length());
 			return c.name;
-		}	
+		}
 	}
 	return "";
 }
@@ -431,7 +447,7 @@ void MusicDatabase::generateIndex() {
 		f.close();
 		return;
 	}
-	
+
 	print_fmt("Creating Search Index...\n");
 
 	string oldComposer;

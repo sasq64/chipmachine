@@ -40,7 +40,7 @@ include $(CPP_MODS)/crypto/module.mk
 
 
 TARGET := chipmachine
-LOCAL_FILES += main.cpp ChipMachine.cpp MusicDatabase.cpp SearchIndex.cpp MusicPlayerList.cpp MusicPlayer.cpp TelnetInterface.cpp
+LOCAL_FILES += main.cpp ChipMachine.cpp MusicDatabase.cpp PlaylistDatabase.cpp SearchIndex.cpp MusicPlayerList.cpp MusicPlayer.cpp TelnetInterface.cpp
 LIBS += -lz
 
 include $(CPP_MODS)/build.mk

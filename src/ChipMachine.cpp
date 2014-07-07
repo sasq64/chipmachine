@@ -47,7 +47,7 @@ void ChipMachine::initLua() {
 
 	unordered_map<string, string> dbmap;
 	lua.registerFunction<void, string, string>("set_db_var", [&](string name, string val) {
-		LOGD("%s %s", name, val); 
+		LOGD("%s %s", name, val);
 		if(val == "start") {
 		} else if(val == "end") {
 			MusicDatabase::getInstance().initDatabase(name, dbmap);
@@ -112,12 +112,11 @@ void ChipMachine::initLua() {
 		}
 	});
 
-	File f3 { "lua/init.lua" };
-	if(!f3.exists()) {
-		f3.copyFrom("lua/init.lua.orig");
-		f3.close();
-	}
-
+	// File f3 { "lua/init.lua" };
+	// if(!f3.exists()) {
+	// 	f3.copyFrom("lua/init.lua.orig");
+	// 	f3.close();
+	// }
 
 	File f { "lua/db.lua" };
 	if(!f.exists()) {
@@ -130,7 +129,7 @@ void ChipMachine::initLua() {
 	)");
 	lua.loadFile("lua/db.lua");
 	lua.load(R"(
-		for a,b in pairs(DB) do 
+		for a,b in pairs(DB) do
 			if type(b) == 'table' then
 				set_db_var(a, 'start')
 				for a1,b1 in pairs(b) do
@@ -148,18 +147,18 @@ void ChipMachine::initLua() {
 		f2.close();
 	}
 
-	Resources::getInstance().load<string>("lua/init.lua", [=](const std::string &contents) {
-		LOGD("init.lua");
+	Resources::getInstance().load<string>("lua/screen.lua", [=](shared_ptr<string> contents) {
+		LOGD("screen.lua");
 		lua.load(R"(
 			Config = {}
 			Config.screen_width = get_var('screen_width')
 			Config.screen_height = get_var('screen_height')
 			Settings = {}
 		)");
-		lua.load(contents);
+		lua.load(*contents);
 		//LOGD(contents);
 		lua.load(R"(
-			for a,b in pairs(Settings) do 
+			for a,b in pairs(Settings) do
 				if type(b) == 'table' then
 					for a1,b1 in ipairs(b) do
 						set_var(a, a1, b1)
@@ -216,16 +215,16 @@ void ChipMachine::update() {
 			if(code == "party") {
 				toast("Party Mode ON", 2);
 				player.setPartyMode(true);
-				code = "";	
+				code = "";
 			} else if(code == "chill") {
 				player.setPartyMode(false);
 				toast("Party Mode OFF", 2);
-				code = "";	
+				code = "";
 			}
 		}
 	} else {
 		code = "";
-		
+
 		if(k != Window::NO_KEY) {
 
 			if((k >= '0' && k <= '9') || k == '/' || (k >= 'A' && k<='Z')) {

@@ -1,5 +1,5 @@
-#ifndef DATABASE_H
-#define DATABASE_H
+#ifndef MUSIC_DATABASE_H
+#define MUSIC_DATABASE_H
 
 #include "SongInfo.h"
 #include "SearchIndex.h"
@@ -31,6 +31,9 @@ public:
 
 	void initDatabase(std::string name, std::unordered_map<std::string, std::string> &vars);
 
+	SongInfo pathToSongInfo(const std::string &path);
+
+	bool parseModlandPath(SongInfo &song);
 	void modlandInit(const std::string &source, const std::string &song_list, const std::string &xformats, int id);
 	void hvscInit(const std::string &source, int id);
 	void rsnInit(const std::string &source, int id);
@@ -45,7 +48,7 @@ public:
 	// Get full data, may require SQL query
 	virtual std::string getFullString(int index) const override;// { return getString(index); }
 
-	std::string getTitle(int index) const { 
+	std::string getTitle(int index) const {
 		return titleIndex.getString(index);
 	}
 
@@ -87,4 +90,4 @@ private:
 
 }
 
-#endif // DATABASE_H
+#endif // MUSIC_DATABASE_H

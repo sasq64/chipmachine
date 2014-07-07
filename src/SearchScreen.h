@@ -4,6 +4,8 @@
 #include "SongInfoField.h"
 #include "SongList.h"
 
+#include "PlaylistDatabase.h"
+
 #include <tween/tween.h>
 #include <grappix/grappix.h>
 
@@ -27,10 +29,17 @@ class SearchScreen : public SongList::Renderer {
 public:
 
 	virtual void render_item(Rectangle &rec, int y, uint32_t index, bool hilight) override {
-		auto res = iquery.getResult(index);
-		auto parts = split(res, "\t");
-		auto text = format("%s / %s", parts[0], parts[1]);
-		auto c = hilight ? markColor : resultFieldTemplate->color;
+		string text;
+		Color c;
+		if(index < playlists.size()) {
+			text = format("<%s>", playlists[index]);
+			c = hilight ? markColor : Color(0xff6688ff);
+		} else {
+			auto res = iquery.getResult(index-playlists.size());
+			auto parts = split(res, "\t");
+			text = format("%s / %s", parts[0], parts[1]);
+			c = hilight ? markColor : resultFieldTemplate->color;
+		}
 		grappix::screen.text(font, text, rec.x, rec.y, c, resultFieldTemplate->scale);
 	};
 
@@ -160,32 +169,53 @@ public:
 				break; */
 			case Window::DELETE:
 				{
-					auto r = iquery.getFull(songList.selected());
+					auto r = iquery.getFull(songList.selected() - playlists.size());
 					auto parts = split(r, "\t");
 					LOGD("######### %s", parts[0]);
 					SongInfo si(parts[0], parts[1], parts[2], parts[3]);
-					if(player.addSong(si)) 
+					if(player.addSong(si))
 						songList.select(songList.selected()+1);
+				}
+				break;
+			case Window::F7:
+				{
+					auto r = iquery.getFull(songList.selected() - playlists.size());
+					auto parts = split(r, "\t");
+					LOGD("######### %s", parts[0]);
+					SongInfo si(parts[0], parts[1], parts[2], parts[3]);
+					PlaylistDatabase::getInstance().addToPlaylist("Favorites", si);
 				}
 				break;
 			case Window::ENTER:
 				{
-					auto r = iquery.getFull(songList.selected());
-					auto parts = split(r, "\t");
-					LOGD("######### %s", parts[0]);
-					SongInfo si(parts[0], parts[1], parts[2], parts[3]);
-					if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_RIGHT))) {
-						//player.clearSongs();
-						//player.addSong(si, 0);
-						//player.nextSong();
-						player.playSong(si);
+					if(songList.selected() < playlists.size()) {
+						auto name = playlists[songList.selected()];
+						auto pl = PlaylistDatabase::getInstance().getPlaylist(name);
+						player.clearSongs();
+						for(const auto &song : pl.songs) {
+							LOGD("Adding %s", song.path);
+							player.addSong(song);
+						}
+						player.nextSong();
 						switchedToMain = true;
-						//show_main();
-						//iquery.clear();
 					} else {
-					if(player.addSong(si)) 
-						songList.select(songList.selected()+1);
-						//marked++;
+						auto r = iquery.getFull(songList.selected() - playlists.size());
+						auto parts = split(r, "\t");
+						LOGD("######### %s", parts[0]);
+						SongInfo si(parts[0], parts[1], parts[2], parts[3]);
+						if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_RIGHT))) {
+							//player.clearSongs();
+							//player.addSong(si, 0);
+							//player.nextSong();
+							player.playSong(si);
+							switchedToMain = true;
+							//show_main();
+							//iquery.clear();
+						} else {
+						if(player.addSong(si))
+							songList.select(songList.selected()+1);
+							//marked++;
+						}
 					}
 				}
 				break;
@@ -194,14 +224,15 @@ public:
 
 		if(searchUpdated) {
 			searchField->setText("#" + iquery.getString());
-			//searchField->setColor(0xffffffff);
 			searchField->color = searchColor;
+			playlists.clear();
+			PlaylistDatabase::getInstance().search(iquery.getString(), playlists);
 		}
 		if(iquery.newResult())
-			songList.set_total(iquery.numHits());
+			songList.set_total(iquery.numHits() + playlists.size());
 
 		if(songList.selected() != last_selection && iquery.numHits() > 0) {
-			auto p = iquery.getFull(songList.selected());
+			auto p = iquery.getFull(songList.selected() - playlists.size());
 			auto parts = split(p, "\t");
 			auto ext = path_extension(parts[0]);
 			searchField->setText(format("Format: %s (%s)", parts[3], ext));
@@ -239,6 +270,8 @@ private:
 	Font font;
 
 	bool switchedToMain = false;
+
+	vector<string> playlists;
 
 };
 

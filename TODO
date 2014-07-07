@@ -1,6 +1,9 @@
 TODO
 ----
 
+* Show LUA error
+* Parse DB in order
+
 SONG INFO SERVER
 
 calls:

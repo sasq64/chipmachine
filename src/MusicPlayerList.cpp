@@ -135,10 +135,11 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 	if(fileName != "") {
 		if(mp.playFile(fileName)) {
 
-			PlayTracker::getInstance().play(fileName);
+			PlayTracker::getInstance().play(currentInfo.path);
 
 			changedSong = false;
 			updateInfo();
+			LOGD("PLAY STARTED");
 			state = PLAY_STARTED;
 			return true;			
 		} else {

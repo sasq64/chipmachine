@@ -2,23 +2,33 @@
 #include "MusicPlayerList.h"
 #include "TextScreen.h"
 #include "SongInfoField.h"
+#include "PlaylistDatabase.h"
 
 #include <tween/tween.h>
 #include <grappix/grappix.h>
-
 #include <coreutils/utils.h>
+#include <image/image.h>
 
 #include <cstdio>
 #include <vector>
 #include <string>
 #include <memory>
-
+#include <algorithm>
 
 using namespace tween;
 using namespace grappix;
 using namespace utils;
 
 namespace chipmachine {
+
+#define Z 0xff444488
+const vector<uint32_t> heart = { 0,Z,Z,0,Z,Z,0,0,
+                                 Z,Z,Z,Z,Z,Z,Z,0,
+                                 Z,Z,Z,Z,Z,Z,Z,0,
+                                 0,Z,Z,Z,Z,Z,0,0,
+                                 0,0,Z,Z,Z,0,0,0,
+                                 0,0,0,Z,0,0,0,0 };
+#undef Z
 
 class MainScreen {
 
@@ -33,19 +43,27 @@ public:
 		nextInfoField = SongInfoField(mainScreen, 440, 340, 1.0, 0xffe0e080);
 		outsideInfoField = SongInfoField(screen.width()+10, 340, 1.0, 0xffe0e080);
 
-		xinfoField = mainScreen.addField("", tv1.x-100, tv0.y, 0.8, 0x50a0c0ff);		
+		xinfoField = mainScreen.addField("", tv1.x-100, tv0.y, 0.8, 0x50a0c0ff);
 
-		nextField = mainScreen.addField("next", 440, 320, 0.6, 0xe080c0ff);		
+		nextField = mainScreen.addField("next", 440, 320, 0.6, 0xe080c0ff);
 
 		timeField = mainScreen.addField("", tv0.x, 188, 1.0, 0xff888888);
 		lengthField = mainScreen.addField("", tv0.x + 100, 188, 1.0, 0xff888888);
 		songField = mainScreen.addField("", tv0.x + 220, 188, 1.0, 0xff888888);
+
+		auto bm = image::bitmap(8, 6, &heart[0]);
+		favTexture = Texture(bm);
+		glBindTexture(GL_TEXTURE_2D, favTexture.id());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
 	}
 
 	void update() {
 
 		//player.update();
 		auto state = player.getState();
+		//LOGD("STATE %d vs %d %d %d", state, MusicPlayerList::STOPPED, MusicPlayerList::WAITING, MusicPlayerList::PLAY_STARTED);
 		if(state == MusicPlayerList::PLAY_STARTED) {
 			LOGD("MUSIC STARTING");
 			//state = PLAYING;
@@ -74,7 +92,11 @@ public:
 				if(d > 20)
 					make_tween().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
 			};
-			
+
+			auto favorites = PlaylistDatabase::getInstance().getPlaylist("Favorites");
+			auto favsong = find_if(favorites.begin(), favorites.end(), [&](const SongInfo &song) -> bool { return song.path == currentInfo.path; });
+			isFavorite = (favsong != favorites.end());
+
 			if(nextInfoField == currentInfoField) {
 				currentTween = make_tween().from(prevInfoField, currentInfoField).
 				from(currentInfoField, nextInfoField).
@@ -83,6 +105,7 @@ public:
 				currentTween = make_tween().from(prevInfoField, currentInfoField).
 				from(currentInfoField, outsideInfoField).seconds(1.5).on_complete(f);
 			}
+
 		}
 
 		if(state == MusicPlayerList::PLAYING || state == MusicPlayerList::STOPPED) {
@@ -198,6 +221,8 @@ public:
 	void render(uint32_t delta) {
 		mainScreen.render(delta);
 		mainScreen.getFont().update_cache();
+		if(isFavorite)
+			screen.draw(favTexture, tv0.x, 300, 16*8, 16*6, nullptr);
 	}
 
 	void on_key(grappix::Window::key k) {
@@ -209,13 +234,22 @@ public:
 			} else
 				make_tween().to(timeField->add, 0.0).seconds(0.5);
 			break;
+		case Window::F7:
+			if(isFavorite) {
+				PlaylistDatabase::getInstance().removeFromPlaylist("Favorites", currentInfo);
+
+			} else {
+				PlaylistDatabase::getInstance().addToPlaylist("Favorites", currentInfo);
+			}
+			isFavorite = !isFavorite;
+			break;
 		//case Window::F9:
 		case Window::ENTER:
 			player.nextSong();
 			break;
 		//case Window::F12:
 		//	player.clearSongs();
-		//	break;		
+		//	break;
 		case Window::LEFT:
 			if(currentTune > 0) {
 				player.seek(currentTune - 1);
@@ -268,6 +302,8 @@ private:
 	tween::TweenHolder currentTween;
 	Color timeColor;
 	bool lockDown = false;
+	bool isFavorite = false;
+	Texture favTexture;
 };
 
 }

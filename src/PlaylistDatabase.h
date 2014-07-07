@@ -1,5 +1,5 @@
-#ifndef DATABASE_H
-#define DATABASE_H
+#ifndef PLAYLIST_DATABASE_H
+#define PLAYLIST_DATABASE_H
 
 #include "SongInfo.h"
 
@@ -14,16 +14,15 @@
 
 namespace chipmachine {
 
-class not_found_exception : public std::exception {
-public:
-	virtual const char *what() const throw() { return "Not found exception"; }
-};
-
 struct Playlist {
 	Playlist() {}
 	Playlist(const std::string &name) : name(name) {}
 	std::string name;
 	std::vector<SongInfo> songs;
+	std::vector<SongInfo>::iterator begin() { return songs.begin(); }
+	std::vector<SongInfo>::const_iterator begin() const { return songs.cbegin(); }
+	std::vector<SongInfo>::iterator end() { return songs.end(); }
+	std::vector<SongInfo>::const_iterator end() const { return songs.cend(); }
 };
 
 class PlaylistDatabase {
@@ -31,7 +30,11 @@ public:
 	PlaylistDatabase();
 	void createPlaylist(const std::string &name);
 
-	int search(const std::string &query, std::vector<int> &result, unsigned int searchLimit) override;
+	void addToPlaylist(const std::string &name, const SongInfo &info);
+	void removeFromPlaylist(const std::string &name, const SongInfo &info);
+	Playlist getPlaylist(const std::string &name);
+
+	int search(const std::string &query, std::vector<std::string> &result);
 
 	static PlaylistDatabase& getInstance() {
 		static PlaylistDatabase mdb;
@@ -45,4 +48,4 @@ private:
 
 }
 
-#endif // DATABASE_H
+#endif // PLAYLIST_DATABASE_H

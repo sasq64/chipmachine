@@ -4,19 +4,13 @@
 #include <string>
 
 struct SongInfo {
-	SongInfo(const std::string &path = "", const std::string &title = "", const std::string &composer = "", const std::string &format = "") :
-		path(path), title(title), composer(composer), format(format) {}
-	SongInfo(const std::string &path, const std::string &title, const std::string &subtitle, const std::string &composer, const std::string &format) :
-		path(path), composer(composer), format(format) {
-			if(title != "") {
-				if(subtitle != "")
-					this->title = title + "(" + subtitle + ")" ;
-				else
-					this->title = title;
-			} else if(subtitle != "")
-				this->title = subtitle;
-		}
+	SongInfo(const std::string &path = "", const std::string &game = "", const std::string &title = "", const std::string &composer = "", const std::string &format = "") :
+		path(path), game(game), title(title), composer(composer), format(format) {}
+
+	bool operator==(const SongInfo &other) { return path == other.path; }
+
 	std::string path;
+	std::string game;
 	std::string title;
 	std::string composer;
 	std::string format;
