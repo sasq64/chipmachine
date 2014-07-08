@@ -55,8 +55,8 @@ private:
 	MainScreen mainScreen;
 	SearchScreen searchScreen;
 
-	TextScreen textScreen;
-	std::shared_ptr<TextScreen::TextField> toastField;
+	RenderSet textScreen;
+	std::shared_ptr<TextField> toastField;
 
 	int currentScreen = 0;
 
@@ -64,6 +64,8 @@ private:
 
 	utils::vec2i tv0 = { 80, 54 };
 	utils::vec2i tv1 = { 636, 520 };
+
+	grappix::Font font;
 
 	grappix::Color spectrumColor = 0xffffffff;
 	grappix::Color spectrumColorMain = 0xff00aaee;

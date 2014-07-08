@@ -24,7 +24,7 @@ using namespace utils;
 
 namespace chipmachine {
 
-class SearchScreen : public SongList::Renderer {
+class SearchScreen : public grappix::VerticalList::Renderer {
 
 public:
 
@@ -48,14 +48,15 @@ public:
 		iquery = MusicDatabase::getInstance().createQuery();
 
 		font = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
-		searchScreen.setFont(font);
+		//searchScreen.setFont(font);
 
-		resultFieldTemplate = make_shared<TextScreen::TextField>("", tv0.x, tv0.y+30, 0.8, 0xff20c020);
+		resultFieldTemplate = make_shared<TextField>(font, "", tv0.x, tv0.y+30, 0.8, 0xff20c020);
 		markColor = resultFieldTemplate->color;
 		hilightColor = Color(0xffffffff);
 		markTween = make_tween().sine().repeating().from(markColor, hilightColor).seconds(1.0);
 
-		searchField = searchScreen.addField("#", tv0.x, tv0.y, 1.0, 0xff888888);
+		searchField = make_shared<TextField>(font, "#", tv0.x, tv0.y, 1.0, 0xff888888);
+		searchScreen.add(searchField);
 
 	}
 
@@ -63,7 +64,7 @@ public:
 	}
 
 	void set_variable(const std::string &name, int index, const std::string &val) {
-		static unordered_map<string, TextScreen::TextField*> fields = {
+		static unordered_map<string, TextField*> fields = {
 			{ "search_field", searchField.get() },
 			{ "result_field", resultFieldTemplate.get() },
 		};
@@ -105,7 +106,7 @@ public:
 		if(name == "font") {
 			if(File::exists(val)) {
 				font = Font(val, 32, 256);// | Font::DISTANCE_MAP);
-				searchScreen.setFont(font);
+				//searchScreen.setFont(font);
 			}
 		} else
 		if(name == "result_lines") {
@@ -116,8 +117,8 @@ public:
 
 	void render(uint32_t delta) {
 		songList.render();
-		searchScreen.render(delta);
-		searchScreen.getFont().update_cache();
+		searchScreen.render(screen, delta);
+		font.update_cache();
 	}
 
 	void on_key(grappix::Window::key k) {
@@ -243,13 +244,13 @@ public:
 private:
 	MusicPlayerList &player;
 
-	TextScreen searchScreen;
+	RenderSet searchScreen;
 
 	//MusicDatabase &mdb;
 
-	//std::vector<std::shared_ptr<TextScreen::TextField>> resultField;
-	std::shared_ptr<TextScreen::TextField> searchField;
-	std::shared_ptr<TextScreen::TextField>resultFieldTemplate;
+	//std::vector<std::shared_ptr<TextField>> resultField;
+	std::shared_ptr<TextField> searchField;
+	std::shared_ptr<TextField>resultFieldTemplate;
 
 	utils::vec2i tv0 = { 80, 54 };
 	utils::vec2i tv1 = { 636, 520 };
@@ -266,7 +267,7 @@ private:
 
 	IncrementalQuery iquery;
 
-	SongList songList;
+	grappix::VerticalList songList;
 	Font font;
 
 	bool switchedToMain = false;

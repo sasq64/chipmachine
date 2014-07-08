@@ -8,6 +8,8 @@ SRCDIR := src/
 USE_CCACHE := 1
 USE_CLANG := 1
 
+RUN_ARGS := -d
+
 #SDL_AUDIO := 1
 
 include $(CPP_MODS)/coreutils/module.mk

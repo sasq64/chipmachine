@@ -90,6 +90,6 @@ int main(int argc, char* argv[]) {
 		app.update();
 		app.render(delta);
 	}, 20);
-	return 0;	
+	return 0;
 }
 

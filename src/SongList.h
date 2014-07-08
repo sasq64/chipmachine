@@ -17,13 +17,13 @@
 
 namespace chipmachine {
 
-class SongList : public grappix::VerticalList /* ,public grappix::VerticalList::Renderer */ {
+class XSongList : public grappix::VerticalList /* ,public grappix::VerticalList::Renderer */ {
 
 public:
 	//SongList(std::function<void(Rectangle &rec, int y, uint32_t index, bool hilight)> renderFunc, const Rectangle &area, int visibleItems) : renderFunc(renderFunc), area(area), visibleItems(visibleItems), layout(area, visibleItems) {
 	//}
 
-	SongList(Renderer *renderer, const Rectangle &area, int visibleItems) : grappix::VerticalList(renderer, area, visibleItems) {
+	XSongList(Renderer *renderer, const Rectangle &area, int visibleItems) : grappix::VerticalList(renderer, area, visibleItems) {
 	}
 
 	/*

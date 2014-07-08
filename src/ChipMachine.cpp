@@ -27,7 +27,8 @@ ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player), currentSc
 	initLua();
 
 	scrollEffect.set("scrolltext", "Chipmachine Beta 1 -- Begin typing to to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- F8 to clear queue -- ESCAPE to clear search text ----- ");
-	toastField = textScreen.addField("", tv0.x, tv1.y - 134, 2.0, 0x00ffffff);
+	toastField = make_shared<TextField>(font, "", tv0.x, tv1.y - 134, 2.0, 0x00ffffff);
+	textScreen.add(toastField);
 	starEffect.fadeIn();
 }
 
@@ -77,8 +78,8 @@ void ChipMachine::initLua() {
 		} else
 		if(name == "font") {
 			if(File::exists(val)) {
-				auto font = Font(val, 48, 512 | Font::DISTANCE_MAP);
-				textScreen.setFont(font);
+				font = Font(val, 48, 512 | Font::DISTANCE_MAP);
+				//textScreen.setFont(font);
 			}
 		} else
 		if(name == "background") {
@@ -312,7 +313,7 @@ void ChipMachine::toast(const std::string &txt, int type) {
 	static vector<Color> colors = { 0xffffff, 0xff8888, 0x55aa55 }; // Alpha intentionally left at zero
 
 	toastField->setText(txt);
-	int tlen = textScreen.getWidth(toastField);
+	int tlen = toastField->getWidth();
 	toastField->pos.x = tv0.x + ((tv1.x - tv0.x) - tlen) / 2;
 	toastField->color = colors[type];
 
@@ -338,7 +339,7 @@ void ChipMachine::render(uint32_t delta) {
 	else
 		searchScreen.render(delta);
 
-	textScreen.render(delta);
+	textScreen.render(screen, delta);
 
 	screen.flip();
 }

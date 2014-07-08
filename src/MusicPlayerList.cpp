@@ -35,6 +35,9 @@ bool MusicPlayerList::addSong(const SongInfo &si, int pos) {
 
 	if(!checkPermission(CAN_ADD_SONG)) return false;
 	LOCK_GUARD(plMutex);
+
+	LOGD("Add song %s %s %s", si.title, si.composer, si.format);
+
 	if(pos >= 0) {
 		if(playList.size() >= pos)
 			playList.insert(playList.begin() + pos, si);
@@ -141,7 +144,7 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 			updateInfo();
 			LOGD("PLAY STARTED");
 			state = PLAY_STARTED;
-			return true;			
+			return true;
 		} else {
 			state = STOPPED;
 		}
@@ -191,7 +194,7 @@ void MusicPlayerList::update() {
 					state = STOPPED;
 				else
 					state = WAITING;
-			} else 
+			} else
 			if((length > 0 && pos > length) || pos > 7*44100) {
 				LOGD("#### SONGLENGTH");
 				mp.fadeOut(3.0);

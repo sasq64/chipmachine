@@ -35,21 +35,34 @@ class MainScreen {
 public:
 
 	MainScreen(MusicPlayerList &mpl) : player(mpl) {
-		auto font = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
-		mainScreen.setFont(font);
+		font = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
+		//mainScreen.setFont(font);
 
-		prevInfoField = SongInfoField(mainScreen, -3200, 64, 10.0, 0x00e0e080);
-		currentInfoField = SongInfoField(mainScreen, tv0.x, tv0.y, 2.0, 0xffe0e080);
-		nextInfoField = SongInfoField(mainScreen, 440, 340, 1.0, 0xffe0e080);
-		outsideInfoField = SongInfoField(screen.width()+10, 340, 1.0, 0xffe0e080);
+		prevInfoField = SongInfoField(font, -3200, 64, 10.0, 0x00e0e080);
+		currentInfoField = SongInfoField(font, tv0.x, tv0.y, 2.0, 0xffe0e080);
+		nextInfoField = SongInfoField(font, 440, 340, 1.0, 0xffe0e080);
+		outsideInfoField = SongInfoField(font, screen.width()+10, 340, 1.0, 0xffe0e080);
+		for(int i=0; i<3; i++)
+			mainScreen.add(prevInfoField.fields[i]);
+		for(int i=0; i<3; i++)
+			mainScreen.add(currentInfoField.fields[i]);
+		for(int i=0; i<3; i++)
+			mainScreen.add(nextInfoField.fields[i]);
+		for(int i=0; i<3; i++)
+			mainScreen.add(outsideInfoField.fields[i]);
 
-		xinfoField = mainScreen.addField("", tv1.x-100, tv0.y, 0.8, 0x50a0c0ff);
+		xinfoField = make_shared<TextField>(font, "", tv1.x-100, tv0.y, 0.8, 0x50a0c0ff);
+		mainScreen.add(xinfoField);
 
-		nextField = mainScreen.addField("next", 440, 320, 0.6, 0xe080c0ff);
+		nextField = make_shared<TextField>(font, "next", 440, 320, 0.6, 0xe080c0ff);
+		mainScreen.add(nextField);
 
-		timeField = mainScreen.addField("", tv0.x, 188, 1.0, 0xff888888);
-		lengthField = mainScreen.addField("", tv0.x + 100, 188, 1.0, 0xff888888);
-		songField = mainScreen.addField("", tv0.x + 220, 188, 1.0, 0xff888888);
+		timeField = make_shared<TextField>(font, "", tv0.x, 188, 1.0, 0xff888888);
+		mainScreen.add(timeField);
+		lengthField = make_shared<TextField>(font, "", tv0.x + 100, 188, 1.0, 0xff888888);
+		mainScreen.add(lengthField);
+		songField = make_shared<TextField>(font, "", tv0.x + 220, 188, 1.0, 0xff888888);
+		mainScreen.add(songField);
 
 		auto bm = image::bitmap(8, 6, &heart[0]);
 		favTexture = Texture(bm);
@@ -82,7 +95,7 @@ public:
 
 			auto sub_title = player.getMeta("sub_title");
 
-			int tw = mainScreen.getFont().get_width(currentInfo.title, sc);
+			int tw = font.get_width(currentInfo.title, sc);
 
 			LOGD("%s vs %s", nextInfoField.path, currentInfoField.path);
 
@@ -169,7 +182,7 @@ public:
 	}
 
 	void set_variable(const std::string &name, int index, const std::string &val) {
-		static unordered_map<string, TextScreen::TextField*> fields = {
+		static unordered_map<string, TextField*> fields = {
 			{ "main_title", &currentInfoField[0] },
 			{ "main_composer", &currentInfoField[1] },
 			{ "main_format", &currentInfoField[2] },
@@ -212,15 +225,15 @@ public:
 		} else
 		if(name == "font") {
 			if(File::exists(val)) {
-				auto font = Font(val, 48, 512 | Font::DISTANCE_MAP);
-				mainScreen.setFont(font);
+				font = Font(val, 48, 512 | Font::DISTANCE_MAP);
+				//mainScreen.setFont(font);
 			}
 		}
 	}
 
 	void render(uint32_t delta) {
-		mainScreen.render(delta);
-		mainScreen.getFont().update_cache();
+		mainScreen.render(screen, delta);
+		font.update_cache();
 		if(isFavorite)
 			screen.draw(favTexture, tv0.x, 300, 16*8, 16*6, nullptr);
 	}
@@ -279,18 +292,19 @@ private:
 
 	MusicPlayerList &player;
 
-	TextScreen mainScreen;
+	RenderSet mainScreen;
+	grappix::Font font;
 
 	SongInfoField currentInfoField;
 	SongInfoField nextInfoField;
 	SongInfoField prevInfoField;
 	SongInfoField outsideInfoField;
 
-	std::shared_ptr<TextScreen::TextField> timeField;
-	std::shared_ptr<TextScreen::TextField> lengthField;
-	std::shared_ptr<TextScreen::TextField> songField;
-	std::shared_ptr<TextScreen::TextField> nextField;
-	std::shared_ptr<TextScreen::TextField> xinfoField;
+	std::shared_ptr<TextField> timeField;
+	std::shared_ptr<TextField> lengthField;
+	std::shared_ptr<TextField> songField;
+	std::shared_ptr<TextField> nextField;
+	std::shared_ptr<TextField> xinfoField;
 
 	string currentNextPath;
 	SongInfo currentInfo;
