@@ -172,7 +172,7 @@ public:
 					auto r = iquery.getFull(songList.selected() - playlists.size());
 					auto parts = split(r, "\t");
 					LOGD("######### %s", parts[0]);
-					SongInfo si(parts[0], parts[1], parts[2], parts[3]);
+					SongInfo si(parts[0], "", parts[1], parts[2], parts[3]);
 					if(player.addSong(si))
 						songList.select(songList.selected()+1);
 				}
@@ -182,7 +182,7 @@ public:
 					auto r = iquery.getFull(songList.selected() - playlists.size());
 					auto parts = split(r, "\t");
 					LOGD("######### %s", parts[0]);
-					SongInfo si(parts[0], parts[1], parts[2], parts[3]);
+					SongInfo si(parts[0], "", parts[1], parts[2], parts[3]);
 					PlaylistDatabase::getInstance().addToPlaylist("Favorites", si);
 				}
 				break;
@@ -201,8 +201,8 @@ public:
 					} else {
 						auto r = iquery.getFull(songList.selected() - playlists.size());
 						auto parts = split(r, "\t");
-						LOGD("######### %s", parts[0]);
-						SongInfo si(parts[0], parts[1], parts[2], parts[3]);
+						LOGD("######### %s", r);
+						SongInfo si(parts[0], "", parts[1], parts[2], parts[3]);
 						if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_RIGHT))) {
 							//player.clearSongs();
 							//player.addSong(si, 0);
