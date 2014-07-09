@@ -375,7 +375,7 @@ void ChipMachine::render(uint32_t delta) {
 	if(currentScreen == MAIN_SCREEN) {
 		mainScreen.render(screen, delta);
 		if(isFavorite)
-			screen.draw(favTexture, tv0.x, 300, 16*8, 16*6, nullptr);
+			screen.draw(favTexture, favPos.x, favPos.y, favPos.w, favPos.h, nullptr);
 	} else {
 		searchScreen.render(screen, delta);
 		songList.render();

@@ -11,17 +11,6 @@ namespace chipmachine {
 
 static const std::set<std::string> secondary = { "smpl", "sam", "ins", "smp" };
 
-
-// void MusicDatabase::init() {
-
-// 	//db.exec("CREATE TABLE IF NOT EXISTS playlist (title STRING)");
-// 	//db.exec("CREATE TABLE IF NOT EXISTS plmap (playlist INT, pos INT, path STRING)");
-// 	db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, description STRING, id INTEGER, version INTEGER)");
-// 	db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
-// 	//db.exec("CREATE VIRTUAL TABLE song USING fts4(title, game, composer, format, path,)");
-
-// }
-
 void MusicDatabase::initDatabase(string name, unordered_map<string, string> &vars) {
 	LOGD("Init db '%s'", name);
 	if(name == "modland")
@@ -503,15 +492,6 @@ void MusicDatabase::generateIndex() {
 
 		composers[composer].push_back(tindex);
 
-/*
-		if(composer != oldComposer) {
-			oldComposer = composer;
-			cindex = composerIndex.add(composer);
-			// The composer index does not map to the database, but for each composer
-			// we save the first index in the database for that composer
-			composerToTitle.push_back(tindex);
-		}
-*/
 		// We also need to find the composer for a give title
 		titleToComposer.push_back(cindex);
 	}

@@ -3,7 +3,7 @@ include $(MODULE_DIR)/config.mk
 
 OBJDIR := obj/
 CFLAGS += -O2 -Wall -I$(MODULE_DIR)
-SRCDIR := src/
+SRCDIR := miniplay/
 
 #SDL_AUDIO := 1
 include $(MODULE_DIR)/coreutils/module.mk

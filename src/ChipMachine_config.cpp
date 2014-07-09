@@ -77,6 +77,9 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 			}
 		}
 	} else
+	if(name == "favicon") {
+		favPos[index-1] = stol(val);
+	} else
 	if(name == "background") {
 		bgcolor = stol(val);
 	} else

@@ -7,7 +7,6 @@
 #include "SongInfoField.h"
 
 #include "TelnetInterface.h"
-
 #include "PlayTracker.h"
 
 #include "state_machine.h"
@@ -16,12 +15,11 @@
 #include "../demofx/StarField.h"
 #include "../demofx/Scroller.h"
 
+#include <coreutils/utils.h>
 #include <tween/tween.h>
 #include <grappix/grappix.h>
 #include <grappix/gui/list.h>
 #include <lua/luainterpreter.h>
-
-#include <coreutils/utils.h>
 
 #include <cstdio>
 #include <vector>
@@ -113,6 +111,7 @@ private:
 	bool lockDown = false;
 	bool isFavorite = false;
 	grappix::Texture favTexture;
+	grappix::Rectangle favPos = { 80, 300, 16*8, 16*6 };
 
 	RenderSet searchScreen;
 
