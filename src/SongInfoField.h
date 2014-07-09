@@ -1,7 +1,7 @@
 #ifndef SONG_INFO_FIELD_H
 #define SONG_INFO_FIELD_H
 
-#include "TextScreen.h"
+#include "TextField.h"
 #include "SongInfo.h"
 
 struct SongInfoField {

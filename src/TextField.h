@@ -1,5 +1,5 @@
-#ifndef TEXT_SCREEN_H
-#define TEXT_SCREEN_H
+#ifndef TEXT_FIELD_H
+#define TEXT_FIELD_H
 
 #include "renderable.h"
 
@@ -7,7 +7,6 @@
 #include <coreutils/vec.h>
 #include <grappix/grappix.h>
 
-//class TextScreen;
 
 class TextField : public Renderable {
 public:
@@ -61,31 +60,5 @@ private:
 	grappix::Font font;
 };
 
-class RenderSet {
-public:
 
-	void add(std::shared_ptr<Renderable> r) {
-		fields.push_back(r);
-	}
-
-	void remove(std::shared_ptr<Renderable> r) {
-		auto it = fields.begin();
-		while(it != fields.end()) {
-			if(r.get() == it->get())
-				it = fields.erase(it);
-			else
-				it++;
-		}
-	}
-
-	void render(grappix::RenderTarget &target, uint32_t delta) {
-		for(auto &r : fields)
-			r->render(target, delta);
-	}
-
-	std::vector<std::shared_ptr<Renderable>> fields;
-
-};
-
-
-#endif // TEXT_SCREEN_H
+#endif // TEXT_FIELD_H

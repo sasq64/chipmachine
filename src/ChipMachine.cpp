@@ -8,7 +8,7 @@ using namespace utils;
 using namespace grappix;
 using namespace tween;
 
-#define ENABLE_TELNET
+//#define ENABLE_TELNET
 
 namespace chipmachine {
 

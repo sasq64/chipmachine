@@ -3,7 +3,7 @@
 
 #include "MusicDatabase.h"
 #include "MusicPlayerList.h"
-#include "TextScreen.h"
+#include "TextField.h"
 #include "SongInfoField.h"
 
 #include "TelnetInterface.h"
@@ -11,6 +11,7 @@
 #include "PlayTracker.h"
 
 #include "state_machine.h"
+#include "renderset.h"
 
 #include "../demofx/StarField.h"
 #include "../demofx/Scroller.h"

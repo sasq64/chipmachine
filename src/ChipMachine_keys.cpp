@@ -85,18 +85,6 @@ void ChipMachine::update_keys() {
 		return si;
 	};
 
-	auto set_subtune = [=](int t) {
-		if(t >= 0 && t < currentInfo.numtunes) {
-			player.seek(t);
-			songField->add = 0.0;
-			make_tween().sine().to(songField->add, 1.0).seconds(0.5);
-			currentInfo = player.getInfo();
-			auto sub_title = player.getMeta("sub_title");
-			xinfoField->setText(sub_title);
-			currentInfoField.setInfo(currentInfo);
-		}
-	};
-
 	bool searchUpdated = false;
 	auto last_selection = songList.selected();
 
@@ -150,7 +138,7 @@ void ChipMachine::update_keys() {
 		show_search();
 		break;
 	case ADD_SEARCH_CHAR:
-		if(currentScreen == MAIN_SCREEN && action.event != Window::BACKSPACE && action.event != ' ')
+		if(currentScreen == MAIN_SCREEN && action.event != ' ')
 			iquery.clear();
 		show_search();
 		iquery.addLetter(tolower(action.event));
@@ -177,10 +165,12 @@ void ChipMachine::update_keys() {
 		PlaylistDatabase::getInstance().addToPlaylist("Favorites", get_selected_song());
 		break;
 	case NEXT_SUBTUNE:
-		set_subtune(currentTune+1);
+		if(currentTune < currentInfo.numtunes-1)
+			player.seek(currentTune+1);
 		break;
 	case PREV_SUBTUNE:
-		set_subtune(currentTune-1);
+		if(currentTune > 0)
+			player.seek(currentTune-1);
 		break;
 	case CLEAR_SONGS:
 		player.clearSongs();
