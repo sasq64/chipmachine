@@ -51,12 +51,16 @@ private:
 
 	void setVariable(const std::string &name, int index, const std::string &val);
 
+	void show_main();
+	void show_search();
+	SongInfo get_selected_song();
+
 	void setup_rules();
 	void update_keys();
 
 	MusicPlayerList player;
 
-	RenderSet textScreen;
+	RenderSet renderSet;
 	std::shared_ptr<TextField> toastField;
 
 	const int MAIN_SCREEN = 0;
@@ -72,9 +76,6 @@ private:
 	grappix::Font font;
 	grappix::Font listFont;
 
-	grappix::Color spectrumColor = 0xffffffff;
-	grappix::Color spectrumColorMain = 0xff00aaee;
-	grappix::Color spectrumColorSearch = 0xff111155;
 	double spectrumHeight = 20.0;
 	int spectrumWidth = 24;
 	utils::vec2i spectrumPos;
@@ -109,7 +110,6 @@ private:
 	unsigned currentTune = 0;
 
 	tween::TweenHolder currentTween;
-	grappix::Color timeColor;
 	bool lockDown = false;
 	bool isFavorite = false;
 	grappix::Texture favTexture;
@@ -124,11 +124,17 @@ private:
 
 	tween::TweenHolder markTween;
 
+	grappix::Color timeColor;
+
+	grappix::Color spectrumColor = 0xffffffff;
+	grappix::Color spectrumColorMain = 0xff00aaee;
+	grappix::Color spectrumColorSearch = 0xff111155;
+
 	grappix::Color markColor;
 	grappix::Color hilightColor;
 
-	grappix::Color searchColor = grappix::Color(0xffffffff);
-	grappix::Color formatColor = grappix::Color(0xffcccc66);
+	grappix::Color searchColor = 0xffffffff;
+	grappix::Color formatColor = 0xffcccc66;
 
 	IncrementalQuery iquery;
 

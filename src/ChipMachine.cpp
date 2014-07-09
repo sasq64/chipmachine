@@ -106,7 +106,7 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	initLua();
 	scrollEffect.set("scrolltext", "Chipmachine Beta 1 -- Begin typing to to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- F8 to clear queue -- ESCAPE to clear search text ----- ");
 	toastField = make_shared<TextField>(font, "", tv0.x, tv1.y - 134, 2.0, 0x00ffffff);
-	textScreen.add(toastField);
+	renderSet.add(toastField);
 	starEffect.fadeIn();
 
 
@@ -117,14 +117,6 @@ void ChipMachine::set_scrolltext(const std::string &txt) {
 }
 
 void ChipMachine::initLua() {
-
-	lua.registerFunction<int, string>("get_var", [=](string name) -> int {
-		if(name == "screen_width")
-			return screen.width();
-		else if(name == "screen_height")
-			return screen.height();
-		return -1;
-	});
 
 	unordered_map<string, string> dbmap;
 	lua.registerFunction<void, string, string>("set_db_var", [&](string name, string val) {
@@ -143,21 +135,13 @@ void ChipMachine::initLua() {
 		setVariable(name, index, val);
 	});
 
-	// File f3 { "lua/init.lua" };
-	// if(!f3.exists()) {
-	// 	f3.copyFrom("lua/init.lua.orig");
-	// 	f3.close();
-	// }
-
 	File f { "lua/db.lua" };
 	if(!f.exists()) {
 		f.copyFrom("lua/db.lua.orig");
 		f.close();
 	}
 
-	lua.load(R"(
-		DB = {}
-	)");
+	lua.load("DB = {}");
 	lua.loadFile("lua/db.lua");
 	lua.load(R"(
 		for a,b in pairs(DB) do
@@ -178,14 +162,12 @@ void ChipMachine::initLua() {
 		f2.close();
 	}
 
+	lua.set_global("SCREEN_WIDTH", screen.width());
+	lua.set_global("SCREEN_HEIGHT", screen.height());
+
 	Resources::getInstance().load<string>("lua/screen.lua", [=](shared_ptr<string> contents) {
 		LOGD("screen.lua");
-		lua.load(R"(
-			Config = {}
-			Config.screen_width = get_var('screen_width')
-			Config.screen_height = get_var('screen_height')
-			Settings = {}
-		)");
+		lua.load("Settings = {}");
 		lua.load(*contents);
 		//LOGD(contents);
 		lua.load(R"(
@@ -400,7 +382,7 @@ void ChipMachine::render(uint32_t delta) {
 	}
 
 
-	textScreen.render(screen, delta);
+	renderSet.render(screen, delta);
 
 	font.update_cache();
 	listFont.update_cache();

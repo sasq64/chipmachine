@@ -38,6 +38,9 @@ private:
 	T val;
 };
 
+std::shared_ptr<BaseCondition> if_true(const bool &watch);
+std::shared_ptr<BaseCondition> if_false(const bool &watch);
+
 template <class T> std::shared_ptr<BaseCondition> if_equals(const T &watch, T val) {
 	return std::make_shared<EQCondition<T>>(watch, val);
 }

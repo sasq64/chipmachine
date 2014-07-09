@@ -27,21 +27,21 @@ enum ChipAction {
 	LAST_ACTION
 };
 
-const uint32_t SHIFT = 0x10000;
-const uint32_t CTRL = 0x20000;
+static const uint32_t SHIFT = 0x10000;
+static const uint32_t CTRL = 0x20000;
 
 void ChipMachine::setup_rules() {
 
 	using namespace statemachine;
 
 	smac.add(Window::F1, if_equals(currentScreen, SEARCH_SCREEN), SHOW_MAIN);
-	smac.add({ Window::F2, Window::BACKSPACE, Window::UP, Window::DOWN, Window::PAGEUP, Window::PAGEDOWN }, SHOW_SEARCH );
+	smac.add({ Window::F2, Window::BACKSPACE, Window::UP, Window::DOWN, Window::PAGEUP, Window::PAGEDOWN }, SHOW_SEARCH);
 
 	smac.add(Window::F5, if_equals(currentScreen, MAIN_SCREEN), PLAY_PAUSE);
 	smac.add("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ", ADD_SEARCH_CHAR);
 	smac.add(Window::BACKSPACE, DEL_SEARCH_CHAR);
-	smac.add(Window::ESCAPE, if_equals(haveSearchChars, false), SHOW_MAIN);
-	smac.add(Window::ESCAPE, if_equals(haveSearchChars, true), CLEAR_SEARCH);
+	smac.add(Window::ESCAPE, if_false(haveSearchChars), SHOW_MAIN);
+	smac.add(Window::ESCAPE, if_true(haveSearchChars), CLEAR_SEARCH);
 	smac.add(Window::F6, NEXT_SONG);
 	smac.add(Window::ENTER, if_equals(currentScreen, MAIN_SCREEN), NEXT_SONG);
 	smac.add(Window::ENTER, if_equals(currentScreen, SEARCH_SCREEN), PLAY_LIST_SONG);
@@ -55,6 +55,30 @@ void ChipMachine::setup_rules() {
 
 }
 
+void ChipMachine::show_main() {
+	if(currentScreen != MAIN_SCREEN) {
+		currentScreen = MAIN_SCREEN;
+		make_tween().to(spectrumColor, spectrumColorMain).seconds(0.5);
+		make_tween().to(scrollEffect.alpha, 1.0).seconds(0.5);
+	}
+}
+
+void ChipMachine::show_search() {
+	if(currentScreen != SEARCH_SCREEN) {
+		currentScreen = SEARCH_SCREEN;
+		make_tween().to(spectrumColor, spectrumColorSearch).seconds(0.5);
+		make_tween().to(scrollEffect.alpha, 0.0).seconds(0.5);
+	}
+}
+
+SongInfo ChipMachine::get_selected_song() {
+	auto r = iquery.getFull(songList.selected() - playlists.size());
+	auto parts = split(r, "\t");
+	SongInfo si(parts[0], "", parts[1], parts[2], parts[3]);
+	return si;
+}
+
+
 void ChipMachine::update_keys() {
 
 	// Update some flags
@@ -62,33 +86,12 @@ void ChipMachine::update_keys() {
 	onSearchScreen = (currentScreen == SEARCH_SCREEN);
 	haveSearchChars = (iquery.getString().length() > 0);
 
-	auto show_main = [=]() {
-		if(currentScreen != MAIN_SCREEN) {
-			currentScreen = MAIN_SCREEN;
-			make_tween().to(spectrumColor, spectrumColorMain).seconds(0.5);
-			make_tween().to(scrollEffect.alpha, 1.0).seconds(0.5);
-		}
-	};
-
-	auto show_search = [=]() {
-		if(currentScreen != SEARCH_SCREEN) {
-			currentScreen = SEARCH_SCREEN;
-			make_tween().to(spectrumColor, spectrumColorSearch).seconds(0.5);
-			make_tween().to(scrollEffect.alpha, 0.0).seconds(0.5);
-		}
-	};
-
-	auto get_selected_song = [=]() -> SongInfo {
-		auto r = iquery.getFull(songList.selected() - playlists.size());
-		auto parts = split(r, "\t");
-		SongInfo si(parts[0], "", parts[1], parts[2], parts[3]);
-		return si;
-	};
-
 	bool searchUpdated = false;
 	auto last_selection = songList.selected();
 
 	auto key = screen.get_key();
+	//if(key == Window::NO_KEY)
+	//	return;
 
 	if(currentScreen == SEARCH_SCREEN)
 		songList.on_key(key);
@@ -100,8 +103,10 @@ void ChipMachine::update_keys() {
 	if(screen.key_pressed(Window::CTRL_LEFT) || screen.key_pressed(Window::CTRL_RIGHT))
 		k |= CTRL;
 
-	smac.put_event(k);
+	if(key != Window::NO_KEY)
+		smac.put_event(k);
 	auto action = smac.next_action();
+
 	switch((ChipAction)action.id) {
 	case PLAY_PAUSE:
 		player.pause(!player.isPaused());
@@ -183,9 +188,8 @@ void ChipMachine::update_keys() {
 		searchField->color = searchColor;
 		playlists.clear();
 		PlaylistDatabase::getInstance().search(iquery.getString(), playlists);
-	}
-	if(iquery.newResult())
 		songList.set_total(iquery.numHits() + playlists.size());
+	}
 
 	if(songList.selected() != last_selection && iquery.numHits() > 0) {
 		auto p = iquery.getFull(songList.selected() - playlists.size());
