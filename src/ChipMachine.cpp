@@ -134,7 +134,7 @@ void ChipMachine::initLua() {
 		f2.close();
 	}
 
-	Resources::getInstance().load<string>("lua/init.lua", [=](const std::string &contents) {
+	Resources::getInstance().load<string>("lua/init.lua", [=](shared_ptr<string>contents) {
 		LOGD("init.lua");
 		lua.load(R"(
 			Config = {}
@@ -142,7 +142,7 @@ void ChipMachine::initLua() {
 			Config.screen_height = get_var('screen_height')
 			Settings = {}
 		)");
-		lua.load(contents);
+		lua.load(*contents);
 		//LOGD(contents);
 		lua.load(R"(
 			for a,b in pairs(Settings) do 

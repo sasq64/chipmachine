@@ -92,9 +92,9 @@ public:
 
 
 		Resources::getInstance().load<std::string>("sine_shader.glsl",
-			[=](const std::string &source) {
+			[=](std::shared_ptr<std::string> source) {
 				try {
-					program.setFragmentSource(source);
+					program.setFragmentSource(*source);
 				} catch(shader_exception &e) {}
 			}, sineShaderF);
 
