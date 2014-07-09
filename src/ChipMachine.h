@@ -10,14 +10,14 @@
 
 #include "PlayTracker.h"
 
-#include "MainScreen.h"
-#include "SearchScreen.h"
+#include "state_machine.h"
 
 #include "../demofx/StarField.h"
 #include "../demofx/Scroller.h"
 
 #include <tween/tween.h>
 #include <grappix/grappix.h>
+#include <grappix/gui/list.h>
 #include <lua/luainterpreter.h>
 
 #include <coreutils/utils.h>
@@ -29,11 +29,13 @@
 
 namespace chipmachine {
 
-
-
-class ChipMachine {
+class ChipMachine : public grappix::VerticalList::Renderer {
 public:
+
+	virtual void render_item(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) override;
+
 	ChipMachine();
+
 	void initLua();
 	void play(const SongInfo &si);
 	void update();
@@ -42,23 +44,24 @@ public:
 
 	void set_scrolltext(const std::string &txt);
 
-	//MusicDatabase &music_database() { return mdb; }
 	MusicPlayerList &music_player() { return player; }
 
 private:
 
-	//PlayTracker tracker;
+	void setVariable(const std::string &name, int index, const std::string &val);
 
-	//MusicDatabase mdb;
+	void setup_rules();
+	void update_keys();
+
 	MusicPlayerList player;
-
-	MainScreen mainScreen;
-	SearchScreen searchScreen;
 
 	RenderSet textScreen;
 	std::shared_ptr<TextField> toastField;
 
-	int currentScreen = 0;
+	const int MAIN_SCREEN = 0;
+	const int SEARCH_SCREEN = 1;
+
+	int currentScreen = MAIN_SCREEN;
 
 	std::unique_ptr<TelnetInterface> telnet;
 
@@ -66,6 +69,7 @@ private:
 	utils::vec2i tv1 = { 636, 520 };
 
 	grappix::Font font;
+	grappix::Font listFont;
 
 	grappix::Color spectrumColor = 0xffffffff;
 	grappix::Color spectrumColorMain = 0xff00aaee;
@@ -84,6 +88,61 @@ private:
 
 	demofx::StarField starEffect;
 	demofx::Scroller scrollEffect;
+
+	RenderSet mainScreen;
+	//grappix::Font font;
+
+	SongInfoField currentInfoField;
+	SongInfoField nextInfoField;
+	SongInfoField prevInfoField;
+	SongInfoField outsideInfoField;
+
+	std::shared_ptr<TextField> timeField;
+	std::shared_ptr<TextField> lengthField;
+	std::shared_ptr<TextField> songField;
+	std::shared_ptr<TextField> nextField;
+	std::shared_ptr<TextField> xinfoField;
+
+	string currentNextPath;
+	SongInfo currentInfo;
+	unsigned currentTune = 0;
+
+	tween::TweenHolder currentTween;
+	grappix::Color timeColor;
+	bool lockDown = false;
+	bool isFavorite = false;
+	grappix::Texture favTexture;
+
+	RenderSet searchScreen;
+
+	std::shared_ptr<TextField> searchField;
+	std::shared_ptr<TextField>resultFieldTemplate;
+
+
+	int numLines = 20;
+
+	tween::TweenHolder markTween;
+
+	grappix::Color markColor;
+	grappix::Color hilightColor;
+
+	grappix::Color searchColor = grappix::Color(0xffffffff);
+	grappix::Color formatColor = grappix::Color(0xffcccc66);
+
+	IncrementalQuery iquery;
+
+	grappix::VerticalList songList;
+
+	bool switchedToMain = false;
+
+	std::vector<std::string> playlists;
+
+	bool onSearchScreen;
+	bool onMainScreen;
+	bool haveSearchChars;
+
+	statemachine::StateMachine smac;
+
 };
 
 }

@@ -38,6 +38,10 @@ public:
 		return tlen;
 	}
 
+	void setFont(const grappix::Font &f) {
+		font = f;
+	}
+
 	virtual void render(grappix::RenderTarget &target, uint32_t delta) override {
 		if(color.a == 0.0)
 			return;
@@ -55,8 +59,6 @@ private:
 	std::string text;
 	mutable int tlen;
 	grappix::Font font;
-
-	//friend TextScreen;
 };
 
 class RenderSet {
@@ -66,13 +68,6 @@ public:
 		fields.push_back(r);
 	}
 
-/*
-	template <typename T, class = typename std::enable_if<std::is_compound<T>::value>::type>
-	void add(const T &t) {
-		for(int i=0; i<t.size(); i++)
-			add(t.fields[i]);
-	}
-*/
 	void remove(std::shared_ptr<Renderable> r) {
 		auto it = fields.begin();
 		while(it != fields.end()) {
@@ -92,62 +87,5 @@ public:
 
 };
 
-#if 0
-
-class TextScreen {
-public:
-
-
-	void render(uint32_t d) {
-		for(auto &f : fields) {
-			if(f->color.a == 0.0)
-				continue;
-			auto x = f->pos.x;
-			auto y = f->pos.y;
-			if(f->tlen == -1)
-				f->tlen = font.get_width(f->text, f->scale);
-			//if(x < 0) x = grappix::screen.width() - f->tlen + x;
-			//if(y < 0) y = grappix::screen.height() + y;
-			grappix::screen.text(font, f->text, x, y, f->color + f->add, f->scale);
-		}
-	}
-
-	int getWidth(const std::shared_ptr<TextField> &f) {
-		if(f->tlen == -1)
-			f->tlen = font.get_width(f->text, f->scale);
-		return f->tlen;
-
-	}
-
-	void setFont(const grappix::Font &font) {
-		this->font = font;
-	}
-
-	grappix::Font& getFont() {
-		return font;
-	}
-
-	std::shared_ptr<TextField> addField(const std::string &text, float x = 0, float y = 0, float scale = 1.0, uint32_t color = 0xffffffff) {
-		fields.push_back(std::make_shared<TextField>(text, x, y, scale, color));
-		return fields.back();
-	}
-
-	void removeField(const std::shared_ptr<TextField> &field) {
-		auto it = fields.begin();
-		while(it != fields.end()) {
-			if(field.get() == it->get())
-				it = fields.erase(it);
-			else
-				it++;
-		}
-	}
-
-private:
-
-	grappix::Font font;
-	std::vector<std::shared_ptr<TextField>> fields;
-};
-
-#endif
 
 #endif // TEXT_SCREEN_H

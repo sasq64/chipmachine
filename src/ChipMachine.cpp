@@ -1,4 +1,5 @@
 #include "ChipMachine.h"
+#include "PlaylistDatabase.h"
 
 #include <cctype>
 
@@ -11,7 +12,33 @@ using namespace tween;
 
 namespace chipmachine {
 
-ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen) {
+
+void ChipMachine::render_item(Rectangle &rec, int y, uint32_t index, bool hilight) {
+	string text;
+	Color c;
+	if(index < playlists.size()) {
+		text = format("<%s>", playlists[index]);
+		c = hilight ? markColor : Color(0xff6688ff);
+	} else {
+		auto res = iquery.getResult(index-playlists.size());
+		auto parts = split(res, "\t");
+		text = format("%s / %s", parts[0], parts[1]);
+		c = hilight ? markColor : resultFieldTemplate->color;
+	}
+	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate->scale);
+}
+
+#define Z 0xff444488
+const vector<uint32_t> heart = { 0,Z,Z,0,Z,Z,0,0,
+                                 Z,Z,Z,Z,Z,Z,Z,0,
+                                 Z,Z,Z,Z,Z,Z,Z,0,
+                                 0,Z,Z,Z,Z,Z,0,0,
+                                 0,0,Z,Z,Z,0,0,0,
+                                 0,0,0,Z,0,0,0,0 };
+#undef Z
+
+
+ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen), songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
 
 	//mdb.init();
 
@@ -24,12 +51,65 @@ ChipMachine::ChipMachine() : mainScreen(player), searchScreen(player), currentSc
 
 	spectrumPos = { tv0.x-10, tv1.y+50 };
 
-	initLua();
 
+	font = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
+	listFont = Font("data/Neutra.otf", 32, 256);// | Font::DISTANCE_MAP);
+
+	// MAINSCREEN
+
+	prevInfoField = SongInfoField(font, -3200, 64, 10.0, 0x00e0e080);
+	currentInfoField = SongInfoField(font, tv0.x, tv0.y, 2.0, 0xffe0e080);
+	nextInfoField = SongInfoField(font, 440, 340, 1.0, 0xffe0e080);
+	outsideInfoField = SongInfoField(font, screen.width()+10, 340, 1.0, 0xffe0e080);
+	for(int i=0; i<3; i++)
+		mainScreen.add(prevInfoField.fields[i]);
+	for(int i=0; i<3; i++)
+		mainScreen.add(currentInfoField.fields[i]);
+	for(int i=0; i<3; i++)
+		mainScreen.add(nextInfoField.fields[i]);
+	for(int i=0; i<3; i++)
+		mainScreen.add(outsideInfoField.fields[i]);
+
+	xinfoField = make_shared<TextField>(font, "", tv1.x-100, tv0.y, 0.8, 0x50a0c0ff);
+	mainScreen.add(xinfoField);
+
+	nextField = make_shared<TextField>(font, "next", 440, 320, 0.6, 0xe080c0ff);
+	mainScreen.add(nextField);
+
+	timeField = make_shared<TextField>(font, "", tv0.x, 188, 1.0, 0xff888888);
+	mainScreen.add(timeField);
+	lengthField = make_shared<TextField>(font, "", tv0.x + 100, 188, 1.0, 0xff888888);
+	mainScreen.add(lengthField);
+	songField = make_shared<TextField>(font, "", tv0.x + 220, 188, 1.0, 0xff888888);
+	mainScreen.add(songField);
+
+	auto bm = image::bitmap(8, 6, &heart[0]);
+	favTexture = Texture(bm);
+	glBindTexture(GL_TEXTURE_2D, favTexture.id());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	// SEARCHSCREEN
+
+	iquery = MusicDatabase::getInstance().createQuery();
+
+	resultFieldTemplate = make_shared<TextField>(listFont, "", tv0.x, tv0.y+30, 0.8, 0xff20c020);
+	markColor = resultFieldTemplate->color;
+	hilightColor = Color(0xffffffff);
+	markTween = make_tween().sine().repeating().from(markColor, hilightColor).seconds(1.0);
+
+	searchField = make_shared<TextField>(font, "#", tv0.x, tv0.y, 1.0, 0xff888888);
+	searchScreen.add(searchField);
+
+	setup_rules();
+
+	initLua();
 	scrollEffect.set("scrolltext", "Chipmachine Beta 1 -- Begin typing to to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- F8 to clear queue -- ESCAPE to clear search text ----- ");
 	toastField = make_shared<TextField>(font, "", tv0.x, tv1.y - 134, 2.0, 0x00ffffff);
 	textScreen.add(toastField);
 	starEffect.fadeIn();
+
+
 }
 
 void ChipMachine::set_scrolltext(const std::string &txt) {
@@ -60,57 +140,7 @@ void ChipMachine::initLua() {
 
 	lua.registerFunction<void, string, uint32_t, string>("set_var", [=](string name, uint32_t index, string val) {
 		//LOGD("%s(%d) = %s", name, index, val);
-
-		mainScreen.set_variable(name, index, val);
-		searchScreen.set_variable(name, index, val);
-
-		if(name == "spectrum") {
-			if(index <= 2)
-				spectrumPos[index-1] = stol(val);
-			else if(index == 3)
-				spectrumWidth = stol(val);
-			else if(index == 4)
-				spectrumHeight = stod(val);
-			else if(index == 5)
-				spectrumColorMain = Color(stoll(val));
-			else
-				spectrumColorSearch = Color(stoll(val));
-		} else
-		if(name == "font") {
-			if(File::exists(val)) {
-				font = Font(val, 48, 512 | Font::DISTANCE_MAP);
-				//textScreen.setFont(font);
-			}
-		} else
-		if(name == "background") {
-			bgcolor = stol(val);
-		} else
-		if(name == "stars") {
-			starsOn = stol(val) != 0;
-		} else
-		if(name == "top_left") {
-			tv0[index-1] = stol(val);
-		} else
-		if(name == "down_right") {
-			tv1[index-1] = stol(val);
-		} else
-		if(name == "scroll") {
-			switch(index) {
-			case 1:
-				scrollEffect.scrolly = stol(val);
-				break;
-			case 2:
-				scrollEffect.scrollsize = stod(val);
-				break;
-			case 3:
-				scrollEffect.scrollspeed = stol(val);
-				break;
-			case 4:
-				scrollEffect.set("font", val);
-				break;
-			}
-			LOGD("%d %f %d", scrollEffect.scrolly, scrollEffect.scrollsize, scrollEffect.scrollspeed);
-		}
+		setVariable(name, index, val);
 	});
 
 	// File f3 { "lua/init.lua" };
@@ -181,18 +211,6 @@ void ChipMachine::play(const SongInfo &si) {
 
 void ChipMachine::update() {
 
-	auto show_main = [=]() {
-		currentScreen = 0;
-		make_tween().to(spectrumColor, spectrumColorMain).seconds(0.5);
-		make_tween().to(scrollEffect.alpha, 1.0).seconds(0.5);
-	};
-
-	auto show_search = [=]() {
-		currentScreen = 1;
-		make_tween().to(spectrumColor, spectrumColorSearch).seconds(0.5);
-		make_tween().to(scrollEffect.alpha, 0.0).seconds(0.5);
-	};
-
 	static string msg;
 	auto m = player.getMeta("message");
 	if(m != msg) {
@@ -206,78 +224,116 @@ void ChipMachine::update() {
 		scrollEffect.set("scrolltext", m);
 	}
 
-	auto k = screen.get_key();
+	update_keys();
 
-	if(screen.key_pressed(Window::CTRL_LEFT) || screen.key_pressed(Window::CTRL_RIGHT)) {
 
-		if(k >= '0' && k <= 'z') {
-			code.push_back(tolower(k));
-			LOGD("'%s'", code);
-			if(code == "party") {
-				toast("Party Mode ON", 2);
-				player.setPartyMode(true);
-				code = "";
-			} else if(code == "chill") {
-				player.setPartyMode(false);
-				toast("Party Mode OFF", 2);
-				code = "";
-			}
-		}
-	} else {
-		code = "";
+	//mainScreen.update();
+	//searchScreen.update();
+		//player.update();
+	auto state = player.getState();
+	//LOGD("STATE %d vs %d %d %d", state, MusicPlayerList::STOPPED, MusicPlayerList::WAITING, MusicPlayerList::PLAY_STARTED);
+	if(state == MusicPlayerList::PLAY_STARTED) {
+		LOGD("MUSIC STARTING");
+		//state = PLAYING;
+		currentInfo = player.getInfo();
+		LOGD("Prev song %s, new song %s", currentInfoField.getInfo().title, currentInfo.title);
+		prevInfoField.setInfo(currentInfoField.getInfo());
+		currentInfoField.setInfo(currentInfo);
+		currentTune = currentInfo.starttune;
+		currentTween.finish();
+		auto sc = currentInfoField[0].scale;
 
-		if(k != Window::NO_KEY) {
-
-			if((k >= '0' && k <= '9') || k == '/' || (k >= 'A' && k<='Z')) {
-				show_search();
-			} else {
-				switch(k) {
-				case Window::F1:
-					show_main();
-					break;
-				case Window::F2:
-				case Window::SPACE:
-				case Window::BACKSPACE:
-				case Window::F10:
-				case Window::UP:
-				case Window::DOWN:
-				case Window::PAGEUP:
-				case Window::PAGEDOWN:
-					show_search();
-					break;
-				}
-			}
-
-		if(currentScreen == 0)
-			mainScreen.on_key(k);
+		if(currentInfo.numtunes > 0)
+			songField->setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
 		else
-			searchScreen.on_key(k);
+			songField->setText("");
+
+		auto sub_title = player.getMeta("sub_title");
+
+		int tw = font.get_width(currentInfo.title, sc);
+
+		LOGD("%s vs %s", nextInfoField.path, currentInfoField.path);
+
+		auto f = [=]() {
+			xinfoField->setText(sub_title);
+			auto d = (tw-(tv1.x-tv0.x-20));
+			if(d > 20)
+				make_tween().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
+		};
+
+		auto favorites = PlaylistDatabase::getInstance().getPlaylist("Favorites");
+		auto favsong = find_if(favorites.begin(), favorites.end(), [&](const SongInfo &song) -> bool { return song.path == currentInfo.path; });
+		isFavorite = (favsong != favorites.end());
+
+		if(nextInfoField == currentInfoField) {
+			currentTween = make_tween().from(prevInfoField, currentInfoField).
+			from(currentInfoField, nextInfoField).
+			from(nextInfoField, outsideInfoField).seconds(1.5).on_complete(f);
+		} else {
+			currentTween = make_tween().from(prevInfoField, currentInfoField).
+			from(currentInfoField, outsideInfoField).seconds(1.5).on_complete(f);
 		}
 
-		switch(k) {
-		case Window::ENTER:
-			if(!(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_RIGHT))) {
-				show_main();
+	}
+
+	if(state == MusicPlayerList::PLAYING || state == MusicPlayerList::STOPPED) {
+		auto psz = player.listSize();
+		if(psz > 0) {
+			auto n = player.getInfo(1);
+			if(n.path != currentNextPath) {
+				if(n.title == "") {
+					n.title = path_filename(urldecode(n.path, ""));
+				}
+
+				if(psz == 1)
+					nextField->setText("Next");
+				else
+					nextField->setText(format("Next (%d)", psz));
+				nextInfoField.setInfo(n);
+				currentNextPath = n.path;
 			}
-			break;
-		case Window::RIGHT_CLICK:
-		case Window::F6:
-			player.nextSong();
-			show_main();
-			break;
-		case Window::ESCAPE:
-			show_main();
-			break;
-		case Window::F8:
-			player.clearSongs();
-			toast("Playlist cleared", 2);
-			break;
+		} else if(nextField->getText() != "") {
+			nextInfoField.setInfo(SongInfo());
+			nextField->setText("");
 		}
 	}
 
+	auto tune = player.getTune();
+	if(currentTune != tune) {
+		songField->add = 0.0;
+		make_tween().sine().to(songField->add, 1.0).seconds(0.5);
+		currentInfo = player.getInfo();
+		auto sub_title = player.getMeta("sub_title");
+		xinfoField->setText(sub_title);
+		currentInfoField.setInfo(currentInfo);
+		currentTune = tune;
+		songField->setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
+	}
 
-	mainScreen.update();
-	searchScreen.update();
+	if(player.playing()) {
+
+		bool party = (player.getPermissions() & MusicPlayerList::PARTYMODE) != 0;
+		if(!lockDown && party) {
+			lockDown = true;
+			make_tween().to(timeField->color, Color(0xffff0000)).seconds(0.5);
+		} else if(lockDown && !party) {
+			lockDown = false;
+			make_tween().to(timeField->color, timeColor).seconds(2.0);
+		}
+
+
+		auto p = player.getPosition();
+		int length = player.getLength();
+		timeField->setText(format("%02d:%02d", p/60, p%60));
+		if(length > 0)
+			lengthField->setText(format("(%02d:%02d)", length/60, length%60));
+		else
+			lengthField->setText("");
+
+		auto sub_title = player.getMeta("sub_title");
+		if(sub_title != xinfoField->getText())
+			xinfoField->setText(sub_title);
+	}
 
 	if(!player.getAllowed()) {
 		toast("Not allowed", 1);
@@ -334,12 +390,20 @@ void ChipMachine::render(uint32_t delta) {
 		screen.rectangle(spectrumPos.x + (spectrumWidth)*i, spectrumPos.y-eq[i], spectrumWidth-1, eq[i], spectrumColor);
 	}
 
-	if(currentScreen == 0)
-		mainScreen.render(delta);
-	else
-		searchScreen.render(delta);
+	if(currentScreen == MAIN_SCREEN) {
+		mainScreen.render(screen, delta);
+		if(isFavorite)
+			screen.draw(favTexture, tv0.x, 300, 16*8, 16*6, nullptr);
+	} else {
+		searchScreen.render(screen, delta);
+		songList.render();
+	}
+
 
 	textScreen.render(screen, delta);
+
+	font.update_cache();
+	listFont.update_cache();
 
 	screen.flip();
 }

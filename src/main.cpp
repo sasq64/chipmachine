@@ -3,7 +3,7 @@
 
 #include <grappix/grappix.h>
 #include <musicplayer/PSFFile.h>
-
+#include <coreutils/format.h>
 #include "MusicPlayerList.h"
 
 #include <bbsutils/console.h>
@@ -13,6 +13,7 @@
 using namespace std;
 using namespace chipmachine;
 using namespace bbs;
+using namespace utils;
 
 int main(int argc, char* argv[]) {
 
