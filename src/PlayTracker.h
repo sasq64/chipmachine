@@ -6,11 +6,26 @@
 #include <coreutils/log.h>
 #include <webutils/webrpc.h>
 
+#include <random>
+
 namespace chipmachine {
 
 class PlayTracker {
 public:
-	PlayTracker() : rpc("http://wired-height-596.appspot.com/"), done(true) {}
+	PlayTracker() : rpc("http://wired-height-596.appspot.com/"), done(true) {
+		utils::File f { ".trackid" };
+		if(!f.exists()) {
+			std::random_device rd;
+		    std::default_random_engine re(rd());
+		    std::uniform_int_distribution<uint64_t> dis;
+		    trackid = dis(re);
+		    f.write(trackid);
+		} else {
+			trackid = f.read<uint64_t>();
+		}
+	    f.close();
+	    LOGD("#### TRACKID %016x", trackid);
+	}
 	//~PlayTracker();
 	void play(const std::string &fileName) {
 
@@ -23,7 +38,7 @@ public:
 
 		LOGD("TRACK %s %s", collection, fn);
 		done = false;
-		rpc.post("song_played", utils::format("{ \"path\" : \"%s\", \"collection\" : \"%s\" }", fn, collection), [=](const std::string &result) {
+		rpc.post("song_played", utils::format("{ \"id\" : \"%x\", \"path\" : \"%s\", \"collection\" : \"%s\" }", trackid, fn, collection), [=](const std::string &result) {
 			LOGD("trackDone");
 			done = true;
 		});
@@ -35,8 +50,8 @@ public:
 
 		LOGD("FAV %s %s", collection, fn);
 		done = false;
-		rpc.post("add_favorite", utils::format("{ \"uid\" : \"%s\", \"path\" : \"%s\", \"collection\" : \"%s\" }", userid, fn, collection), [=](const std::string &result) {
-			LOGD("trackDone");
+		rpc.post(add ? "add_favorite" : "del_favorite", utils::format("{ \"id\" : \"%x\", \"path\" : \"%s\", \"collection\" : \"%s\" }", trackid, fn, collection), [=](const std::string &result) {
+			LOGD("favDone");
 			done = true;
 		});
 	}
@@ -47,9 +62,9 @@ public:
 	}
 
 private:
+	uint64_t trackid;
 	WebRPC rpc;
 	std::atomic<bool> done;
-	std::string userid = "DUMMY";
 };
 
 }
