@@ -11,7 +11,9 @@ namespace chipmachine {
 
 static const std::set<std::string> secondary = { "smpl", "sam", "ins", "smp" };
 
-void MusicDatabase::initDatabase(string name, unordered_map<string, string> &vars) {
+void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
+
+	auto name = vars["type"];
 	LOGD("Init db '%s'", name);
 	if(name == "modland")
 		modlandInit(vars["source"], vars["song_list"], vars["exclude_formats"], stol(vars["id"]));

@@ -29,7 +29,7 @@ public:
 
 	//void init();
 
-	void initDatabase(std::string name, std::unordered_map<std::string, std::string> &vars);
+	void initDatabase(std::unordered_map<std::string, std::string> &vars);
 
 	SongInfo pathToSongInfo(const std::string &path);
 

@@ -123,7 +123,7 @@ void ChipMachine::initLua() {
 		LOGD("%s %s", name, val);
 		if(val == "start") {
 		} else if(val == "end") {
-			MusicDatabase::getInstance().initDatabase(name, dbmap);
+			MusicDatabase::getInstance().initDatabase(dbmap);
 			dbmap.clear();
 		} else {
 			dbmap[name] = val;
@@ -168,7 +168,7 @@ void ChipMachine::initLua() {
 	Resources::getInstance().load<string>("lua/screen.lua", [=](shared_ptr<string> contents) {
 		LOGD("screen.lua");
 		lua.load("Settings = {}");
-		lua.load(*contents);
+		lua.load(*contents, "lua/screen.lua");
 		//LOGD(contents);
 		lua.load(R"(
 			for a,b in pairs(Settings) do
