@@ -5,26 +5,26 @@
 -- If song_list or or source can not be found, database will not be added
 
 
-DB[1] = {
-	id = 1,
+DB = {
+{
 	type = "modland",
+	id = 1,
 	source = "ftp://ftp.modland.com/pub/modules/",
 	-- source = "/Modland/",
-	song_list = "data/allmods.txt"
+	song_list = "data/allmods.txt",
 	-- song_list = "/Modland/allmods.txt",
-	-- exclude_formats = "RealSID;PlaySID;Nintendo SPC",
-};
-
-DB[2] = {
+	exclude_formats = "RealSID;PlaySID;Nintendo SPC",
+},
+{
 	type = "hvsc",
 	id = 2,
 	source = "C64Music"
-};
-
-DB[3] = {
+},
+{
 	type = "rsn",
 	id = 3,
 	source = "spcsets"
+}
 };
 
 -- DB.NSFE = {
