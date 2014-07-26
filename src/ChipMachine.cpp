@@ -83,6 +83,9 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	songField = make_shared<TextField>(font, "", tv0.x + 220, 188, 1.0, 0xff888888);
 	mainScreen.add(songField);
 
+	playlistField = make_shared<TextField>(font, "Favorites", tv1.x - 100, tv1.y - 10, 1.0, 0xff888888);
+	mainScreen.add(playlistField);
+
 	auto bm = image::bitmap(8, 6, &heart[0]);
 	favTexture = Texture(bm);
 	glBindTexture(GL_TEXTURE_2D, favTexture.id());
@@ -98,8 +101,20 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	hilightColor = Color(0xffffffff);
 	markTween = make_tween().sine().repeating().from(markColor, hilightColor).seconds(1.0);
 
-	searchField = make_shared<TextField>(font, "#", tv0.x, tv0.y, 1.0, 0xff888888);
+	searchField = make_shared<LineEdit>(font, "", tv0.x, tv0.y, 1.0, 0xff888888);
+	searchField->setPrompt("#");
 	searchScreen.add(searchField);
+	searchField->visible(false);
+
+	commandField = make_shared<LineEdit>(font, ">", tv0.x, tv0.y, 1.0, 0xff888888);
+	searchScreen.add(commandField);
+	commandField->visible(false);
+
+	topStatus = make_shared<TextField>(font, "", tv0.x, tv0.y, 1.0, 0xff888888);
+	searchScreen.add(topStatus);
+	topStatus->visible(false);
+
+
 
 	setup_rules();
 
@@ -141,7 +156,6 @@ void ChipMachine::initLua() {
 		f.close();
 	}
 
-	lua.load("DB = {}");
 	lua.loadFile("lua/db.lua");
 	lua.load(R"(
 		for a,b in pairs(DB) do
@@ -166,10 +180,7 @@ void ChipMachine::initLua() {
 	lua.set_global("SCREEN_HEIGHT", screen.height());
 
 	Resources::getInstance().load<string>("lua/screen.lua", [=](shared_ptr<string> contents) {
-		LOGD("screen.lua");
-		lua.load("Settings = {}");
 		lua.load(*contents, "lua/screen.lua");
-		//LOGD(contents);
 		lua.load(R"(
 			for a,b in pairs(Settings) do
 				if type(b) == 'table' then
@@ -243,7 +254,7 @@ void ChipMachine::update() {
 				make_tween().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
 		};
 
-		auto favorites = PlaylistDatabase::getInstance().getPlaylist("Favorites");
+		auto favorites = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
 		auto favsong = find_if(favorites.begin(), favorites.end(), [&](const SongInfo &song) -> bool { return song.path == currentInfo.path; });
 		isFavorite = (favsong != favorites.end());
 

@@ -1,18 +1,19 @@
 ------
 -- Lua settings
 ------
+Settings = {}
 
 HD = false
-if Config.screen_width >= 800 then
+if SCREEN_WIDTH >= 800 then
 	HD = true
 end
 
 GSCALE = 1.0
 
-if Config.screen_width >= 1280 then
+if SCREEN_WIDTH >= 1280 then
 	GSCALE = 2.0
 end
--- print('HD',Config.screen_width,Config.screen_height,HD)
+-- print('HD',SCREEN_WIDTH,SCREEN_HEIGHT,HD)
 
 X0 = 80
 Y0 = 54
@@ -23,12 +24,12 @@ Y1 = 520
 if HD then
 X0 = 10
 Y0 = 10
-X1 = Config.screen_width-10
-Y1 = Config.screen_height-10
+X1 = SCREEN_WIDTH-10
+Y1 = SCREEN_HEIGHT-10
 end
 
 background = 0x808080
---Config.screen_height / 576
+--SCREEN_HEIGHT / 576
 
 if true then
  TEXT_COLOR = 0xffe0e080
@@ -71,7 +72,7 @@ else
   Settings.spectrum = { X0-50, Y1+40, 26, 16.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
 end
 
-x = Config.screen_width - 300 * GSCALE
+x = SCREEN_WIDTH - 300 * GSCALE
 y = Settings.scroll[1] - 80 * GSCALE
 
 scale = 1.2 * GSCALE
@@ -79,6 +80,9 @@ Settings.next_field = { x, y-14, 0.5, 0xff444477 }
 Settings.next_title = { x, y, scale, TEXT_COLOR }
 Settings.next_composer = { x, y+26*scale, scale*0.6, TEXT_COLOR }
 Settings.next_format = { x, y+44*scale, scale*0.3, TEXT_COLOR }
+
+y = Settings.scroll[1] - 100 * GSCALE
+Settings.favicon = { X0, y, 16*8 * GSCALE, 16*6 * GSCALE }
 
 scale = 80.0
 Settings.prev_title = { -3200, Y0, scale, 0 }

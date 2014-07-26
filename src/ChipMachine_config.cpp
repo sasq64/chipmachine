@@ -25,6 +25,7 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 		{ "next_field", nextField.get() },
 		{ "xinfo_field", xinfoField.get() },
 		{ "search_field", searchField.get() },
+		{ "top_status", topStatus.get() },
 		{ "result_field", resultFieldTemplate.get() },
 	};
 
@@ -40,13 +41,13 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 				outsideInfoField[2].color = c;
 			else if(name == "time_field")
 				timeColor = c;
-			else if(name == "search_field") {
-				if(index == 5) {
-					formatColor = c;
-					return;
-				} else
-					searchColor = c;
-			}
+			// else if(name == "search_field") {
+			// 	if(index == 5) {
+			// 		formatColor = c;
+			// 		return;
+			// 	} else
+			// 		searchColor = c;
+			// }
 			f.color = c;
 			if(name == "result_field") {
 				markColor = c;

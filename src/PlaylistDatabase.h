@@ -29,7 +29,7 @@ class PlaylistDatabase {
 public:
 	PlaylistDatabase();
 	void createPlaylist(const std::string &name);
-
+	void renamePlaylist(const std::string &oldName, const std::string &newName);
 	void addToPlaylist(const std::string &name, const SongInfo &info);
 	void removeFromPlaylist(const std::string &name, const SongInfo &info);
 	Playlist getPlaylist(const std::string &name);

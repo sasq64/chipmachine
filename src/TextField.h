@@ -10,7 +10,7 @@
 
 class TextField : public Renderable {
 public:
-	TextField(const grappix::Font &font, const std::string &text, float x, float y, float sc, uint32_t col) : pos(x, y), scale(sc), color(col), add(0), f {&pos.x, &pos.y, &scale, &color.r, &color.g, &color.b, &color.a, &add}, text(text), tlen(-1), font(font) {
+	TextField(const grappix::Font &font, const std::string &text, float x, float y, float sc, uint32_t col) : pos(x, y), scale(sc), color(col), add(0), f {&pos.x, &pos.y, &scale, &color.r, &color.g, &color.b, &color.a, &add}, text(text), tsize(-1, -1), font(font) {
 
 	}
 
@@ -24,17 +24,17 @@ public:
 
 	int size() const { return 8; }
 
-	void setText(const std::string &t) {
+	virtual void setText(const std::string &t) {
 		text = t;
-		tlen = -1;
+		tsize.x = -1;
 	}
 
-	std::string getText() const { return text; }
+	virtual std::string getText() const { return text; }
 
 	int getWidth() {
-		if(tlen == -1)
-			tlen = font.get_width(text, scale);
-		return tlen;
+		if(tsize.x == -1)
+			tsize = font.get_size(text, scale);
+		return tsize.x;
 	}
 
 	void setFont(const grappix::Font &f) {
@@ -46,17 +46,17 @@ public:
 			return;
 		auto x = pos.x;
 		auto y = pos.y;
-		if(tlen == -1)
-			tlen = font.get_width(text, scale);
+		if(tsize.x == -1)
+			tsize = font.get_size(text, scale);
 		//if(x < 0) x = grappix::screen.width() - tlen + x;
 		//if(y < 0) y = grappix::screen.height() + y;
 		grappix::screen.text(font, text, x, y, color + add, scale);
 	}
 
-private:
+protected:
 	float* f[8];
 	std::string text;
-	mutable int tlen;
+	mutable utils::vec2i tsize;
 	grappix::Font font;
 };
 

@@ -64,42 +64,45 @@ public:
 	void put_event(uint32_t event) {
 		auto &amap = actionmap[event];
 		for(const auto &a : amap.actions) {
-			if(a.first->check())
-				actions.emplace_back(a.second, event);
+			if(a.condition->check()) {
+				actions.emplace_back(a.action, event);
+				if(a.stop)
+					break;
+			}
 		}
 	}
 
 	// If event e occurs and current state matches sm, perform action a
 
-	void add(uint32_t event, std::shared_ptr<BaseCondition> c, uint32_t action) {
+	void add(uint32_t event, std::shared_ptr<BaseCondition> c, uint32_t action, bool stop = true) {
 		ActionSet &a = actionmap[event];
-		a.actions.push_back(std::make_pair(c, action));
+		a.actions.push_back(Mapping(c, action, stop));
 	}
 
-	void add(const char *chars, std::shared_ptr<BaseCondition> c, uint32_t action) {
+	void add(const char *chars, std::shared_ptr<BaseCondition> c, uint32_t action, bool stop = true) {
 		for(int i=0; i<strlen(chars); i++) {
 			auto event = chars[i];
 			ActionSet &a = actionmap[event];
-			a.actions.push_back(std::make_pair(c, action));
+			a.actions.push_back(Mapping(c, action, stop));
 		}
 	}
 
-	void add(std::vector<uint32_t> events, std::shared_ptr<BaseCondition> c, uint32_t action) {
+	void add(std::vector<uint32_t> events, std::shared_ptr<BaseCondition> c, uint32_t action, bool stop = true) {
 		for(auto event : events) {
 			ActionSet &a = actionmap[event];
-			a.actions.push_back(make_pair(c, action));
+			a.actions.push_back(Mapping(c, action, stop));
 		}
 	}
-	void add(uint32_t event, uint32_t action) {
-		add(event, ALWAYS_TRUE, action);
+	void add(uint32_t event, uint32_t action, bool stop = true) {
+		add(event, ALWAYS_TRUE, action, stop);
 	}
 
-	void add(const char *chars, uint32_t action) {
-		add(chars, ALWAYS_TRUE, action);
+	void add(const char *chars, uint32_t action, bool stop = true) {
+		add(chars, ALWAYS_TRUE, action, stop);
 	}
 
-	void add(std::vector<uint32_t> events, uint32_t action) {
-		add(events, ALWAYS_TRUE, action);
+	void add(std::vector<uint32_t> events, uint32_t action, bool stop = true) {
+		add(events, ALWAYS_TRUE, action, stop);
 	}
 
 	//template <class T> void add(std::vector<uint32_t> events, Condition<T> c, uint32_t action) {
@@ -114,8 +117,15 @@ public:
 		return Action();
 	}
 
+	struct Mapping {
+		Mapping(std::shared_ptr<BaseCondition> condition, uint32_t action, bool stop = true) : condition(condition), action(action), stop(stop) {}
+		std::shared_ptr<BaseCondition> condition;
+		uint32_t action;
+		bool stop = false;
+	};
+
 	struct ActionSet {
-		std::vector<std::pair<std::shared_ptr<BaseCondition>, uint32_t>> actions;
+		std::vector<Mapping> actions;
 	};
 
 	std::unordered_map<uint32_t, ActionSet> actionmap;

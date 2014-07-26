@@ -369,31 +369,52 @@ vector<SongInfo> MusicDatabase::find(const string &pattern) {
 }
 
 // console -- sid -- tracker -- amiga
-/*
+
 enum Formats {
 
-	GAME = 0x20,
+	UNKNOWN_FORMAT,
+	NO_FORMAT,
+
+	CONSOLE,
+
 	NINTENDO,
 
-	ATARI
+	GAMEBOY,
+	SNES,
+	NINTENDO64,
+	NITENDODS,
 
-	ADPLUG
+	SEGA,
 
-	PLAYSTATION
-	DREAMCAST
-	NINTENDO64
+	SEGAMS,
+	MEGADRIVE,
+	DREAMCAST,
 
-	SID = 0x30
+	SONY,
 
-	TRACKER = 0x10,
-	PROTRACKER,
+	PLAYSTATION,
+	PLAYSTATION2,
+
+	COMPUTER,
+	C64,
+	SID,
+
+	ATARI,
+
+	PC,
+
+	ADPLUG,
+	TRACKER = 0x30,
 	SCREAMTRACKER,
 	IMPULSETRACKER,
 	FASTTRACKER,
 
+	AMIGA,
+	PROTRACKER,
+
 	UADE,
 };
-*/
+
 static uint8_t formatToByte(const std::string &f) {
 	return 0;
 }

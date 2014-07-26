@@ -26,7 +26,7 @@ PlaylistDatabase::PlaylistDatabase() : db("play.db") {
 
 	// Create playlists vector from database
 	auto q = db.query<int, string>("SELECT rowid, title FROM playlist");
-	if(q.step()) {
+	while(q.step()) {
 		tie(rowid, title) = q.get_tuple();
 		if(rowid > playlists.size())
 			playlists.resize(rowid);
@@ -48,6 +48,16 @@ PlaylistDatabase::PlaylistDatabase() : db("play.db") {
 void PlaylistDatabase::createPlaylist(const string &name) {
 	db.exec("INSERT INTO playlist (title) VALUES (?)", name);
 	playlists.push_back(Playlist(name));
+}
+
+void PlaylistDatabase::renamePlaylist(const string &oldName, const string &newName) {
+	db.exec("UPDATE playlist SET title=? WHERE title=?", newName, oldName); 
+	for(auto &p : playlists) {
+		if(p.name == oldName) {
+			p.name = newName;
+			break;
+		}
+	}
 }
 
 void PlaylistDatabase::addToPlaylist(const std::string &name, const SongInfo &song) {

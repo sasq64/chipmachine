@@ -28,6 +28,57 @@
 
 namespace chipmachine {
 
+class LineEdit : public TextField {
+public:
+	LineEdit(const grappix::Font &font, const std::string &text, float x, float y, float sc, uint32_t col) : TextField(font, text, x, y, sc, col) {
+		cursorColor = grappix::Color::WHITE;//grappix::Color(col)/2.0F;
+
+		//tween::make_tween().sine().repeating().to(cursorColor, grappix::Color::WHITE).seconds(1.7);
+	}
+
+	void on_key(uint32_t key) {
+		if(key < 0x100)
+			text = text + (char)key;
+		else {
+			switch(key) {
+			case grappix::Window::BACKSPACE:
+				text = text.substr(0, text.length()-1);				
+				break;
+			}
+		}
+		tsize = font.get_size(text, scale);
+	}
+
+	virtual void setText(const std::string &t) override {
+		text = prompt + t;
+		tsize.x = -1;
+	}
+
+	virtual std::string getText() const override {
+		return text.substr(prompt.length());
+	}
+
+	void setPrompt(const std::string &p) {
+		prompt = p;
+	}
+
+	virtual void render(grappix::RenderTarget &target, uint32_t delta) override {
+		TextField::render(target, delta);
+		getWidth();
+		//LOGD("REC %s %d %d", text, tsize.x, tsize.y);
+		target.rectangle(pos.x + tsize.x + 2, pos.y + 2, 10, tsize.y - 4, cursorColor);
+	}
+	grappix::Color cursorColor;
+	std::string prompt = ">";
+};
+
+class Dialog : public Renderable {
+	virtual void render(grappix::RenderTarget &target, uint32_t delta) override {
+
+	}
+
+};
+
 class ChipMachine : public grappix::VerticalList::Renderer {
 public:
 
@@ -102,6 +153,7 @@ private:
 	std::shared_ptr<TextField> songField;
 	std::shared_ptr<TextField> nextField;
 	std::shared_ptr<TextField> xinfoField;
+	std::shared_ptr<TextField> playlistField;
 
 	string currentNextPath;
 	SongInfo currentInfo;
@@ -115,7 +167,10 @@ private:
 
 	RenderSet searchScreen;
 
-	std::shared_ptr<TextField> searchField;
+	std::shared_ptr<LineEdit> searchField;
+	std::shared_ptr<LineEdit> commandField;
+	std::shared_ptr<TextField> topStatus;
+
 	std::shared_ptr<TextField>resultFieldTemplate;
 
 
@@ -132,8 +187,8 @@ private:
 	grappix::Color markColor;
 	grappix::Color hilightColor;
 
-	grappix::Color searchColor = 0xffffffff;
-	grappix::Color formatColor = 0xffcccc66;
+	//grappix::Color searchColor = 0xffffffff;
+	//grappix::Color formatColor = 0xffcccc66;
 
 	IncrementalQuery iquery;
 
@@ -149,6 +204,10 @@ private:
 
 	statemachine::StateMachine smac;
 
+	std::string currentPlaylistName = "Favorites";
+	std::string editPlaylistName;
+
+	bool playlistEdit = false;
 };
 
 }

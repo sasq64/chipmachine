@@ -8,6 +8,10 @@ class Renderable
 {
 public:
 	virtual void render(grappix::RenderTarget &target, uint32_t delta) = 0;
+	virtual void visible(bool b) { is_visible = b; }
+	virtual bool visible() { return is_visible; }
+protected:
+	bool is_visible = true;
 };
 
 

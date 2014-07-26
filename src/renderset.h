@@ -26,7 +26,8 @@ public:
 
 	void render(grappix::RenderTarget &target, uint32_t delta) {
 		for(auto &r : fields)
-			r->render(target, delta);
+			if(r->visible())
+				r->render(target, delta);
 	}
 
 	std::vector<std::shared_ptr<Renderable>> fields;
