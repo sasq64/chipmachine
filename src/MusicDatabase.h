@@ -23,7 +23,7 @@ public:
 class MusicDatabase : public SearchProvider {
 public:
 	MusicDatabase() : db("music.db") {
-		db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, description STRING, id INTEGER, version INTEGER)");
+		db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, localdir STRING, description STRING, id INTEGER, version INTEGER)");
 		db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
 	}
 

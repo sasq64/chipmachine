@@ -285,10 +285,21 @@ void MusicPlayerList::playCurrent() {
 				files--;
 			});
 		}
-		webgetter.getURL(currentInfo.path, [=](const WebGetter::Job &job) {
+
+		auto url = currentInfo.path;
+		if(url.find("snesmusic.org") != string::npos) {
+			url = url.substr(0, url.length()-4);
+		}
+
+		webgetter.getURL(url, [=](const WebGetter::Job &job) {
 			LOGD("Got file");
 			if(job.getReturnCode() == 0) {
 				loadedFile = job.getFile();
+				if(loadedFile.find("snesmusic.org") != string::npos) {
+					auto newFile = loadedFile + ".rsn";
+					rename(loadedFile.c_str(), newFile.c_str());
+					loadedFile = newFile;
+				}
 				LOGD("loadedFile %s", loadedFile);
 				PSFFile f { loadedFile };
 				if(f.valid()) {

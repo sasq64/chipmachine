@@ -11,156 +11,6 @@ namespace chipmachine {
 
 static const std::set<std::string> secondary = { "smpl", "sam", "ins", "smp" };
 
-void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
-
-	auto name = vars["type"];
-	LOGD("Init db '%s'", name);
-	if(name == "modland")
-		modlandInit(vars["source"], vars["song_list"], vars["exclude_formats"], stol(vars["id"]));
-	else if(name == "hvsc")
-		hvscInit(vars["source"], stol(vars["id"]));
-	else if(name == "rsn")
-		rsnInit(vars["source"], stol(vars["id"]));
-}
-
-void MusicDatabase::rsnInit(const string &source, int id) {
-
-
-	if(db.query("SELECT 1 FROM collection WHERE name = 'RSNSET'").step())
-		return;
-
-	//LOGD("Indexing RSN");
-	print_fmt("Creating RSN database\n");
-
-	db.exec("BEGIN TRANSACTION");
-
-	string rsnPath = source;
-	if(!endsWith(rsnPath, "/"))
-		rsnPath += "/";
-
-	db.exec("INSERT INTO collection (name, url, description, id) VALUES (?, ?, ?, ?)",
-		"RSNSET", rsnPath, "SNES RSN set", id);
-
-	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?)");
-
-	vector<uint8_t> buffer(0xd8);
-
-	makedir(".rsntemp");
-
-	File root { source };
-
-	for(const auto &rf : root.listFiles()) {
-		auto name = rf.getName();
-		//LOGD("########### NAME:%s", name);
-		if(path_extension(name) == "rsn") {
-			auto *a = Archive::open(name, ".rsntemp", Archive::TYPE_RAR);
-			//LOGD("ARCHIVE %p", a);
-			bool done = false;
-			for(auto s : *a) {
-				//LOGD("FILE %s", s);
-				if(done) continue;
-				if(path_extension(s) == "spc") {
-					a->extract(s);
-					File f { ".rsntemp/" + s };
-					f.read(&buffer[0], buffer.size());
-					f.close();
-					if(buffer[0x23] == 0x1a) {
-						//auto title = string((const char*)&buffer[0x2e], 0x20);
-						auto game = string((const char*)&buffer[0x4e], 0x20);
-						auto composer = string((const char*)&buffer[0xb1], 0x20);
-
-						f.seek(0x10200);
-						int rc = f.read(&buffer[0], buffer.size());
-						if(rc > 12) {
-							auto id = string((const char*)&buffer[0], 4);
-							if(id == "xid6") {
-								//int i = 0;
-								if(buffer[8] == 0x2) {
-									int l = buffer[10];
-									game = string((const char*)&buffer[12], l);
-								} else if(buffer[8] == 0x3) {
-									int l = buffer[10];
-									composer = string((const char*)&buffer[12], l);
-								}
-							}
-						}
-
-						auto pos = name.find(rsnPath);
-						if(pos != string::npos) {
-							name = name.substr(pos + rsnPath.length());
-						}
-						LOGD("### %s : %s - %s", name, composer, game);
-
-						query.bind("", game, composer, "Super Nintendo", name, id);
-						query.step();
-
-						break;
-						//done = true;
-					}
-				}
-			}
-			delete a;
-		}
-	}
-	db.exec("COMMIT");
-
-}
-
-void MusicDatabase::hvscInit(const string &source, int id) {
-
-	if(db.query("SELECT 1 FROM collection WHERE name = 'HVSC'").step())
-		return;
-
-	//db.exec("CREATE TABLE IF NOT EXISTS hvscstil (title STRING)");
-
-	//LOGD("Indexing HVSC");
-	print_fmt("Creating HVSC database\n");
-
-	db.exec("BEGIN TRANSACTION");
-
-	string hvscPath = source;
-	if(!endsWith(hvscPath, "/"))
-		hvscPath += "/";
-
-	db.exec("INSERT INTO collection (name, url, description, id) VALUES (?, ?, ?, ?)",
-		"HVSC", hvscPath, "HVSC database", id);
-
-	vector<uint8_t> buffer(128);
-	//char temp[33];
-	//temp[32] = 0;
-
-	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?)");
-
-	function<void(File &)> checkDir;
-	checkDir = [&](File &root) {
-		LOGD("Checking %s", root.getName());
-		for(auto f : root.listFiles()) {
-			auto name = f.getName();
-			if(path_extension(f.getName()) == "sid") {
-				f.read(&buffer[0], buffer.size());
-				auto title = string((const char*)&buffer[0x16], 0x20);
-				auto composer = string((const char*)&buffer[0x36], 0x20);
-				//auto copyright = string((const char*)&buffer[0x56], 0x20);
-
-				auto pos = name.find(hvscPath);
-				if(pos != string::npos) {
-					name = name.substr(pos + hvscPath.length());
-				}
-
-				query.bind(title, "", composer, "Commodore 64", name, id);
-				query.step();
-				f.close();
-			} else if(f.isDir())
-				checkDir(f);
-		}
-	};
-	auto hf = File(hvscPath);
-	checkDir(hf);
-
-	db.exec("COMMIT");
-}
-
-
 #ifdef RASPBERRYPI
 static std::unordered_set<std::string> exclude = {
 	"Nintendo DS Sound Format", "Gameboy Sound Format", "Dreamcast Sound Format", "Ultra64 Sound Format",
@@ -170,6 +20,175 @@ static std::unordered_set<std::string> exclude = {
 static std::unordered_set<std::string> exclude = { /*"RealSID", "PlaySID",*/ "Saturn Sound Format" };
 #endif
 
+
+static string get_string(uint8_t *ptr, int size) {
+
+	auto end = ptr;
+	while(*end && end-ptr < size) end++;
+	return string((const char*)ptr, end-ptr);
+}
+
+bool parseSid(SongInfo &info) {
+	static vector<uint8_t> buffer(0xd8);
+	File f { info.path };
+	info.format = "Commodore 64";
+	f.read(&buffer[0], buffer.size());
+	info.title = get_string(&buffer[0x16], 0x20);
+	info.composer = get_string(&buffer[0x36], 0x20);
+	//auto copyright = string((const char*)&buffer[0x56], 0x20);
+	f.close();
+	return true;
+}
+
+bool parseSnes(SongInfo &info) {
+
+	static vector<uint8_t> buffer(0xd8);
+
+	info.format = "Super Nintendo";
+
+	auto *a = Archive::open(info.path, ".rsntemp", Archive::TYPE_RAR);
+	//LOGD("ARCHIVE %p", a);
+	bool done = false;
+	for(auto s : *a) {
+		//LOGD("FILE %s", s);
+		if(done) continue;
+		if(path_extension(s) == "spc") {
+			a->extract(s);
+			File f { ".rsntemp/" + s };
+			f.read(&buffer[0], buffer.size());
+			f.close();
+			if(buffer[0x23] == 0x1a) {
+				//auto title = string((const char*)&buffer[0x2e], 0x20);
+				auto ptr = (const char*)&buffer[0x4e];
+				auto end = ptr;
+				while(*end) end++;
+				auto game = get_string(&buffer[0x4e], 0x20);
+				auto composer = get_string(&buffer[0xb1], 0x20);
+
+				f.seek(0x10200);
+				int rc = f.read(&buffer[0], buffer.size());
+				if(rc > 12) {
+					auto id = string((const char*)&buffer[0], 4);
+					if(id == "xid6") {
+						//int i = 0;
+						if(buffer[8] == 0x2) {
+							int l = buffer[10];
+							game = string((const char*)&buffer[12], l);
+						} else if(buffer[8] == 0x3) {
+							int l = buffer[10];
+							composer = string((const char*)&buffer[12], l);
+						}
+					}
+				}
+
+				info.composer = composer;
+				info.game = game;
+				info.title = "";
+				done = true;
+			}
+		}
+	}
+	delete a;
+	return done;
+}
+
+bool identifyFile(SongInfo &info, string ext = "") {
+
+	if(ext == "")
+		ext = path_extension(info.path);
+
+	if(ext == "rsn")
+		return parseSnes(info);
+	if(ext == "sid")
+		return parseSid(info);
+	return false;
+}
+
+void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
+
+	auto type = vars["type"];
+	LOGD("Init db '%s'", type);
+	auto source = vars["source"];
+	auto local_dir = vars["local_dir"];
+	auto song_list = vars["song_list"];
+	auto description = vars["description"];
+	auto xformats = vars["exclude_formats"];
+	auto id = stol(vars["id"]);
+
+	auto ex_copy = exclude;
+	auto parts = split(xformats, ";");
+	for(const auto &p : parts) {
+		if(p.length())
+			ex_copy.insert(p);
+	}
+
+	if(db.query("SELECT 1 FROM collection WHERE name = ?", type).step())
+		return;
+
+	//LOGD("Indexing RSN");
+	print_fmt("Creating '%s' database\n", type);
+
+	db.exec("BEGIN TRANSACTION");
+
+	if(!endsWith(local_dir, "/"))
+		local_dir += "/";
+
+	db.exec("INSERT INTO collection (name, url, localdir, description, id) VALUES (?, ?, ?, ?, ?)",
+		type, source, local_dir, description, id);
+
+	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?)");
+
+	File listFile(song_list);
+	if(listFile.exists()) {
+
+		bool isModland = (type == "modland");
+
+		for(const auto &s : listFile.getLines()) {
+			auto parts = split(s, "\t");
+			if(isModland) {
+				SongInfo song(parts[1]);
+				if(!parseModlandPath(song))
+					continue;
+				if(ex_copy.count(song.format) > 0)
+					continue;
+				query.bind(song.title, song.game, song.composer, song.format, song.path, id);
+			} else {
+				SongInfo song(parts[4], parts[1], parts[0], parts[2], parts[3]);
+				query.bind(song.title, song.game, song.composer, song.format, song.path, id);
+
+			}
+			query.step();
+		}
+	} else {
+
+		makedir(".rsntemp");
+		function<void(File &)> checkDir;
+		checkDir = [&](File &root) {
+			for(auto &rf : root.listFiles()) {
+				if(rf.isDir()) {
+					checkDir(rf);
+				} else {
+					auto name = rf.getName();
+					SongInfo songInfo(name);
+					if(identifyFile(songInfo)) {
+
+						auto pos = name.find(local_dir);
+						if(pos != string::npos) {
+							name = name.substr(pos + local_dir.length());
+						}
+
+						query.bind(songInfo.title, songInfo.game, songInfo.composer, songInfo.format, name, id);
+						query.step();
+					}
+				}
+			}
+		};
+		File root { local_dir };
+		checkDir(root);
+	}
+	db.exec("COMMIT");
+
+}
 
 bool MusicDatabase::parseModlandPath(SongInfo &song) {
 
@@ -225,50 +244,6 @@ bool MusicDatabase::parseModlandPath(SongInfo &song) {
 	return true;
 }
 
-void MusicDatabase::modlandInit(const string &source, const string &song_list, const string &xformats, int id) {
-
-	if(db.query("SELECT 1 FROM collection WHERE name = 'modland'").step())
-		return;
-
-	//LOGD("Creating modland collection");
-	print_fmt("Creating Modland database\n");
-
-	auto ex_copy = exclude;
-	auto parts = split(xformats, ";");
-	for(const auto &p : parts) {
-		if(p.length())
-			ex_copy.insert(p);
-	}
-
-	string url = source;
-	if(!endsWith(url, "/"))
-		url += "/";
-
-	db.exec("BEGIN TRANSACTION");
-
-	db.exec("INSERT INTO collection (name, url, description, id) VALUES (?, ?, ?, ?)",
-		"modland", url, "Modland database", id);
-
-	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?)");
-
-	File file { song_list };
-	for(const auto &s : file.getLines()) {
-
-		SongInfo song(split(s, "\t")[1]);
-
-		if(!parseModlandPath(song))
-			continue;
-		if(ex_copy.count(song.format) > 0)
-			continue;
-
-		query.bind(song.title, song.game, song.composer, song.format, song.path, id);
-		query.step();
-	}
-	db.exec("COMMIT");
-
-}
-
-
 int MusicDatabase::search(const string &query, vector<int> &result, unsigned int searchLimit) {
 
 	lock_guard<mutex>{dbMutex};
@@ -312,15 +287,21 @@ string MusicDatabase::getFullString(int id) const {
 	id++;
 	LOGD("ID %d", id);
 
-	auto q = db.query<string, string, string, string, string, string>("SELECT title, game, composer, format, song.path, collection.url FROM song, collection WHERE song.ROWID = ? AND song.collection = collection.id", id);
+	auto q = db.query<string, string, string, string, string, string, string>("SELECT title, game, composer, format, song.path, collection.url, collection.localdir FROM song, collection WHERE song.ROWID = ? AND song.collection = collection.id", id);
 	if(q.step()) {
 		auto t = q.get_tuple();
 		auto title = get<0>(t);
 		auto game = get<1>(t);
+
+		auto path = get<6>(t) + get<4>(t);
+		LOGD("LOCAL FILE: %s", path);
+		if(!File::exists(path))
+			path = get<5>(t) + get<4>(t);
+
 		if(game != "")
 			title = format("%s [%s]", game, title);
 
-		string r = format("%s\t%s\t%s\t%s", get<5>(t) + get<4>(t), title, get<2>(t), get<3>(t));
+		string r = format("%s\t%s\t%s\t%s", path, title, get<2>(t), get<3>(t));
 		LOGD("RESULT %s", r);
 		return r;
 	}
