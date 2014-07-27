@@ -1,3 +1,26 @@
+
+
+Read DB into source_list.txt file
+Make spcsets and hvsc work online out of the box
+
+ALL playlists synced from server?
+
+get_lists -> list names -> playlist db
+
+pdb.get_list
+
+if not synced then download
+
+manually UPLOAD own lists
+
+need to LOGIN : bind uid to username
+LOGIN dialog from app
+
+simple security, no pass, full UIDs never readable from rpc calls
+
+
+
+
 PLAY LISTS
 ==========
 

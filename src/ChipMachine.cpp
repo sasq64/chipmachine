@@ -49,42 +49,36 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 
 	memset(&eq[0], 2, eq.size());
 
-	spectrumPos = { tv0.x-10, tv1.y+50 };
+	//spectrumPos = { tv0.x-10, tv1.y+50 };
 
-
-	font = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
-	listFont = Font("data/Neutra.otf", 32, 256);// | Font::DISTANCE_MAP);
+	//font = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
+	//listFont = Font("data/Neutra.otf", 32, 256);// | Font::DISTANCE_MAP);
 
 	// MAINSCREEN
 
-	prevInfoField = SongInfoField(font, -3200, 64, 10.0, 0x00e0e080);
-	currentInfoField = SongInfoField(font, tv0.x, tv0.y, 2.0, 0xffe0e080);
-	nextInfoField = SongInfoField(font, 440, 340, 1.0, 0xffe0e080);
-	outsideInfoField = SongInfoField(font, screen.width()+10, 340, 1.0, 0xffe0e080);
-	for(int i=0; i<3; i++)
+	//prevInfoField = SongInfoField(font, -3200, 64, 10.0, 0x00e0e080);
+	//currentInfoField = SongInfoField(font, tv0.x, tv0.y, 2.0, 0xffe0e080);
+	//nextInfoField = SongInfoField(font, 440, 340, 1.0, 0xffe0e080);
+	//outsideInfoField = SongInfoField(font, screen.width()+10, 340, 1.0, 0xffe0e080);
+	for(int i=0; i<3; i++) {
 		mainScreen.add(prevInfoField.fields[i]);
-	for(int i=0; i<3; i++)
 		mainScreen.add(currentInfoField.fields[i]);
-	for(int i=0; i<3; i++)
 		mainScreen.add(nextInfoField.fields[i]);
-	for(int i=0; i<3; i++)
 		mainScreen.add(outsideInfoField.fields[i]);
+	}
 
-	xinfoField = make_shared<TextField>(font, "", tv1.x-100, tv0.y, 0.8, 0x50a0c0ff);
+	xinfoField = make_shared<TextField>();//font, "", tv1.x-100, tv0.y, 0.8, 0x50a0c0ff);
 	mainScreen.add(xinfoField);
 
-	nextField = make_shared<TextField>(font, "next", 440, 320, 0.6, 0xe080c0ff);
+	nextField = make_shared<TextField>();//font, "next", 440, 320, 0.6, 0xe080c0ff);
 	mainScreen.add(nextField);
 
-	timeField = make_shared<TextField>(font, "", tv0.x, 188, 1.0, 0xff888888);
+	timeField = make_shared<TextField>();//font, "", tv0.x, 188, 1.0, 0xff888888);
 	mainScreen.add(timeField);
-	lengthField = make_shared<TextField>(font, "", tv0.x + 100, 188, 1.0, 0xff888888);
+	lengthField = make_shared<TextField>();//font, "", tv0.x + 100, 188, 1.0, 0xff888888);
 	mainScreen.add(lengthField);
-	songField = make_shared<TextField>(font, "", tv0.x + 220, 188, 1.0, 0xff888888);
+	songField = make_shared<TextField>();//font, "", tv0.x + 220, 188, 1.0, 0xff888888);
 	mainScreen.add(songField);
-
-	playlistField = make_shared<TextField>(font, "Favorites", tv1.x - 100, tv1.y - 10, 1.0, 0xff888888);
-	mainScreen.add(playlistField);
 
 	auto bm = image::bitmap(8, 6, &heart[0]);
 	favTexture = Texture(bm);
@@ -96,30 +90,32 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 
 	iquery = MusicDatabase::getInstance().createQuery();
 
-	resultFieldTemplate = make_shared<TextField>(listFont, "", tv0.x, tv0.y+30, 0.8, 0xff20c020);
-	markColor = resultFieldTemplate->color;
+	resultFieldTemplate = make_shared<TextField>();//listFont, "", tv0.x, tv0.y+30, 0.8, 0xff20c020);
+	//markColor = resultFieldTemplate->color;
 	hilightColor = Color(0xffffffff);
-	markTween = make_tween().sine().repeating().from(markColor, hilightColor).seconds(1.0);
+	//markTween = make_tween().sine().repeating().from(markColor, hilightColor).seconds(1.0);
 
-	searchField = make_shared<LineEdit>(font, "", tv0.x, tv0.y, 1.0, 0xff888888);
+	searchField = make_shared<LineEdit>();//font, "", tv0.x, tv0.y, 1.0, 0xff888888);
 	searchField->setPrompt("#");
 	searchScreen.add(searchField);
 	searchField->visible(false);
+
+	topStatus = make_shared<TextField>();//font, "", tv0.x, tv0.y, 1.0, 0xff888888);
+	searchScreen.add(topStatus);
+	topStatus->visible(false);
+
+	setup_rules();
+
+	initLua();
+
+	playlistField = make_shared<TextField>(listFont, "Favorites", tv1.x - 80, tv1.y - 10, 0.5, 0xff888888);
+	mainScreen.add(playlistField);
 
 	commandField = make_shared<LineEdit>(font, ">", tv0.x, tv0.y, 1.0, 0xff888888);
 	searchScreen.add(commandField);
 	commandField->visible(false);
 
-	topStatus = make_shared<TextField>(font, "", tv0.x, tv0.y, 1.0, 0xff888888);
-	searchScreen.add(topStatus);
-	topStatus->visible(false);
-
-
-
-	setup_rules();
-
-	initLua();
-	scrollEffect.set("scrolltext", "Chipmachine Beta 1 -- Begin typing to to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- F8 to clear queue -- ESCAPE to clear search text ----- ");
+	scrollEffect.set("scrolltext", "Chipmachine Beta 1 -- Begin typing to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- F8 to clear queue -- ESCAPE to clear search text ----- ");
 	toastField = make_shared<TextField>(font, "", tv0.x, tv1.y - 134, 2.0, 0x00ffffff);
 	renderSet.add(toastField);
 	starEffect.fadeIn();
@@ -200,8 +196,6 @@ void ChipMachine::play(const SongInfo &si) {
 	player.nextSong();
 }
 
-
-
 void ChipMachine::update() {
 
 	static string msg;
@@ -219,10 +213,6 @@ void ChipMachine::update() {
 
 	update_keys();
 
-
-	//mainScreen.update();
-	//searchScreen.update();
-		//player.update();
 	auto state = player.getState();
 	//LOGD("STATE %d vs %d %d %d", state, MusicPlayerList::STOPPED, MusicPlayerList::WAITING, MusicPlayerList::PLAY_STARTED);
 	if(state == MusicPlayerList::PLAY_STARTED) {
@@ -255,7 +245,7 @@ void ChipMachine::update() {
 		};
 
 		auto favorites = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
-		auto favsong = find_if(favorites.begin(), favorites.end(), [&](const SongInfo &song) -> bool { return song.path == currentInfo.path; });
+		auto favsong = find(favorites.begin(), favorites.end(), currentInfo);
 		isFavorite = (favsong != favorites.end());
 
 		if(nextInfoField == currentInfoField) {

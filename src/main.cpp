@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
 
 	logging::setLevel(logging::WARNING);
 
-	bool fullScreen = false;
+	bool fullScreen = true;
 	vector<SongInfo> songs;
 	int w = 720;
 	int h = 576;
@@ -29,7 +29,11 @@ int main(int argc, char* argv[]) {
 			if(argv[i][0] == '-') {
 				switch(argv[i][1]) {
 				case 'd':
+					fullScreen = false;
 					logging::setLevel(logging::DEBUG);
+					break;
+				case 'w':
+					fullScreen = false;
 					break;
 				case 'f':
 					fullScreen = true;

@@ -30,6 +30,10 @@ namespace chipmachine {
 
 class LineEdit : public TextField {
 public:
+	LineEdit() : TextField() {
+		cursorColor = grappix::Color::WHITE;
+	}
+
 	LineEdit(const grappix::Font &font, const std::string &text, float x, float y, float sc, uint32_t col) : TextField(font, text, x, y, sc, col) {
 		cursorColor = grappix::Color::WHITE;//grappix::Color(col)/2.0F;
 
@@ -184,8 +188,8 @@ private:
 	grappix::Color spectrumColorMain = 0xff00aaee;
 	grappix::Color spectrumColorSearch = 0xff111155;
 
-	grappix::Color markColor;
-	grappix::Color hilightColor;
+	grappix::Color markColor = 0xff00ff00;
+	grappix::Color hilightColor = 0xffffffff;
 
 	//grappix::Color searchColor = 0xffffffff;
 	//grappix::Color formatColor = 0xffcccc66;

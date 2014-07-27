@@ -7,9 +7,12 @@
 struct SongInfoField {
 
 	SongInfoField() {
+		fields[0] = std::make_shared<TextField>();
+		fields[1] = std::make_shared<TextField>();
+		fields[2] = std::make_shared<TextField>();
 	}
 
-	SongInfoField(grappix::Font &font, int x, int y, float sc = 1.0, uint32_t color = 0xffffffff) {
+	SongInfoField(grappix::Font &font, int x = 0, int y = 0, float sc = 1.0, uint32_t color = 0xffffffff) {
 		fields[0] = std::make_shared<TextField>(font, "", x, y, sc, color);
 		fields[1] = std::make_shared<TextField>(font, "", x, y+50*sc, sc*0.6, color);
 		fields[2] = std::make_shared<TextField>(font, "", x, y+100*sc, sc*0.4, color);

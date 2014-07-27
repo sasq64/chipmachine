@@ -16,9 +16,12 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 		{ "next_title", &nextInfoField[0] },
 		{ "next_composer", &nextInfoField[1] },
 		{ "next_format", &nextInfoField[2] },
-		{ "prev_title", &prevInfoField[0] },
-		{ "prev_composer", &prevInfoField[1] },
-		{ "prev_format", &prevInfoField[2] },
+		{ "exit_title", &prevInfoField[0] },
+		{ "exit_composer", &prevInfoField[1] },
+		{ "exit_format", &prevInfoField[2] },
+		{ "enter_title", &outsideInfoField[0] },
+		{ "enter_composer", &outsideInfoField[1] },
+		{ "enter_format", &outsideInfoField[2] },
 		{ "length_field", lengthField.get() },
 		{ "time_field", timeField.get() },
 		{ "song_field", songField.get() },
@@ -72,10 +75,17 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 	if(name == "font") {
 		if(File::exists(val)) {
 			font = Font(val, 48, 512 | Font::DISTANCE_MAP);
-			listFont = Font(val, 32, 256);// | Font::DISTANCE_MAP);
 			for(auto &f : fields) {
 				f.second->setFont(font);
 			}
+			//listFont = Font(val, 32, 256);// | Font::DISTANCE_MAP);
+			//resultFieldTemplate->setFont(listFont);
+		}
+	} else
+	if(name == "list_font") {
+		if(File::exists(val)) {
+			listFont = Font(val, 32, 256);// | Font::DISTANCE_MAP);
+			resultFieldTemplate->setFont(listFont);
 		}
 	} else
 	if(name == "favicon") {
