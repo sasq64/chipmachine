@@ -37,34 +37,64 @@ public:
 		auto fn = fileName;
 		auto collection = MusicDatabase::getInstance().stripCollectionPath(fn);
 
-		LOGD("TRACK %s %s", collection, fn);
+		LOGD("TRACK %s %s", collection.name, fn);
 		done = false;
 
 		JSon json;
-		json.add("id", std::to_string(trackid));
+		json.add("uid", std::to_string(trackid));
 		json.add("path", fn);
-		json.add("collection", collection);
+		json.add("collection", collection.name);
 		//json("path") = fn;
 		//json("collection") = collection;
 		rpc.post("song_played", json.to_string(), [=](const std::string &result) {
 			//rpc.post("song_played", utils::format("{ \"id\" : \"%x\", \"path\" : \"%s\", \"collection\" : \"%s\" }", trackid, fn, collection), [=](const std::string &result) {
-			LOGD("trackDone");
+			LOGD("trackDone:" + result);
 			done = true;
 		});
 	}
 
 	void sendList(const std::vector<SongInfo> &songs, const std::string &name) {
 		JSon json;
-		json.add("id", std::to_string(trackid));
-		json.add("", std::to_string(trackid));
+		json.add("uid", std::to_string(trackid));
+		json.add("name", name);
 		auto sl = json.add_array("songs");
 		for(const SongInfo &info : songs) {
 			auto fn = info.path;
 			auto collection = MusicDatabase::getInstance().stripCollectionPath(fn);
-			sl.add(fn + ":" + collection);
+			sl.add(fn + ":" + collection.name);
 		}
 		rpc.post("set_list", json.to_string(), [=](const std::string &result) {
 			LOGD("set_list done:" + result);
+		});
+	}
+
+	void getLists(std::function<void(std::vector<std::string>)> f) {
+		rpc.call("get_lists",  [=](const std::string &result) {
+			std::vector<std::string> lists;
+			LOGD("GET LISTS:%s", result);
+			for(auto pl : JSon::parse(result)) {
+				std::string user = pl("user");
+				std::string name = pl("name");
+				lists.emplace_back((std::string)pl("name") + ":" + user);
+			}
+			f(lists);
+		});
+	}
+
+	void getList(const std::string &name, std::function<void(const std::string&, const std::vector<std::string>&)> f) {
+
+		auto parts = utils::split(name, ":");
+
+		JSon json;
+		json.add("username", parts[1]);
+		json.add("name", parts[0]);
+
+		rpc.post("get_list", json.to_string(), [=](const std::string &result) {
+			LOGD("GET LIST: %s", result);
+			auto jres =  JSon::parse(result);
+			std::string name = jres("name");
+			std::vector<std::string> songs = jres("songs");
+			f(name + ":" + parts[1], songs);
 		});
 	}
 
@@ -94,9 +124,9 @@ public:
 		auto fn = fileName;
 		auto collection = MusicDatabase::getInstance().stripCollectionPath(fn);
 
-		LOGD("FAV %s %s", collection, fn);
+		LOGD("FAV %s %s", collection.name, fn);
 		done = false;
-		rpc.post(add ? "add_favorite" : "del_favorite", utils::format("{ \"id\" : \"%x\", \"path\" : \"%s\", \"collection\" : \"%s\" }", trackid, fn, collection), [=](const std::string &result) {
+		rpc.post(add ? "add_favorite" : "del_favorite", utils::format("{ \"id\" : \"%x\", \"path\" : \"%s\", \"collection\" : \"%s\" }", trackid, fn, collection.name), [=](const std::string &result) {
 			LOGD("favDone");
 			done = true;
 		});

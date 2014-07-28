@@ -40,26 +40,13 @@ const vector<uint32_t> heart = { 0,Z,Z,0,Z,Z,0,0,
 
 ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen), songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
 
-	//mdb.init();
+	PlaylistDatabase::getInstance();
 
 #ifdef ENABLE_TELNET
 	telnet = make_unique<TelnetInterface>(*this);
 	telnet->start();
 #endif
 
-	memset(&eq[0], 2, eq.size());
-
-	//spectrumPos = { tv0.x-10, tv1.y+50 };
-
-	//font = Font("data/Neutra.otf", 32, 256 | Font::DISTANCE_MAP);
-	//listFont = Font("data/Neutra.otf", 32, 256);// | Font::DISTANCE_MAP);
-
-	// MAINSCREEN
-
-	//prevInfoField = SongInfoField(font, -3200, 64, 10.0, 0x00e0e080);
-	//currentInfoField = SongInfoField(font, tv0.x, tv0.y, 2.0, 0xffe0e080);
-	//nextInfoField = SongInfoField(font, 440, 340, 1.0, 0xffe0e080);
-	//outsideInfoField = SongInfoField(font, screen.width()+10, 340, 1.0, 0xffe0e080);
 	for(int i=0; i<3; i++) {
 		mainScreen.add(prevInfoField.fields[i]);
 		mainScreen.add(currentInfoField.fields[i]);
@@ -67,17 +54,17 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 		mainScreen.add(outsideInfoField.fields[i]);
 	}
 
-	xinfoField = make_shared<TextField>();//font, "", tv1.x-100, tv0.y, 0.8, 0x50a0c0ff);
+	xinfoField = make_shared<TextField>();
 	mainScreen.add(xinfoField);
 
-	nextField = make_shared<TextField>();//font, "next", 440, 320, 0.6, 0xe080c0ff);
+	nextField = make_shared<TextField>();
 	mainScreen.add(nextField);
 
-	timeField = make_shared<TextField>();//font, "", tv0.x, 188, 1.0, 0xff888888);
+	timeField = make_shared<TextField>();
 	mainScreen.add(timeField);
-	lengthField = make_shared<TextField>();//font, "", tv0.x + 100, 188, 1.0, 0xff888888);
+	lengthField = make_shared<TextField>();
 	mainScreen.add(lengthField);
-	songField = make_shared<TextField>();//font, "", tv0.x + 220, 188, 1.0, 0xff888888);
+	songField = make_shared<TextField>();
 	mainScreen.add(songField);
 
 	auto bm = image::bitmap(8, 6, &heart[0]);
@@ -90,17 +77,13 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 
 	iquery = MusicDatabase::getInstance().createQuery();
 
-	resultFieldTemplate = make_shared<TextField>();//listFont, "", tv0.x, tv0.y+30, 0.8, 0xff20c020);
-	//markColor = resultFieldTemplate->color;
-	hilightColor = Color(0xffffffff);
-	//markTween = make_tween().sine().repeating().from(markColor, hilightColor).seconds(1.0);
-
-	searchField = make_shared<LineEdit>();//font, "", tv0.x, tv0.y, 1.0, 0xff888888);
+	resultFieldTemplate = make_shared<TextField>();
+	searchField = make_shared<LineEdit>();
 	searchField->setPrompt("#");
 	searchScreen.add(searchField);
 	searchField->visible(false);
 
-	topStatus = make_shared<TextField>();//font, "", tv0.x, tv0.y, 1.0, 0xff888888);
+	topStatus = make_shared<TextField>();
 	searchScreen.add(topStatus);
 	topStatus->visible(false);
 
@@ -202,12 +185,13 @@ void ChipMachine::update() {
 	auto m = player.getMeta("message");
 	if(m != msg) {
 		msg = m;
+		// Turn linefeeds into spaces
 		replace(m.begin(), m.end(), '\n', ' ');
+		// Turn space sequences into single spaces
 		auto last = unique(m.begin(), m.end(), [](const char &a, const char &b) -> bool {
 			return (a == ' ' && b == ' ');
 		});
 		m.resize(last - m.begin());
-		//LOGD("MSG:%s", m);
 		scrollEffect.set("scrolltext", m);
 	}
 

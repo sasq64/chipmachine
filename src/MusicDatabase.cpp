@@ -307,7 +307,7 @@ string MusicDatabase::getFullString(int id) const {
 	}
 	throw not_found_exception();
 }
-
+/*
 SongInfo MusicDatabase::pathToSongInfo(const std::string &path) {
 	SongInfo song(path);
 	auto coll = stripCollectionPath(song.path);
@@ -316,7 +316,7 @@ SongInfo MusicDatabase::pathToSongInfo(const std::string &path) {
 		parseModlandPath(song);
 	return song;
 }
-
+*/
 vector<SongInfo> MusicDatabase::find(const string &pattern) {
 
 	lock_guard<mutex> guard(dbMutex);
@@ -401,20 +401,47 @@ static uint8_t formatToByte(const std::string &f) {
 }
 
 
-string MusicDatabase::stripCollectionPath(string &path) {
+MusicDatabase::Collection MusicDatabase::stripCollectionPath(string &path) {
 	vector<Collection> colls;
-	auto q = db.query<string, string>("SELECT name,url FROM collection");
+	auto q = db.query<int, string, string>("SELECT ROWID,name,url FROM collection");
 	while(q.step()) {
 		colls.push_back(q.get<Collection>());
 	}
 	for(const auto &c : colls) {
 		if(startsWith(path, c.url)) {
 			path = path.substr(c.url.length());
-			return c.name;
+			return c;
 		}
 	}
-	return "";
+	return Collection();
 }
+
+MusicDatabase::Collection MusicDatabase::getCollection(int id) {
+	auto q = db.query<int, string, string>("SELECT ROWID,name,url FROM collection WHERE ROWID=?", id);
+	LOGD("ID %d", id);
+	if(q.step()) {
+		LOGD("####### FOUND");
+		return q.get<Collection>();
+	}
+	return Collection();
+}
+
+MusicDatabase::Collection MusicDatabase::getCollection(const string &name) {
+	auto q = db.query<int, string, string>("SELECT ROWID,name,url FROM collection WHERE name=?", name);
+	if(q.step()) {
+		LOGD("####### FOUND");
+		return q.get<Collection>();
+	}
+	return Collection();
+}
+/*
+string getCollectionPath(const string &name) {
+	auto q = db.query<string>("SELECT url FROM collection WHERE name = ?", name);
+	if(q.step()) {
+		return q.get();
+	}
+}
+*/
 
 void MusicDatabase::generateIndex() {
 

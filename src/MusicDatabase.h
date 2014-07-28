@@ -31,7 +31,7 @@ public:
 
 	void initDatabase(std::unordered_map<std::string, std::string> &vars);
 
-	SongInfo pathToSongInfo(const std::string &path);
+	//SongInfo pathToSongInfo(const std::string &path);
 
 	bool parseModlandPath(SongInfo &song);
 	void modlandInit(const std::string &source, const std::string &song_list, const std::string &xformats, int id);
@@ -64,12 +64,16 @@ public:
 	}
 
 	struct Collection {
-		Collection(const std::string &name, const std::string url) : name(name), url(url) {}
+		Collection(int id = -1, const std::string &name = "", const std::string url = "") : id(id), name(name), url(url) {}
+		int id;
 		std::string name;
 		std::string url;
 	};
 
-	std::string stripCollectionPath(std::string &path);
+	Collection stripCollectionPath(std::string &path);
+
+	Collection getCollection(int id);
+	Collection getCollection(const std::string &name);
 
 	static MusicDatabase& getInstance() {
 		static MusicDatabase mdb;

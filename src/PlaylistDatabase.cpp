@@ -1,5 +1,5 @@
 #include "PlaylistDatabase.h"
-
+#include "PlayTracker.h"
 #include <coreutils/utils.h>
 #include <archive/archive.h>
 
@@ -21,6 +21,13 @@ PlaylistDatabase::PlaylistDatabase() : db("play.db") {
 
 	createPlaylist("Favorites");
 
+	PlayTracker::getInstance().getLists([=](vector<string> lists) {
+		for(auto l : lists) {
+			playlists.emplace_back(l, true);
+		}
+	});
+
+
 	string title, path;
 	int rowid, id;
 
@@ -35,13 +42,20 @@ PlaylistDatabase::PlaylistDatabase() : db("play.db") {
 
 	// Populate playlists from database
 	id = 1;
-	for(auto &pl : playlists) {
-		auto q = db.query<string, string, string, string, string>("SELECT path,game,title,composer,format FROM song WHERE playlist=?", id);
+	for(auto &pl : playlists) {		
+		auto q = db.query<string, string, string, string, string, int>("SELECT path,game,title,composer,format,collection FROM song WHERE playlist=?", id);
 		while(q.step()) {
-			pl.songs.push_back(q.get<SongInfo>());
+			SongInfo song;
+			int cid;
+			tie(song.path, song.game, song.title, song.composer, song.format, cid) = q.get_tuple();
+			auto collection = MusicDatabase::getInstance().getCollection(cid);
+			song.path = collection.url + song.path;
+			pl.songs.push_back(song);
 		}
 		id++;
 	}
+
+
 
 }
 
@@ -64,7 +78,9 @@ void PlaylistDatabase::addToPlaylist(const std::string &name, const SongInfo &so
 	int id = 1;
 	for(auto &p : playlists) {
 		if(p.name == name) {
-			db.exec("INSERT INTO song (playlist, title, game, composer, format, path) VALUES (?, ?, ?, ?, ?, ?)", id, song.title, song.game, song.composer, song.format, song.path);
+			auto path = song.path;
+			auto collection = MusicDatabase::getInstance().stripCollectionPath(path);
+			db.exec("INSERT INTO song (playlist, title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?, ?)", id, song.title, song.game, song.composer, song.format, path, collection.id);
 			p.songs.push_back(song);
 		}
 		id++;
@@ -92,6 +108,35 @@ Playlist PlaylistDatabase::getPlaylist(const std::string &name) {
 		}
 	}
 	throw exception();
+}
+
+/*Playlist */ void PlaylistDatabase::getPlaylist(const std::string &name, std::function<void(const Playlist &)> cb) {
+	for(auto &p : playlists) {
+		if(p.name == name) {
+			if(p.isRemote) {
+				PlayTracker::getInstance().getList(name, [=](const string &name, const vector<string> &list) {
+
+					Playlist *pl = nullptr;
+					for(auto &p : playlists) {
+						if(p.name == name) {
+							pl = &p;
+							pl->isRemote = false;
+							break;
+						}
+					}
+					if(!pl) return;
+					for(const auto &l : list) {
+						auto parts = split(l, ":");
+						auto collection = MusicDatabase::getInstance().getCollection(parts[1]);
+						pl->songs.emplace_back(collection.url + parts[0]);
+					}
+					cb(*pl);
+				});
+			} else
+				cb(p);
+		}
+	}
+	//throw exception();
 }
 
 int PlaylistDatabase::search(const string &query, vector<string> &result) {

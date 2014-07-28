@@ -175,12 +175,13 @@ void ChipMachine::update_keys() {
 		case PLAY_LIST_SONG:
 			if(songList.selected() < playlists.size()) {
 				auto name = playlists[songList.selected()];
-				auto pl = PlaylistDatabase::getInstance().getPlaylist(name);
-				player.clearSongs();
-				for(const auto &song : pl.songs) {
-					player.addSong(song);
-				}
-				player.nextSong();
+				PlaylistDatabase::getInstance().getPlaylist(name, [=](const Playlist &pl) {
+					player.clearSongs();
+					for(const auto &song : pl.songs) {
+						player.addSong(song);
+					}
+					player.nextSong();
+				});
 			} else
 				player.playSong(get_selected_song());
 			show_main();
@@ -248,11 +249,15 @@ void ChipMachine::update_keys() {
 	}
 
 	if(songList.selected() != last_selection && iquery.numHits() > 0) {
-		auto p = iquery.getFull(songList.selected() - playlists.size());
-		auto parts = split(p, "\t");
-		auto ext = path_extension(parts[0]);
-		topStatus->setText(format("Format: %s (%s)", parts[3], ext));
-		//searchField->color = Color(formatColor);
+		int i = songList.selected() - playlists.size();
+		if(i >= 0) {
+			auto p = iquery.getFull(i);
+			auto parts = split(p, "\t");
+			auto ext = path_extension(parts[0]);
+			topStatus->setText(format("Format: %s (%s)", parts[3], ext));
+			//searchField->color = Color(formatColor);
+		} else
+			topStatus->setText("Format: Playlist");
 		searchField->visible(false);
 		topStatus->visible(true);
 	}

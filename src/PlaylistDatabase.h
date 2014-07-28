@@ -16,8 +16,10 @@ namespace chipmachine {
 
 struct Playlist {
 	Playlist() {}
-	Playlist(const std::string &name) : name(name) {}
+	Playlist(const std::string &name, bool remote = false) : name(name), isRemote(remote) {}
 	std::string name;
+	bool isRemote;
+
 	std::vector<SongInfo> songs;
 	std::vector<SongInfo>::iterator begin() { return songs.begin(); }
 	std::vector<SongInfo>::const_iterator begin() const { return songs.cbegin(); }
@@ -32,6 +34,7 @@ public:
 	void renamePlaylist(const std::string &oldName, const std::string &newName);
 	void addToPlaylist(const std::string &name, const SongInfo &info);
 	void removeFromPlaylist(const std::string &name, const SongInfo &info);
+	void getPlaylist(const std::string &name, std::function<void(const Playlist &)> cb);
 	Playlist getPlaylist(const std::string &name);
 
 	int search(const std::string &query, std::vector<std::string> &result);
