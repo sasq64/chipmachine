@@ -5,6 +5,7 @@
 #include <coreutils/format.h>
 #include <coreutils/log.h>
 #include <webutils/webrpc.h>
+#include <grappix/grappix.h>
 #include <json/json.h>
 #include <random>
 #include <set>
@@ -13,7 +14,7 @@ namespace chipmachine {
 //wired-height-596.appspot.com
 class PlayTracker {
 public:
-	PlayTracker() : rpc("http://localhost:8080/"), done(true) {
+	PlayTracker() : rpc("http://wired-height-596.appspot.com/"), done(true) {
 		utils::File f { ".trackid" };
 		if(!f.exists()) {
 			std::random_device rd;
@@ -72,12 +73,23 @@ public:
 		rpc.call("get_lists",  [=](const std::string &result) {
 			std::vector<std::string> lists;
 			LOGD("GET LISTS:%s", result);
-			for(auto pl : JSon::parse(result)) {
+			JSon json = JSon::parse(result);
+			for(auto pl : json("lists")) {
 				std::string user = pl("user");
 				std::string name = pl("name");
 				lists.emplace_back((std::string)pl("name") + ":" + user);
 			}
 			f(lists);
+		});
+	}
+
+	void login(const std::string &name, std::function<void(int)> f) {
+		JSon json;
+		json.add("uid", std::to_string(trackid));
+		json.add("name", name);
+		rpc.post("login", json.to_string(), [=](const std::string &result) {
+			LOGD("LOGIN: " + result);
+			f(0);
 		});
 	}
 

@@ -29,11 +29,15 @@ Chipmachine binary;
 * Type words separated by spaces for incremental search
 * ENTER to play, *SHIFT-ENTER* to enque
 * *F1* = Player screen, *F2* = Search screen
-* *F6* = Next Song, *ESC* = Clear search field, *F8* = Clear playlist
+* *F6* = Next Song
+* *ESC* = Clear search field
+* *F8* = Clear playlist
+* *F7* = Toggle Favorite
+* *F9* = Save playlist to server
 
 ## Configuring the application
 
-* Start with *-f* for fullscreen
+* Start with *-w* for window mode or *-d* for debug output
 * Checkout `lua/screen.lua` for GUI layout
 
 ## Raspberry PI notes

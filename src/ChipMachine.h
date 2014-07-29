@@ -34,10 +34,14 @@ public:
 		cursorColor = grappix::Color::WHITE;
 	}
 
-	LineEdit(const grappix::Font &font, const std::string &text, float x, float y, float sc, uint32_t col) : TextField(font, text, x, y, sc, col) {
+	LineEdit(const grappix::Font &font, const std::string &text = "", float x = 0.F, float y = 0.F, float sc = 1.0F, uint32_t col = 0xffffffff) : TextField(font, "", x, y, sc, col) {
 		cursorColor = grappix::Color::WHITE;//grappix::Color(col)/2.0F;
-
+		this->text = prompt + text;
 		//tween::make_tween().sine().repeating().to(cursorColor, grappix::Color::WHITE).seconds(1.7);
+	}
+
+	void on_ok(std::function<void(const std::string&)> cb) {
+		onOk = cb;
 	}
 
 	void on_key(uint32_t key) {
@@ -66,20 +70,66 @@ public:
 		prompt = p;
 	}
 
-	virtual void render(grappix::RenderTarget &target, uint32_t delta) override {
-		TextField::render(target, delta);
+	virtual void render(uint32_t delta) override {
+		TextField::render(delta);
 		getWidth();
 		//LOGD("REC %s %d %d", text, tsize.x, tsize.y);
-		target.rectangle(pos.x + tsize.x + 2, pos.y + 2, 10, tsize.y - 4, cursorColor);
+		target->rectangle(pos.x + tsize.x + 2, pos.y + 2, 10, tsize.y - 4, cursorColor);
 	}
 	grappix::Color cursorColor;
+	std::function<void(const std::string&)> onOk;
+
 	std::string prompt = ">";
 };
 
 class Dialog : public Renderable {
-	virtual void render(grappix::RenderTarget &target, uint32_t delta) override {
-
+public:
+	Dialog(std::shared_ptr<grappix::RenderTarget> target, const grappix::Font &font, const std::string &text, float scale = 1.0F) : Renderable(target), font(font), textField(font, text), lineEdit(font) {
+		auto size = font.get_size(text, scale);
+		bounds.w = size.x + 20;
+		bounds.h = size.y * 3;
+		bounds.x = (target->width() - bounds.w) / 2;
+		bounds.y = (target->height() - bounds.h) / 2;
+		textField.pos = { bounds.x + 10, bounds.y + 10 };
+		lineEdit.pos = { bounds.x + 10, bounds.y + size.y + 20 };
 	}
+
+	void on_ok(std::function<void(const std::string&)> cb) {
+		//lineEdit.on_ok(cb);
+		onOk = cb;
+	}
+
+	void on_key(uint32_t key) {
+
+		if(key == grappix::Window::ENTER) {
+			if(onOk)
+				onOk(lineEdit.getText());
+			remove();
+		} else {
+			lineEdit.on_key(key);
+		}
+	}
+
+	virtual void setTarget(std::shared_ptr<grappix::RenderTarget> target) {
+		textField.setTarget(target);
+		lineEdit.setTarget(target);
+		this->target = target;
+	}
+
+	virtual void render(uint32_t delta) override {
+		target->rectangle(bounds, 0x80ffffff);
+		textField.render(delta);
+		lineEdit.render(delta);
+	}
+
+	std::function<void(const std::string&)> onOk;
+
+	grappix::Font font;
+	std::string text;
+
+	grappix::Rectangle bounds;
+	TextField textField;
+	LineEdit lineEdit;
 
 };
 
@@ -205,6 +255,7 @@ private:
 	bool onSearchScreen;
 	bool onMainScreen;
 	bool haveSearchChars;
+	bool dialogOpen;
 
 	statemachine::StateMachine smac;
 
@@ -212,6 +263,10 @@ private:
 	std::string editPlaylistName;
 
 	bool playlistEdit = false;
+
+	std::shared_ptr<Dialog> currentDialog;
+
+	std::string userName;
 };
 
 }

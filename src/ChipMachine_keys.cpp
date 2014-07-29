@@ -27,6 +27,7 @@ enum ChipAction {
 	SELECT_PLAYLIST,
 	EDIT_PLAYLIST,
 	ADD_COMMAND_CHAR,
+	ADD_DIALOG_CHAR,
 	CANCEL_COMMAND,
 	LAST_ACTION
 };
@@ -43,6 +44,9 @@ void ChipMachine::setup_rules() {
 
 	smac.add(Window::F5, if_equals(currentScreen, MAIN_SCREEN), PLAY_PAUSE);
 	smac.add("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._0123456789 ", if_true(playlistEdit), ADD_COMMAND_CHAR);
+	smac.add("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._0123456789 ", if_true(dialogOpen), ADD_DIALOG_CHAR);
+	smac.add({Window::ENTER, Window::ESCAPE}, if_true(dialogOpen), ADD_DIALOG_CHAR);
+
 	smac.add({ Window::BACKSPACE, Window::LEFT, Window::RIGHT, Window::HOME, Window::END }, if_true(playlistEdit), ADD_COMMAND_CHAR);
 	smac.add("abcdefghijklmnopqrstuvwxyz0123456789 ", ADD_SEARCH_CHAR);
 	smac.add(Window::BACKSPACE, DEL_SEARCH_CHAR);
@@ -95,6 +99,7 @@ void ChipMachine::update_keys() {
 	onMainScreen = (currentScreen == MAIN_SCREEN);
 	onSearchScreen = (currentScreen == SEARCH_SCREEN);
 	haveSearchChars = (iquery.getString().length() > 0);
+	dialogOpen = (currentDialog != nullptr);
 
 	bool searchUpdated = false;
 	auto last_selection = songList.selected();
@@ -104,10 +109,35 @@ void ChipMachine::update_keys() {
 	//	return;
 
 	if(key == Window::F9) {
-		auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
-		PlayTracker::getInstance().sendList(plist.songs, plist.name);
-	}
 
+		if(userName == "") {
+			currentDialog = make_shared<Dialog>(screenptr, font, "Login with handle:");
+			currentDialog->on_ok([=](const string &text) {
+				//toast(text, 1);
+				PlayTracker::getInstance().login(text, [=](int rc) {
+					LOGD("LOGIN");
+					userName = text;
+					if(rc)
+						toast("Login successful", 2);
+					File f { ".login" };
+					f.write(userName);
+					f.close();
+					auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
+					PlayTracker::getInstance().sendList(plist.songs, plist.name);
+				});
+			});
+			renderSet.add(currentDialog);
+		} else {
+			auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
+			PlayTracker::getInstance().sendList(plist.songs, plist.name);
+		}
+	}
+/*
+	if(key == Window::ENTER && dialogOpen) {
+		renderSet.remove(currentDialog);
+		currentDialog = nullptr;
+	}
+*/
 	if(currentScreen == SEARCH_SCREEN)
 		songList.on_key(key);
 
@@ -157,6 +187,9 @@ void ChipMachine::update_keys() {
 		case ADD_COMMAND_CHAR:
 			commandField->on_key(action.event);
 			break;
+		case ADD_DIALOG_CHAR:
+			currentDialog->on_key(action.event);
+			break;
 		case CANCEL_COMMAND:
 			commandField->visible(false);
 			playlistEdit = false;		
@@ -195,6 +228,7 @@ void ChipMachine::update_keys() {
 			break;
 		case SHOW_SEARCH:
 			show_search();
+			searchUpdated = true;
 			break;
 		case ADD_SEARCH_CHAR:
 			if(currentScreen == MAIN_SCREEN && action.event != ' ')

@@ -64,13 +64,16 @@ public:
 	}
 
 	struct Collection {
-		Collection(int id = -1, const std::string &name = "", const std::string url = "") : id(id), name(name), url(url) {}
+		Collection(int id = -1, const std::string &name = "", const std::string url = "", const std::string local_dir = "") : id(id), name(name), url(url), local_dir(local_dir) {}
 		int id;
 		std::string name;
 		std::string url;
+		std::string local_dir;
 	};
 
 	Collection stripCollectionPath(std::string &path);
+
+	SongInfo lookup(const std::string &path);
 
 	Collection getCollection(int id);
 	Collection getCollection(const std::string &name);

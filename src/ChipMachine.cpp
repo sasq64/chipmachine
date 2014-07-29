@@ -103,6 +103,9 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	renderSet.add(toastField);
 	starEffect.fadeIn();
 
+	File f { ".login" };
+	if(f.exists())
+		userName = f.read();
 
 }
 
@@ -194,6 +197,9 @@ void ChipMachine::update() {
 		m.resize(last - m.begin());
 		scrollEffect.set("scrolltext", m);
 	}
+
+	if(currentDialog && currentDialog->getParent() == nullptr)
+		currentDialog = nullptr;
 
 	update_keys();
 
@@ -358,16 +364,16 @@ void ChipMachine::render(uint32_t delta) {
 	}
 
 	if(currentScreen == MAIN_SCREEN) {
-		mainScreen.render(screen, delta);
+		mainScreen.render(delta);
 		if(isFavorite)
 			screen.draw(favTexture, favPos.x, favPos.y, favPos.w, favPos.h, nullptr);
 	} else {
-		searchScreen.render(screen, delta);
+		searchScreen.render(delta);
 		songList.render();
 	}
 
 
-	renderSet.render(screen, delta);
+	renderSet.render(delta);
 
 	font.update_cache();
 	listFont.update_cache();

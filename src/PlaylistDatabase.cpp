@@ -47,9 +47,15 @@ PlaylistDatabase::PlaylistDatabase() : db("play.db") {
 		while(q.step()) {
 			SongInfo song;
 			int cid;
-			tie(song.path, song.game, song.title, song.composer, song.format, cid) = q.get_tuple();
+			string path;
+			tie(path, song.game, song.title, song.composer, song.format, cid) = q.get_tuple();
 			auto collection = MusicDatabase::getInstance().getCollection(cid);
-			song.path = collection.url + song.path;
+
+			song.path = collection.local_dir + path;
+			LOGD("LOCAL PATH: %s", song.path);
+			if(!File::exists(song.path))
+				song.path = collection.url + path;
+
 			pl.songs.push_back(song);
 		}
 		id++;
@@ -127,8 +133,10 @@ Playlist PlaylistDatabase::getPlaylist(const std::string &name) {
 					if(!pl) return;
 					for(const auto &l : list) {
 						auto parts = split(l, ":");
-						auto collection = MusicDatabase::getInstance().getCollection(parts[1]);
-						pl->songs.emplace_back(collection.url + parts[0]);
+						SongInfo song = MusicDatabase::getInstance().lookup(parts[0]);
+						pl->songs.push_back(song);
+						//auto collection = MusicDatabase::getInstance().getCollection(parts[1]);
+						//pl->songs.emplace_back(collection.url + parts[0]);
 					}
 					cb(*pl);
 				});

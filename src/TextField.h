@@ -11,10 +11,10 @@
 class TextField : public Renderable {
 public:
 
-	TextField() : pos(0, 0), scale(1.0), color(0xffffffff), add(0), f {&pos.x, &pos.y, &scale, &color.r, &color.g, &color.b, &color.a, &add}, text(""), tsize(-1, -1) {
+	TextField() : Renderable(grappix::screenptr), pos(0, 0), scale(1.0), color(0xffffffff), add(0), f {&pos.x, &pos.y, &scale, &color.r, &color.g, &color.b, &color.a, &add}, text(""), tsize(-1, -1) {
 	}
 
-	TextField(const grappix::Font &font, const std::string &text = "", float x = 0.0, float y = 0.0, float sc = 1.0, uint32_t col = 0xffffffff) : pos(x, y), scale(sc), color(col), add(0), f {&pos.x, &pos.y, &scale, &color.r, &color.g, &color.b, &color.a, &add}, text(text), tsize(-1, -1), font(font) {
+	TextField(const grappix::Font &font, const std::string &text = "", float x = 0.0, float y = 0.0, float sc = 1.0, uint32_t col = 0xffffffff) : Renderable(grappix::screenptr), pos(x, y), scale(sc), color(col), add(0), f {&pos.x, &pos.y, &scale, &color.r, &color.g, &color.b, &color.a, &add}, text(text), tsize(-1, -1), font(font) {
 	}
 
 	utils::vec2f pos;
@@ -44,7 +44,7 @@ public:
 		font = f;
 	}
 
-	virtual void render(grappix::RenderTarget &target, uint32_t delta) override {
+	virtual void render(uint32_t delta) override {
 		if(color.a == 0.0)
 			return;
 		auto x = pos.x;
@@ -53,7 +53,7 @@ public:
 			tsize = font.get_size(text, scale);
 		//if(x < 0) x = grappix::screen.width() - tlen + x;
 		//if(y < 0) y = grappix::screen.height() + y;
-		grappix::screen.text(font, text, x, y, color + add, scale);
+		target->text(font, text, x, y, color + add, scale);
 	}
 
 protected:

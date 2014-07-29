@@ -2,7 +2,7 @@ CPP_MODS = ../cpp-mods
 include $(CPP_MODS)/config.mk
 
 OBJDIR := obj/
-CFLAGS += -g -Wall -I$(CPP_MODS) -Wno-switch
+CFLAGS += -g -O2 -Wall -I$(CPP_MODS) -Wno-switch
 #CFLAGS += -O2
 SRCDIR := src/
 #LDFLAGS += -pg
@@ -44,7 +44,7 @@ include $(CPP_MODS)/crypto/module.mk
 
 TARGET := chipmachine
 LOCAL_FILES += main.cpp ChipMachine.cpp ChipMachine_config.cpp ChipMachine_keys.cpp MusicDatabase.cpp PlaylistDatabase.cpp SearchIndex.cpp MusicPlayerList.cpp MusicPlayer.cpp TelnetInterface.cpp
-LOCAL_FILES += state_machine.cpp
+LOCAL_FILES += renderable.cpp renderset.cpp state_machine.cpp
 LIBS += -lz
 
 include $(CPP_MODS)/build.mk

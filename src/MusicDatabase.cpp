@@ -282,6 +282,21 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 	return result.size();
 }
 
+SongInfo MusicDatabase::lookup(const std::string &path) {
+	auto q = db.query<string, string, string, string, string, string>("SELECT title, game, composer, format, collection.url, collection.localdir FROM song, collection WHERE song.path=? AND song.collection = collection.id", path);
+
+	SongInfo song;
+	if(q.step()) {
+		string url, localdir;
+		tie(song.title, song.game, song.composer, song.format, url, localdir) = q.get_tuple();
+		song.path = localdir + path;
+		LOGD("LOCAL FILE: %s", song.path);
+		if(!File::exists(song.path))
+			song.path = url + path;
+	}
+	return song;
+}
+
 string MusicDatabase::getFullString(int id) const {
 
 	id++;
@@ -403,13 +418,18 @@ static uint8_t formatToByte(const std::string &f) {
 
 MusicDatabase::Collection MusicDatabase::stripCollectionPath(string &path) {
 	vector<Collection> colls;
-	auto q = db.query<int, string, string>("SELECT ROWID,name,url FROM collection");
+	auto q = db.query<int, string, string, string>("SELECT ROWID,name,url,localdir FROM collection");
 	while(q.step()) {
 		colls.push_back(q.get<Collection>());
 	}
 	for(const auto &c : colls) {
-		if(startsWith(path, c.url)) {
+		LOGD("COMPARE %s to %s/%s", path, c.url, c.local_dir);
+		if(c.url != "" && startsWith(path, c.url)) {
 			path = path.substr(c.url.length());
+			return c;
+		}
+		if(c.local_dir != "" && startsWith(path, c.local_dir)) {
+			path = path.substr(c.local_dir.length());
 			return c;
 		}
 	}
@@ -417,7 +437,7 @@ MusicDatabase::Collection MusicDatabase::stripCollectionPath(string &path) {
 }
 
 MusicDatabase::Collection MusicDatabase::getCollection(int id) {
-	auto q = db.query<int, string, string>("SELECT ROWID,name,url FROM collection WHERE ROWID=?", id);
+	auto q = db.query<int, string, string, string>("SELECT ROWID,name,url,localdir FROM collection WHERE ROWID=?", id);
 	LOGD("ID %d", id);
 	if(q.step()) {
 		LOGD("####### FOUND");

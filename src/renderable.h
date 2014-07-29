@@ -3,15 +3,34 @@
 
 #include <grappix/render_target.h>
 //class grappix::RenderTarget;
-
+class RenderSet;
 class Renderable
 {
 public:
-	virtual void render(grappix::RenderTarget &target, uint32_t delta) = 0;
+	Renderable(std::shared_ptr<grappix::RenderTarget> target) : target(target) {}
+
+	virtual void render(uint32_t delta) = 0;
 	virtual void visible(bool b) { is_visible = b; }
 	virtual bool visible() { return is_visible; }
-protected:
+	virtual void setTarget(std::shared_ptr<grappix::RenderTarget> target) {
+		this->target = target;
+	}
+
+	void setParent(RenderSet *p) {
+		parent = p;
+	}
+
+	RenderSet *getParent() {
+		return parent;
+	}
+
+	void remove();
+	
+//protected:
 	bool is_visible = true;
+	//bool do_remove = false;
+	RenderSet *parent;
+	std::shared_ptr<grappix::RenderTarget> target;
 };
 
 
