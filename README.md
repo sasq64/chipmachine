@@ -18,9 +18,9 @@ For UADE support;
 
 Chipmachine binary;
 
-	# git clone --depth 1 https://github.com/sasq64/cpp-mods.git
-	# git clone --depth 1 https://github.com/sasq64/chipmachine.git
-	# git clone --depth 1 https://github.com/sasq64/demofx.git
+	# git clone https://github.com/sasq64/cpp-mods.git
+	# git clone https://github.com/sasq64/chipmachine.git
+	# git clone https://github.com/sasq64/demofx.git
 	# cd chipmachine
 	# make -j8
 

@@ -123,13 +123,13 @@ void ChipMachine::update_keys() {
 					f.write(userName);
 					f.close();
 					auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
-					PlayTracker::getInstance().sendList(plist.songs, plist.name);
+					PlayTracker::getInstance().sendList(plist.songs, plist.name, [=]() { toast("Uploaded", 2); });
 				});
 			});
 			renderSet.add(currentDialog);
 		} else {
 			auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
-			PlayTracker::getInstance().sendList(plist.songs, plist.name);
+			PlayTracker::getInstance().sendList(plist.songs, plist.name, [=]() { toast("Uploaded", 2); });
 		}
 	}
 /*

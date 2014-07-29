@@ -54,7 +54,7 @@ public:
 		});
 	}
 
-	void sendList(const std::vector<SongInfo> &songs, const std::string &name) {
+	void sendList(const std::vector<SongInfo> &songs, const std::string &name, const std::function<void()> done) {
 		JSon json;
 		json.add("uid", std::to_string(trackid));
 		json.add("name", name);
@@ -66,6 +66,7 @@ public:
 		}
 		rpc.post("set_list", json.to_string(), [=](const std::string &result) {
 			LOGD("set_list done:" + result);
+			done();
 		});
 	}
 
