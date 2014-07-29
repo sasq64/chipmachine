@@ -22,6 +22,7 @@ Chipmachine binary;
 	# git clone https://github.com/sasq64/chipmachine.git
 	# git clone https://github.com/sasq64/demofx.git
 	# cd chipmachine
+	# git checkout develop
 	# make -j8
 
 ## Using the application
