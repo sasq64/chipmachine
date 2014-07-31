@@ -25,10 +25,9 @@ public:
 	}
 
 	void remove();
-	
+
 //protected:
 	bool is_visible = true;
-	//bool do_remove = false;
 	RenderSet *parent;
 	std::shared_ptr<grappix::RenderTarget> target;
 };

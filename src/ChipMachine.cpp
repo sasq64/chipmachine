@@ -35,12 +35,26 @@ const vector<uint32_t> heart = { 0,Z,Z,0,Z,Z,0,0,
                                  0,Z,Z,Z,Z,Z,0,0,
                                  0,0,Z,Z,Z,0,0,0,
                                  0,0,0,Z,0,0,0,0 };
+
+#undef Z
+#define Z 0xff44cccc
+const vector<uint32_t> net = { 0,0,Z,Z,Z,0,0,0,
+                               0,0,Z,0,Z,0,0,0,
+                               Z,Z,Z,0,Z,0,Z,Z,
+                               0,0,0,0,Z,0,Z,0,
+                               0,0,0,0,Z,Z,Z,0 };
 #undef Z
 
 
 ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen), songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
 
 	PlaylistDatabase::getInstance();
+
+	auto path = current_exe_path() + ":" + File::getAppDir();
+	LOGD("####### Finding font");
+	File ff = File::findFile(path, "data/Bello.otf");
+	scrollEffect.set("font", ff.getName());
+
 
 #ifdef ENABLE_TELNET
 	telnet = make_unique<TelnetInterface>(*this);
@@ -70,6 +84,12 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	auto bm = image::bitmap(8, 6, &heart[0]);
 	favTexture = Texture(bm);
 	glBindTexture(GL_TEXTURE_2D, favTexture.id());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	bm = image::bitmap(8, 5, &net[0]);
+	netTexture = Texture(bm);
+	glBindTexture(GL_TEXTURE_2D, netTexture.id());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
@@ -132,13 +152,16 @@ void ChipMachine::initLua() {
 		setVariable(name, index, val);
 	});
 
-	File f { "lua/db.lua" };
+	auto path = File::getUserDir() + ":" + current_exe_path() + ":" + File::getAppDir();
+	File f = File::findFile(path, "lua/db.lua");
+
+	/*{ "lua/db.lua" };
 	if(!f.exists()) {
 		f.copyFrom("lua/db.lua.orig");
 		f.close();
-	}
+	}*/
 
-	lua.loadFile("lua/db.lua");
+	lua.loadFile(f.getName());
 	lua.load(R"(
 		for a,b in pairs(DB) do
 			if type(b) == 'table' then
@@ -152,16 +175,17 @@ void ChipMachine::initLua() {
 	)");
 	MusicDatabase::getInstance().generateIndex();
 
-	File f2 { "lua/screen.lua" };
+	File f2 = File::findFile(path, "lua/screen.lua");
+	/*File f2 { "lua/screen.lua" };
 	if(!f2.exists()) {
 		f2.copyFrom("lua/screen.lua.orig");
 		f2.close();
-	}
+	}*/
 
 	lua.set_global("SCREEN_WIDTH", screen.width());
 	lua.set_global("SCREEN_HEIGHT", screen.height());
 
-	Resources::getInstance().load<string>("lua/screen.lua", [=](shared_ptr<string> contents) {
+	Resources::getInstance().load<string>(f2.getName() /*"lua/screen.lua" */, [=](shared_ptr<string> contents) {
 		lua.load(*contents, "lua/screen.lua");
 		lua.load(R"(
 			for a,b in pairs(Settings) do
@@ -271,7 +295,7 @@ void ChipMachine::update() {
 		}
 	}
 
-	auto tune = player.getTune();
+	int tune = player.getTune();
 	if(currentTune != tune) {
 		songField->add = 0.0;
 		make_tween().sine().to(songField->add, 1.0).seconds(0.5);
@@ -372,6 +396,9 @@ void ChipMachine::render(uint32_t delta) {
 		songList.render();
 	}
 
+	if(WebRPC::inProgress() > 0 || WebGetter::inProgress() > 0) {
+		screen.draw(netTexture, 2, 2, 8*3, 5*3, nullptr);
+	}
 
 	renderSet.render(delta);
 

@@ -138,7 +138,10 @@ void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
 
 	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?)");
 
-	File listFile(song_list);
+	auto path = current_exe_path() + ":" + File::getAppDir();
+	File listFile = File::findFile(path, song_list);
+	//File listFile(song_list);
+
 	if(listFile.exists()) {
 
 		bool isModland = (type == "modland");
@@ -203,7 +206,7 @@ bool MusicDatabase::parseModlandPath(SongInfo &song) {
 	}
 
 	auto parts = split(song.path, "/");
-	auto l = parts.size();
+	int l = parts.size();
 	if(l < 3) {
 		LOGD("%s", song.path);
 		return false;
@@ -467,7 +470,7 @@ void MusicDatabase::generateIndex() {
 
 	lock_guard<mutex>{dbMutex};
 
-	File f { "index.dat" };
+	File f { File::getCacheDir() + "index.dat" };
 
 	if(f.exists()) {
 		auto sz = f.read<uint32_t>();
@@ -554,7 +557,7 @@ void MusicDatabase::generateIndex() {
 		// p,first == composer, p.second == vector
 		auto cindex = p.second[0];
 		composerTitleStart[cindex] = composerToTitle.size();
-		for(int i=1; i<p.second.size(); i++)
+		for(int i=1; i<(int)p.second.size(); i++)
 			composerToTitle.push_back(p.second[i]);
 		composerToTitle.push_back(-1);
 	}

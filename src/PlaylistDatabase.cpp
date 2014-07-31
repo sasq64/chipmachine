@@ -1,6 +1,7 @@
 #include "PlaylistDatabase.h"
 #include "PlayTracker.h"
 #include <coreutils/utils.h>
+#include <coreutils/file.h>
 #include <archive/archive.h>
 
 #include <set>
@@ -14,7 +15,7 @@ namespace chipmachine {
 
 
 // void PlaylistDatabase::init() {
-PlaylistDatabase::PlaylistDatabase() : db("play.db") {
+PlaylistDatabase::PlaylistDatabase() : db(File::getCacheDir() + "play.db") {
 
 	db.exec("CREATE TABLE IF NOT EXISTS playlist (title STRING PRIMARY KEY UNIQUE)");
 	db.exec("CREATE TABLE IF NOT EXISTS song (playlist INT, title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
@@ -35,7 +36,7 @@ PlaylistDatabase::PlaylistDatabase() : db("play.db") {
 	auto q = db.query<int, string>("SELECT rowid, title FROM playlist");
 	while(q.step()) {
 		tie(rowid, title) = q.get_tuple();
-		if(rowid > playlists.size())
+		if(rowid > (int)playlists.size())
 			playlists.resize(rowid);
 		playlists[rowid-1] = Playlist(title);
 	}

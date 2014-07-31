@@ -32,6 +32,8 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 		{ "result_field", resultFieldTemplate.get() },
 	};
 
+	auto path = current_exe_path() + ":" + File::getAppDir();
+
 	if(fields.count(name) > 0) {
 		auto &f = (*fields[name]);
 		if(index >= 4) {
@@ -73,8 +75,11 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 			spectrumColorSearch = Color(stoll(val));
 	} else
 	if(name == "font") {
-		if(File::exists(val)) {
-			font = Font(val, 48, 512 | Font::DISTANCE_MAP);
+
+		File fontFile = File::findFile(path, val);
+
+		if(fontFile.exists()) {
+			font = Font(fontFile.getName(), 48, 512 | Font::DISTANCE_MAP);
 			for(auto &f : fields) {
 				f.second->setFont(font);
 			}
@@ -83,8 +88,10 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 		}
 	} else
 	if(name == "list_font") {
-		if(File::exists(val)) {
-			listFont = Font(val, 32, 256);// | Font::DISTANCE_MAP);
+		File fontFile = File::findFile(path, val);
+
+		if(fontFile.exists()) {
+			listFont = Font(fontFile.getName(), 32, 256);// | Font::DISTANCE_MAP);
 			resultFieldTemplate->setFont(listFont);
 		}
 	} else
@@ -117,7 +124,11 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 			scrollEffect.scrollspeed = stol(val);
 			break;
 		case 4:
-			scrollEffect.set("font", val);
+			{
+				File fontFile = File::findFile(path, val);
+				if(fontFile.exists())
+					scrollEffect.set("font", fontFile.getName());
+			}
 			break;
 		}
 		LOGD("%d %f %d", scrollEffect.scrolly, scrollEffect.scrollsize, scrollEffect.scrollspeed);

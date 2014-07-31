@@ -6,8 +6,8 @@ CFLAGS += -g -O2 -Wall -I$(CPP_MODS) -Wno-switch
 #CFLAGS += -O2
 SRCDIR := src/
 #LDFLAGS += -pg
-USE_CCACHE := 1
-USE_CLANG := 1
+#USE_CCACHE := 1
+#USE_CLANG := 1
 
 RUN_ARGS := -d
 
@@ -41,6 +41,8 @@ include $(CPP_MODS)/musicplayer/plugins/UADEPlugin/module.mk
 
 include $(CPP_MODS)/crypto/module.mk
 
+#APP_DIR := /usr/share/chipmachine
+#USER_DIR := chipmachine
 
 TARGET := chipmachine
 LOCAL_FILES += main.cpp ChipMachine.cpp ChipMachine_config.cpp ChipMachine_keys.cpp MusicDatabase.cpp PlaylistDatabase.cpp SearchIndex.cpp MusicPlayerList.cpp MusicPlayer.cpp TelnetInterface.cpp
@@ -52,15 +54,16 @@ include $(CPP_MODS)/build.mk
 pkg:
 	rm -rf debian-pkg/*
 	mkdir -p debian-pkg/$(TARGET)/DEBIAN
-	mkdir -p debian-pkg/$(TARGET)/opt/chipmachine
+	mkdir -p debian-pkg/$(TARGET)/usr/share/chipmachine
 	mkdir -p debian-pkg/$(TARGET)/usr/bin
 	cp extra/dpkg.control debian-pkg/$(TARGET)/DEBIAN/control
-	cp MANUAL.md debian-pkg/$(TARGET)/opt/chipmachine
-	cp -a data debian-pkg/$(TARGET)/opt/chipmachine
-	rm -f debian-pkg/$(TARGET)/opt/chipmachine/data/*.dfield
-	cp -a lua debian-pkg/$(TARGET)/opt/chipmachine
-	rm -f debian-pkg/$(TARGET)/opt/chipmachine/lua/*~ debian-pkg/$(TARGET)/opt/chipmachine/lua/*.lua
-	cp chipmachine debian-pkg/$(TARGET)/opt/chipmachine
-	arm-linux-gnueabihf-strip debian-pkg/$(TARGET)/opt/chipmachine/chipmachine
-	cp extra/cm debian-pkg/$(TARGET)/usr/bin/chipmachine
-	(cd debian-pkg ; dpkg-deb --build $(TARGET))
+	cp MANUAL.md debian-pkg/$(TARGET)/usr/share/chipmachine
+	cp -a data debian-pkg/$(TARGET)/usr/share/chipmachine
+	rm -f debian-pkg/$(TARGET)/usr/share/chipmachine/data/*.dfield
+	cp -a lua debian-pkg/$(TARGET)/usr/share/chipmachine
+	rm -f debian-pkg/$(TARGET)/usr/share/chipmachine/lua/*~
+	cp chipmachine debian-pkg/$(TARGET)/usr/bin
+	$(PREFIX)strip debian-pkg/$(TARGET)/usr/bin/chipmachine
+	#cp extra/cm debian-pkg/$(TARGET)/usr/bin/chipmachine
+	chmod -R g-w debian-pkg
+	(cd debian-pkg ; fakeroot dpkg-deb --build $(TARGET))

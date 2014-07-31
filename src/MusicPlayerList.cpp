@@ -9,7 +9,7 @@ using namespace utils;
 
 namespace chipmachine {
 
-MusicPlayerList::MusicPlayerList() {
+MusicPlayerList::MusicPlayerList() : webgetter(File::getCacheDir() + "_webfiles") {
 	state = STOPPED;
 	wasAllowed = true;
 	permissions = 0xff;
@@ -39,7 +39,7 @@ bool MusicPlayerList::addSong(const SongInfo &si, int pos) {
 	LOGD("Add song %s %s %s", si.title, si.composer, si.format);
 
 	if(pos >= 0) {
-		if(playList.size() >= pos)
+		if((int)playList.size() >= pos)
 			playList.insert(playList.begin() + pos, si);
 	} else {
 		if(partyMode) {

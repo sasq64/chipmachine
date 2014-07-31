@@ -1,4 +1,21 @@
 
+* No STIL info when using online
+* Network threads stops quitting
+
+application dir
+cache dir
+user dir
+
+* /usr/share/chipmachine as maindir
+* ~/.chipmachine as writable dir for
+_files/
+generated/<shaders>
+index.dat
+*.db
+
+lua
+
+
 
 Read DB into source_list.txt file
 Make spcsets and hvsc work online out of the box

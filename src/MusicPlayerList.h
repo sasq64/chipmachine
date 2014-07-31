@@ -126,7 +126,7 @@ private:
 	std::atomic<int> files;
 	std::string loadedFile;
 
-	WebGetter webgetter { "_files" };
+	WebGetter webgetter;
 
 	std::atomic<State> state;// = STOPPED;
 	SongInfo currentInfo;

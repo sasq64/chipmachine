@@ -38,6 +38,22 @@ private:
 	T val;
 };
 
+template <class T> class SharedPtrNotNullCondition : public BaseCondition {
+public:
+	SharedPtrNotNullCondition(const std::shared_ptr<T> &ptr) : ptr(ptr) {}
+	bool check() const override { return ptr != nullptr; }
+private:
+	const std::shared_ptr<T>& ptr;
+};
+
+template <class T> class SharedPtrNullCondition : public BaseCondition {
+public:
+	SharedPtrNullCondition(const std::shared_ptr<T> &ptr) : ptr(ptr) {}
+	bool check() const override { return ptr == nullptr; }
+private:
+	const std::shared_ptr<T>& ptr;
+};
+
 std::shared_ptr<BaseCondition> if_true(const bool &watch);
 std::shared_ptr<BaseCondition> if_false(const bool &watch);
 
@@ -47,6 +63,14 @@ template <class T> std::shared_ptr<BaseCondition> if_equals(const T &watch, T va
 
 template <class T> std::shared_ptr<BaseCondition> if_not_equals(const T &watch, T val) {
 	return std::make_shared<NEQCondition<T>>(watch, val);
+}
+
+template <class T> std::shared_ptr<BaseCondition> if_not_null(const std::shared_ptr<T> &ptr) {
+	return std::make_shared<SharedPtrNotNullCondition<T>>(ptr);
+}
+
+template <class T> std::shared_ptr<BaseCondition> if_null(const std::shared_ptr<T> &ptr) {
+	return std::make_shared<SharedPtrNullCondition<T>>(ptr);
 }
 
 extern std::shared_ptr<BaseCondition> ALWAYS_TRUE;
@@ -80,7 +104,7 @@ public:
 	}
 
 	void add(const char *chars, std::shared_ptr<BaseCondition> c, uint32_t action, bool stop = true) {
-		for(int i=0; i<strlen(chars); i++) {
+		for(unsigned i=0; i<strlen(chars); i++) {
 			auto event = chars[i];
 			ActionSet &a = actionmap[event];
 			a.actions.push_back(Mapping(c, action, stop));

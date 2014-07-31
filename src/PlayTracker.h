@@ -111,40 +111,6 @@ public:
 		});
 	}
 
-	void updateList(const std::vector<SongInfo> &songs) {
-		std::set<std::string> lastset;
-		std::set<std::string> currset;
-		utils::File f { ".last_favorites" };
-		for(const SongInfo &info : songs) {
-			currset.insert(info.path);
-		}
-		for(const auto &line : f.getLines()) {
-			lastset.insert(line);
-			if(currset.count(line) == 0)
-				favorite(line, false);
-		}
-		for(const SongInfo &info : songs) {
-			if(lastset.count(info.path) == 0)
-				favorite(info.path, true);
-		}
-		f.clear();
-		for(const SongInfo &info : songs) {
-			f.writeln(info.path);
-		}
-	}
-
-	void favorite(const std::string &fileName, bool add) {
-		auto fn = fileName;
-		auto collection = MusicDatabase::getInstance().stripCollectionPath(fn);
-
-		LOGD("FAV %s %s", collection.name, fn);
-		done = false;
-		rpc.post(add ? "add_favorite" : "del_favorite", utils::format("{ \"id\" : \"%x\", \"path\" : \"%s\", \"collection\" : \"%s\" }", trackid, fn, collection.name), [=](const std::string &result) {
-			LOGD("favDone");
-			done = true;
-		});
-	}
-
 	static PlayTracker& getInstance() {
 		static PlayTracker tracker;
 		return tracker;

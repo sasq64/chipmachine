@@ -143,19 +143,24 @@ private:
 
 };
 
+static std::string find_file(const std::string &name) {
+	auto f = File::findFile(current_exe_path() + ":" + File::getAppDir(), name);
+	return f.getName();
+}
+
 MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		//new ModPlugin {},
 		make_shared<RSNPlugin>(this->plugins),
 		make_shared<OpenMPTPlugin>(),
 		make_shared<HTPlugin>(),
-		make_shared<HEPlugin>("data/hebios.bin"),
+		make_shared<HEPlugin>(find_file("data/hebios.bin")),
 		make_shared<GSFPlugin>(),
 		make_shared<NDSPlugin>(),
 		make_shared<USFPlugin>(),
-		make_shared<VicePlugin>("data/c64"),
+		make_shared<VicePlugin>(find_file("data/c64")),
 		make_shared<SexyPSFPlugin>(),
 		make_shared<GMEPlugin>(),
-		make_shared<SC68Plugin>("data/sc68"),
+		make_shared<SC68Plugin>(find_file("data/sc68")),
 		make_shared<StSoundPlugin>(),
 		make_shared<AdPlugin>(),
 		make_shared<UADEPlugin>()
@@ -187,11 +192,7 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 					LOGD("WTF!");
 				int rc = player->getSamples((int16_t*)fifo.ptr(), sz);				
 				if(rc <= 0) {
-					LOGD("RC %d", rc);
 					playEnded = true;
-					//silentFrames = 
-					//player = nullptr;
-					//break;
 					memset(fifo.ptr(), 0, sz*2);
 					rc = sz;
 				}

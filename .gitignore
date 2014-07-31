@@ -15,5 +15,4 @@ sc68.cfg
 index.dat
 *.sublime-*
 .tags*
-lua/*.lua
 android/

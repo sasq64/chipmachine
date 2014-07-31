@@ -12,9 +12,9 @@ All required packages (hopefully);
 For UADE support;
 
 	# git clone --depth 1 https://github.com/heikkiorsila/bencode-tools
-	# cd bencode-tools ; ./configure ; make ; sudo make-install ; cd ..
+	# cd bencode-tools ; ./configure ; make ; sudo make install ; cd ..
 	# git clone --depth 1 git://zakalwe.fi/uade
-	# cd uade ; ./configure --prefix=/usr ; make -j8 ; sudo make-install ; cd ..
+	# cd uade ; ./configure --prefix=/usr ; make -j8 ; sudo make install ; cd ..
 
 Chipmachine binary;
 

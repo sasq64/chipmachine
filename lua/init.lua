@@ -1,19 +1,18 @@
 ------
 -- Lua settings
 ------
-Settings = {}
 
 HD = false
-if SCREEN_WIDTH >= 800 then
+if Config.screen_width >= 800 then
 	HD = true
 end
 
 GSCALE = 1.0
 
-if SCREEN_WIDTH >= 1280 then
+if Config.screen_width >= 1280 then
 	GSCALE = 2.0
 end
--- print('HD',SCREEN_WIDTH,SCREEN_HEIGHT,HD)
+-- print('HD',Config.screen_width,Config.screen_height,HD)
 
 X0 = 80
 Y0 = 54
@@ -24,21 +23,17 @@ Y1 = 520
 if HD then
 X0 = 10
 Y0 = 10
-X1 = SCREEN_WIDTH-10
-Y1 = SCREEN_HEIGHT-10
+X1 = Config.screen_width-10
+Y1 = Config.screen_height-10
 end
 
 background = 0x808080
---SCREEN_HEIGHT / 576
+--Config.screen_height / 576
 
 if true then
  TEXT_COLOR = 0xffe0e080
  DIGITS_COLOR = 0xff70b050
  SEARCH_COLOR = 0xffaaaaff
- FORMAT_COLOR = 0xffffffaa
- RESULT_COLOR = 0xff20c020
- SPECTRUM_COLOR0 = 0xff00aaee
- SPECTRUM_COLOR1 = 0xff111155
 else
  TEXT_COLOR = 0xff000000
  DIGITS_COLOR = 0xff202080
@@ -76,38 +71,25 @@ else
   Settings.spectrum = { X0-50, Y1+40, 26, 16.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
 end
 
-x = SCREEN_WIDTH - 300 * GSCALE
+x = Config.screen_width - 300 * GSCALE
 y = Settings.scroll[1] - 80 * GSCALE
 
 scale = 1.2 * GSCALE
 Settings.next_field = { x, y-14, 0.5, 0xff444477 }
-
 Settings.next_title = { x, y, scale, TEXT_COLOR }
 Settings.next_composer = { x, y+26*scale, scale*0.6, TEXT_COLOR }
 Settings.next_format = { x, y+44*scale, scale*0.3, TEXT_COLOR }
 
-y = Settings.scroll[1] - 100 * GSCALE
-Settings.favicon = { X0, y, 16*8 * GSCALE, 16*6 * GSCALE }
-
 scale = 80.0
-Settings.exit_title = { -3200, Y0, scale, 0 }
-Settings.exit_composer = { -3200, Y0+25*scale, scale*0.6, 0 }
-Settings.exit_format = { -3200, Y0+45*scale, scale*0.3, 0 }
+Settings.prev_title = { -3200, Y0, scale, 0 }
+Settings.prev_composer = { -3200, Y0+25*scale, scale*0.6, 0 }
+Settings.prev_format = { -3200, Y0+45*scale, scale*0.3, 0 }
 
-x = SCREEN_WIDTH+10
-y = 340
-scale = 1.0
-Settings.enter_title = { x, y, scale, TEXT_COLOR }
-Settings.enter_composer = { x, y+25*scale, scale*0.6, TEXT_COLOR }
-Settings.enter_format = { x, y+45*scale, scale*0.3, TEXT_COLOR }
-
-Settings.search_field = { X0, Y0, 1.0, SEARCH_COLOR }
-Settings.top_status = { X0, Y0, 1.0, FORMAT_COLOR }
+Settings.search_field = { X0, Y0, 1.0, SEARCH_COLOR, FORMAT_COLOR }
 
 Settings.result_field = { X0, Y0+30, 0.8, RESULT_COLOR }
 Settings.result_lines = (Y1-Y0)/23
 
 Settings.font = "data/Neutra.otf"
-Settings.list_font = "data/Neutra.otf"
 ------
 -- print("Lua parsing done")

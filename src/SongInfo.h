@@ -15,8 +15,8 @@ struct SongInfo {
 	std::string composer;
 	std::string format;
 	//uint32_t length = 0;
-	uint32_t numtunes = 0;
-	uint32_t starttune = 0;
+	int numtunes = 0;
+	int starttune = 0;
 };
 
 
