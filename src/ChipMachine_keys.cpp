@@ -243,22 +243,22 @@ void ChipMachine::update_keys() {
 			if(userName == "") {
 				currentDialog = make_shared<Dialog>(screenptr, font, "Login with handle:");
 				currentDialog->on_ok([=](const string &text) {
-					PlayTracker::getInstance().login(text, [=](int rc) {
+					RemoteLists::getInstance().login(text, [=](int rc) {
 						userName = text;
 						if(rc)
 							toast("Login successful", 2);
-						File f { ".login" };
+						File f { File::getCacheDir() + "login" };
 						f.write(userName);
 						f.close();
 						auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
-						PlayTracker::getInstance().sendList(plist.songs, plist.name, [=]() { toast("Uploaded", 2); });
+						RemoteLists::getInstance().sendList(plist.songs, plist.name, [=]() { toast("Uploaded", 2); });
 					});
 
 				});
 				renderSet.add(currentDialog);
 			} else {
 				auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
-				PlayTracker::getInstance().sendList(plist.songs, plist.name, [=]() { toast("Uploaded", 2); });
+				RemoteLists::getInstance().sendList(plist.songs, plist.name, [=]() { toast("Uploaded", 2); });
 			}
 			break;
 		}

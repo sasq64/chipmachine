@@ -18,7 +18,10 @@
 #include <musicplayer/plugins/SC68Plugin/SC68Plugin.h>
 #include <musicplayer/plugins/StSoundPlugin/StSoundPlugin.h>
 #include <musicplayer/plugins/AdPlugin/AdPlugin.h>
+
+#ifndef NO_UADE
 #include <musicplayer/plugins/UADEPlugin/UADEPlugin.h>
+#endif
 
 #include <archive/archive.h>
 #include <set>
@@ -163,7 +166,9 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		make_shared<SC68Plugin>(find_file("data/sc68")),
 		make_shared<StSoundPlugin>(),
 		make_shared<AdPlugin>(),
+#ifndef NO_UADE
 		make_shared<UADEPlugin>()
+#endif
 	}
 {
 	dontPlay = playEnded = false;

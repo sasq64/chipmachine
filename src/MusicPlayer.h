@@ -2,6 +2,7 @@
 #include "SongInfo.h"
 
 #include <musicplayer/common/fifo.h>
+#include <musicplayer/plugins/SC68Plugin/SC68Plugin.h>
 
 #include <fft/spectrum.h>
 

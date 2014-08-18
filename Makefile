@@ -6,7 +6,7 @@ CFLAGS += -g -O2 -Wall -I$(CPP_MODS) -Wno-switch
 #CFLAGS += -O2
 SRCDIR := src/
 #LDFLAGS += -pg
-#USE_CCACHE := 1
+USE_CCACHE := 1
 #USE_CLANG := 1
 
 RUN_ARGS := -d
@@ -37,7 +37,9 @@ include $(CPP_MODS)/musicplayer/plugins/SexyPSFPlugin/module.mk
 include $(CPP_MODS)/musicplayer/plugins/SC68Plugin/module.mk
 include $(CPP_MODS)/musicplayer/plugins/StSoundPlugin/module.mk
 include $(CPP_MODS)/musicplayer/plugins/AdPlugin/module.mk
+
 include $(CPP_MODS)/musicplayer/plugins/UADEPlugin/module.mk
+#CFLAGS += -DNO_UADE
 
 include $(CPP_MODS)/crypto/module.mk
 
@@ -46,7 +48,7 @@ include $(CPP_MODS)/crypto/module.mk
 
 TARGET := chipmachine
 LOCAL_FILES += main.cpp ChipMachine.cpp ChipMachine_config.cpp ChipMachine_keys.cpp MusicDatabase.cpp PlaylistDatabase.cpp SearchIndex.cpp MusicPlayerList.cpp MusicPlayer.cpp TelnetInterface.cpp
-LOCAL_FILES += renderable.cpp renderset.cpp state_machine.cpp
+LOCAL_FILES += renderable.cpp renderset.cpp state_machine.cpp RemoteLists.cpp SongFileIdentifier.cpp RemoteLoader.cpp
 LIBS += -lz
 
 include $(CPP_MODS)/build.mk

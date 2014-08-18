@@ -42,7 +42,7 @@ void TelnetInterface::start() {
 		lip.registerFunction<void, string>("scrolltext", [=](const string &t) {
 			chipmachine.set_scrolltext(t);
 		});
-
+/*
 		lip.registerFunction<vector<string>, string>("find", [=](const string &q) -> vector<string> {
 
 			auto songs = MusicDatabase::getInstance().find(q);
@@ -54,7 +54,7 @@ void TelnetInterface::start() {
 			}				
 			return res;
 		});
-
+*/
 		lip.registerFunction<void, int>("play", [&](int which) {
 			auto &player = chipmachine.music_player();
 			player.clearSongs();

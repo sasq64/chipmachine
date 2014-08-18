@@ -48,6 +48,14 @@ const vector<uint32_t> net = { 0,0,Z,Z,Z,0,0,0,
 
 ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen), songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
 
+	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
+		string e = error;
+		if(rc == RemoteLists::JSON_INVALID)
+			e = "Server unavailable";
+		toast(e, 1);
+		player.setReportSongs(false);
+	});
+
 	PlaylistDatabase::getInstance();
 
 	auto path = current_exe_path() + ":" + File::getAppDir();
@@ -123,7 +131,7 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	renderSet.add(toastField);
 	starEffect.fadeIn();
 
-	File f { ".login" };
+	File f { File::getCacheDir() + "login" };
 	if(f.exists())
 		userName = f.read();
 

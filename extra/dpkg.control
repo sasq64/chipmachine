@@ -2,8 +2,8 @@ Package: chipmachine
 Version: 1.0-beta
 Section: contrib/sound
 Priority: extra
-Architecture: amd64
-Depends: libglfw2
+Architecture: armhf
+Depends:
 Installed-Size: 
 Maintainer: Jonas Minnberg <sasq64@gmail.com>
 Description: Scene/Retro Music Player

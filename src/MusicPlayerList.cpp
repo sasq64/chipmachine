@@ -9,7 +9,7 @@ using namespace utils;
 
 namespace chipmachine {
 
-MusicPlayerList::MusicPlayerList() : webgetter(File::getCacheDir() + "_webfiles") {
+MusicPlayerList::MusicPlayerList() { //: webgetter(File::getCacheDir() + "_webfiles") {
 	state = STOPPED;
 	wasAllowed = true;
 	permissions = 0xff;
@@ -137,8 +137,8 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 	//LOCK_GUARD(plMutex);
 	if(fileName != "") {
 		if(mp.playFile(fileName)) {
-
-			PlayTracker::getInstance().play(currentInfo.path);
+			if(reportSongs)
+				RemoteLists::getInstance().song_played(currentInfo.path);
 
 			changedSong = false;
 			updateInfo();
@@ -187,6 +187,7 @@ void MusicPlayerList::update() {
 
 		auto pos = mp.getPosition();
 		auto length = mp.getLength();
+		length = 0;
 		if(!changedSong && playList.size() > 0) {
 			//LOGD("%d vs %d (SIL %d)", pos, length, mp.getSilence());
 			if(!mp.playing()) {
@@ -264,74 +265,48 @@ static std::unordered_map<string, string> fmt_2files = {
 };
 
 void MusicPlayerList::playCurrent() {
-	auto proto = split(currentInfo.path, ":");
-	if(proto.size() > 0 && (proto[0] == "http" || proto[0] == "ftp")) {
-		state = LOADING;
-		loadedFile = "";
-		auto ext = path_extension(currentInfo.path);
-		makeLower(ext);
-		LOGD("EXT: %s", ext);
-		files = 1;
+	state = LOADING;
+	loadedFile = "";
+	auto ext = path_extension(currentInfo.path);
+	makeLower(ext);
+	LOGD("EXT: %s", ext);
+	files = 1;
 
-		auto ext2 = fmt_2files[ext];
+	auto ext2 = fmt_2files[ext];
 
-		if(ext2 != "") {
-		//if(ext == "mdat") {
-			files++;
-			auto smpl_file = path_directory(currentInfo.path) + "/" + path_basename(currentInfo.path) + "." + ext2; //".smpl";
-			LOGD("LOADING %s", smpl_file);
+	RemoteLoader &loader = RemoteLoader::getInstance();
 
-			webgetter.getURL(smpl_file, [=](const WebGetter::Job &job) {
-				files--;
-			});
-		}
-
-		auto url = currentInfo.path;
-		if(url.find("snesmusic.org") != string::npos) {
-			url = url.substr(0, url.length()-4);
-		}
-
-		webgetter.getURL(url, [=](const WebGetter::Job &job) {
-			LOGD("Got file");
-			if(job.getReturnCode() == 0) {
-				loadedFile = job.getFile();
-				if(loadedFile.find("snesmusic.org") != string::npos) {
-					auto newFile = loadedFile + ".rsn";
-					rename(loadedFile.c_str(), newFile.c_str());
-					loadedFile = newFile;
-				}
-				LOGD("loadedFile %s", loadedFile);
-				PSFFile f { loadedFile };
-				if(f.valid()) {
-					auto lib = f.tags()["_lib"];
-					if(lib != "") {
-						auto lib_target = path_directory(loadedFile) + "/" + lib;
-						auto lib_url = path_directory(currentInfo.path) + "/" + lib;
-						files++;
-						webgetter.getURL(lib_url, [=](const WebGetter::Job &job) {
-							if(job.getReturnCode() == 0) {
-								LOGD("Got lib file %s, copying to %s", job.getFile(), lib_target);
-								File::copy(job.getFile(), lib_target);
-							}
-							files--;
-						});
-					}
-				}
-			} else {
-				LOCK_GUARD(plMutex);
-				errors.push_back("Song download failed");
-				LOGD("Song failed");
-			}
+	if(ext2 != "") {
+		files++;
+		auto smpl_file = path_directory(currentInfo.path) + "/" + path_basename(currentInfo.path) + "." + ext2;
+		LOGD("LOADING %s", smpl_file);
+		loader.load(smpl_file, [=](File f) {
 			files--;
 		});
-	} else {
-		if(!playFile(currentInfo.path)) {
-			LOCK_GUARD(plMutex);
-			errors.push_back("Could not play song");
-			LOGD("Song failed");
-		}
 	}
-}
 
+	LOGD("LOADING:%s", currentInfo.path);
+	loader.load(currentInfo.path, [=](File f0) {
+		LOGD("Got file");
+		loadedFile = f0.getName();
+		LOGD("loadedFile %s", loadedFile);
+		PSFFile f { loadedFile };
+		if(f.valid()) {
+			auto lib = f.tags()["_lib"];
+			if(lib != "") {
+				auto lib_target = path_directory(loadedFile) + "/" + lib;
+				auto lib_url = path_directory(currentInfo.path) + "/" + lib;
+				files++;
+				RemoteLoader &loader = RemoteLoader::getInstance();
+				loader.load(lib_url, [=](File f) {
+					LOGD("Got lib file %s, copying to %s", f.getName(), lib_target);
+					File::copy(f.getName(), lib_target);
+					files--;
+				});
+			}
+		}
+		files--;
+	});
+}
 
 }

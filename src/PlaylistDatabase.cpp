@@ -1,5 +1,5 @@
 #include "PlaylistDatabase.h"
-#include "PlayTracker.h"
+#include "RemoteLists.h"
 #include <coreutils/utils.h>
 #include <coreutils/file.h>
 #include <archive/archive.h>
@@ -18,11 +18,11 @@ namespace chipmachine {
 PlaylistDatabase::PlaylistDatabase() : db(File::getCacheDir() + "play.db") {
 
 	db.exec("CREATE TABLE IF NOT EXISTS playlist (title STRING PRIMARY KEY UNIQUE)");
-	db.exec("CREATE TABLE IF NOT EXISTS song (playlist INT, title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
+	db.exec("CREATE TABLE IF NOT EXISTS song (playlist INT, title STRING, game STRING, composer STRING, format STRING, path STRING)");
 
 	createPlaylist("Favorites");
 
-	PlayTracker::getInstance().getLists([=](vector<string> lists) {
+	RemoteLists::getInstance().getLists([=](vector<string> lists) {
 		for(auto l : lists) {
 			playlists.emplace_back(l, true);
 		}
@@ -44,18 +44,18 @@ PlaylistDatabase::PlaylistDatabase() : db(File::getCacheDir() + "play.db") {
 	// Populate playlists from database
 	id = 1;
 	for(auto &pl : playlists) {		
-		auto q = db.query<string, string, string, string, string, int>("SELECT path,game,title,composer,format,collection FROM song WHERE playlist=?", id);
+		auto q = db.query<string, string, string, string, string>("SELECT path,game,title,composer,format FROM song WHERE playlist=?", id);
 		while(q.step()) {
 			SongInfo song;
-			int cid;
-			string path;
-			tie(path, song.game, song.title, song.composer, song.format, cid) = q.get_tuple();
-			auto collection = MusicDatabase::getInstance().getCollection(cid);
+			//int cid;
+			//string path;
+			tie(song.path, song.game, song.title, song.composer, song.format) = q.get_tuple();
+			//auto collection = MusicDatabase::getInstance().getCollection(cid);
 
-			song.path = collection.local_dir + path;
-			LOGD("LOCAL PATH: %s", song.path);
-			if(!File::exists(song.path))
-				song.path = collection.url + path;
+			//song.path = collection.local_dir + path;
+			//LOGD("LOCAL PATH: %s", song.path);
+			//if(!File::exists(song.path))
+			//	song.path = collection.url + path;
 
 			pl.songs.push_back(song);
 		}
@@ -85,9 +85,9 @@ void PlaylistDatabase::addToPlaylist(const std::string &name, const SongInfo &so
 	int id = 1;
 	for(auto &p : playlists) {
 		if(p.name == name) {
-			auto path = song.path;
-			auto collection = MusicDatabase::getInstance().stripCollectionPath(path);
-			db.exec("INSERT INTO song (playlist, title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?, ?)", id, song.title, song.game, song.composer, song.format, path, collection.id);
+			//auto path = song.path;
+			//auto collection = MusicDatabase::getInstance().stripCollectionPath(path);
+			db.exec("INSERT INTO song (playlist, title, game, composer, format, path) VALUES (?, ?, ?, ?, ?, ?)", id, song.title, song.game, song.composer, song.format, song.path);
 			p.songs.push_back(song);
 		}
 		id++;
@@ -121,7 +121,7 @@ Playlist PlaylistDatabase::getPlaylist(const std::string &name) {
 	for(auto &p : playlists) {
 		if(p.name == name) {
 			if(p.isRemote) {
-				PlayTracker::getInstance().getList(name, [=](const string &name, const vector<string> &list) {
+				RemoteLists::getInstance().getList(name, [=](const string &name, const vector<string> &list) {
 
 					Playlist *pl = nullptr;
 					for(auto &p : playlists) {
@@ -133,8 +133,8 @@ Playlist PlaylistDatabase::getPlaylist(const std::string &name) {
 					}
 					if(!pl) return;
 					for(const auto &l : list) {
-						auto parts = split(l, ":");
-						SongInfo song = MusicDatabase::getInstance().lookup(parts[0]);
+						//auto parts = split(l, ":");
+						SongInfo song = MusicDatabase::getInstance().lookup(l);
 						pl->songs.push_back(song);
 						//auto collection = MusicDatabase::getInstance().getCollection(parts[1]);
 						//pl->songs.emplace_back(collection.url + parts[0]);

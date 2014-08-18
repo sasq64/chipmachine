@@ -33,20 +33,19 @@ public:
 
 	//SongInfo pathToSongInfo(const std::string &path);
 
-	bool parseModlandPath(SongInfo &song);
-	void modlandInit(const std::string &source, const std::string &song_list, const std::string &xformats, int id);
-	void hvscInit(const std::string &source, int id);
-	void rsnInit(const std::string &source, int id);
+	//void modlandInit(const std::string &source, const std::string &song_list, const std::string &xformats, int id);
+	//void hvscInit(const std::string &source, int id);
+	//void rsnInit(const std::string &source, int id);
 
 	void generateIndex();
 
 	int search(const std::string &query, std::vector<int> &result, unsigned int searchLimit) override;
 	// Lookup internal string for index
-	virtual std::string getString(int index) const override {
+	std::string getString(int index) const override {
 		return utils::format("%s\t%s\t%d", getTitle(index), getComposer(index), index);
 	}
 	// Get full data, may require SQL query
-	virtual std::string getFullString(int index) const override;// { return getString(index); }
+	std::string getFullString(int index) const override;// { return getString(index); }
 
 	std::string getTitle(int index) const {
 		return titleIndex.getString(index);
@@ -56,12 +55,22 @@ public:
 		return composerIndex.getString(titleToComposer[index]);
 	}
 
-	virtual std::vector<SongInfo> find(const std::string &pattern);
+	//virtual std::vector<SongInfo> find(const std::string &pattern);
 
 	IncrementalQuery createQuery() {
 		std::lock_guard<std::mutex>{dbMutex};
 		return IncrementalQuery(this);
 	}
+
+
+	SongInfo lookup(const std::string &path);
+
+	static MusicDatabase& getInstance() {
+		static MusicDatabase mdb;
+		return mdb;
+	}
+
+private:
 
 	struct Collection {
 		Collection(int id = -1, const std::string &name = "", const std::string url = "", const std::string local_dir = "") : id(id), name(name), url(url), local_dir(local_dir) {}
@@ -71,19 +80,9 @@ public:
 		std::string local_dir;
 	};
 
-	Collection stripCollectionPath(std::string &path);
+	bool parseModlandPath(SongInfo &song);
 
-	SongInfo lookup(const std::string &path);
 
-	Collection getCollection(int id);
-	Collection getCollection(const std::string &name);
-
-	static MusicDatabase& getInstance() {
-		static MusicDatabase mdb;
-		return mdb;
-	}
-
-private:
 	SearchIndex composerIndex;
 	SearchIndex titleIndex;
 	std::vector<int> titleToComposer;

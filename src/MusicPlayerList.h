@@ -3,9 +3,10 @@
 
 #include "SongInfo.h"
 #include "MusicPlayer.h"
-#include "PlayTracker.h"
+#include "RemoteLists.h"
+#include "RemoteLoader.h"
 
-#include <webutils/webgetter.h>
+//#include <webutils/webgetter.h>
 
 #include <mutex>
 #include <cstdint>
@@ -105,6 +106,8 @@ public:
 
 	void setPartyMode(bool on, int lockSeconds = 60, int graceSec = 3);
 
+	void setReportSongs(bool on) { reportSongs = on; }
+
 private:
 	void playCurrent();
 	bool playFile(const std::string &fileName);
@@ -126,7 +129,8 @@ private:
 	std::atomic<int> files;
 	std::string loadedFile;
 
-	WebGetter webgetter;
+	//WebGetter webgetter;
+	//RemoteLoader loader;
 
 	std::atomic<State> state;// = STOPPED;
 	SongInfo currentInfo;
@@ -135,6 +139,8 @@ private:
 
 	bool changedSong = false;
 
+	bool reportSongs = true;
+
 	std::atomic<uint32_t> permissions;
 
 	bool partyMode = false;
@@ -142,7 +148,7 @@ private:
 	int graceSeconds = 3;
 	int lockSeconds = 60;
 
-	//PlayTracker &tracker;
+	//RemoteLists &tracker;
 
 };
 
