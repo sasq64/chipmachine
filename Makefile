@@ -7,7 +7,7 @@ CFLAGS += -g -O2 -Wall -I$(CPP_MODS) -Wno-switch
 SRCDIR := src/
 #LDFLAGS += -pg
 USE_CCACHE := 1
-#USE_CLANG := 1
+USE_CLANG := 1
 
 RUN_ARGS := -d
 

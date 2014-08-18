@@ -32,23 +32,17 @@ void RemoteLists::song_played(const string &fileName) {
 		LOGD("Tracking still in progress!");
 		return;
 	}
-	//auto fn = fileName;
-	//auto collection = MusicDatabase::getInstance().stripCollectionPath(fn);
 
-	//LOGD("TRACK %s %s", collection.name, fn);
 	done = false;
 
 	JSon json;
 	json.add("uid", to_string(trackid));
 	json.add("path", fileName);
 	json.add("version", API_VERSION);
-	//json.add("collection", collection.name);
-	//json("path") = fn;
-	//json("collection") = collection;
+
 	rpc.post("song_played", json.to_string(), [=](const string &result) {
 		JSon json = JSon::parse(result);
 		if(!checkError(json)) {
-			//rpc.post("song_played", utils::format("{ \"id\" : \"%x\", \"path\" : \"%s\", \"collection\" : \"%s\" }", trackid, fn, collection), [=](const string &result) {
 			LOGD("trackDone:" + result);
 		}
 		done = true;
@@ -62,8 +56,6 @@ void RemoteLists::sendList(const vector<SongInfo> &songs, const string &name, co
 	json.add("version", API_VERSION);
 	auto sl = json.add_array("songs");
 	for(const SongInfo &info : songs) {
-		//auto fn = info.path;
-		//auto collection = MusicDatabase::getInstance().stripCollectionPath(fn);
 		LOGD("SENDING %s", info.path);
 		sl.add(info.path);//fn + ":" + collection.name);
 	}
@@ -122,8 +114,9 @@ void RemoteLists::login(const string &name, function<void(int)> f) {
 	json.add("version", API_VERSION);
 
 	rpc.post("login", json.to_string(), [=](const string &result) {
-		//if(!checkError(json))
-		//	return;
+		JSon json = JSon::parse(result);
+		if(!checkError(json))
+			return;
 		LOGD("LOGIN: " + result);
 		f(0);
 	});

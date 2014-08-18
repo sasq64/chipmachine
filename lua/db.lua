@@ -30,15 +30,15 @@ DB = {
 {
 	type = "sndh",
 	id = 4,
-	-- source = "http://",
+	source = "http://sndh.atari.org/sndh/sndh_lf/",
 	song_list = "data/sndh.txt",
 	local_dir = "/opt/Music/sndh_lf"
 },
 {
 	type = "asma",
 	id = 5,
-	-- source = "http://",
-	song_list = "data/sap.txt",
+	source = "http://asma.atari.org/asma/",
+	song_list = "data/asma.txt",
 	local_dir = "/opt/Music/asma"
 }
 };
