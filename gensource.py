@@ -2,23 +2,29 @@
 import sqlite3
 import sys
 
+# db, collection
 def main(argv) :
 	print "MAIN"
-	db = sqlite3.connect('music.db')
+	dbname = argv[0]
+	collname = argv[1]
+
+	db = sqlite3.connect(dbname)
 	db.text_factory = str
 
-	dbc = db.cursor()
-	dbc.execute('select title,game,composer,format,path from song where collection=?', '2');
-	print "Getting rows"
-	f = open('hvsc.txt', 'w')
-	for row in dbc :
-		f.write('%s\t%s\t%s\t%s\t%s\n' % row)
-	f.close()
 
+	print "NAME:" + collname
 	dbc = db.cursor()
-	dbc.execute('select title,game,composer,format,path from song where collection=?', '3');
+	dbc.execute('select id from collection where name=?', (collname,))
+	res = dbc.fetchone()
+	if not res :
+		return
+
+	collid = int(res[0])
+	print "ID:" + str(collid)
+	dbc = db.cursor()
+	dbc.execute('select title,game,composer,format,path from song where collection=?', (collid,));
 	print "Getting rows"
-	f = open('rsn.txt', 'w')
+	f = open(collname + '.txt', 'w')
 	for row in dbc :
 		f.write('%s\t%s\t%s\t%s\t%s\n' % row)
 	f.close()
