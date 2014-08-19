@@ -139,6 +139,11 @@ void RemoteLists::getList(const string &name, function<void(const string&, const
 		string name = jres("name");
 		vector<string> songs = jres("songs");
 		for(auto &s : songs) {
+			auto p = split(s, ":");
+			if(p.size() == 2) {
+				if(p[1] == "modland" || p[1] == "hvsc")
+					s = p[1] + "::" + p[0];
+			}
 			LOGD("GETTING %s", s);
 		}
 		f(name + ":" + parts[1], songs);

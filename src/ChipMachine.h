@@ -155,6 +155,10 @@ private:
 	std::shared_ptr<Dialog> currentDialog;
 
 	std::string userName;
+
+	uint16_t *screen2 = nullptr;
+	int screen2w;
+	int screen2h;
 };
 
 }

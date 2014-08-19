@@ -3,6 +3,11 @@
 
 #include <cctype>
 
+#include <fcntl.h>
+#include <linux/fb.h>
+#include <sys/mman.h>
+
+
 using namespace std;
 using namespace utils;
 using namespace grappix;
@@ -45,8 +50,37 @@ const vector<uint32_t> net = { 0,0,Z,Z,Z,0,0,0,
                                0,0,0,0,Z,Z,Z,0 };
 #undef Z
 
+#define UINT2RGB16(x) (((x>>19)&0x1F)<<11) | (((x>>10)&0x3F)<<5) | ((x>>3)&0x1F)
 
 ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen), songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
+
+	 // Open the file for reading and writing
+	int fbfd = open("/dev/fb1", O_RDWR);
+	if(fbfd >= 0) {
+		struct fb_var_screeninfo vinfo;
+		struct fb_fix_screeninfo finfo;
+	 // Get fixed screen information
+		if(ioctl(fbfd, FBIOGET_FSCREENINFO, &finfo)) {
+			LOGW("Error reading fixed information");
+		}
+
+		// Get variable screen information
+		if(ioctl(fbfd, FBIOGET_VSCREENINFO, &vinfo)) {
+			LOGW("Error reading variable information");
+		}
+		LOGI("%dx%d, %d bpp", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel);
+		// map framebuffer to user memory 
+		int screensize = finfo.smem_len;
+		screen2 = (uint16_t*)mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
+
+		Texture t(vinfo.xres, vinfo.yres);
+		t.text("Hello");
+		image::bitmap pixels = t.get_pixels();
+		for(int i=0; i<vinfo.yres*vinfo.xres; i++) {
+			uint32_t c = pixels[i];
+			screen2[i] = UINT2RGB16(c); 
+		}
+	}
 
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
 		string e = error;
