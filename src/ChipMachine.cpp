@@ -54,6 +54,8 @@ const vector<uint32_t> net = { 0,0,Z,Z,Z,0,0,0,
 
 ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen), songList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), 20) {
 
+	auto path = current_exe_path() + ":" + File::getAppDir();
+
 	 // Open the file for reading and writing
 	int fbfd = open("/dev/fb1", O_RDWR);
 	if(fbfd >= 0) {
@@ -73,8 +75,11 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 		int screensize = finfo.smem_len;
 		screen2 = (uint16_t*)mmap(0, screensize, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
 
+		File ff = File::findFile(path, "data/Neutra.otf");
+		Font font(ff.getName(), 16);
+
 		Texture t(vinfo.xres, vinfo.yres);
-		t.text("Hello");
+		t.text(font, "Hello");
 		image::bitmap pixels = t.get_pixels();
 		for(int i=0; i<vinfo.yres*vinfo.xres; i++) {
 			uint32_t c = pixels[i];
@@ -92,7 +97,6 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 
 	PlaylistDatabase::getInstance();
 
-	auto path = current_exe_path() + ":" + File::getAppDir();
 	LOGD("####### Finding font");
 	File ff = File::findFile(path, "data/Bello.otf");
 	scrollEffect.set("font", ff.getName());
