@@ -78,13 +78,9 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 		File ff = File::findFile(path, "data/Neutra.otf");
 		Font font(ff.getName(), 16);
 
-		Texture t(vinfo.xres, vinfo.yres);
+		Texture t(vinfo.xres, vinfo.yres, Texture::RGB16);
 		t.text(font, "Hello");
-		image::bitmap pixels = t.get_pixels();
-		for(int i=0; i<vinfo.yres*vinfo.xres; i++) {
-			uint32_t c = pixels[i];
-			screen2[i] = UINT2RGB16(c); 
-		}
+		t.get_pixels(screen2);
 	}
 
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
