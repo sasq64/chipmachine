@@ -297,7 +297,7 @@ void ChipMachine::update() {
 			xinfoField->setText(sub_title);
 			auto d = (tw-(tv1.x-tv0.x-20));
 			if(d > 20)
-				make_tween().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
+				Tween::make().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
 		};
 
 		auto favorites = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
@@ -305,12 +305,12 @@ void ChipMachine::update() {
 		isFavorite = (favsong != favorites.end());
 
 		if(nextInfoField == currentInfoField) {
-			currentTween = make_tween().from(prevInfoField, currentInfoField).
+			currentTween = Tween::make().from(prevInfoField, currentInfoField).
 			from(currentInfoField, nextInfoField).
-			from(nextInfoField, outsideInfoField).seconds(1.5).on_complete(f);
+			from(nextInfoField, outsideInfoField).seconds(1.5).onComplete(f);
 		} else {
-			currentTween = make_tween().from(prevInfoField, currentInfoField).
-			from(currentInfoField, outsideInfoField).seconds(1.5).on_complete(f);
+			currentTween = Tween::make().from(prevInfoField, currentInfoField).
+			from(currentInfoField, outsideInfoField).seconds(1.5).onComplete(f);
 		}
 
 	}
@@ -340,7 +340,7 @@ void ChipMachine::update() {
 	int tune = player.getTune();
 	if(currentTune != tune) {
 		songField->add = 0.0;
-		make_tween().sine().to(songField->add, 1.0).seconds(0.5);
+		Tween::make().sine().to(songField->add, 1.0).seconds(0.5);
 		currentInfo = player.getInfo();
 		auto sub_title = player.getMeta("sub_title");
 		xinfoField->setText(sub_title);
@@ -354,10 +354,10 @@ void ChipMachine::update() {
 		bool party = (player.getPermissions() & MusicPlayerList::PARTYMODE) != 0;
 		if(!lockDown && party) {
 			lockDown = true;
-			make_tween().to(timeField->color, Color(0xffff0000)).seconds(0.5);
+			Tween::make().to(timeField->color, Color(0xffff0000)).seconds(0.5);
 		} else if(lockDown && !party) {
 			lockDown = false;
-			make_tween().to(timeField->color, timeColor).seconds(2.0);
+			Tween::make().to(timeField->color, timeColor).seconds(2.0);
 		}
 
 
@@ -412,8 +412,8 @@ void ChipMachine::toast(const std::string &txt, int type) {
 	toastField->pos.x = tv0.x + ((tv1.x - tv0.x) - tlen) / 2;
 	toastField->color = colors[type];
 
-	make_tween().to(toastField->color.alpha, 1.0).seconds(0.25).on_complete([=]() {
-		make_tween().delay(1.0).to(toastField->color.alpha, 0.0).seconds(0.25);
+	Tween::make().to(toastField->color.alpha, 1.0).seconds(0.25).onComplete([=]() {
+		Tween::make().to(toastField->color.alpha, 0.0).delay(1.0).seconds(0.25);
 	});
 }
 

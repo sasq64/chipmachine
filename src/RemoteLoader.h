@@ -11,6 +11,11 @@
 class RemoteLoader {
 public:
 
+	class Result {
+		std::string name;
+
+	};
+
 	RemoteLoader() : webgetter(utils::File::getCacheDir() + "_webfiles") {}
 
 	void registerSource(const std::string &name, const std::string url, const std::string local_dir);

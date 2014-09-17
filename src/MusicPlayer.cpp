@@ -6,6 +6,7 @@
 
 #include <audioplayer/audioplayer.h>
 
+#include <musicplayer/plugins/MP3Plugin/MP3Plugin.h>
 #include <musicplayer/plugins/OpenMPTPlugin/OpenMPTPlugin.h>
 #include <musicplayer/plugins/HTPlugin/HTPlugin.h>
 #include <musicplayer/plugins/HEPlugin/HEPlugin.h>
@@ -154,6 +155,7 @@ static std::string find_file(const std::string &name) {
 MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		//new ModPlugin {},
 		make_shared<RSNPlugin>(this->plugins),
+		make_shared<MP3Plugin>(),
 		make_shared<OpenMPTPlugin>(),
 		make_shared<HTPlugin>(),
 		make_shared<HEPlugin>(find_file("data/hebios.bin")),
@@ -291,6 +293,10 @@ bool MusicPlayer::playFile(const string &fileName) {
 	playEnded = false;
 
 	if(player) {
+
+		player->onMeta([=](const std::vector<std::string> &meta, ChipPlayer *player) {
+			
+		});
 
 		fifo.clear();
 		fadeOutPos = 0;

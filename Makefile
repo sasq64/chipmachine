@@ -37,6 +37,7 @@ include $(CPP_MODS)/musicplayer/plugins/SexyPSFPlugin/module.mk
 include $(CPP_MODS)/musicplayer/plugins/SC68Plugin/module.mk
 include $(CPP_MODS)/musicplayer/plugins/StSoundPlugin/module.mk
 include $(CPP_MODS)/musicplayer/plugins/AdPlugin/module.mk
+include $(CPP_MODS)/musicplayer/plugins/MP3Plugin/module.mk
 
 include $(CPP_MODS)/musicplayer/plugins/UADEPlugin/module.mk
 #CFLAGS += -DNO_UADE

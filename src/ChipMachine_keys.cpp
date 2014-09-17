@@ -4,7 +4,8 @@
 using namespace std;
 using namespace utils;
 using namespace grappix;
-using namespace tween;
+//using namespace tween;
+using tween::Tween;
 
 namespace chipmachine {
 
@@ -75,16 +76,16 @@ void ChipMachine::setup_rules() {
 void ChipMachine::show_main() {
 	if(currentScreen != MAIN_SCREEN) {
 		currentScreen = MAIN_SCREEN;
-		make_tween().to(spectrumColor, spectrumColorMain).seconds(0.5);
-		make_tween().to(scrollEffect.alpha, 1.0).seconds(0.5);
+		Tween::make().to(spectrumColor, spectrumColorMain).seconds(0.5);
+		Tween::make().to(scrollEffect.alpha, 1.0).seconds(0.5);
 	}
 }
 
 void ChipMachine::show_search() {
 	if(currentScreen != SEARCH_SCREEN) {
 		currentScreen = SEARCH_SCREEN;
-		make_tween().to(spectrumColor, spectrumColorSearch).seconds(0.5);
-		make_tween().to(scrollEffect.alpha, 0.0).seconds(0.5);
+		Tween::make().to(spectrumColor, spectrumColorSearch).seconds(0.5);
+		Tween::make().to(scrollEffect.alpha, 0.0).seconds(0.5);
 	}
 }
 
@@ -167,9 +168,9 @@ void ChipMachine::update_keys() {
 		case PLAY_PAUSE:
 			player.pause(!player.isPaused());
 			if(player.isPaused()) {
-				make_tween().sine().repeating().to(timeField->add, 1.0).seconds(0.5);
+				Tween::make().sine().repeating().to(timeField->add, 1.0).seconds(0.5);
 			} else
-				make_tween().to(timeField->add, 0.0).seconds(0.5);
+				Tween::make().to(timeField->add, 0.0).seconds(0.5);
 			break;
 		case ADD_LIST_SONG:
 			if(player.addSong(get_selected_song()))

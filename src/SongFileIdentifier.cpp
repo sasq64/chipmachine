@@ -67,7 +67,7 @@ bool parseSap(SongInfo &info) {
 	int size = f.getSize();
 
 	int i = 0;
-	while(i<size && ptr[i] != 0xff) i++;
+	while(i<size && (unsigned char)ptr[i] != 0xff) i++;
 	auto header = string(ptr, 0, size);
 
 	auto lines = getLines(header); 

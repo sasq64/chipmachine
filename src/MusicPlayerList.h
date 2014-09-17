@@ -111,6 +111,7 @@ public:
 private:
 	void playCurrent();
 	bool playFile(const std::string &fileName);
+	void checkPSF(const std::string &fileName);
 
 	void update();
 	void updateInfo();

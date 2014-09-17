@@ -56,7 +56,7 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 			f.color = c;
 			if(name == "result_field") {
 				markColor = c;
-				markTween = make_tween().sine().repeating().from(markColor, hilightColor).seconds(1.0);
+				markTween = Tween::make().sine().repeating().from(markColor, hilightColor).seconds(1.0);
 			}
 		} else {
 			f[index-1] = stod(val);
@@ -135,7 +135,7 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 	} else
 	if(name == "hilight_color") {
 		hilightColor = Color(stoll(val));
-		markTween = make_tween().sine().repeating().from(markColor, hilightColor).seconds(1.0);
+		markTween = Tween::make().sine().repeating().from(markColor, hilightColor).seconds(1.0);
 	} else
 	if(name == "result_lines") {
 		numLines = stol(val);

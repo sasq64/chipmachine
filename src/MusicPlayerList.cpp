@@ -264,15 +264,45 @@ static std::unordered_map<string, string> fmt_2files = {
 	{ "dum", "ins" }, // Rob Hubbard 2
 };
 
+void MusicPlayerList::checkPSF(const string &fileName) {
+	PSFFile f { fileName };
+	if(f.valid()) {
+		auto lib = f.tags()["_lib"];
+		if(lib != "") {
+			auto lib_target = path_directory(fileName) + "/" + lib;
+			auto lib_url = path_directory(currentInfo.path) + "/" + lib;
+			files++;
+			RemoteLoader &loader = RemoteLoader::getInstance();
+			loader.load(lib_url, [=](File f) {
+				LOGD("Got lib file %s, copying to %s", f.getName(), lib_target);
+				File::copy(f.getName(), lib_target);
+				files--;
+			});
+		}
+	}
+}
+
+
 void MusicPlayerList::playCurrent() {
 	state = LOADING;
+
+	//if(player.canStream(currentInfo.path)) {
+	//}
+
 	loadedFile = "";
 	auto ext = path_extension(currentInfo.path);
 	makeLower(ext);
 	LOGD("EXT: %s", ext);
+
+	if(ext == "mp3") {
+		loadedFile = currentInfo.path;
+		return;
+	}
+
 	files = 1;
 
 	auto ext2 = fmt_2files[ext];
+
 
 	RemoteLoader &loader = RemoteLoader::getInstance();
 
@@ -290,21 +320,7 @@ void MusicPlayerList::playCurrent() {
 		LOGD("Got file");
 		loadedFile = f0.getName();
 		LOGD("loadedFile %s", loadedFile);
-		PSFFile f { loadedFile };
-		if(f.valid()) {
-			auto lib = f.tags()["_lib"];
-			if(lib != "") {
-				auto lib_target = path_directory(loadedFile) + "/" + lib;
-				auto lib_url = path_directory(currentInfo.path) + "/" + lib;
-				files++;
-				RemoteLoader &loader = RemoteLoader::getInstance();
-				loader.load(lib_url, [=](File f) {
-					LOGD("Got lib file %s, copying to %s", f.getName(), lib_target);
-					File::copy(f.getName(), lib_target);
-					files--;
-				});
-			}
-		}
+		checkPSF(loadedFile);
 		files--;
 	});
 }
