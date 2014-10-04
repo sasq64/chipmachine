@@ -13,28 +13,8 @@ public:
 	RenderSet(std::shared_ptr<grappix::RenderTarget> target = grappix::screenptr) : target(target) {}
 
 	void add(std::shared_ptr<Renderable> r);
-
-	void remove(std::shared_ptr<Renderable> r) {
-		auto it = fields.begin();
-		while(it != fields.end()) {
-			if(r.get() == it->get()) {
-				(*it)->setParent(nullptr);
-				it = fields.erase(it);
-			} else
-				it++;
-		}
-	}
-
-	void remove(Renderable *r) {
-		auto it = fields.begin();
-		while(it != fields.end()) {
-			if(r == it->get()) {
-				(*it)->setParent(nullptr);
-				it = fields.erase(it);
-			} else
-				it++;
-		}
-	}
+	void remove(std::shared_ptr<Renderable> r);
+	void remove(Renderable *r);
 
 	void render(uint32_t delta) {
 		for(auto &r : fields) {

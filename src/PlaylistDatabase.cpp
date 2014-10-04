@@ -133,6 +133,7 @@ Playlist PlaylistDatabase::getPlaylist(const std::string &name) {
 					}
 					if(!pl) return;
 					for(const auto &l : list) {
+						LOGD("LISTSONG %s", l);
 						//auto parts = split(l, ":");
 						SongInfo song = MusicDatabase::getInstance().lookup(l);
 						pl->songs.push_back(song);

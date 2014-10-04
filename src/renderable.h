@@ -1,8 +1,13 @@
 #ifndef RENDERABLE_H
 #define RENDERABLE_H
 
-#include <grappix/render_target.h>
-//class grappix::RenderTarget;
+//#include <grappix/render_target.h>
+#include <memory>
+
+namespace grappix {
+	class RenderTarget;
+}
+
 class RenderSet;
 class Renderable
 {
@@ -26,7 +31,6 @@ public:
 
 	void remove();
 
-//protected:
 	bool is_visible = true;
 	RenderSet *parent;
 	std::shared_ptr<grappix::RenderTarget> target;

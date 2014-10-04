@@ -66,16 +66,18 @@ int main(int argc, char* argv[]) {
 				//auto l = mpl.getLength();
 				print_fmt("%s - %s (%s)\n", si.composer, si.title, si.format);
 			}
-			auto k = c->getKey(100);
-			if(k !=Console::KEY_TIMEOUT) {
-				switch(k) {
-				case ' ':
-					break;
-				case Console::KEY_RIGHT:
-					break;
-				case Console::KEY_ENTER:
-					mpl.nextSong();
-					break;
+			if(c) {
+				auto k = c->getKey(100);
+				if(k !=Console::KEY_TIMEOUT) {
+					switch(k) {
+					case ' ':
+						break;
+					case Console::KEY_RIGHT:
+						break;
+					case Console::KEY_ENTER:
+						mpl.nextSong();
+						break;
+					}
 				}
 			}
 		}

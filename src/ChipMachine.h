@@ -111,7 +111,7 @@ private:
 	SongInfo currentInfo;
 	int currentTune = 0;
 
-	tween::TweenHolder currentTween;
+	tween::Tween currentTween;
 	bool lockDown = false;
 	bool isFavorite = false;
 	grappix::Texture favTexture;
@@ -128,7 +128,7 @@ private:
 
 	int numLines = 20;
 
-	tween::TweenHolder markTween;
+	tween::Tween markTween;
 
 	grappix::Color timeColor;
 	grappix::Color spectrumColor = 0xffffffff;

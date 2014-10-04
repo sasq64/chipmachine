@@ -35,6 +35,10 @@ void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
 	auto xformats = vars["exclude_formats"];
 	auto id = stol(vars["id"]);
 
+	// Return if this collection has already been indexed
+	if(db.query("SELECT 1 FROM collection WHERE name = ?", type).step())
+		return;
+
 	auto ex_copy = exclude;
 	auto parts = split(xformats, ";");
 	for(const auto &p : parts) {
@@ -42,10 +46,6 @@ void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
 			ex_copy.insert(p);
 	}
 
-	if(db.query("SELECT 1 FROM collection WHERE name = ?", type).step())
-		return;
-
-	//LOGD("Indexing RSN");
 	print_fmt("Creating '%s' database\n", type);
 
 	db.exec("BEGIN TRANSACTION");
@@ -179,7 +179,6 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 
 	auto p = split(query, "/");
 	if(p.size() > 1) {
-		LOGD("##QQ '%s', '%s'", p[0], p[1]);
 		title_query = p[0];
 		composer_query = p[1];
 	}
@@ -206,18 +205,25 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 
 SongInfo MusicDatabase::lookup(const std::string &p) {
 	auto path = p;
+
 	auto parts = split(path, "::");
 	if(parts.size() > 1)
 		path = parts[1];
+	else {
+		parts = split(path, ":");
+		if(parts[1] == "modland" || parts[1] == "hvsc")
+			path = parts[0];
+	}
 
 	auto q = db.query<string, string, string, string, string>("SELECT title, game, composer, format, collection.name FROM song, collection WHERE song.path=? AND song.collection = collection.id", path);
 
 	SongInfo song;
 	if(q.step()) {
 		string coll;
+		LOGD("Found %s in %s", song.title, path);
 		tie(song.title, song.game, song.composer, song.format, coll) = q.get_tuple();
 		song.path = coll + "::"+ path;
-		}
+	}
 	return song;
 }
 
