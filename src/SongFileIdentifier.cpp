@@ -5,6 +5,7 @@
 #include <coreutils/file.h>
 #include <coreutils/log.h>
 #include <archive/archive.h>
+#include <mpg123.h>
 
 using namespace utils;
 using namespace std;
@@ -213,6 +214,39 @@ bool parseSnes(SongInfo &info) {
 	return done;
 }
 
+bool parseMp3(SongInfo &info) {
+
+	int err = mpg123_init();
+	mpg123_handle *mp3 = mpg123_new(NULL, &err);
+
+	if(mpg123_open(mp3, info.path.c_str()) != MPG123_OK)
+		return false;
+
+	mpg123_format_none(mp3);
+
+	mpg123_scan(mp3);
+	int meta = mpg123_meta_check(mp3);
+	mpg123_id3v1 *v1;
+	mpg123_id3v2 *v2;
+	if(meta & MPG123_ID3 && mpg123_id3(mp3, &v1, &v2) == MPG123_OK) {
+		if(v2) {
+			info.title = v2->title->p;
+			info.composer = v2->artist->p;
+		} else
+		if(v1) {
+			info.title = (char*)v2->title;
+			info.composer = (char*)v2->artist;
+		}
+	}
+
+	if(mp3) {
+		mpg123_close(mp3);
+		mpg123_delete(mp3);
+	}
+	mpg123_exit();
+
+}
+
 bool identify_song(SongInfo &info, string ext) {
 
 	if(ext == "")
@@ -225,5 +259,7 @@ bool identify_song(SongInfo &info, string ext) {
 		return parseSndh(info);
 	if(ext == "sap")
 		return parseSap(info);
+	if(ext == "mp3")
+		return parseMp3(info);
 	return false;
 }

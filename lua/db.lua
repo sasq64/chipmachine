@@ -40,5 +40,12 @@ DB = {
 	source = "http://asma.atari.org/asma/",
 	song_list = "data/asma.txt",
 	local_dir = "/opt/Music/asma"
+},
+{
+	type = "rko",
+	id = 6,
+	source = "http://remix.kwed.org/download.php/",
+	song_list = "data/rko.txt",
+	local_dir = "/opt/Music/rko"
 }
 };

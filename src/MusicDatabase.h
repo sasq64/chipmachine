@@ -27,22 +27,14 @@ public:
 		db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
 	}
 
-	//void init();
-
 	void initDatabase(std::unordered_map<std::string, std::string> &vars);
-
-	//SongInfo pathToSongInfo(const std::string &path);
-
-	//void modlandInit(const std::string &source, const std::string &song_list, const std::string &xformats, int id);
-	//void hvscInit(const std::string &source, int id);
-	//void rsnInit(const std::string &source, int id);
 
 	void generateIndex();
 
 	int search(const std::string &query, std::vector<int> &result, unsigned int searchLimit) override;
 	// Lookup internal string for index
 	std::string getString(int index) const override {
-		return utils::format("%s\t%s\t%d", getTitle(index), getComposer(index), index);
+		return utils::format("%s\t%s\t%d\t%d", getTitle(index), getComposer(index), index, formats[index]);
 	}
 	// Get full data, may require SQL query
 	std::string getFullString(int index) const override;// { return getString(index); }
@@ -81,14 +73,17 @@ private:
 	};
 
 	bool parseModlandPath(SongInfo &song);
+	void writeIndex(utils::File &f);
+	void readIndex(utils::File &f);
 
 
 	SearchIndex composerIndex;
 	SearchIndex titleIndex;
-	std::vector<int> titleToComposer;
-	std::vector<int> composerToTitle;
-	std::vector<int> composerTitleStart;
-	std::vector<uint8_t> formats;
+
+	std::vector<uint32_t> titleToComposer;
+	std::vector<uint32_t> composerToTitle;
+	std::vector<uint32_t> composerTitleStart;
+	std::vector<uint16_t> formats;
 
 	std::mutex dbMutex;
 	sqlite3db::Database db;

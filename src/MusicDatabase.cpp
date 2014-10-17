@@ -65,22 +65,27 @@ void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
 	if(listFile.exists()) {
 
 		bool isModland = (type == "modland");
+		bool isRKO = (type == "rko");
 
 		for(const auto &s : listFile.getLines()) {
 			auto parts = split(s, "\t");
-			if(isModland) {
-				SongInfo song(parts[1]);
-				if(!parseModlandPath(song))
-					continue;
-				if(ex_copy.count(song.format) > 0)
-					continue;
-				query.bind(song.title, song.game, song.composer, song.format, song.path, id);
-			} else {
-				SongInfo song(parts[4], parts[1], parts[0], parts[2], parts[3]);
-				query.bind(song.title, song.game, song.composer, song.format, song.path, id);
-
+			if(parts.size() >= 2) {
+				if(isModland) {
+					SongInfo song(parts[1]);
+					if(!parseModlandPath(song))
+						continue;
+					if(ex_copy.count(song.format) > 0)
+						continue;
+					query.bind(song.title, song.game, song.composer, song.format, song.path, id);
+				} else if(isRKO) {
+					SongInfo song(parts[0], "", parts[3], parts[4], "MP3");
+					query.bind(song.title, song.game, song.composer, song.format, song.path, id);
+				} else {
+					SongInfo song(parts[4], parts[1], parts[0], parts[2], parts[3]);
+					query.bind(song.title, song.game, song.composer, song.format, song.path, id);
+				}
+				query.step();
 			}
-			query.step();
 		}
 	} else {
 
@@ -191,16 +196,19 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 		int offset = composerTitleStart[index];
 		while(composerToTitle[offset] != -1)
 			result.push_back(composerToTitle[offset++]);
-/*
-		int title_index = composerToTitle[index];
-
-		while(titleToComposer[title_index] == index) {
-			result.push_back(title_index++);
-		}
-*/
 	}
 
-	return result.size();
+	int sz = result.size();
+	int j = sz;
+	/*
+	for(int i=0, j=0; i<sz; i++) {
+		if(formats[result[i]] == 0x600) {
+			result[j++] = result[i];
+		}
+	}
+	result.resize(j);
+	*/
+	return j;
 }
 
 SongInfo MusicDatabase::lookup(const std::string &p) {
@@ -301,10 +309,41 @@ static uint8_t formatToByte(const std::string &f) {
 	return 0;
 }
 
+template <typename T> static void readVector(std::vector<T> &v, File &f) {
+	auto sz = f.read<uint32_t>();
+	v.resize(sz);
+	f.read((uint8_t*)&v[0], v.size()*sizeof(T));
+
+}
+
+template <typename T> static void writeVector(std::vector<T> &v, File &f) {
+	f.write<uint32_t>(v.size());
+	f.write((uint8_t*)&v[0], v.size()*sizeof(T));
+}
+
+void MusicDatabase::readIndex(File &f) {
+	readVector(titleToComposer, f);
+	readVector(composerToTitle, f);
+	readVector(composerTitleStart, f);
+	readVector(formats, f);
+
+	titleIndex.load(f);
+	composerIndex.load(f);
+}
+
+void MusicDatabase::writeIndex(File &f) {
+	writeVector(titleToComposer, f);
+	writeVector(composerToTitle, f);
+	writeVector(composerTitleStart, f);
+	writeVector(formats, f);
+
+	titleIndex.dump(f);
+	composerIndex.dump(f);
+}
+
 void MusicDatabase::generateIndex() {
 
 	lock_guard<mutex>{dbMutex};
-
 
 	RemoteLoader &loader = RemoteLoader::getInstance();
 	auto q = db.query<int, string, string, string>("SELECT ROWID,name,url,localdir FROM collection");
@@ -316,20 +355,7 @@ void MusicDatabase::generateIndex() {
 	File f { File::getCacheDir() + "index.dat" };
 
 	if(f.exists()) {
-		auto sz = f.read<uint32_t>();
-		titleToComposer.resize(sz);
-		f.read((uint8_t*)&titleToComposer[0], titleToComposer.size()*sizeof(uint32_t));
-
-		sz = f.read<uint32_t>();
-		composerToTitle.resize(sz);
-		f.read((uint8_t*)&composerToTitle[0], composerToTitle.size()*sizeof(uint32_t));
-
-		sz = f.read<uint32_t>();
-		composerTitleStart.resize(sz);
-		f.read((uint8_t*)&composerTitleStart[0], composerTitleStart.size()*sizeof(uint32_t));
-
-		titleIndex.load(f);
-		composerIndex.load(f);
+		readIndex(f);
 		f.close();
 		return;
 	}
@@ -337,7 +363,7 @@ void MusicDatabase::generateIndex() {
 	print_fmt("Creating Search Index...\n");
 
 	string oldComposer;
-	auto query = db.query<string, string, string, string, string>("SELECT title, game, format, composer, path FROM song");
+	auto query = db.query<string, string, string, string, string, int>("SELECT title, game, format, composer, path, collection FROM song");
 
 	int count = 0;
 	//int maxTotal = 3;
@@ -347,10 +373,15 @@ void MusicDatabase::generateIndex() {
 	composerToTitle.reserve(37000);
 	titleIndex.reserve(438000);
 	composerIndex.reserve(37000);
+	formats.reserve(438000);
 
 	int step = 438000 / 20;
 
+
 	unordered_map<string, vector<uint32_t>> composers;
+
+	string title, game, fmt, composer, path;
+	int collection;
 
 	while(count < 1000000) {
 		count++;
@@ -361,16 +392,11 @@ void MusicDatabase::generateIndex() {
 			LOGD("%d songs indexed", count);
 		}
 
-		string title, game, fmt, composer, path;
-		tie(title, game, fmt, composer, path) = query.get_tuple();
+		tie(title, game, fmt, composer, path, collection) = query.get_tuple();
 
-		formats.push_back(formatToByte(fmt));
+		uint8_t b = formatToByte(fmt);
+		formats.push_back(b | (collection<<8));
 
-		//LOGD("%s %s", title, path);
-		//string ext = path_extension(path);
-		//makeLower(ext);
-		//int fmt = formatMap[ext];
-		//formats.push_back(fmt);
 		if(game != "") {
 			if(title != "")
 				title = format("%s [%s]", game, title);
@@ -379,6 +405,7 @@ void MusicDatabase::generateIndex() {
 
 		// The title index maps one-to-one with the database
 		int tindex = titleIndex.add(title);
+
 
 		auto &v = composers[composer];
 		if(v.size() == 0) {
@@ -393,6 +420,10 @@ void MusicDatabase::generateIndex() {
 		titleToComposer.push_back(cindex);
 	}
 
+	// composers[name] -> vector of titleindexes for each composer.
+
+	LOGD("Found %d composers and %d titles", composers.size(), titleToComposer.size());
+
 	composerTitleStart.resize(composers.size());
 	for(const auto &p : composers) {
 		// p,first == composer, p.second == vector
@@ -403,19 +434,8 @@ void MusicDatabase::generateIndex() {
 		composerToTitle.push_back(-1);
 	}
 
-	LOGD("INDEX CREATED (%d) (%d)", titleToComposer.size(), composerToTitle.size());
-
-	f.write<uint32_t>(titleToComposer.size());
-	f.write((uint8_t*)&titleToComposer[0], titleToComposer.size()*sizeof(uint32_t));
-
-	f.write<uint32_t>(composerToTitle.size());
-	f.write((uint8_t*)&composerToTitle[0], composerToTitle.size()*sizeof(uint32_t));
-
-	f.write<uint32_t>(composerTitleStart.size());
-	f.write((uint8_t*)&composerTitleStart[0], composerTitleStart.size()*sizeof(uint32_t));
-
-	titleIndex.dump(f);
-	composerIndex.dump(f);
+	writeIndex(f);
 	f.close();
 }
+
 }

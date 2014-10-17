@@ -18,6 +18,7 @@
 #include <musicplayer/plugins/SC68Plugin/SC68Plugin.h>
 #include <musicplayer/plugins/StSoundPlugin/StSoundPlugin.h>
 #include <musicplayer/plugins/AdPlugin/AdPlugin.h>
+#include <musicplayer/plugins/MP3Plugin/MP3Plugin.h>
 
 #ifndef NO_UADE
 #include <musicplayer/plugins/UADEPlugin/UADEPlugin.h>
@@ -152,7 +153,7 @@ static std::string find_file(const std::string &name) {
 }
 
 MusicPlayer::MusicPlayer() : fifo(32786), plugins {
-		//new ModPlugin {},
+		make_shared<MP3Plugin>(),
 		make_shared<RSNPlugin>(this->plugins),
 		make_shared<OpenMPTPlugin>(),
 		make_shared<HTPlugin>(),
@@ -180,10 +181,6 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		}
 
 		LOCK_GUARD(playerMutex);
-
-		//if(fadeOutPos > 0 && fadeOutPos <= pos) {
-		//	player = nullptr;
-		//}
 
 		if(!paused && player) {
 			int sz = size;

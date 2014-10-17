@@ -12,18 +12,20 @@ using namespace tween;
 
 namespace chipmachine {
 
+uint32_t colors[] = { 0xff0000ff, 0xff00ff00, 0xffff0000, 0xffff00ff, 0xffffff00, 0xff00ffff, 0xff4488ff };
 
 void ChipMachine::render_item(Rectangle &rec, int y, uint32_t index, bool hilight) {
 	string text;
-	Color c;
+	uint32_t c;
 	if(index < playlists.size()) {
 		text = format("<%s>", playlists[index]);
 		c = hilight ? markColor : Color(0xff6688ff);
 	} else {
 		auto res = iquery.getResult(index-playlists.size());
 		auto parts = split(res, "\t");
+		int f = atoi(parts[3].c_str());
 		text = format("%s / %s", parts[0], parts[1]);
-		c = hilight ? markColor : resultFieldTemplate->color;
+		c = hilight ? (uint32_t)markColor : colors[f>>8];//resultFieldTemplate->color;
 	}
 	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate->scale);
 }
