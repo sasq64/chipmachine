@@ -46,17 +46,14 @@ bool RemoteLoader::load(const std::string &p, function<void(File f)> done_cb) {
 		url = url.substr(0, url.length()-4);
 	}
 
-	webgetter.getURL(url, [=](const WebGetter::Job &job) {
-		//LOGD("Got file");
-		if(job.getReturnCode() == 0) {
-			string fileName = job.getFile();
-			if(fileName.find("snesmusic.org") != string::npos) {
-				auto newFile = fileName + ".rsn";
-				rename(fileName.c_str(), newFile.c_str());
-				fileName = newFile;
-			}
-			done_cb(File(fileName));
+	webgetter.getFile(url, [=](File f) {
+		string fileName = f.getName();
+		if(fileName.find("snesmusic.org") != string::npos) {
+			auto newFile = fileName + ".rsn";
+			rename(fileName.c_str(), newFile.c_str());
+			f = File { newFile };
 		}
+		done_cb(f);
 	});
 	return true;
 }

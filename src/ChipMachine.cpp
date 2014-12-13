@@ -1,5 +1,6 @@
 #include "ChipMachine.h"
 #include "PlaylistDatabase.h"
+#include "Icons.h"
 
 #include <cctype>
 
@@ -8,13 +9,13 @@ using namespace utils;
 using namespace grappix;
 using namespace tween;
 
-//#define ENABLE_TELNET
-
 namespace chipmachine {
 
-uint32_t colors[] = { 0xff0000ff, 0xff00ff00, 0xffff0000, 0xffff00ff, 0xffffff00, 0xff00ffff, 0xff4488ff };
 
 void ChipMachine::render_item(Rectangle &rec, int y, uint32_t index, bool hilight) {
+
+	static const uint32_t colors[] = { 0xff0000ff, 0xff00ff00, 0xffff0000, 0xffff00ff, 0xffffff00, 0xff00ffff, 0xff4488ff };
+
 	string text;
 	uint32_t c;
 	if(index < playlists.size()) {
@@ -29,24 +30,6 @@ void ChipMachine::render_item(Rectangle &rec, int y, uint32_t index, bool hiligh
 	}
 	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate->scale);
 }
-
-#define Z 0xff444488
-const vector<uint32_t> heart = { 0,Z,Z,0,Z,Z,0,0,
-                                 Z,Z,Z,Z,Z,Z,Z,0,
-                                 Z,Z,Z,Z,Z,Z,Z,0,
-                                 0,Z,Z,Z,Z,Z,0,0,
-                                 0,0,Z,Z,Z,0,0,0,
-                                 0,0,0,Z,0,0,0,0 };
-
-#undef Z
-#define Z 0xff44cccc
-const vector<uint32_t> net = { 0,0,Z,Z,Z,0,0,0,
-                               0,0,Z,0,Z,0,0,0,
-                               Z,Z,Z,0,Z,0,Z,Z,
-                               0,0,0,0,Z,0,Z,0,
-                               0,0,0,0,Z,Z,Z,0 };
-#undef Z
-
 
 ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen) {
 
@@ -66,10 +49,10 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	scrollEffect.set("font", ff.getName());
 
 
-#ifdef ENABLE_TELNET
+//#ifdef ENABLE_TELNET
 	telnet = make_unique<TelnetInterface>(*this);
 	telnet->start();
-#endif
+//#endif
 
 	for(int i=0; i<3; i++) {
 		mainScreen.add(prevInfoField.fields[i]);
@@ -91,13 +74,14 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	songField = make_shared<TextField>();
 	mainScreen.add(songField);
 
-	auto bm = image::bitmap(8, 6, &heart[0]);
+
+	auto bm = image::bitmap(8, 6, &heart_icon[0]);
 	favTexture = Texture(bm);
 	glBindTexture(GL_TEXTURE_2D, favTexture.id());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	bm = image::bitmap(8, 5, &net[0]);
+	bm = image::bitmap(8, 5, &net_icon[0]);
 	netTexture = Texture(bm);
 	glBindTexture(GL_TEXTURE_2D, netTexture.id());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -146,8 +130,8 @@ void ChipMachine::set_scrolltext(const std::string &txt) {
 
 void ChipMachine::initLua() {
 
-	unordered_map<string, string> dbmap;
 	lua.registerFunction<void, string, string>("set_db_var", [&](string name, string val) {
+		static unordered_map<string, string> dbmap;
 		LOGD("%s %s", name, val);
 		if(val == "start") {
 		} else if(val == "end") {
@@ -166,12 +150,6 @@ void ChipMachine::initLua() {
 	auto path = File::getUserDir() + ":" + current_exe_path() + ":" + File::getAppDir();
 	File f = File::findFile(path, "lua/db.lua");
 
-	/*{ "lua/db.lua" };
-	if(!f.exists()) {
-		f.copyFrom("lua/db.lua.orig");
-		f.close();
-	}*/
-
 	lua.loadFile(f.getName());
 	lua.load(R"(
 		for a,b in pairs(DB) do
@@ -187,17 +165,13 @@ void ChipMachine::initLua() {
 	MusicDatabase::getInstance().generateIndex();
 
 	File f2 = File::findFile(path, "lua/screen.lua");
-	/*File f2 { "lua/screen.lua" };
-	if(!f2.exists()) {
-		f2.copyFrom("lua/screen.lua.orig");
-		f2.close();
-	}*/
 
-	lua.set_global("SCREEN_WIDTH", screen.width());
-	lua.set_global("SCREEN_HEIGHT", screen.height());
+	lua.setGlobal("SCREEN_WIDTH", screen.width());
+	lua.setGlobal("SCREEN_HEIGHT", screen.height());
 
 	Resources::getInstance().load<string>(f2.getName() /*"lua/screen.lua" */, [=](shared_ptr<string> contents) {
 		lua.load(*contents, "lua/screen.lua");
+
 		lua.load(R"(
 			for a,b in pairs(Settings) do
 				if type(b) == 'table' then

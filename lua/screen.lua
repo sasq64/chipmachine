@@ -11,7 +11,7 @@ end
 GSCALE = 1.0
 
 if SCREEN_HEIGHT >= 800 then
-	GSCALE = 2.0
+	GSCALE = 4.0
 end
 -- print('HD',SCREEN_WIDTH,SCREEN_HEIGHT,HD)
 
@@ -72,7 +72,7 @@ Settings.favicon = { X0 + 330 * GSCALE, SY - GSCALE*25, 8*8 * GSCALE, 8*6 * GSCA
 
 
 if HD then
-  Settings.scroll = { Y1 - 200, 3.0, 4, "data/Bello.otf" }
+  Settings.scroll = { Y1 - 200, 4.0, 4, "data/Bello.otf" }
   Settings.spectrum = { X0, Y1, 32, 24.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
 else
   Settings.scroll = { Y1 - 100, 2.0, 4, "data/Bello.otf" }
@@ -106,8 +106,10 @@ Settings.enter_format = { x, y+45*scale, scale*0.3, TEXT_COLOR }
 Settings.search_field = { X0, Y0, 1.0, SEARCH_COLOR }
 Settings.top_status = { X0, Y0, 1.0, FORMAT_COLOR }
 
-Settings.result_field = { X0, Y0+30, 0.8, RESULT_COLOR }
-Settings.result_lines = (Y1-Y0)/23
+LSCALE = 0.8
+
+Settings.result_field = { X0, Y0+30, LSCALE, RESULT_COLOR }
+Settings.result_lines = (Y1-Y0)/(30*LSCALE)
 
 Settings.font = "data/Neutra.otf"
 Settings.list_font = "data/Neutra.otf"

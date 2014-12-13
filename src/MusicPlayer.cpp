@@ -9,7 +9,7 @@
 #include <musicplayer/plugins/OpenMPTPlugin/OpenMPTPlugin.h>
 #include <musicplayer/plugins/HTPlugin/HTPlugin.h>
 #include <musicplayer/plugins/HEPlugin/HEPlugin.h>
-#include <musicplayer/plugins/GSFPlugin/GSFPlugin.h>
+//#include <musicplayer/plugins/GSFPlugin/GSFPlugin.h>
 #include <musicplayer/plugins/NDSPlugin/NDSPlugin.h>
 #include <musicplayer/plugins/USFPlugin/USFPlugin.h>
 #include <musicplayer/plugins/VicePlugin/VicePlugin.h>
@@ -158,7 +158,7 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		make_shared<OpenMPTPlugin>(),
 		make_shared<HTPlugin>(),
 		make_shared<HEPlugin>(find_file("data/hebios.bin")),
-		make_shared<GSFPlugin>(),
+		//make_shared<GSFPlugin>(),
 		make_shared<NDSPlugin>(),
 		make_shared<USFPlugin>(),
 		make_shared<VicePlugin>(find_file("data/c64")),

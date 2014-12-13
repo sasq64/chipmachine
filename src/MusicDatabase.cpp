@@ -190,12 +190,22 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 
 	titleIndex.search(title_query, result, searchLimit);
 
+	if(result.size() >= searchLimit)
+		return searchLimit;
+
+	searchLimit -= result.size();
+
 	vector<int> cresult;
 	composerIndex.search(composer_query, cresult, searchLimit);
 	for(int index : cresult) {
 		int offset = composerTitleStart[index];
-		while(composerToTitle[offset] != -1)
+		while(composerToTitle[offset] != -1) {
+			if(result.size() >= searchLimit)
+				break;
 			result.push_back(composerToTitle[offset++]);
+		}
+		if(result.size() >= searchLimit)
+			break;
 	}
 
 	int sz = result.size();
@@ -235,25 +245,27 @@ SongInfo MusicDatabase::lookup(const std::string &p) {
 	return song;
 }
 
-string MusicDatabase::getFullString(int id) const {
+SongInfo MusicDatabase::getSongInfo(int id) const {
 
 	id++;
 	LOGD("ID %d", id);
 
 	auto q = db.query<string, string, string, string, string, string>("SELECT title, game, composer, format, song.path, collection.name FROM song, collection WHERE song.ROWID = ? AND song.collection = collection.id", id);
 	if(q.step()) {
-		string title, game, composer, format, path, collection;
+		//string title, game, composer, format, path, collection;
+		SongInfo song;
+		string collection;
+		tie(song.title, song.game, song.composer, song.format, song.path, collection) = q.get_tuple();
 
-		tie(title, game, composer, format, path, collection) = q.get_tuple();
+		song.path = collection + "::" + song.path;
 
-		path = collection + "::" + path;
+		if(song.game != "")
+			song.title = utils::format("%s [%s]", song.game, song.title);
 
-		if(game != "")
-			title = utils::format("%s [%s]", game, title);
-
-		string r = utils::format("%s\t%s\t%s\t%s", path, title, composer, format);
-		LOGD("RESULT %s", r);
-		return r;
+		//string r = utils::format("%s\t%s\t%s\t%s", path, title, composer, format);
+		//LOGD("RESULT %s", r);
+		//return r;
+		return song;
 	}
 	throw not_found_exception();
 }

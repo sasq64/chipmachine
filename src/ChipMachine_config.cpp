@@ -46,13 +46,6 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 				outsideInfoField[2].color = c;
 			else if(name == "time_field")
 				timeColor = c;
-			// else if(name == "search_field") {
-			// 	if(index == 5) {
-			// 		formatColor = c;
-			// 		return;
-			// 	} else
-			// 		searchColor = c;
-			// }
 			f.color = c;
 			if(name == "result_field") {
 				markColor = c;

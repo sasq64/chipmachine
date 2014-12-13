@@ -37,7 +37,7 @@ public:
 		return utils::format("%s\t%s\t%d\t%d", getTitle(index), getComposer(index), index, formats[index]);
 	}
 	// Get full data, may require SQL query
-	std::string getFullString(int index) const override;// { return getString(index); }
+	SongInfo getSongInfo(int index) const;// { return getString(index); }
 
 	std::string getTitle(int index) const {
 		return titleIndex.getString(index);

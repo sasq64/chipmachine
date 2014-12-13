@@ -2,11 +2,12 @@ CPP_MODS = ../cpp-mods
 include $(CPP_MODS)/config.mk
 
 OBJDIR := obj/
-CFLAGS += -g -O2 -Wall -I$(CPP_MODS) -Wno-switch
+CFLAGS += -Wall -O2 -g -I$(CPP_MODS) -Wno-switch
+
 #CFLAGS += -O2
 SRCDIR := src/
 #LDFLAGS += -pg
-USE_CCACHE := 1
+#USE_CCACHE := 1
 USE_CLANG := 1
 
 RUN_ARGS := -d
@@ -28,7 +29,7 @@ include $(CPP_MODS)/musicplayer/plugins/ModPlugin/module.mk
 include $(CPP_MODS)/musicplayer/plugins/OpenMPTPlugin/module.mk
 include $(CPP_MODS)/musicplayer/plugins/HTPlugin/module.mk
 include $(CPP_MODS)/musicplayer/plugins/HEPlugin/module.mk
-include $(CPP_MODS)/musicplayer/plugins/GSFPlugin/module.mk
+#include $(CPP_MODS)/musicplayer/plugins/GSFPlugin/module.mk
 include $(CPP_MODS)/musicplayer/plugins/NDSPlugin/module.mk
 include $(CPP_MODS)/musicplayer/plugins/USFPlugin/module.mk
 include $(CPP_MODS)/musicplayer/plugins/VicePlugin/module.mk

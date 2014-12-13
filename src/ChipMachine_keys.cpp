@@ -89,10 +89,11 @@ void ChipMachine::show_search() {
 }
 
 SongInfo ChipMachine::get_selected_song() {
-	auto r = iquery.getFull(songList.selected() - playlists.size());
-	auto parts = split(r, "\t");
-	SongInfo si(parts[0], "", parts[1], parts[2], parts[3]);
-	return si;
+	//auto r = MusicDatabase::getInstance().getFullString(iquery.getIndex(songList.selected() - playlists.size()));
+	//auto parts = split(r, "\t");
+	//SongInfo si(parts[0], "", parts[1], parts[2], parts[3]);
+	//return si;
+	return MusicDatabase::getInstance().getSongInfo(iquery.getIndex(songList.selected() - playlists.size()));
 }
 
 
@@ -277,10 +278,9 @@ void ChipMachine::update_keys() {
 	if(songList.selected() != last_selection && iquery.numHits() > 0) {
 		int i = songList.selected() - playlists.size();
 		if(i >= 0) {
-			auto p = iquery.getFull(i);
-			auto parts = split(p, "\t");
-			auto ext = path_extension(parts[0]);
-			topStatus->setText(format("Format: %s (%s)", parts[3], ext));
+			SongInfo song = MusicDatabase::getInstance().getSongInfo(iquery.getIndex(i));
+			auto ext = path_extension(song.path);
+			topStatus->setText(format("Format: %s (%s)", song.format, ext));
 			//searchField->color = Color(formatColor);
 		} else
 			topStatus->setText("Format: Playlist");
