@@ -9,6 +9,7 @@ include_directories(${CPP_MODS} ${CPP_MODS}/musicplayer/plugins)
 #include_directories(${CPP_MODS}/g#rappix)
 
 add_subdirectory(${CPP_MODS}/coreutils coreutils)
+add_subdirectory(${CPP_MODS}/audioplayer audioplayer)
 
 add_subdirectory(${CPP_MODS}/musicplayer/plugins/ModPlugin modplugin)
 add_subdirectory(${CPP_MODS}/musicplayer/plugins/OpenMPTPlugin openmptplugin)
@@ -28,4 +29,4 @@ add_subdirectory(${CPP_MODS}/musicplayer/plugins/UADEPlugin uadeplugin)
 
 
 add_executable(miniplay miniplay.cpp)
-target_link_libraries(miniplay coreutils modplugin openmptplugin htplugin heplugin ndsplugin gsfplugin gmeplugin sc68plugin usfplugin sexypsfplugin stsoundplugin adplugin mp3plugin uadeplugin)
+target_link_libraries(miniplay coreutils audioplayer modplugin openmptplugin htplugin heplugin ndsplugin gsfplugin gmeplugin sc68plugin usfplugin sexypsfplugin stsoundplugin adplugin mp3plugin uadeplugin viceplugin)

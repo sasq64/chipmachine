@@ -5,6 +5,7 @@
 #include <SC68Plugin/SC68Plugin.h>
 
 #include <coreutils/utils.h>
+#include <coreutils/file.h>
 #include <audioplayer/audioplayer.h>
 #include <cstdio>
 #include <vector>

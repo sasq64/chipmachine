@@ -17,6 +17,8 @@ public:
 
 	bool load(const std::string &path, std::function<void(utils::File)> done_cb);
 
+	bool stream(const std::string &path, std::function<void(uint8_t *data, int size)> data_cb);
+
 	static RemoteLoader& getInstance() {
 		static RemoteLoader loader;
 		return loader;

@@ -58,4 +58,8 @@ bool RemoteLoader::load(const std::string &p, function<void(File f)> done_cb) {
 	return true;
 }
 
+bool RemoteLoader::stream(const std::string &path, std::function<void(uint8_t *data, int size)> data_cb) {
+	return false;
+}
+
 
