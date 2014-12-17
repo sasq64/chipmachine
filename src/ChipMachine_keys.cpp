@@ -262,6 +262,10 @@ void ChipMachine::update_keys() {
 				RemoteLists::getInstance().sendList(plist.songs, plist.name, [=]() { toast("Uploaded", 2); });
 			}
 			break;
+		case NO_ACTION:
+		case LOGIN:
+		case LAST_ACTION:
+			break;
 		}
 	}
 

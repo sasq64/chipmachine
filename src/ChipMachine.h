@@ -22,7 +22,7 @@
 #include <tween/tween.h>
 #include <grappix/grappix.h>
 #include <grappix/gui/list.h>
-#include <lua/luainterpreter.h>
+#include <luainterpreter/luainterpreter.h>
 
 #include <cstdio>
 #include <vector>

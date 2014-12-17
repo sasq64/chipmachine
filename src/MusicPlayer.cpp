@@ -6,22 +6,22 @@
 
 #include <audioplayer/audioplayer.h>
 
-#include <musicplayer/plugins/OpenMPTPlugin/OpenMPTPlugin.h>
-#include <musicplayer/plugins/HTPlugin/HTPlugin.h>
-#include <musicplayer/plugins/HEPlugin/HEPlugin.h>
-//#include <musicplayer/plugins/GSFPlugin/GSFPlugin.h>
-#include <musicplayer/plugins/NDSPlugin/NDSPlugin.h>
-#include <musicplayer/plugins/USFPlugin/USFPlugin.h>
-#include <musicplayer/plugins/VicePlugin/VicePlugin.h>
-#include <musicplayer/plugins/SexyPSFPlugin/SexyPSFPlugin.h>
-#include <musicplayer/plugins/GMEPlugin/GMEPlugin.h>
-#include <musicplayer/plugins/SC68Plugin/SC68Plugin.h>
-#include <musicplayer/plugins/StSoundPlugin/StSoundPlugin.h>
-#include <musicplayer/plugins/AdPlugin/AdPlugin.h>
-#include <musicplayer/plugins/MP3Plugin/MP3Plugin.h>
+#include <musicplayer/plugins/openmptplugin/OpenMPTPlugin.h>
+#include <musicplayer/plugins/htplugin/HTPlugin.h>
+#include <musicplayer/plugins/heplugin/HEPlugin.h>
+#include <musicplayer/plugins/gsfplugin/GSFPlugin.h>
+#include <musicplayer/plugins/ndsplugin/NDSPlugin.h>
+#include <musicplayer/plugins/usfplugin/USFPlugin.h>
+#include <musicplayer/plugins/viceplugin/VicePlugin.h>
+//#include <musicplayer/plugins/sexypsfplugin/SexyPSFPlugin.h>
+#include <musicplayer/plugins/gmeplugin/GMEPlugin.h>
+#include <musicplayer/plugins/sc68plugin/SC68Plugin.h>
+#include <musicplayer/plugins/stsoundplugin/StSoundPlugin.h>
+#include <musicplayer/plugins/adplugin/AdPlugin.h>
+#include <musicplayer/plugins/mp3plugin/MP3Plugin.h>
 
 #ifndef NO_UADE
-#include <musicplayer/plugins/UADEPlugin/UADEPlugin.h>
+#include <musicplayer/plugins/uadeplugin/UADEPlugin.h>
 #endif
 
 #include <archive/archive.h>
@@ -158,11 +158,11 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		make_shared<OpenMPTPlugin>(),
 		make_shared<HTPlugin>(),
 		make_shared<HEPlugin>(find_file("data/hebios.bin")),
-		//make_shared<GSFPlugin>(),
+		make_shared<GSFPlugin>(),
 		make_shared<NDSPlugin>(),
 		make_shared<USFPlugin>(),
 		make_shared<VicePlugin>(find_file("data/c64")),
-		make_shared<SexyPSFPlugin>(),
+		//make_shared<SexyPSFPlugin>(),
 		make_shared<GMEPlugin>(),
 		make_shared<SC68Plugin>(find_file("data/sc68")),
 		make_shared<StSoundPlugin>(),

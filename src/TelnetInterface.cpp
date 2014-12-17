@@ -4,7 +4,7 @@
 #include <coreutils/log.h>
 #include <coreutils/utils.h>
 
-#include <lua/luainterpreter.h>
+#include <luainterpreter/luainterpreter.h>
 
 using namespace std;
 using namespace utils;

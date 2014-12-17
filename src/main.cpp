@@ -16,9 +16,14 @@ using namespace utils;
 
 int main(int argc, char* argv[]) {
 
-	logging::setLevel(logging::WARNING);
-
+#ifdef CM_DEBUG
+	bool fullScreen = false;
+	logging::setLevel(logging::DEBUG);
+#else
 	bool fullScreen = true;
+	logging::setLevel(logging::WARNING);
+#endif
+
 	vector<SongInfo> songs;
 	int w = 720;
 	int h = 576;
