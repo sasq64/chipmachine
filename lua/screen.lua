@@ -11,7 +11,7 @@ end
 GSCALE = 1.0
 
 if SCREEN_HEIGHT >= 800 then
-	GSCALE = 4.0
+	GSCALE = 2.0
 end
 -- print('HD',SCREEN_WIDTH,SCREEN_HEIGHT,HD)
 

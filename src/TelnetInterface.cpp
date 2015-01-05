@@ -16,17 +16,21 @@ typedef std::unordered_map<string, string> strmap;
 
 TelnetInterface::TelnetInterface(ChipMachine &cm) : chipmachine(cm) {}
 
+void TelnetInterface::stop() {
+	telnet->stop();
+}
+
 void TelnetInterface::start() {
 	telnet = make_unique<TelnetServer>(12345);
 	telnet->setOnConnect([&](TelnetServer::Session &session) {
 		session.echo(false);
 		string termType = session.getTermType();		
-		LOGD("New connection, TERMTYPE '%s'", termType);
+		LOGD("New telnet connection, TERMTYPE '%s'", termType);
 
 		if(termType.length() > 0) {
-			console = unique_ptr<Console>(new AnsiConsole { session });
+			console = make_unique<AnsiConsole>(session);
 		} else {
-			console = unique_ptr<Console>(new PetsciiConsole { session });
+			console = make_unique<PetsciiConsole>(session);
 		}
 		console->flush();
 		LuaInterpreter lip;

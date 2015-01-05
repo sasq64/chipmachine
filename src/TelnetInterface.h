@@ -20,6 +20,7 @@ class TelnetInterface {
 public:
 	TelnetInterface(ChipMachine &cm);
 	void start();
+	void stop();
 private:
 	//MusicDatabase& db;
 	//MusicPlayerList& player;

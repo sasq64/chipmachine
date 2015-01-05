@@ -13,7 +13,6 @@
 #include <musicplayer/plugins/ndsplugin/NDSPlugin.h>
 #include <musicplayer/plugins/usfplugin/USFPlugin.h>
 #include <musicplayer/plugins/viceplugin/VicePlugin.h>
-//#include <musicplayer/plugins/sexypsfplugin/SexyPSFPlugin.h>
 #include <musicplayer/plugins/gmeplugin/GMEPlugin.h>
 #include <musicplayer/plugins/sc68plugin/SC68Plugin.h>
 #include <musicplayer/plugins/stsoundplugin/StSoundPlugin.h>
@@ -28,6 +27,12 @@
 #include <set>
 #include <algorithm>
 
+//#ifdef RASPBERRYPI
+//#define AUDIO_DELAY 12
+//#else
+#define AUDIO_DELAY 2
+//#endif
+
 using namespace std;
 using namespace utils;
 
@@ -40,11 +45,6 @@ public:
 		player = shared_ptr<ChipPlayer>(plugin->fromFile(l[0]));
 		if(player == nullptr)
 			throw player_exception();
-		//player->onMeta([=](const vector<string> &meta, ChipPlayer* player) {			
-			//for(const auto &m : meta) {
-			//	setMeta(m, player->getMeta(m));
-			//}
-		//});
 		setMeta("title", player->getMeta("title"),
 			"sub_title", player->getMeta("sub_title"),
 			"game", player->getMeta("game"),
@@ -65,10 +65,7 @@ public:
 		player = shared_ptr<ChipPlayer>(plugin->fromFile(songs[song]));
 		if(player) {
 			setMeta("sub_title", player->getMeta("sub_title"),
-			//"game", player->getMeta("game"),
-			//"composer", player->getMeta("composer"),
-			"length", player->getMeta("length")
-			//"format", player->getMeta("format")
+				"length", player->getMeta("length")
 			);
 			if(seconds > 0)
 				player->seekTo(-1, seconds);
@@ -162,7 +159,6 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		make_shared<NDSPlugin>(),
 		make_shared<USFPlugin>(),
 		make_shared<VicePlugin>(find_file("data/c64")),
-		//make_shared<SexyPSFPlugin>(),
 		make_shared<GMEPlugin>(),
 		make_shared<SC68Plugin>(find_file("data/sc68")),
 		make_shared<StSoundPlugin>(),
@@ -357,6 +353,20 @@ string MusicPlayer::getMeta(const string &what) {
 		return player->getMeta(what);
 	else
 		return "";
+}
+
+uint16_t *MusicPlayer::getSpectrum() {
+	LOCK_GUARD(fftMutex);
+	if(fft.size() > AUDIO_DELAY) {
+		while(fft.size() > AUDIO_DELAY*2)
+			fft.popLevels();
+		//LOGD("GET");
+		spectrum = fft.getLevels();
+		fft.popLevels();
+
+	} //else LOGD("WAIT");
+	return &spectrum[0];
+
 }
 
 // PRIVATE

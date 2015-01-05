@@ -124,6 +124,11 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 
 }
 
+ChipMachine::~ChipMachine() {
+	if(telnet)
+		telnet->stop();
+}
+
 void ChipMachine::set_scrolltext(const std::string &txt) {
 	scrollEffect.set("scrolltext", txt);
 }
@@ -143,7 +148,6 @@ void ChipMachine::initLua() {
 	});
 
 	lua.registerFunction<void, string, uint32_t, string>("set_var", [=](string name, uint32_t index, string val) {
-		//LOGD("%s(%d) = %s", name, index, val);
 		setVariable(name, index, val);
 	});
 
@@ -216,14 +220,12 @@ void ChipMachine::update() {
 	//LOGD("STATE %d vs %d %d %d", state, MusicPlayerList::STOPPED, MusicPlayerList::WAITING, MusicPlayerList::PLAY_STARTED);
 	if(state == MusicPlayerList::PLAY_STARTED) {
 		LOGD("MUSIC STARTING");
-		//state = PLAYING;
 		currentInfo = player.getInfo();
 		LOGD("Prev song %s, new song %s", currentInfoField.getInfo().title, currentInfo.title);
 		prevInfoField.setInfo(currentInfoField.getInfo());
 		currentInfoField.setInfo(currentInfo);
 		currentTune = currentInfo.starttune;
 		currentTween.finish();
-		auto sc = currentInfoField[0].scale;
 
 		if(currentInfo.numtunes > 0)
 			songField->setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
@@ -232,9 +234,7 @@ void ChipMachine::update() {
 
 		auto sub_title = player.getMeta("sub_title");
 
-		int tw = font.get_width(currentInfo.title, sc);
-
-		LOGD("%s vs %s", nextInfoField.path, currentInfoField.path);
+		int tw = font.get_width(currentInfo.title, currentInfoField[0].scale);
 
 		auto f = [=]() {
 			xinfoField->setText(sub_title);
@@ -336,9 +336,9 @@ void ChipMachine::update() {
 
 	if(player.playing()) {
 		auto spectrum = player.getSpectrum();
-		for(int i=0; i<(int)player.spectrumSize(); i++) {
+		for(int i=0; i<player.spectrumSize(); i++) {
 			if(spectrum[i] > 5) {
-				float f = log(spectrum[i]) * spectrumHeight;
+				uint8_t f = static_cast<uint8_t>(logf(spectrum[i]) * spectrumHeight);
 				if(f > eq[i])
 					eq[i] = f;
 			}

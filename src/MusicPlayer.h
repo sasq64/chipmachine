@@ -19,12 +19,6 @@ namespace chipmachine {
 class ChipPlugin;
 class ChipPlayer;
 
-#ifdef RASPBERRYPI
-#define AUDIO_DELAY 12
-#else
-#define AUDIO_DELAY 19
-#endif
-
 // MUST BE THREAD SAFE
 class MusicPlayer {
 public:
@@ -51,19 +45,7 @@ public:
 		return playingInfo;
 	}
 
-	uint16_t *getSpectrum() {
-		LOCK_GUARD(fftMutex);
-		if(fft.size() > AUDIO_DELAY) {
-			while(fft.size() > AUDIO_DELAY*2)
-				fft.popLevels();
-			//LOGD("GET");
-			spectrum = fft.getLevels();
-			fft.popLevels();
-
-		} //else LOGD("WAIT");
-		return &spectrum[0];
-
-	}
+	uint16_t *getSpectrum();
 
 	std::string getMeta(const std::string &what);
 

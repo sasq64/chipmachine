@@ -72,7 +72,7 @@ void MusicPlayerList::nextSong() {
 void MusicPlayerList::playSong(const SongInfo &si) {
 	if(!checkPermission(CAN_SWITCH_SONG)) return;
 	LOCK_GUARD(plMutex);
-	currentInfo = si;
+currentInfo = si;
 	state = PLAY_NOW;
 }
 

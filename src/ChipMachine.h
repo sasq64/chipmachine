@@ -37,6 +37,7 @@ public:
 	virtual void render_item(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) override;
 
 	ChipMachine();
+	~ChipMachine();
 
 	void initLua();
 	void play(const SongInfo &si);
@@ -77,7 +78,7 @@ private:
 	grappix::Font font;
 	grappix::Font listFont;
 
-	double spectrumHeight = 20.0;
+	int spectrumHeight = 20;
 	int spectrumWidth = 24;
 	utils::vec2i spectrumPos;
 	std::vector<uint8_t> eq;
