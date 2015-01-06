@@ -6,11 +6,11 @@ add_definitions(-DAPP_NAME=chipmachine)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DCM_DEBUG -g")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_RELEASE} -DCM_DEBUG -g")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DCM_DEBUG")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_RELEASE} -DCM_DEBUG")
 
 #set(CMAKE_EXE_LINKER_FLAGS "-g -fsanitize=address")
 
@@ -51,6 +51,9 @@ set(MUSICPLAYER_PLUGINS
 )
 add_subdirectory(${CPP_MODS}/musicplayer/plugins plugins)
 
+if(RASPBERRY)
+  include_directories(${PI_SYS_ROOT}/vc/include)
+endif()
 
 file(GLOB SOURCE_FILES src/*.cpp)
 include_directories(${CPP_MODS}/grappix ${CPP_MODS}/musicplayer/plugins)

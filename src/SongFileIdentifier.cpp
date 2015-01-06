@@ -5,8 +5,9 @@
 #include <coreutils/file.h>
 #include <coreutils/log.h>
 #include <archive/archive.h>
+#ifdef WITH_MPG123
 #include <mpg123.h>
-
+#endif
 using namespace utils;
 using namespace std;
 
@@ -215,7 +216,7 @@ bool parseSnes(SongInfo &info) {
 }
 
 bool parseMp3(SongInfo &info) {
-
+#ifdef WITH_MPG123
 	int err = mpg123_init();
 	mpg123_handle *mp3 = mpg123_new(NULL, &err);
 
@@ -244,7 +245,10 @@ bool parseMp3(SongInfo &info) {
 		mpg123_delete(mp3);
 	}
 	mpg123_exit();
-
+	return true;
+#else
+	return false;
+#endif
 }
 
 bool identify_song(SongInfo &info, string ext) {

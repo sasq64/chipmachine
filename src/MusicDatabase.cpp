@@ -2,7 +2,6 @@
 #include "SongFileIdentifier.h"
 #include "RemoteLoader.h"
 
-#include <musicplayer/plugins/SC68Plugin/SC68Plugin.h>
 #include <coreutils/utils.h>
 #include <archive/archive.h>
 #include <set>
