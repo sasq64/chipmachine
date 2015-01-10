@@ -178,12 +178,13 @@ MusicPlayer::MusicPlayer() : fifo(32786)/*, plugins {
 // Make sure the fifo is filled
 void MusicPlayer::update() {
 
-	static int16_t tempBuf[32768];
+	static int16_t *tempBuf = nullptr;
+	if(!tempBuf)
+		tempBuf = new int16_t [32768];
 
 	LOCK_GUARD(playerMutex);
 
 	if(!paused && player) {
-
 
 		sub_title = player->getMeta("sub_title");
 
@@ -192,12 +193,20 @@ void MusicPlayer::update() {
 		while(true) {
 
 			//LOGD("LEFT %d", fifo.left());
+			int f = fifo.left() - 128;
 
-			int rc = player->getSamples(tempBuf, fifo.left());
+			if(f < 0)
+				break; 
+			int rc = player->getSamples(tempBuf, f);
+
+			//LOGD("GOT %d", fifo.left());
+
 			if(rc <= 0) {
 				playEnded = true;
 				break;
 			}
+			//if(tempBuf[32768] != 0x59)
+			//	LOGE("CORRUPTION");
 
 
 			//LOGD("SILENCE %d", fifo.getSilence());
