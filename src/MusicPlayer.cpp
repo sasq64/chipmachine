@@ -6,22 +6,7 @@
 
 #include <audioplayer/audioplayer.h>
 
-#include <musicplayer/plugins/openmptplugin/OpenMPTPlugin.h>
-#include <musicplayer/plugins/htplugin/HTPlugin.h>
-#include <musicplayer/plugins/heplugin/HEPlugin.h>
-#include <musicplayer/plugins/gsfplugin/GSFPlugin.h>
-#include <musicplayer/plugins/ndsplugin/NDSPlugin.h>
-#include <musicplayer/plugins/usfplugin/USFPlugin.h>
-#include <musicplayer/plugins/viceplugin/VicePlugin.h>
-#include <musicplayer/plugins/gmeplugin/GMEPlugin.h>
-#include <musicplayer/plugins/sc68plugin/SC68Plugin.h>
-#include <musicplayer/plugins/stsoundplugin/StSoundPlugin.h>
-#include <musicplayer/plugins/adplugin/AdPlugin.h>
-#include <musicplayer/plugins/mp3plugin/MP3Plugin.h>
-
-#ifndef NO_UADE
-#include <musicplayer/plugins/uadeplugin/UADEPlugin.h>
-#endif
+#include <musicplayer/plugins/plugins.h>
 
 #include <archive/archive.h>
 #include <set>
@@ -149,7 +134,7 @@ static std::string find_file(const std::string &name) {
 	return f.getName();
 }
 
-MusicPlayer::MusicPlayer() : fifo(32786), plugins {
+MusicPlayer::MusicPlayer() : fifo(32786)/*, plugins {
 		make_shared<MP3Plugin>(),
 		make_shared<RSNPlugin>(this->plugins),
 		make_shared<OpenMPTPlugin>(),
@@ -166,8 +151,12 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 #ifndef NO_UADE
 		make_shared<UADEPlugin>()
 #endif
-	}
+	} */
 {
+
+	plugins.push_back(make_shared<RSNPlugin>(plugins));
+	ChipPlugin::createPlugins(find_file("data"), plugins);
+
 	dontPlay = playEnded = false;
 	AudioPlayer::play([=](int16_t *ptr, int size) mutable {
 
@@ -177,43 +166,58 @@ MusicPlayer::MusicPlayer() : fifo(32786), plugins {
 		}
 
 		LOCK_GUARD(playerMutex);
-
-		if(!paused && player) {
-			int sz = size;
-
-			sub_title = player->getMeta("sub_title");
-
-			silentFrames = fifo.getSilence();
-
-			while(true) {
-				if(sz <= 0)
-					LOGD("WTF!");
-				int rc = player->getSamples((int16_t*)fifo.ptr(), sz);				
-				if(rc <= 0) {
-					playEnded = true;
-					memset(fifo.ptr(), 0, sz*2);
-					rc = sz;
-				}
-
-				//LOGD("SILENCE %d", fifo.getSilence());
-				if(fadeOutPos != 0) {
-					fifo.setVolume((fadeOutPos - pos) / (float)fadeLength);
-				}
-
-				fifo.processShorts(nullptr, rc);
-				pos += rc/2;
-				sz -= rc;
-				if(fifo.filled() >= size*2) {
-					fifo.getShorts(ptr, size);
-					lock_guard<mutex> guard(fftMutex);
-					fft.addAudio(ptr, size);
-					break;
-				}
-			}
-
+		if(fifo.filled() >= size) {
+			fifo.get(ptr, size);
+			lock_guard<mutex> guard(fftMutex);
+			fft.addAudio(ptr, size);	
 		} else
 			memset(ptr, 0, size*2);
 	});
+}
+
+// Make sure the fifo is filled
+void MusicPlayer::update() {
+
+	static int16_t tempBuf[32768];
+
+	LOCK_GUARD(playerMutex);
+
+	if(!paused && player) {
+
+
+		sub_title = player->getMeta("sub_title");
+
+		silentFrames = fifo.getSilence();
+
+		while(true) {
+
+			//LOGD("LEFT %d", fifo.left());
+
+			int rc = player->getSamples(tempBuf, fifo.left());
+			if(rc <= 0) {
+				playEnded = true;
+				break;
+			}
+
+
+			//LOGD("SILENCE %d", fifo.getSilence());
+			if(fadeOutPos != 0) {
+				fifo.setVolume((fadeOutPos - pos) / (float)fadeLength);
+			}
+
+			//fifo.processShorts(nullptr, rc);
+			//LOGD("Putting %d samples", rc);
+			fifo.put(tempBuf, rc);
+			pos += rc;
+			if(fifo.filled() >= fifo.size()/2) {
+				break;
+			}
+
+		}
+
+	} else
+		sleepms(100);
+
 }
 
 MusicPlayer::~MusicPlayer() {

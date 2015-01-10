@@ -1,16 +1,17 @@
-#include <ModPlugin/ModPlugin.h>
-#include <VicePlugin/VicePlugin.h>
-#include <SexyPSFPlugin/SexyPSFPlugin.h>
-#include <GMEPlugin/GMEPlugin.h>
-#include <SC68Plugin/SC68Plugin.h>
-
+#include <coreutils/fifo.h>
+#include <coreutils/log.h>
 #include <coreutils/utils.h>
 #include <coreutils/file.h>
+
 #include <audioplayer/audioplayer.h>
+#include <musicplayer/plugins/plugins.h>
+
 #include <cstdio>
 #include <vector>
 #include <string>
 #include <memory>
+#include <thread>
+#include <mutex>
 
 using namespace chipmachine;
 using namespace std;
@@ -18,18 +19,15 @@ using namespace utils;
 
 int main(int argc, char* argv[]) {
 
+	logging::setLevel(logging::WARNING);
+
 	if(argc < 2) {
-		printf("%s [musicfiles...]\n", argv[0]);
+		printf("%s [musicfile]\n", argv[0]);
 		return 0;
 	}
 
-	vector<shared_ptr<ChipPlugin>> plugins = {
-		make_shared<ModPlugin>(),
-		make_shared<VicePlugin>("data/c64"),
-		make_shared<SexyPSFPlugin>(),
-		make_shared<GMEPlugin>(),
-		make_shared<SC68Plugin>("data/sc68"),
-	};
+	vector<shared_ptr<ChipPlugin>> plugins;
+	ChipPlugin::createPlugins("data", plugins);
 
 	File file { argv[1] };
 	ChipPlayer *player = nullptr;
@@ -45,12 +43,27 @@ int main(int argc, char* argv[]) {
 	}
 
 	if(player) {
-		AudioPlayer ap ([&](int16_t *ptr, int size) {
-			player->getSamples(ptr, size);
+
+		AudioFifo<int16_t> fifo(32768);
+
+		fifo.setVolume(0.1);
+
+		std::thread playerThread([&]() mutable {
+			int chunkSize = 8192;
+			int16_t temp[chunkSize];
+			while(true) {
+				player->getSamples(&temp[0], chunkSize);
+				fifo.put(temp, chunkSize);
+			}
 		});
-		while(true)
-			sleepms(100);
+
+		AudioPlayer ap ([&](int16_t *samples, int size) {
+			fifo.get(samples, size);
+		});
+
+		playerThread.join();
+
 	} else
-		printf("%s FAILED\n", argv[1]);
+		printf("'%s' FAILED\n", argv[1]);
 	return 0;
 }

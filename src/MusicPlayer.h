@@ -1,7 +1,8 @@
 
 #include "SongInfo.h"
 
-#include <musicplayer/common/fifo.h>
+//#include <musicplayer/common/fifo.h>
+#include <coreutils/fifo.h>
 
 #include <fft/spectrum.h>
 
@@ -59,11 +60,13 @@ public:
 		return fifo.getVolume();
 	}
 
+	void update();
+
 private:
 	std::shared_ptr<ChipPlayer> fromFile(const std::string &fileName);
 	void updatePlayingInfo();
 
-	Fifo fifo;
+	AudioFifo<int16_t> fifo;
 	SongInfo playingInfo;
 	//Fifo fifo;
 	SpectrumAnalyzer fft;

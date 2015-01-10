@@ -1,32 +1,45 @@
 cmake_minimum_required(VERSION 2.8.4)
-project(chipmachine)
+project(miniplay)
 
-set(CMAKE_CXX_FLAGS "--std=c++0x")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O2")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O2")
+
+add_definitions(-DAPP_NAME=miniplay)
+
 
 set(CPP_MODS ../../cpp-mods)
 
+set(SOURCE_FILES miniplay.cpp)
+
 include_directories(${CPP_MODS} ${CPP_MODS}/musicplayer/plugins)
-#include_directories(${CPP_MODS}/g#rappix)
 
-add_subdirectory(${CPP_MODS}/coreutils coreutils)
-add_subdirectory(${CPP_MODS}/audioplayer audioplayer)
+set(CPP_MODS_MODULES
+	coreutils
+	audioplayer
+)
+add_subdirectory(${CPP_MODS} cppmods)
 
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/ModPlugin modplugin)
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/OpenMPTPlugin openmptplugin)
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/HTPlugin htplugin)
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/HEPlugin heplugin)
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/GSFPlugin gsfplugin)
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/NDSPlugin ndsplugin)
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/USFPlugin usfplugin)
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/VicePlugin viceplugin)
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/GMEPlugin gmeplugin)
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/SexyPSFPlugin sexypsfplugin)
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/SC68Plugin sc68plugin)
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/StSoundPlugin stsoundplugin)
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/AdPlugin adplugin)
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/MP3Plugin mp3plugin)
-add_subdirectory(${CPP_MODS}/musicplayer/plugins/UADEPlugin uadeplugin)
+set(MUSICPLAYER_PLUGINS
+	openmptplugin
+	htplugin
+	heplugin
+	ndsplugin
+	gsfplugin
+	gmeplugin
+	sc68plugin
+	usfplugin
+	stsoundplugin
+	adplugin
+	mp3plugin
+	uadeplugin
+	viceplugin
+)
+add_subdirectory(${CPP_MODS}/musicplayer/plugins plugins)
+
+message("SOURCE FILES " ${SOURCE_FILES})
 
 
-add_executable(miniplay miniplay.cpp)
-target_link_libraries(miniplay coreutils audioplayer modplugin openmptplugin htplugin heplugin ndsplugin gsfplugin gmeplugin sc68plugin usfplugin sexypsfplugin stsoundplugin adplugin mp3plugin uadeplugin viceplugin)
+set(CMAKE_CXX_FLAGS "--std=c++0x")
+
+add_executable(miniplay ${SOURCE_FILES})
+target_link_libraries(miniplay ${CPP_MODS_MODULES} ${MUSICPLAYER_PLUGINS})

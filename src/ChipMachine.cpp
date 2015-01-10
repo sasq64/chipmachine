@@ -238,9 +238,9 @@ void ChipMachine::update() {
 
 		auto f = [=]() {
 			xinfoField->setText(sub_title);
-			auto d = (tw-(tv1.x-tv0.x-20));
+			int d = (tw-(tv1.x-tv0.x-20));
 			if(d > 20)
-				Tween::make().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200.0)/200.0);
+				Tween::make().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200)/200.0f);
 		};
 
 		auto favorites = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);

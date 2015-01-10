@@ -4,6 +4,8 @@
 #include <coreutils/log.h>
 #include <coreutils/utils.h>
 
+#include <unordered_map>
+
 using namespace std;
 using namespace utils;
 
@@ -162,6 +164,8 @@ void MusicPlayerList::setPartyMode(bool on, int lockSec, int graceSec) {
 
 void MusicPlayerList::update() {
 
+	mp.update();
+
 	if(partyMode) {
 		auto p = getPosition();
 		if(partyLockDown) {
@@ -254,25 +258,24 @@ void MusicPlayerList::update() {
 	}
 }
 
-//	private static String [] pref0 = new String [] { "MDAT", "TFX", "SNG", "RJP", "JPN", "DUM", "mdat", "tfx", "sng", "rjp", "jpn", "dum" };
-//	private static String [] pref1 = new String [] { "SMPL", "SAM", "INS", "SMP", "SMP", "INS", "smpl", "sam", "ins", "smp", "smp", "ins" };
-
-static std::unordered_map<string, string> fmt_2files = {
-	{ "mdat", "smpl" }, // TFMX
-	{ "sng", "ins" }, // Richard Joseph
-	{ "jpn", "smp" }, // Jason Page PREFIX
-	{ "dum", "ins" }, // Rob Hubbard 2
-};
-
 void MusicPlayerList::playCurrent() {
+	// Music formats with 2 files
+	static const std::unordered_map<string, string> fmt_2files = {
+		{ "mdat", "smpl" }, // TFMX
+		{ "sng", "ins" }, // Richard Joseph
+		{ "jpn", "smp" }, // Jason Page PREFIX
+		{ "dum", "ins" }, // Rob Hubbard 2
+	};
+
 	state = LOADING;
 	loadedFile = "";
 	auto ext = path_extension(currentInfo.path);
 	makeLower(ext);
 	LOGD("EXT: %s", ext);
 	files = 1;
-
-	auto ext2 = fmt_2files[ext];
+	string ext2;
+	if(fmt_2files.count(ext) > 0)
+		ext2 = fmt_2files.at(ext);
 
 	RemoteLoader &loader = RemoteLoader::getInstance();
 
