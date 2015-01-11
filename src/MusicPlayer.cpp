@@ -14,7 +14,7 @@
 
 #ifdef RASPBERRYPI
 #define AUDIO_DELAY 12
-#elseif define SDL_AUDIO
+#elif defined SDL_AUDIO
 #define AUDIO_DELAY 2
 #else
 #define AUDIO_DELAY 18
