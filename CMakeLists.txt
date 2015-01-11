@@ -48,6 +48,7 @@ set(MUSICPLAYER_PLUGINS
 	mp3plugin
 	uadeplugin
 	viceplugin
+	rsnplugin
 )
 add_subdirectory(${CPP_MODS}/musicplayer/plugins plugins)
 
