@@ -15,19 +15,32 @@ namespace chipmachine {
 void ChipMachine::render_item(Rectangle &rec, int y, uint32_t index, bool hilight) {
 
 	static const uint32_t colors[] = { 0xff0000ff, 0xff00ff00, 0xffff0000, 0xffff00ff, 0xffffff00, 0xff00ffff, 0xff4488ff };
-
+	Color c;
 	string text;
-	uint32_t c;
+
 	if(index < playlists.size()) {
 		text = format("<%s>", playlists[index]);
-		c = hilight ? markColor : Color(0xff6688ff);
+		c = Color(0xff6688ff);
 	} else {
 		auto res = iquery.getResult(index-playlists.size());
 		auto parts = split(res, "\t");
 		int f = atoi(parts[3].c_str());
 		text = format("%s / %s", parts[0], parts[1]);
-		c = hilight ? (uint32_t)markColor : colors[f>>8];//resultFieldTemplate->color;
+		c = colors[f>>8];//resultFieldTemplate->color;
+		c = c * 0.75f;
 	}
+
+	if(hilight) {
+		static uint32_t markStartcolor = 0;
+		if(markStartcolor != c) {
+			markStartcolor = c;
+			markColor = c;
+			markTween = Tween::make().sine().repeating().from(markColor, hilightColor).seconds(1.0);
+	  		markTween.start();
+	  	}
+	  	c = markColor;
+	}
+
 	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate->scale);
 }
 
@@ -230,7 +243,7 @@ void ChipMachine::update() {
 		if(currentInfo.numtunes > 0)
 			songField->setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
 		else
-			songField->setText("");
+			songField->setText("[01/01]");
 
 		auto sub_title = player.getMeta("sub_title");
 

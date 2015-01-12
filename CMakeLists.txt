@@ -12,7 +12,7 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DCM_DEBUG")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_RELEASE} -DCM_DEBUG")
 
-set(CPP_MODS ../cpp-mods)
+set(CPP_MODS ../cpp-mods/mods)
 
 include_directories(${CPP_MODS} /usr/local/include)
 
@@ -33,7 +33,6 @@ set(CPP_MODS_MODULES
 add_subdirectory(${CPP_MODS} cppmods)
 
 set(MUSICPLAYER_PLUGINS
-#	modplugin
 	openmptplugin
 	htplugin
 	heplugin
@@ -42,12 +41,12 @@ set(MUSICPLAYER_PLUGINS
 	gmeplugin
 	sc68plugin
 	usfplugin
-#	sexypsfplugin
 	stsoundplugin
 	adplugin
 	mp3plugin
 	uadeplugin
 	viceplugin
+	hivelyplugin
 	rsnplugin
 )
 add_subdirectory(${CPP_MODS}/musicplayer/plugins plugins)

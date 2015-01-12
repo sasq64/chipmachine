@@ -12,14 +12,6 @@
 #include <set>
 #include <algorithm>
 
-#ifdef RASPBERRYPI
-#define AUDIO_DELAY 12
-#elif defined SDL_AUDIO
-#define AUDIO_DELAY 2
-#else
-#define AUDIO_DELAY 18
-#endif
-
 using namespace std;
 using namespace utils;
 
@@ -30,7 +22,7 @@ static std::string find_file(const std::string &name) {
 	return f.getName();
 }
 
-MusicPlayer::MusicPlayer() : fifo(32786) {
+MusicPlayer::MusicPlayer() : fifo(32786*4) {
 
 	ChipPlugin::createPlugins(find_file("data"), plugins);
 	plugins.insert(plugins.begin(), make_shared<RSNPlugin>(plugins));
@@ -59,7 +51,7 @@ void MusicPlayer::update() {
 
 	static int16_t *tempBuf = nullptr;
 	if(!tempBuf)
-		tempBuf = new int16_t [32768];
+		tempBuf = new int16_t [fifo.size()];
 
 	LOCK_GUARD(playerMutex);
 
@@ -71,13 +63,14 @@ void MusicPlayer::update() {
 
 		while(true) {
 
-			int f = fifo.left() - 128;
+			int f = fifo.left();
 
-			if(f < 128)
+			if(f < 4096)
 				break; 
-			int rc = player->getSamples(tempBuf, f);
+			int rc = player->getSamples(tempBuf, f - 1024);
 
 			if(rc <= 0) {
+				LOGD("PLAY ENDED %d vs %d", rc, f - 1024);
 				playEnded = true;
 				break;
 			}
@@ -106,6 +99,7 @@ void MusicPlayer::seek(int song, int seconds) {
 		else
 			pos = seconds * 44100;
 		if(player->seekTo(song, seconds)) {
+			fifo.clear();
 			//length = player->getMetaInt("length");
 			updatePlayingInfo();
 			currentTune = song;
@@ -235,9 +229,11 @@ string MusicPlayer::getMeta(const string &what) {
 
 uint16_t *MusicPlayer::getSpectrum() {
 	LOCK_GUARD(fftMutex);
-	if(fft.size() > AUDIO_DELAY) {
-		while(fft.size() > AUDIO_DELAY*2)
+	auto delay = AudioPlayer::get_delay();
+	if(fft.size() > delay) {
+		while(fft.size() > delay) {
 			fft.popLevels();
+		}
 		spectrum = fft.getLevels();
 		fft.popLevels();
 

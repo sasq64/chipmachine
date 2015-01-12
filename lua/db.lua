@@ -18,6 +18,7 @@ DB = {
 {
 	type = "hvsc",
 	id = 2,
+	-- source = "http://www.prg.dtu.dk/HVSC/C64Music/",
 	source = "http://hvsc.etv.cx/C64Music/",
 	song_list = "data/hvsc.txt",
 	local_dir = "/opt/Music/C64Music",
