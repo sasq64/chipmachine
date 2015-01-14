@@ -40,6 +40,7 @@ public:
 	~ChipMachine();
 
 	void initLua();
+	void layoutScreen();
 	void play(const SongInfo &si);
 	void update();
 	void render(uint32_t delta);
@@ -117,6 +118,7 @@ private:
 	bool isFavorite = false;
 	grappix::Texture favTexture;
 	grappix::Texture netTexture;
+	grappix::Texture eqTexture;
 	grappix::Rectangle favPos = { 80, 300, 16*8, 16*6 };
 
 	RenderSet searchScreen;
@@ -156,6 +158,8 @@ private:
 	std::shared_ptr<Dialog> currentDialog;
 
 	std::string userName;
+
+	grappix::Program eqProgram;
 };
 
 }

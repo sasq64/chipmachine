@@ -19,6 +19,8 @@ public:
 		tween::Tween::make().to(alpha, 0.0).seconds(seconds);	
 	}
 
+	virtual void resize(int w,  int h) {}
+
 	union {
 		struct {
 			float alpha;

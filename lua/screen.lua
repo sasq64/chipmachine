@@ -73,10 +73,10 @@ Settings.favicon = { X0 + 330 * GSCALE, SY - GSCALE*25, 8*8 * GSCALE, 8*6 * GSCA
 
 if HD then
   Settings.scroll = { Y1 - 200, 4.0, 4, "data/Bello.otf" }
-  Settings.spectrum = { X0, Y1, 32, 24.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
+  Settings.spectrum = { X0, Y1, 32, 100.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
 else
   Settings.scroll = { Y1 - 100, 2.0, 4, "data/Bello.otf" }
-  Settings.spectrum = { X0-50, Y1+40, 26, 16.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
+  Settings.spectrum = { X0-50, Y1+40, 26, 64.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
 end
 
 x = SCREEN_WIDTH - 300 * GSCALE

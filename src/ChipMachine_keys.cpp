@@ -30,6 +30,8 @@ enum ChipAction {
 	ADD_DIALOG_CHAR,
 	CANCEL_COMMAND,
 	SEND_PLAYLIST,
+	NEXT_COMPOSER,
+	LAYOUT_SCREEN,
 	LOGIN,
 	LAST_ACTION
 };
@@ -61,6 +63,9 @@ void ChipMachine::setup_rules() {
 	smac.add(Window::ENTER, if_equals(currentScreen, SEARCH_SCREEN), PLAY_LIST_SONG);
 	smac.add(Window::ENTER | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_SONG);
 
+	smac.add(Window::DOWN | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), NEXT_COMPOSER);
+
+
 	smac.add(Window::F8 | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), EDIT_PLAYLIST);
 
 	smac.add(Window::F7, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_FAVORITE);
@@ -69,6 +74,7 @@ void ChipMachine::setup_rules() {
 	smac.add(Window::F9, SEND_PLAYLIST);
 	smac.add(Window::LEFT, PREV_SUBTUNE);
 	smac.add(Window::RIGHT, NEXT_SUBTUNE);
+	smac.add(Window::F4, LAYOUT_SCREEN);
 
 }
 
@@ -106,11 +112,6 @@ void ChipMachine::update_keys() {
 	auto last_selection = songList.selected();
 
 	auto key = screen.get_key();
-	//if(key == Window::NO_KEY)
-	//	return;
-
-	if(currentScreen == SEARCH_SCREEN)
-		songList.on_key(key);
 
 	uint32_t k = key;
 	bool ascii = (k >= 'A' && k <= 'Z');
@@ -124,6 +125,9 @@ void ChipMachine::update_keys() {
 	}
 	if(screen.key_pressed(Window::CTRL_LEFT) || screen.key_pressed(Window::CTRL_RIGHT))
 		k |= CTRL;
+
+	if((k & (CTRL|SHIFT)) == 0 && currentScreen == SEARCH_SCREEN)
+		songList.on_key(key);
 
 	if(key != Window::NO_KEY)
 		smac.put_event(k);
@@ -190,6 +194,23 @@ void ChipMachine::update_keys() {
 				player.playSong(get_selected_song());
 			show_main();
 			break;
+		case NEXT_COMPOSER:
+			{
+				string composer;
+				int index = songList.selected();
+				while(index < songList.size()) {
+					auto res = iquery.getResult(index-playlists.size());
+					auto parts = split(res, "\t");
+					if(composer == "")
+						composer = parts[1];
+					if(parts[1] != composer)
+						break;
+					index++;
+				}
+				songList.select(index);
+
+			}
+			break;
 		case NEXT_SONG:
 			show_main();
 			player.nextSong();
@@ -198,10 +219,16 @@ void ChipMachine::update_keys() {
 			show_main();
 			break;
 		case SHOW_SEARCH:
-			show_search();
+			if(currentScreen == MAIN_SCREEN) {
+				show_search();
+				songList.on_key(key);
+			} else {
+				show_search();
+			}
 			searchUpdated = true;
 			break;
 		case ADD_SEARCH_CHAR:
+			LOGD("%d %02x", currentScreen, action.event);
 			if(currentScreen == MAIN_SCREEN && action.event != ' ')
 				iquery.clear();
 			show_search();
@@ -261,6 +288,9 @@ void ChipMachine::update_keys() {
 				auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
 				RemoteLists::getInstance().sendList(plist.songs, plist.name, [=]() { toast("Uploaded", 2); });
 			}
+			break;
+		case LAYOUT_SCREEN:
+			layoutScreen();
 			break;
 		case NO_ACTION:
 		case LOGIN:

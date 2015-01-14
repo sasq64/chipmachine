@@ -44,6 +44,72 @@ void ChipMachine::render_item(Rectangle &rec, int y, uint32_t index, bool hiligh
 	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate->scale);
 }
 
+static const std::string eqShaderV = R"(
+	attribute vec4 vertex;
+	attribute vec2 uv;
+
+	uniform mat4 matrix;
+	varying vec2 UV;
+
+	void main() {
+		gl_Position = matrix * vertex;
+		//vec4 r = matrix * vec4(uv, 0.0, 1.0);
+		UV = uv;
+		UV.y = uv.y * -10.0 * matrix[1].y;
+	}
+)";
+
+static const std::string eqShaderF = R"(
+	uniform float slots[25];
+	uniform float specx;
+	uniform float specy;
+	uniform float specw;
+	uniform float spech;
+
+	const vec4 color0 = vec4(0.0, 0.0, 0.0, 1.0);
+	const vec4 color1 = vec4(0.0, 0.4, 0.0, 1.0);
+	const vec4 color2 = vec4(0.8, 0.8, 0.0, 1.0);
+
+	varying vec2 UV;
+
+	uniform sampler2D sTexture;
+
+	void main() {
+
+		vec4 c = texture2D(sTexture, UV);
+
+		// int(h) is the eq slot to read
+		float h = 24.0 * (gl_FragCoord.x - specx) / specw;
+		
+		float f = fract(h);
+
+		// Linear interpolation between slots
+		// float y = mix(slots[int(h)], slots[int(h)+1], f);
+		float y = slots[int(h)]; // 0 -> spech
+
+		// Blend from color0 -> color1 -> color 0 over y+4 -> y-4
+
+		float fy = gl_FragCoord.y - specy;
+
+		//vec4 rgb = mix(color1, color2, (y - fy) / specy);
+		//vec4 rgb = mix(color0, color2, smoothstep(y + 2.0, y - 2.0, fy));
+
+		vec4 rgb = mix(color0, c, smoothstep(y + 1.0, y - 1.0, fy));
+
+		//vec4 rgb = mix(color1, color2, smoothstep(fy + 20.0, fy - 20.0, y));
+		//rgb = mix(rgb, color0, smoothstep(fy - 2.0, fy - 4.0, y));
+
+
+		//rgb = rgb * mod(h, 1.0);
+		//rgb = rgb * mod(UV.y * 256.0, 2.0);
+
+		// MODIFY UV HERE
+		//vec4 color = texture2D(sTexture, UV);
+		// MODIFY COLOR HERE
+		gl_FragColor = rgb;
+	}
+)";
+
 ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen) {
 
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
@@ -116,7 +182,8 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 
 	setup_rules();
 
-	initLua();
+	initLua();	
+	layoutScreen();
 
 	songList = VerticalList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), numLines);
 	playlistField = make_shared<TextField>(listFont, "Favorites", tv1.x - 80, tv1.y - 10, 0.5, 0xff888888);
@@ -135,6 +202,32 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	if(f.exists())
 		userName = f.read();
 
+	image::bitmap eqbar(spectrumWidth*24, spectrumHeight);
+	Color col(0xff00aa00);
+	Color toc0(0xff00aaaa);
+	Color toc1(0xff0000aa);
+	int h2 = eqbar.height() / 2;
+	Color deltac = (toc0 - col) / (float)h2;
+	//auto eqtween = Tween::make().to(c, 0xffff0000).seconds(eqbar.height());
+	for(int y=eqbar.height()-1; y>-0; y--) {
+		for(int x=0; x<eqbar.width(); x++) {
+			eqbar[x+y*eqbar.width()] = (y%3 != 0) && (x%spectrumWidth !=0) ? (uint32_t)col : 0x00000000;
+		}
+		col = col + deltac;
+		if(y == h2) {
+			col = toc0;
+			deltac = (toc1 - col) / (float)h2;
+		}
+	}
+	//save_png(eqbar, "bar.png");
+	eqTexture = Texture(eqbar);
+	glBindTexture(GL_TEXTURE_2D, eqTexture.id());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	eqProgram = grappix::get_program(grappix::TEXTURED_PROGRAM).clone();
+	eqProgram.setFragmentSource(eqShaderF);
+	//eqProgram.setVertexSource(eqShaderV);
 }
 
 ChipMachine::~ChipMachine() {
@@ -181,12 +274,19 @@ void ChipMachine::initLua() {
 	)");
 	MusicDatabase::getInstance().generateIndex();
 
-	File f2 = File::findFile(path, "lua/screen.lua");
+}
+
+void ChipMachine::layoutScreen()  {
+
+	LOGD("LAYOUT SCREEN");
+
+	auto path = File::getUserDir() + ":" + current_exe_path() + ":" + File::getAppDir();
+	File f = File::findFile(path, "lua/screen.lua");
 
 	lua.setGlobal("SCREEN_WIDTH", screen.width());
 	lua.setGlobal("SCREEN_HEIGHT", screen.height());
 
-	Resources::getInstance().load<string>(f2.getName() /*"lua/screen.lua" */, [=](shared_ptr<string> contents) {
+	Resources::getInstance().load<string>(f.getName() /*"lua/screen.lua" */, [=](shared_ptr<string> contents) {
 		lua.load(*contents, "lua/screen.lua");
 
 		lua.load(R"(
@@ -201,6 +301,8 @@ void ChipMachine::initLua() {
 			end
 		)");
 	});
+
+	starEffect.resize(screen.width(), screen.height());
 }
 
 void ChipMachine::play(const SongInfo &si) {
@@ -340,10 +442,10 @@ void ChipMachine::update() {
 
 	for(int i=0; i<(int)eq.size(); i++) {
 		if(!player.isPaused()) {
-			if(eq[i] >= 4)
-				eq[i]-=2;
+			if(eq[i] >= 4*4)
+				eq[i]-=2*4;
 			else
-				eq[i] = 2;
+				eq[i] = 2*4;
 		}
 	}
 
@@ -351,7 +453,9 @@ void ChipMachine::update() {
 		auto spectrum = player.getSpectrum();
 		for(int i=0; i<player.spectrumSize(); i++) {
 			if(spectrum[i] > 5) {
-				uint8_t f = static_cast<uint8_t>(logf(spectrum[i]) * spectrumHeight);
+				unsigned f = static_cast<uint8_t>(logf(spectrum[i]) * 64);
+				//LOGD("%d %d\n", spectrumHeight, f);
+				if(f > 255) f = 255;
 				if(f > eq[i])
 					eq[i] = f;
 			}
@@ -378,13 +482,31 @@ void ChipMachine::render(uint32_t delta) {
 
 	screen.clear(0xff000000 | bgcolor);
 
+	static std::vector<float> fSlots(25);
+	for(int i=0; i<24; i++)
+		fSlots[i] = spectrumHeight * eq[i]  / 256.0;
+	fSlots[24] = fSlots[23];
+
+	eqProgram.use();
+	eqProgram.setUniform("slots", &fSlots[0], 25);
+	eqProgram.setUniform("specx", spectrumPos.x);
+	eqProgram.setUniform("specy", screen.height() - spectrumPos.y);
+	eqProgram.setUniform("specw", spectrumWidth * 24);
+	eqProgram.setUniform("spech", spectrumHeight);
+
+	//screen.rectangle(spectrumPos.x, spectrumPos.y-spectrumHeight, spectrumWidth * 24, spectrumHeight, 0xffffffff, eqProgram);
+	screen.draw(eqTexture, spectrumPos.x, spectrumPos.y-spectrumHeight, spectrumWidth * 24, spectrumHeight, nullptr, eqProgram);
+#if 0
+	for(int i=0; i<(int)eq.size(); i++) {
+		//screen.rectangle(spectrumPos.x + (spectrumWidth)*i, spectrumPos.y-eq[i], spectrumWidth-1, eq[i], spectrumColor, eqProgram);
+		screen.draw(eqTexture, spectrumPos.x + (spectrumWidth)*i, spectrumPos.y - 64, spectrumWidth-1, 64, nullptr);
+		screen.rectangle(spectrumPos.x + (spectrumWidth)*i, spectrumPos.y-64, spectrumWidth-1, 64-eq[i], 0xff000000);
+	}
+#endif
 	if(starsOn)
 		starEffect.render(delta);
 	scrollEffect.render(delta);
 
-	for(int i=0; i<(int)eq.size(); i++) {
-		screen.rectangle(spectrumPos.x + (spectrumWidth)*i, spectrumPos.y-eq[i], spectrumWidth-1, eq[i], spectrumColor);
-	}
 
 	if(currentScreen == MAIN_SCREEN) {
 		mainScreen.render(delta);
