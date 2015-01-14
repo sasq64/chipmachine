@@ -9,6 +9,8 @@ using namespace utils;
 using namespace grappix;
 using namespace tween;
 
+//#define PIXEL_EQ
+
 namespace chipmachine {
 
 
@@ -226,7 +228,9 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	eqProgram = grappix::get_program(grappix::TEXTURED_PROGRAM).clone();
+#ifdef PIXEL_EQ
 	eqProgram.setFragmentSource(eqShaderF);
+#endif
 	//eqProgram.setVertexSource(eqShaderV);
 }
 
@@ -482,6 +486,7 @@ void ChipMachine::render(uint32_t delta) {
 
 	screen.clear(0xff000000 | bgcolor);
 
+#ifdef PIXEL_EQ
 	static std::vector<float> fSlots(25);
 	for(int i=0; i<24; i++)
 		fSlots[i] = spectrumHeight * eq[i]  / 256.0;
@@ -493,9 +498,14 @@ void ChipMachine::render(uint32_t delta) {
 	eqProgram.setUniform("specy", screen.height() - spectrumPos.y);
 	eqProgram.setUniform("specw", spectrumWidth * 24);
 	eqProgram.setUniform("spech", spectrumHeight);
-
-	//screen.rectangle(spectrumPos.x, spectrumPos.y-spectrumHeight, spectrumWidth * 24, spectrumHeight, 0xffffffff, eqProgram);
 	screen.draw(eqTexture, spectrumPos.x, spectrumPos.y-spectrumHeight, spectrumWidth * 24, spectrumHeight, nullptr, eqProgram);
+#else
+	screen.draw(eqTexture, spectrumPos.x, spectrumPos.y-spectrumHeight, spectrumWidth * 24, spectrumHeight, nullptr);
+	for(int i=0; i<(int)eq.size(); i++) {
+		screen.rectangle(spectrumPos.x + (spectrumWidth)*i, spectrumPos.y-spectrumHeight, spectrumWidth, spectrumHeight-(spectrumHeight * eq[i]  / 256), 0xff000000);
+	}
+#endif
+
 #if 0
 	for(int i=0; i<(int)eq.size(); i++) {
 		//screen.rectangle(spectrumPos.x + (spectrumWidth)*i, spectrumPos.y-eq[i], spectrumWidth-1, eq[i], spectrumColor, eqProgram);
