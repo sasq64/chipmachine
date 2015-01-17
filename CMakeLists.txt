@@ -43,21 +43,28 @@ set(MUSICPLAYER_PLUGINS
 	usfplugin
 	stsoundplugin
 	adplugin
-	mp3plugin
-	uadeplugin
+	#mp3plugin
 	viceplugin
 	hivelyplugin
 	rsnplugin
 )
+
+if(NOT WINDOWS)
+	set(MUSICPLAYER_PLUGINS ${MUSICPLAYER_PLUGINS} uadeplugin)
+endif()
+
+
 add_subdirectory(${CPP_MODS}/musicplayer/plugins plugins)
 
 if(RASPBERRY)
   include_directories(${PI_SYS_ROOT}/vc/include)
 endif()
 
-include_directories(${CPP_MODS}/grappix ${CPP_MODS}/musicplayer/plugins)
+add_subdirectory(${CPP_MODS}/zlib zlib)
+
+include_directories(${CPP_MODS}/grappix ${CPP_MODS}/musicplayer/plugins /home/sasq/winroot/include)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++0x")
 
 add_executable(chipmachine ${SOURCE_FILES})
-target_link_libraries(chipmachine ${CPP_MODS_MODULES} ${MUSICPLAYER_PLUGINS})
+target_link_libraries(chipmachine ${CPP_MODS_MODULES} ${MUSICPLAYER_PLUGINS} z)

@@ -5,10 +5,11 @@
 //#include "MusicDatabase.h"
 //#include "MusicPlayerList.h"
 //#include "ChipMachine.h"
-#include <bbsutils/telnetserver.h>
-#include <bbsutils/console.h>
-#include <bbsutils/ansiconsole.h>
-#include <bbsutils/petsciiconsole.h>
+
+namespace bbs {
+class TelnetServer;
+class Console;
+};
 
 #include <memory>
 
@@ -25,8 +26,8 @@ private:
 	//MusicDatabase& db;
 	//MusicPlayerList& player;
 	ChipMachine &chipmachine;
-	std::unique_ptr<bbs::TelnetServer> telnet;
-	std::unique_ptr<bbs::Console> console;
+	std::shared_ptr<bbs::TelnetServer> telnet;
+	std::shared_ptr<bbs::Console> console;
 };
 
 } // namespace bbs

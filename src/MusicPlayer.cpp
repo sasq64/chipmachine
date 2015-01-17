@@ -236,7 +236,6 @@ uint16_t *MusicPlayer::getSpectrum() {
 		}
 		spectrum = fft.getLevels();
 		fft.popLevels();
-
 	}
 	return &spectrum[0];
 
@@ -257,6 +256,5 @@ shared_ptr<ChipPlayer> MusicPlayer::fromFile(const string &fileName) {
 	}
 	return player;
 }
-
 
 }

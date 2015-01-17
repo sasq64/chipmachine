@@ -6,6 +6,11 @@
 
 #include <luainterpreter/luainterpreter.h>
 
+#include <bbsutils/telnetserver.h>
+#include <bbsutils/console.h>
+#include <bbsutils/ansiconsole.h>
+#include <bbsutils/petsciiconsole.h>
+
 using namespace std;
 using namespace utils;
 using namespace bbs;
@@ -21,16 +26,16 @@ void TelnetInterface::stop() {
 }
 
 void TelnetInterface::start() {
-	telnet = make_unique<TelnetServer>(12345);
+	telnet = make_shared<TelnetServer>(12345);
 	telnet->setOnConnect([&](TelnetServer::Session &session) {
 		session.echo(false);
 		string termType = session.getTermType();		
 		LOGD("New telnet connection, TERMTYPE '%s'", termType);
 
 		if(termType.length() > 0) {
-			console = make_unique<AnsiConsole>(session);
+			console = make_shared<AnsiConsole>(session);
 		} else {
-			console = make_unique<PetsciiConsole>(session);
+			console = make_shared<PetsciiConsole>(session);
 		}
 		console->flush();
 		LuaInterpreter lip;

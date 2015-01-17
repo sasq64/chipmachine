@@ -14,7 +14,7 @@ using namespace tween;
 namespace chipmachine {
 
 
-void ChipMachine::render_item(Rectangle &rec, int y, uint32_t index, bool hilight) {
+void ChipMachine::render_item(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
 
 	static const uint32_t colors[] = { 0xff0000ff, 0xff00ff00, 0xffff0000, 0xffff00ff, 0xffffff00, 0xff00ffff, 0xff4488ff };
 	Color c;
@@ -187,7 +187,7 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	initLua();	
 	layoutScreen();
 
-	songList = VerticalList(this, Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), numLines);
+	songList = VerticalList(this, grappix::Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), numLines);
 	playlistField = make_shared<TextField>(listFont, "Favorites", tv1.x - 80, tv1.y - 10, 0.5, 0xff888888);
 	mainScreen.add(playlistField);
 
