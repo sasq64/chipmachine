@@ -131,7 +131,7 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 
 
 //#ifdef ENABLE_TELNET
-	telnet = make_unique<TelnetInterface>(*this);
+	telnet = make_unique<TelnetInterface>(player);
 	telnet->start();
 //#endif
 
@@ -184,12 +184,13 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 
 	setup_rules();
 
-	initLua();	
+	initLua();
+	MusicDatabase::getInstance().initFromLua();
 	layoutScreen();
 
 	songList = VerticalList(this, grappix::Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), numLines);
 	playlistField = make_shared<TextField>(listFont, "Favorites", tv1.x - 80, tv1.y - 10, 0.5, 0xff888888);
-	mainScreen.add(playlistField);
+	//mainScreen.add(playlistField);
 
 	commandField = make_shared<LineEdit>(font, ">", tv0.x, tv0.y, 1.0, 0xff888888);
 	searchScreen.add(commandField);
@@ -244,40 +245,9 @@ void ChipMachine::set_scrolltext(const std::string &txt) {
 }
 
 void ChipMachine::initLua() {
-
-	lua.registerFunction<void, string, string>("set_db_var", [&](string name, string val) {
-		static unordered_map<string, string> dbmap;
-		LOGD("%s %s", name, val);
-		if(val == "start") {
-		} else if(val == "end") {
-			MusicDatabase::getInstance().initDatabase(dbmap);
-			dbmap.clear();
-		} else {
-			dbmap[name] = val;
-		}
-	});
-
 	lua.registerFunction<void, string, uint32_t, string>("set_var", [=](string name, uint32_t index, string val) {
 		setVariable(name, index, val);
 	});
-
-	auto path = File::getUserDir() + ":" + current_exe_path() + ":" + File::getAppDir();
-	File f = File::findFile(path, "lua/db.lua");
-
-	lua.loadFile(f.getName());
-	lua.load(R"(
-		for a,b in pairs(DB) do
-			if type(b) == 'table' then
-				set_db_var(a, 'start')
-				for a1,b1 in pairs(b) do
-					set_db_var(a1, b1)
-				end
-				set_db_var(a, 'end')
-			end
-		end
-	)");
-	MusicDatabase::getInstance().generateIndex();
-
 }
 
 void ChipMachine::layoutScreen()  {
@@ -506,13 +476,6 @@ void ChipMachine::render(uint32_t delta) {
 	}
 #endif
 
-#if 0
-	for(int i=0; i<(int)eq.size(); i++) {
-		//screen.rectangle(spectrumPos.x + (spectrumWidth)*i, spectrumPos.y-eq[i], spectrumWidth-1, eq[i], spectrumColor, eqProgram);
-		screen.draw(eqTexture, spectrumPos.x + (spectrumWidth)*i, spectrumPos.y - 64, spectrumWidth-1, 64, nullptr);
-		screen.rectangle(spectrumPos.x + (spectrumWidth)*i, spectrumPos.y-64, spectrumWidth-1, 64-eq[i], 0xff000000);
-	}
-#endif
 	if(starsOn)
 		starEffect.render(delta);
 	scrollEffect.render(delta);

@@ -19,8 +19,6 @@ namespace chipmachine {
 
 typedef std::unordered_map<string, string> strmap;
 
-TelnetInterface::TelnetInterface(ChipMachine &cm) : chipmachine(cm) {}
-
 void TelnetInterface::stop() {
 	telnet->stop();
 }
@@ -47,7 +45,7 @@ void TelnetInterface::start() {
 		});
 
 		lip.registerFunction<void, string>("scrolltext", [=](const string &t) {
-			chipmachine.set_scrolltext(t);
+			//chipmachine.set_scrolltext(t);
 		});
 
 		lip.registerFunction<vector<strmap>, string>("find", [=](const string &q) -> vector<strmap> {
@@ -74,24 +72,20 @@ void TelnetInterface::start() {
 		});
 
 		lip.registerFunction<void, string>("play_file", [&](const std::string &path) {
-			auto &player = chipmachine.music_player();
 			SongInfo song(path);
 			player.playSong(song);
 		});
 
 		lip.registerFunction<void, strmap>("play_song", [&](const strmap &s) {
-			auto &player = chipmachine.music_player();
 			SongInfo song(s.at("path"), "", s.at("title"), s.at("composer"));
 			player.playSong(song);
 		});
 
 		lip.registerFunction<void>("next_song", [&]() {
-			auto &player = chipmachine.music_player();
 			player.nextSong();
 		});
 
 		lip.registerFunction<strmap>("get_playing_song", [&]() {
-			auto &player = chipmachine.music_player();
 			SongInfo song = player.getInfo();
 			strmap s;
 			s["path"] = song.path;
@@ -101,9 +95,9 @@ void TelnetInterface::start() {
 		});
 
 		lip.registerFunction<void, string, int>("toast", [=](const string &t, int type) {
-			grappix::screen.run_safely([&]() {
-				chipmachine.toast(t, type);
-			});
+			//grappix::screen.run_safely([&]() {
+				//chipmachine.toast(t, type);
+			//});
 		});
 
 		lip.loadFile("lua/init.lua");

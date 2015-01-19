@@ -44,9 +44,9 @@ private:
 		varying vec2 UV;
 
 		void main() {
-			float m = mod(gl_FragCoord.y, 3.0) * alpha;
+			float m = floor(mod(gl_FragCoord.y, 3.0) + 1.0);
 			float uvx = mod(UV.x + scrollpos * m, 1.0);
-			gl_FragColor = m * texture2D(sTexture, vec2(uvx, UV.y));
+			gl_FragColor = m  * texture2D(sTexture, vec2(uvx, UV.y));
 		}
 	)";
 	grappix::Texture starTexture;

@@ -6,15 +6,15 @@ add_definitions(-DAPP_NAME=chipmachine)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2")
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DCM_DEBUG")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_RELEASE} -DCM_DEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -DCM_DEBUG")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -DCM_DEBUG")
 
 set(CPP_MODS ../cpp-mods/mods)
 
-include_directories(${CPP_MODS} /usr/local/include)
+include_directories(${CPP_MODS})
 
 file(GLOB SOURCE_FILES src/*.cpp)
 
@@ -43,7 +43,7 @@ set(MUSICPLAYER_PLUGINS
 	usfplugin
 	stsoundplugin
 	adplugin
-	#mp3plugin
+	mp3plugin
 	viceplugin
 	hivelyplugin
 	rsnplugin
@@ -56,15 +56,9 @@ endif()
 
 add_subdirectory(${CPP_MODS}/musicplayer/plugins plugins)
 
-if(RASPBERRY)
-  include_directories(${PI_SYS_ROOT}/vc/include)
-endif()
-
-add_subdirectory(${CPP_MODS}/zlib zlib)
-
-include_directories(${CPP_MODS}/grappix ${CPP_MODS}/musicplayer/plugins /home/sasq/winroot/include)
+include_directories(${CPP_MODS}/grappix ${CPP_MODS}/musicplayer/plugins)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++0x")
 
 add_executable(chipmachine ${SOURCE_FILES})
-target_link_libraries(chipmachine ${CPP_MODS_MODULES} ${MUSICPLAYER_PLUGINS} z)
+target_link_libraries(chipmachine ${CPP_MODS_MODULES} ${MUSICPLAYER_PLUGINS} dl)

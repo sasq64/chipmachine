@@ -2,6 +2,7 @@
 #include "SongFileIdentifier.h"
 #include "RemoteLoader.h"
 
+#include <luainterpreter/luainterpreter.h>
 #include <coreutils/utils.h>
 #include <archive/archive.h>
 #include <set>
@@ -448,5 +449,45 @@ void MusicDatabase::generateIndex() {
 	writeIndex(f);
 	f.close();
 }
+
+
+void MusicDatabase::initFromLua(const string &fileName) {
+
+	LuaInterpreter lua;
+
+	lua.registerFunction<void, string, string>("set_db_var", [&](string name, string val) {
+		static unordered_map<string, string> dbmap;
+		LOGD("%s %s", name, val);
+		if(val == "start") {
+		} else if(val == "end") {
+			initDatabase(dbmap);
+			dbmap.clear();
+		} else {
+			dbmap[name] = val;
+		}
+	});
+
+	File f { fileName };
+
+	if(fileName == "") {
+		auto path = File::getUserDir() + ":" + current_exe_path() + ":" + File::getAppDir();
+		f = File::findFile(path, "lua/db.lua");
+	}
+
+	lua.loadFile(f.getName());
+	lua.load(R"(
+		for a,b in pairs(DB) do
+			if type(b) == 'table' then
+				set_db_var(a, 'start')
+				for a1,b1 in pairs(b) do
+					set_db_var(a1, b1)
+				end
+				set_db_var(a, 'end')
+			end
+		end
+	)");
+	generateIndex();
+}
+
 
 }

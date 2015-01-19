@@ -15,17 +15,18 @@ class Console;
 
 namespace chipmachine {
 
-class ChipMachine;
+class MusicPlayerList;
+
 
 class TelnetInterface {
 public:
-	TelnetInterface(ChipMachine &cm);
+	TelnetInterface(MusicPlayerList &cm) : player(cm) {}
 	void start();
 	void stop();
 private:
 	//MusicDatabase& db;
-	//MusicPlayerList& player;
-	ChipMachine &chipmachine;
+	MusicPlayerList& player;
+	//ChipMachine &chipmachine;
 	std::shared_ptr<bbs::TelnetServer> telnet;
 	std::shared_ptr<bbs::Console> console;
 };

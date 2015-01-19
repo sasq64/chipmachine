@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
 	vector<SongInfo> songs;
 	int w = 720;
 	int h = 576;
+	bool server = false;
 
 	for(int i=1; i<argc; i++) {
 		if(argv[i][0] == '-') {
@@ -41,6 +42,8 @@ int main(int argc, char* argv[]) {
 			case 'f':
 				fullScreen = true;
 				break;
+			case 's':
+				server = true;
 			case 'h':
 				w = 1200;
 				h = 800;
@@ -49,6 +52,14 @@ int main(int argc, char* argv[]) {
 		} else {
 			songs.push_back(SongInfo(argv[i]));
 		}
+	}
+
+	if(server) {
+		MusicPlayerList player;
+		MusicDatabase::getInstance().initFromLua();
+		TelnetInterface telnet(player);
+		telnet.start();
+		while(true) sleepms(500);
 	}
 
 	if(songs.size() > 0) {

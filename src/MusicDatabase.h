@@ -29,6 +29,8 @@ public:
 
 	void initDatabase(std::unordered_map<std::string, std::string> &vars);
 
+	void initFromLua(const std::string &fileName = "");
+
 	void generateIndex();
 
 	int search(const std::string &query, std::vector<int> &result, unsigned int searchLimit) override;

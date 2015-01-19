@@ -45,6 +45,7 @@ public:
 			return;
 		if(xpos < -scrollLen)
 			xpos = target.width() + 100;
+
 		scr.clear(0x00000000);
 		scr.text(font, scrollText, xpos-=scrollspeed, 10, 0xffffff | ((int)(alpha*255) << 24), scrollsize);
 		program.use();
@@ -59,7 +60,7 @@ public:
 	float scrollsize = 4.0;
 
 private:
-	grappix::RenderTarget target;
+	grappix::RenderTarget& target;
 	grappix::Font font;
 	grappix::Program program;
 	grappix::Program fprogram;
