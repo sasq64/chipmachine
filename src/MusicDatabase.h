@@ -22,7 +22,7 @@ public:
 
 class MusicDatabase : public SearchProvider {
 public:
-	MusicDatabase() : db(utils::File::getCacheDir() + "music.db") {
+	MusicDatabase() : db(utils::File::getCacheDir() + "music.db"), reindexNeeded(false) {
 		db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, localdir STRING, description STRING, id INTEGER, version INTEGER)");
 		db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
 	}
@@ -78,6 +78,7 @@ private:
 	void writeIndex(utils::File &f);
 	void readIndex(utils::File &f);
 
+	bool reindexNeeded;
 
 	SearchIndex composerIndex;
 	SearchIndex titleIndex;

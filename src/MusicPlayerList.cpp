@@ -298,6 +298,7 @@ void MusicPlayerList::playCurrent() {
 			auto lib = f.tags()["_lib"];
 			if(lib != "") {
 				auto lib_target = path_directory(loadedFile) + "/" + lib;
+				makeLower(lib);
 				auto lib_url = path_directory(currentInfo.path) + "/" + lib;
 				files++;
 				RemoteLoader &loader = RemoteLoader::getInstance();

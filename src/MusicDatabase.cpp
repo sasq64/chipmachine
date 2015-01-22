@@ -39,6 +39,8 @@ void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
 	if(db.query("SELECT 1 FROM collection WHERE name = ?", type).step())
 		return;
 
+	reindexNeeded = true;
+
 	auto ex_copy = exclude;
 	auto parts = split(xformats, ";");
 	for(const auto &p : parts) {
@@ -66,6 +68,7 @@ void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
 
 		bool isModland = (type == "modland");
 		bool isRKO = (type == "rko");
+		bool isAmiRemix = (type == "amigaremix");
 
 		for(const auto &s : listFile.getLines()) {
 			auto parts = split(s, "\t");
@@ -79,6 +82,11 @@ void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
 					query.bind(song.title, song.game, song.composer, song.format, song.path, id);
 				} else if(isRKO) {
 					SongInfo song(parts[0], "", parts[3], parts[4], "MP3");
+					query.bind(song.title, song.game, song.composer, song.format, song.path, id);
+				} else if(isAmiRemix) {
+					if(parts[0].find(source) == 0)
+						parts[0] = parts[0].substr(source.length());
+					SongInfo song(parts[0], "", parts[2], parts[3], "MP3");
 					query.bind(song.title, song.game, song.composer, song.format, song.path, id);
 				} else {
 					SongInfo song(parts[4], parts[1], parts[0], parts[2], parts[3]);
@@ -366,7 +374,7 @@ void MusicDatabase::generateIndex() {
 
 	File f { File::getCacheDir() + "index.dat" };
 
-	if(f.exists()) {
+	if(!reindexNeeded && f.exists()) {
 		readIndex(f);
 		f.close();
 		return;
@@ -448,10 +456,14 @@ void MusicDatabase::generateIndex() {
 
 	writeIndex(f);
 	f.close();
+
+	reindexNeeded = false;
 }
 
 
 void MusicDatabase::initFromLua(const string &fileName) {
+
+	reindexNeeded = false;
 
 	LuaInterpreter lua;
 

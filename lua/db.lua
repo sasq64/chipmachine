@@ -55,5 +55,13 @@ DB = {
 	song_list = "data/rko.txt",
 	local_dir = "/opt/Music/rko",
 	color = 0xfffff
+},
+{
+	type = "amigaremix",
+	id = 7,
+	source = "http://amigaremix.com/listen/",
+	song_list = "data/amiremix.txt",
+	local_dir = "/opt/Music/amiremix",
+	color = 0xfffff
 }
 };

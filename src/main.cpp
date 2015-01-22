@@ -16,17 +16,17 @@ using namespace utils;
 
 int main(int argc, char* argv[]) {
 
-#ifdef CM_DEBUG
 	bool fullScreen = false;
+
+#ifdef CM_DEBUG
 	logging::setLevel(logging::DEBUG);
 #else
-	bool fullScreen = true;
 	logging::setLevel(logging::WARNING);
 #endif
 
 	vector<SongInfo> songs;
-	int w = 720;
-	int h = 576;
+	int w = 960;
+	int h = 540;
 	bool server = false;
 
 	for(int i=1; i<argc; i++) {
@@ -45,8 +45,8 @@ int main(int argc, char* argv[]) {
 			case 's':
 				server = true;
 			case 'h':
-				w = 1200;
-				h = 800;
+				w = 1280;
+				h = 720;
 				break;
 			}
 		} else {
@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 
 		MusicPlayerList mpl;
 		for(auto &s : songs) {
-			LOGD("Adding %s", s.path);
+			LOGD("Adding '%s'", s.path);
 			mpl.addSong(s);
 		}
 		mpl.nextSong();

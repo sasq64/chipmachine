@@ -12,7 +12,7 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -DCM_DEBUG")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -DCM_DEBUG")
 
-set(CPP_MODS ../cpp-mods/mods)
+set(CPP_MODS ../apone/mods)
 
 include_directories(${CPP_MODS})
 
@@ -60,5 +60,12 @@ include_directories(${CPP_MODS}/grappix ${CPP_MODS}/musicplayer/plugins)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++0x")
 
-add_executable(chipmachine ${SOURCE_FILES})
-target_link_libraries(chipmachine ${CPP_MODS_MODULES} ${MUSICPLAYER_PLUGINS} dl)
+include(../apone/cmake/Utils.cmake)
+SET_DATA_FILES(data lua)
+
+add_executable(chipmachine MACOSX_BUNDLE ${SOURCE_FILES})
+target_link_libraries(chipmachine ${CPP_MODS_MODULES} ${MUSICPLAYER_PLUGINS})
+
+include(BundleUtilities)
+fixup_bundle(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app "" "dfss")
+verify_app(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app)

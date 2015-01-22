@@ -160,6 +160,10 @@ private:
 	std::string userName;
 
 	grappix::Program eqProgram;
+
+	int oldWidth;
+	int oldHeight;
+	int resizeDelay;
 };
 
 }

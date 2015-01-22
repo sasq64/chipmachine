@@ -10,7 +10,7 @@ namespace demofx {
 
 class Scroller : public Effect {
 public:
-	Scroller(grappix::RenderTarget &target) : target(target), scr(grappix::screen.width()+200, 180) {
+	Scroller(grappix::RenderTarget &target) : target(target), scr(grappix::screen.width()+10, 180) {
 		//font = grappix::Font("data/ObelixPro.ttf", 24, 512 | grappix::Font::DISTANCE_MAP);
 		program = grappix::get_program(grappix::TEXTURED_PROGRAM).clone();
 
@@ -29,6 +29,9 @@ public:
 		//font.set_program(fprogram);
 	}
 
+	void resize(int w, int h) override {
+		scr = grappix::Texture(w+10, 180);
+	}
 	virtual void set(const std::string &what, const std::string &val, float seconds = 0.0) {
 		if(what == "font") {
 			font = grappix::Font(val, 24, 512 | grappix::Font::DISTANCE_MAP);

@@ -16,7 +16,7 @@ namespace chipmachine {
 
 void ChipMachine::render_item(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
 
-	static const uint32_t colors[] = { 0xff0000ff, 0xff00ff00, 0xffff0000, 0xffff00ff, 0xffffff00, 0xff00ffff, 0xff4488ff };
+	static const uint32_t colors[] = { 0xff0000ff, 0xff00ff00, 0xffff0000, 0xffff00ff, 0xffffff00, 0xff00ffff, 0xff4488ff, 0xff8888ff  };
 	Color c;
 	string text;
 
@@ -188,6 +188,10 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	MusicDatabase::getInstance().initFromLua();
 	layoutScreen();
 
+	oldWidth = screen.width();
+	oldHeight = screen.height();
+	resizeDelay = 0;
+
 	songList = VerticalList(this, grappix::Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), numLines);
 	playlistField = make_shared<TextField>(listFont, "Favorites", tv1.x - 80, tv1.y - 10, 0.5, 0xff888888);
 	//mainScreen.add(playlistField);
@@ -277,6 +281,7 @@ void ChipMachine::layoutScreen()  {
 	});
 
 	starEffect.resize(screen.width(), screen.height());
+	scrollEffect.resize(screen.width(), screen.height());
 }
 
 void ChipMachine::play(const SongInfo &si) {
@@ -453,6 +458,19 @@ void ChipMachine::toast(const std::string &txt, int type) {
 }
 
 void ChipMachine::render(uint32_t delta) {
+
+	if(oldWidth != screen.width() || oldHeight != screen.height())
+		resizeDelay = 2;
+	oldWidth = screen.width();
+	oldHeight = screen.height();
+
+	if(resizeDelay) {
+		resizeDelay--;
+		if(resizeDelay == 0) {
+			layoutScreen();
+		}
+	}
+
 
 	screen.clear(0xff000000 | bgcolor);
 
