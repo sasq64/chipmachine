@@ -1,13 +1,13 @@
-#ifndef DATABASE_H
-#define DATABASE_H
+#ifndef MUSIC_DATABASE_H
+#define MUSIC_DATABASE_H
 
 #include "SongInfo.h"
-
 #include "SearchIndex.h"
 
 #include <coreutils/file.h>
 #include <coreutils/utils.h>
 #include <sqlite3/database.h>
+
 #include <unordered_set>
 #include <mutex>
 #include <vector>
@@ -22,27 +22,26 @@ public:
 
 class MusicDatabase : public SearchProvider {
 public:
-	MusicDatabase() : db("music.db") {}
+	MusicDatabase() : db(utils::File::getCacheDir() + "music.db"), reindexNeeded(false) {
+		db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, localdir STRING, description STRING, id INTEGER, version INTEGER)");
+		db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
+	}
 
-	void init();
+	void initDatabase(std::unordered_map<std::string, std::string> &vars);
 
-	void initDatabase(std::string name, std::unordered_map<std::string, std::string> &vars);
-
-	void modlandInit(const std::string &source, const std::string &song_list, const std::string &xformats, int id);
-	void hvscInit(const std::string &source, int id);
-	void rsnInit(const std::string &source, int id);
+	void initFromLua(const std::string &fileName = "");
 
 	void generateIndex();
 
 	int search(const std::string &query, std::vector<int> &result, unsigned int searchLimit) override;
 	// Lookup internal string for index
-	virtual std::string getString(int index) const override {
-		return utils::format("%s\t%s\t%d", getTitle(index), getComposer(index), index);
+	std::string getString(int index) const override {
+		return utils::format("%s\t%s\t%d\t%d", getTitle(index), getComposer(index), index, formats[index]);
 	}
 	// Get full data, may require SQL query
-	virtual std::string getFullString(int index) const override;// { return getString(index); }
+	SongInfo getSongInfo(int index) const;// { return getString(index); }
 
-	std::string getTitle(int index) const { 
+	std::string getTitle(int index) const {
 		return titleIndex.getString(index);
 	}
 
@@ -50,20 +49,44 @@ public:
 		return composerIndex.getString(titleToComposer[index]);
 	}
 
-	virtual std::vector<SongInfo> find(const std::string &pattern);
+	//virtual std::vector<SongInfo> find(const std::string &pattern);
 
 	IncrementalQuery createQuery() {
 		std::lock_guard<std::mutex>{dbMutex};
 		return IncrementalQuery(this);
 	}
 
+
+	SongInfo lookup(const std::string &path);
+
+	static MusicDatabase& getInstance() {
+		static MusicDatabase mdb;
+		return mdb;
+	}
+
 private:
+
+	struct Collection {
+		Collection(int id = -1, const std::string &name = "", const std::string url = "", const std::string local_dir = "") : id(id), name(name), url(url), local_dir(local_dir) {}
+		int id;
+		std::string name;
+		std::string url;
+		std::string local_dir;
+	};
+
+	bool parseModlandPath(SongInfo &song);
+	void writeIndex(utils::File &f);
+	void readIndex(utils::File &f);
+
+	bool reindexNeeded;
+
 	SearchIndex composerIndex;
 	SearchIndex titleIndex;
-	std::vector<int> titleToComposer;
-	std::vector<int> composerToTitle;
-	std::vector<int> composerTitleStart;
-	std::vector<uint8_t> formats;
+
+	std::vector<uint32_t> titleToComposer;
+	std::vector<uint32_t> composerToTitle;
+	std::vector<uint32_t> composerTitleStart;
+	std::vector<uint16_t> formats;
 
 	std::mutex dbMutex;
 	sqlite3db::Database db;
@@ -71,4 +94,4 @@ private:
 
 }
 
-#endif // DATABASE_H
+#endif // MUSIC_DATABASE_H

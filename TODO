@@ -1,3 +1,59 @@
+* MP3 on Raspberry
+* Search hits shown twice when term is in both composer and title
+* Star skip
+* Hilight color fade to type color
+* Key repeat
+* Mouse click select and scroll
+* Skip to next prev composer
+
+
+
+
+// FILTER
+
+Collection & Type stored
+Configure colors in lua file
+
+
+
+
+//
+
+>> NETWORK RULES <<
+>>>>>>>>><<<<<<<<<<
+
+
+
+
+RELOGIN (NO SUCH USER)
+
+Song is PATH in COLLECTION
+FULL_PATH depends on offline/online
+
+PATH,COLLECTION -> FULL_PATH
+FULL_PATH -> PATH,COLLECTION
+
+songLoader.addSource(name, local_dir, url)
+
+
+File = SONG_LOADER(path, collection)
+
+LOADER is a class that loads files either locally or from a remote location, and can cache the files
+
+
+
+
+* Network threads stops quitting
+
+
+filtering
+
+filters.lua
+
+NAME, set of formats
+
+TAB to cycle filters    
+
 PARTY MODE
 ----------
 
@@ -17,7 +73,6 @@ v1 SIMPLE
 
 ALWAYS
 * Queue remains with ENTER 
-
 
 
 
@@ -44,6 +99,12 @@ DC and DS needs to rename libnames to lowercase
 * larger sizes on larger screen
 
 * subsong grouping... RSN vs USF64 for instance.. search on subsongs?
+
+
+
+
+
+----------------
 
 BUGS
 

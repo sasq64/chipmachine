@@ -1,11 +1,10 @@
-
 #include "ChipMachine.h"
+#include "MusicPlayerList.h"
 
 #include <grappix/grappix.h>
 #include <musicplayer/PSFFile.h>
-
-#include "MusicPlayerList.h"
-
+#include <coreutils/format.h>
+#include <coreutils/var.h>
 #include <bbsutils/console.h>
 
 #include <vector>
@@ -13,37 +12,55 @@
 using namespace std;
 using namespace chipmachine;
 using namespace bbs;
+using namespace utils;
 
 int main(int argc, char* argv[]) {
 
-	logging::setLevel(logging::WARNING);
-
 	bool fullScreen = false;
-	vector<SongInfo> songs;
-	int w = 720;
-	int h = 576;
 
-	if(argc >= 2) {
-		for(int i=1; i<argc; i++) {
-			if(argv[i][0] == '-') {
-				switch(argv[i][1]) {
-				case 'd':
-					logging::setLevel(logging::DEBUG);
-					break;
-				case 'f':
-					fullScreen = true;
-					break;
-				case 'h':
-					w = 1200;
-					h = 800;
-					break;
-				}
-			} else {
-				songs.push_back(SongInfo(argv[i]));
+#ifdef CM_DEBUG
+	logging::setLevel(logging::DEBUG);
+#else
+	logging::setLevel(logging::WARNING);
+#endif
+
+	vector<SongInfo> songs;
+	int w = 960;
+	int h = 540;
+	bool server = false;
+
+	for(int i=1; i<argc; i++) {
+		if(argv[i][0] == '-') {
+			switch(argv[i][1]) {
+			case 'd':
+				fullScreen = false;
+				logging::setLevel(logging::DEBUG);
+				break;
+			case 'w':
+				fullScreen = false;
+				break;
+			case 'f':
+				fullScreen = true;
+				break;
+			case 's':
+				server = true;
+			case 'h':
+				w = 1280;
+				h = 720;
+				break;
 			}
+		} else {
+			songs.push_back(SongInfo(argv[i]));
 		}
 	}
 
+	if(server) {
+		MusicPlayerList player;
+		MusicDatabase::getInstance().initFromLua();
+		TelnetInterface telnet(player);
+		telnet.start();
+		while(true) sleepms(500);
+	}
 
 	if(songs.size() > 0) {
 
@@ -51,26 +68,30 @@ int main(int argc, char* argv[]) {
 
 		MusicPlayerList mpl;
 		for(auto &s : songs) {
-			LOGD("Adding %s", s.path);
+			LOGD("Adding '%s'", s.path);
 			mpl.addSong(s);
 		}
 		mpl.nextSong();
+		printf("\n--------------------------\nCHIPMACHINE CONSOLE PLAYER\n--------------------------\n");
 		while(true) {
 			if(mpl.getState() == MusicPlayerList::PLAY_STARTED) {
 				auto si = mpl.getInfo();
-				//auto l = mpl.getLength();
-				print_fmt("%s - %s (%s)\n", si.composer, si.title, si.format);
+				auto l = mpl.getLength();
+				print_fmt("%s - %s (%s) [%02d:%02d]\n", si.composer, si.title, si.format, l/60, l%60);
 			}
-			auto k = c->getKey(100);
-			if(k !=Console::KEY_TIMEOUT) {
-				switch(k) {
-				case ' ':
-					break;
-				case Console::KEY_RIGHT:
-					break;
-				case Console::KEY_ENTER:
-					mpl.nextSong();
-					break;
+			if(c) {
+				auto k = c->getKey(100);
+				if(k !=Console::KEY_TIMEOUT) {
+					LOGD("KEY %d", k);
+					switch(k) {
+					case ' ':
+						break;
+					case Console::KEY_RIGHT:
+						break;
+					case Console::KEY_ENTER:
+						mpl.nextSong();
+						break;
+					}
 				}
 			}
 		}
@@ -80,16 +101,13 @@ int main(int argc, char* argv[]) {
 		grappix::screen.open(true);
 	else
 		grappix::screen.open(w, h, false);
-	static chipmachine::ChipMachine app;
 
-	for(auto &s : songs) {
-		app.play(s);
-	}
+	static chipmachine::ChipMachine app;
 
 	grappix::screen.render_loop([](uint32_t delta) {
 		app.update();
 		app.render(delta);
 	}, 20);
-	return 0;	
+	return 0;
 }
 

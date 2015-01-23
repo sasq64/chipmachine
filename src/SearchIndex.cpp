@@ -132,6 +132,10 @@ void IncrementalQuery::removeLast() {
 		query.pop_back();
 		if(query.size() > 0) {
 			search();
+		} else {
+			lastStart = -1;
+			newRes = true;
+			finalResult.clear();
 		}
 	}
 }

@@ -1,7 +1,8 @@
 
 #include "SongInfo.h"
 
-#include <musicplayer/common/fifo.h>
+//#include <musicplayer/common/fifo.h>
+#include <coreutils/fifo.h>
 
 #include <fft/spectrum.h>
 
@@ -17,12 +18,6 @@ namespace chipmachine {
 
 class ChipPlugin;
 class ChipPlayer;
-
-#ifdef RASPBERRYPI
-#define AUDIO_DELAY 12
-#else
-#define AUDIO_DELAY 19
-#endif
 
 // MUST BE THREAD SAFE
 class MusicPlayer {
@@ -50,19 +45,7 @@ public:
 		return playingInfo;
 	}
 
-	uint16_t *getSpectrum() {
-		LOCK_GUARD(fftMutex);
-		if(fft.size() > AUDIO_DELAY) {
-			while(fft.size() > AUDIO_DELAY*2)
-				fft.popLevels();
-			//LOGD("GET");
-			spectrum = fft.getLevels();
-			fft.popLevels();
-
-		} //else LOGD("WAIT");
-		return &spectrum[0];
-
-	}
+	uint16_t *getSpectrum();
 
 	std::string getMeta(const std::string &what);
 
@@ -77,11 +60,13 @@ public:
 		return fifo.getVolume();
 	}
 
+	void update();
+
 private:
 	std::shared_ptr<ChipPlayer> fromFile(const std::string &fileName);
 	void updatePlayingInfo();
 
-	Fifo fifo;
+	AudioFifo<int16_t> fifo;
 	SongInfo playingInfo;
 	//Fifo fifo;
 	SpectrumAnalyzer fft;

@@ -1,3 +1,4 @@
+# Chipmachine
 
 ## INTRO
 
@@ -27,10 +28,7 @@ Initially, it searches the *Modland* colletion and downloads songs from *ftp.mod
 
 ## ADDING NEW SONG COLLECTIONS
 
-Song collections are configured in `lua/db.lua`. The High Voltage Sid Collection is
-preconfigured, just unpack the `C64Music` directory into the chipmachine directory
-and start chipmachine to index it. At this point you may also want to add *exlude_formats*
-to the Modland section, to exclude all SIDS from there and avoid duplicate songs in the database.
+Song collections are configured in `lua/db.lua`. The High Voltage Sid Collection is preconfigured, just unpack the `C64Music` directory into the chipmachine directory and start chipmachine to index it. At this point you may also want to add *exlude_formats* to the Modland section, to exclude all SIDS from there and avoid duplicate songs in the database.
 
 ## CHIPMACHINE FILES
 

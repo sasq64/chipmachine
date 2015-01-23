@@ -3,19 +3,26 @@
 
 #include "MusicDatabase.h"
 #include "MusicPlayerList.h"
-#include "TextScreen.h"
+#include "TextField.h"
 #include "SongInfoField.h"
 
 #include "TelnetInterface.h"
+#include "RemoteLists.h"
 
-#include "MainScreen.h"
-#include "SearchScreen.h"
+#include "state_machine.h"
+#include "renderset.h"
 
-#include <tween/tween.h>
-#include <grappix/grappix.h>
-#include <lua/luainterpreter.h>
+#include "LineEdit.h"
+#include "Dialog.h"
+
+#include "../demofx/StarField.h"
+#include "../demofx/Scroller.h"
 
 #include <coreutils/utils.h>
+#include <tween/tween.h>
+#include <grappix/grappix.h>
+#include <grappix/gui/list.h>
+#include <luainterpreter/luainterpreter.h>
 
 #include <cstdio>
 #include <vector>
@@ -24,227 +31,55 @@
 
 namespace chipmachine {
 
-class Effect {
+class ChipMachine : public grappix::VerticalList::Renderer {
 public:
-	virtual void render(uint32_t delta) = 0;
 
-	virtual void set(const std::string &what, const std::string &val) {
-	}
+	virtual void render_item(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) override;
 
-	virtual void set(const std::string &what, int val) {
-	}
-
-	virtual void fadeIn() {
-	}
-	virtual void fadeOut() {
-	}
-};
-
-class StarField : public Effect {
-public:
-	StarField(grappix::RenderTarget &target) : target(target) {
-		image::bitmap bm(screen.width(), screen.height());
-		bm.clear(0x00000000);
-		for(int y=0; y<bm.height(); y++) {
-			auto x = rand() % bm.width();
-			bm[y*bm.width()+x] = bm[y*bm.width()+x + 1] = 0xff666666;
-			bm[y*bm.width()+x + 2] = 0xff444444;
-		}
-		starTexture = Texture(bm);
-
-		starProgram = get_program(TEXTURED_PROGRAM).clone();
-		starProgram.setFragmentSource(starShaderF);
-	}
-
-	virtual void render(uint32_t delta) override {
-		starProgram.use();
-		if(starPos > 1.0) starPos -= 1.0;
-		starProgram.setUniform("scrollpos", starPos += (0.3 / target.width()));
-		target.draw(starTexture, starProgram);
-	};
-private:
-
-	grappix::RenderTarget &target;
-
-	const std::string starShaderF = R"(
-		uniform sampler2D sTexture;
-		uniform float scrollpos; // 0 -> 1
-
-		varying vec2 UV;
-
-		void main() {
-			float m = mod(gl_FragCoord.y, 3.0);
-			float uvx = mod(UV.x + scrollpos * m, 1.0);
-			gl_FragColor = m * texture2D(sTexture, vec2(uvx, UV.y));
-		}
-	)";
-	grappix::Texture starTexture;
-	grappix::Program starProgram;
-	float starPos = 0.0;
-
-};
-
-class Scroller : public Effect {
-public:
-	Scroller(grappix::RenderTarget &target) : target(target), scr(screen.width()+200, 180) {
-		font = Font("data/ObelixPro.ttf", 24, 512 | Font::DISTANCE_MAP);
-		program = get_program(TEXTURED_PROGRAM).clone();
-
-
-		Resources::getInstance().load<std::string>("sine_shader.glsl",
-			[=](std::shared_ptr<std::string> source) {
-				try {
-					program.setFragmentSource(*source);
-				} catch(shader_exception &e) {}
-			}, sineShaderF);
-
-
-		//fprogram = get_program(FONT_PROGRAM_DF).clone();
-		//fprogram.setFragmentSource(fontShaderF);
-		//font.setProgram(fprogram);
-	}
-
-	virtual void set(const std::string &what, const std::string &val) {
-		if(what == "font") {
-			font = Font(val, 24, 512 | Font::DISTANCE_MAP);
-		} else {
-			scrollText = val;
-			xpos = target.width() + 100;
-			scrollLen = font.get_width(val, scrollsize);
-		}
-	}
-
-	virtual void render(uint32_t delta) override {
-		if(alpha <= 0.01)
-			return;
-		if(xpos < -scrollLen)
-			xpos = target.width() + 100;
-		scr.clear(0x00000000);
-		scr.text(font, scrollText, xpos-=scrollspeed, 10, 0xffffff | ((int)(alpha*255) << 24), scrollsize);
-		program.use();
-		static float uvs[] = { 0,0,1,0,0,1,1,1 };
-		target.draw(scr, 0.0f, scrolly, scr.width(), scr.height(), uvs, program);
-	}
-
-	float alpha = 1.0;
-
-	int scrollspeed = 4;
-	int scrolly = 0;
-	float scrollsize = 4.0;
-
-private:
-	grappix::RenderTarget target;
-	Font font;
-	Program program;
-	Program fprogram;
-	int xpos = -9999;
-	Texture scr;
-	std::string scrollText;
-	int scrollLen;
-
-
-	const std::string sineShaderF = R"(
-		uniform sampler2D sTexture;
-
-		const vec4 color0 = vec4(1.0, 1.0, 0.0, 1.0);
-		const vec4 color1 = vec4(0.0, 0.0, 1.0, 1.0);
-
-		varying vec2 UV;
-
-		void main() {
-
-			vec4 rgb = mix(color0, color1, UV.y);
-			// MODIFY UV HERE
-			vec4 color = texture2D(sTexture, UV);
-			// MODIFY COLOR HERE
-			gl_FragColor = rgb * color; 
-		}
-	)";
-
-
-	const std::string fontShaderF = R"(
-		uniform vec4 vColor;
-		uniform vec4 vScale;
-		uniform sampler2D sTexture;
-		//uniform float smoothing;
-		varying vec2 UV;
-
-		vec3 glyph_color    = vec3(0.0,1.0,0.0);
-		const float glyph_center   = 0.50;
-		vec3 outline_color  = vec3(0.0,0.0,1.0);
-		const float outline_center = 0.58;
-		vec3 glow_color     = vec3(1.0, 1.0, 0.0);
-		const float glow_center    = 1.0;
-
-		void main() {
-			float dist = texture2D(sTexture, UV).a;
-	#ifdef GL_ES
-			float smoothing = 1.0 / (vScale.x * 16.0);
-			float alpha = smoothstep(glyph_center-smoothing, glyph_center+smoothing, dist);
-	#else
-			float width = fwidth(dist);
-			float alpha = smoothstep(glyph_center-width, glyph_center+width, dist);
-			//float alpha = dist;
-	#endif
-
-			//gl_FragColor = vec4(1.0, 0.0, 0.0, alpha);
-			//vec3 rgb = mix(vec3(0,0,0), vec3(1.0,0.0,0.0), dist);
-			//gl_FragColor = vec4(rgb, 1.0);//floor(dist + 0.500));
-
-			gl_FragColor = vec4(vColor.rgb, vColor.a * alpha);
-
-			//gl_FragColor = vec4(1.0, 0.0, 0.0, floor(dist + 0.500));
-			//gl_FragColor += vec4(0.0, 1.0, 0.0, floor(dist + 0.533));
-
-			//float mu = smoothstep(outline_center-width, outline_center+width, dist);
-			//vec3 rgb = mix(outline_color, glyph_color, mu);
-			//gl_FragColor = vec4(rgb, max(alpha,mu));
-
-			//vec3 rgb = mix(glow_color, vec3(1.0,1.0,1.0), alpha);
-			//float mu = smoothstep(glyph_center, glow_center, sqrt(dist));
-			//gl_FragColor = vec4(rgb, mu);//max(alpha,mu));
-
-		}
-
-	)";
-
-
-};
-
-
-class ChipMachine {
-public:
 	ChipMachine();
+	~ChipMachine();
+
 	void initLua();
+	void layoutScreen();
 	void play(const SongInfo &si);
 	void update();
 	void render(uint32_t delta);
-
 	void toast(const std::string &txt, int type);
+
+	void set_scrolltext(const std::string &txt);
+
+	MusicPlayerList &music_player() { return player; }
 
 private:
 
-	MusicDatabase mdb;
+	void setVariable(const std::string &name, int index, const std::string &val);
+
+	void show_main();
+	void show_search();
+	SongInfo get_selected_song();
+
+	void setup_rules();
+	void update_keys();
 
 	MusicPlayerList player;
 
-	MainScreen mainScreen;
-	SearchScreen searchScreen;
+	RenderSet renderSet;
+	std::shared_ptr<TextField> toastField;
 
-	TextScreen textScreen;
-	std::shared_ptr<TextScreen::TextField> toastField;
+	const int MAIN_SCREEN = 0;
+	const int SEARCH_SCREEN = 1;
 
-	int currentScreen = 0;
+	int currentScreen = MAIN_SCREEN;
 
 	std::unique_ptr<TelnetInterface> telnet;
 
 	utils::vec2i tv0 = { 80, 54 };
 	utils::vec2i tv1 = { 636, 520 };
 
-	grappix::Color spectrumColor { 0xffffffff };
-	grappix::Color spectrumColorMain { 0xff00aaee };
-	grappix::Color spectrumColorSearch { 0xff111155 };
-	double spectrumHeight = 20.0;
+	grappix::Font font;
+	grappix::Font listFont;
+
+	int spectrumHeight = 20;
 	int spectrumWidth = 24;
 	utils::vec2i spectrumPos;
 	std::vector<uint8_t> eq;
@@ -255,13 +90,80 @@ private:
 	std::string code;
 
 	LuaInterpreter lua;
-/*
-	grappix::Texture starTexture;
-	grappix::Program starProgram;
-	float starPos = 0.0;
-*/
-	StarField starEffect;
-	Scroller scrollEffect;
+
+	demofx::StarField starEffect;
+	demofx::Scroller scrollEffect;
+
+	RenderSet mainScreen;
+	//grappix::Font font;
+
+	SongInfoField currentInfoField;
+	SongInfoField nextInfoField;
+	SongInfoField prevInfoField;
+	SongInfoField outsideInfoField;
+
+	std::shared_ptr<TextField> timeField;
+	std::shared_ptr<TextField> lengthField;
+	std::shared_ptr<TextField> songField;
+	std::shared_ptr<TextField> nextField;
+	std::shared_ptr<TextField> xinfoField;
+	std::shared_ptr<TextField> playlistField;
+
+	string currentNextPath;
+	SongInfo currentInfo;
+	int currentTune = 0;
+
+	tween::Tween currentTween;
+	bool lockDown = false;
+	bool isFavorite = false;
+	grappix::Texture favTexture;
+	grappix::Texture netTexture;
+	grappix::Texture eqTexture;
+	grappix::Rectangle favPos = { 80, 300, 16*8, 16*6 };
+
+	RenderSet searchScreen;
+
+	std::shared_ptr<LineEdit> searchField;
+	std::shared_ptr<LineEdit> commandField;
+	std::shared_ptr<TextField> topStatus;
+
+	std::shared_ptr<TextField>resultFieldTemplate;
+
+	int numLines = 20;
+
+	tween::Tween markTween;
+
+	grappix::Color timeColor;
+	grappix::Color spectrumColor = 0xffffffff;
+	grappix::Color spectrumColorMain = 0xff00aaee;
+	grappix::Color spectrumColorSearch = 0xff111155;
+	grappix::Color markColor = 0xff00ff00;
+	grappix::Color hilightColor = 0xffffffff;
+
+	IncrementalQuery iquery;
+
+	grappix::VerticalList songList;
+
+	std::vector<std::string> playlists;
+
+	bool haveSearchChars;
+
+	statemachine::StateMachine smac;
+
+	std::string currentPlaylistName = "Favorites";
+	std::string editPlaylistName;
+
+	bool playlistEdit = false;
+
+	std::shared_ptr<Dialog> currentDialog;
+
+	std::string userName;
+
+	grappix::Program eqProgram;
+
+	int oldWidth;
+	int oldHeight;
+	int resizeDelay;
 };
 
 }

@@ -3,14 +3,18 @@
 
 #include "SongInfo.h"
 #include "MusicPlayer.h"
+#include "RemoteLists.h"
+#include "RemoteLoader.h"
 
-#include <webutils/webgetter.h>
+//#include <webutils/webgetter.h>
 
 #include <mutex>
 #include <cstdint>
 #include <deque>
 
 namespace chipmachine {
+
+class ChipMachine;
 
 class MusicPlayerList {
 public:
@@ -26,6 +30,7 @@ public:
 	};
 
 	MusicPlayerList();
+
 	~MusicPlayerList() {
 		quitThread = true;
 		playerThread.join();
@@ -101,6 +106,8 @@ public:
 
 	void setPartyMode(bool on, int lockSeconds = 60, int graceSec = 3);
 
+	void setReportSongs(bool on) { reportSongs = on; }
+
 private:
 	void playCurrent();
 	bool playFile(const std::string &fileName);
@@ -122,7 +129,8 @@ private:
 	std::atomic<int> files;
 	std::string loadedFile;
 
-	WebGetter webgetter { "_files" };
+	//WebGetter webgetter;
+	//RemoteLoader loader;
 
 	std::atomic<State> state;// = STOPPED;
 	SongInfo currentInfo;
@@ -131,12 +139,16 @@ private:
 
 	bool changedSong = false;
 
+	bool reportSongs = true;
+
 	std::atomic<uint32_t> permissions;
 
 	bool partyMode = false;
 	bool partyLockDown = false;
 	int graceSeconds = 3;
 	int lockSeconds = 60;
+
+	//RemoteLists &tracker;
 
 };
 

@@ -4,12 +4,14 @@
 #include <coreutils/log.h>
 #include <coreutils/utils.h>
 
+#include <unordered_map>
+
 using namespace std;
 using namespace utils;
 
 namespace chipmachine {
 
-MusicPlayerList::MusicPlayerList() {
+MusicPlayerList::MusicPlayerList() { //: webgetter(File::getCacheDir() + "_webfiles") {
 	state = STOPPED;
 	wasAllowed = true;
 	permissions = 0xff;
@@ -35,8 +37,11 @@ bool MusicPlayerList::addSong(const SongInfo &si, int pos) {
 
 	if(!checkPermission(CAN_ADD_SONG)) return false;
 	LOCK_GUARD(plMutex);
+
+	LOGD("Add song %s %s %s", si.title, si.composer, si.format);
+
 	if(pos >= 0) {
-		if(playList.size() >= pos)
+		if((int)playList.size() >= pos)
 			playList.insert(playList.begin() + pos, si);
 	} else {
 		if(partyMode) {
@@ -69,7 +74,7 @@ void MusicPlayerList::nextSong() {
 void MusicPlayerList::playSong(const SongInfo &si) {
 	if(!checkPermission(CAN_SWITCH_SONG)) return;
 	LOCK_GUARD(plMutex);
-	currentInfo = si;
+currentInfo = si;
 	state = PLAY_NOW;
 }
 
@@ -134,10 +139,14 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 	//LOCK_GUARD(plMutex);
 	if(fileName != "") {
 		if(mp.playFile(fileName)) {
+			if(reportSongs)
+				RemoteLists::getInstance().song_played(currentInfo.path);
+
 			changedSong = false;
 			updateInfo();
+			LOGD("PLAY STARTED");
 			state = PLAY_STARTED;
-			return true;			
+			return true;
 		} else {
 			state = STOPPED;
 		}
@@ -154,6 +163,8 @@ void MusicPlayerList::setPartyMode(bool on, int lockSec, int graceSec) {
 }
 
 void MusicPlayerList::update() {
+
+	mp.update();
 
 	if(partyMode) {
 		auto p = getPosition();
@@ -180,6 +191,7 @@ void MusicPlayerList::update() {
 
 		auto pos = mp.getPosition();
 		auto length = mp.getLength();
+		length = 0;
 		if(!changedSong && playList.size() > 0) {
 			//LOGD("%d vs %d (SIL %d)", pos, length, mp.getSilence());
 			if(!mp.playing()) {
@@ -187,7 +199,7 @@ void MusicPlayerList::update() {
 					state = STOPPED;
 				else
 					state = WAITING;
-			} else 
+			} else
 			if((length > 0 && pos > length) || pos > 7*44100) {
 				LOGD("#### SONGLENGTH");
 				mp.fadeOut(3.0);
@@ -246,74 +258,59 @@ void MusicPlayerList::update() {
 	}
 }
 
-//	private static String [] pref0 = new String [] { "MDAT", "TFX", "SNG", "RJP", "JPN", "DUM", "mdat", "tfx", "sng", "rjp", "jpn", "dum" };
-//	private static String [] pref1 = new String [] { "SMPL", "SAM", "INS", "SMP", "SMP", "INS", "smpl", "sam", "ins", "smp", "smp", "ins" };
-
-static std::unordered_map<string, string> fmt_2files = {
-	{ "mdat", "smpl" }, // TFMX
-	{ "sng", "ins" }, // Richard Joseph
-	{ "jpn", "smp" }, // Jason Page PREFIX
-	{ "dum", "ins" }, // Rob Hubbard 2
-};
-
 void MusicPlayerList::playCurrent() {
-	auto proto = split(currentInfo.path, ":");
-	if(proto.size() > 0 && (proto[0] == "http" || proto[0] == "ftp")) {
-		state = LOADING;
-		loadedFile = "";
-		auto ext = path_extension(currentInfo.path);
-		makeLower(ext);
-		LOGD("EXT: %s", ext);
-		files = 1;
+	// Music formats with 2 files
+	static const std::unordered_map<string, string> fmt_2files = {
+		{ "mdat", "smpl" }, // TFMX
+		{ "sng", "ins" }, // Richard Joseph
+		{ "jpn", "smp" }, // Jason Page PREFIX
+		{ "dum", "ins" }, // Rob Hubbard 2
+	};
 
-		auto ext2 = fmt_2files[ext];
+	state = LOADING;
+	loadedFile = "";
+	auto ext = path_extension(currentInfo.path);
+	makeLower(ext);
+	LOGD("EXT: %s", ext);
+	files = 1;
+	string ext2;
+	if(fmt_2files.count(ext) > 0)
+		ext2 = fmt_2files.at(ext);
 
-		if(ext2 != "") {
-		//if(ext == "mdat") {
-			files++;
-			auto smpl_file = path_directory(currentInfo.path) + "/" + path_basename(currentInfo.path) + "." + ext2; //".smpl";
-			LOGD("LOADING %s", smpl_file);
+	RemoteLoader &loader = RemoteLoader::getInstance();
 
-			webgetter.getURL(smpl_file, [=](const WebGetter::Job &job) {
-				files--;
-			});
-		}
-		webgetter.getURL(currentInfo.path, [=](const WebGetter::Job &job) {
-			LOGD("Got file");
-			if(job.getReturnCode() == 0) {
-				loadedFile = job.getFile();
-				LOGD("loadedFile %s", loadedFile);
-				PSFFile f { loadedFile };
-				if(f.valid()) {
-					auto lib = f.tags()["_lib"];
-					if(lib != "") {
-						auto lib_target = path_directory(loadedFile) + "/" + lib;
-						auto lib_url = path_directory(currentInfo.path) + "/" + lib;
-						files++;
-						webgetter.getURL(lib_url, [=](const WebGetter::Job &job) {
-							if(job.getReturnCode() == 0) {
-								LOGD("Got lib file %s, copying to %s", job.getFile(), lib_target);
-								File::copy(job.getFile(), lib_target);
-							}
-							files--;
-						});
-					}
-				}
-			} else {
-				LOCK_GUARD(plMutex);
-				errors.push_back("Song download failed");
-				LOGD("Song failed");
-			}
+	if(ext2 != "") {
+		files++;
+		auto smpl_file = path_directory(currentInfo.path) + "/" + path_basename(currentInfo.path) + "." + ext2;
+		LOGD("LOADING %s", smpl_file);
+		loader.load(smpl_file, [=](File f) {
 			files--;
 		});
-	} else {
-		if(!playFile(currentInfo.path)) {
-			LOCK_GUARD(plMutex);
-			errors.push_back("Could not play song");
-			LOGD("Song failed");
-		}
 	}
-}
 
+	LOGD("LOADING:%s", currentInfo.path);
+	loader.load(currentInfo.path, [=](File f0) {
+		LOGD("Got file");
+		loadedFile = f0.getName();
+		LOGD("loadedFile %s", loadedFile);
+		PSFFile f { loadedFile };
+		if(f.valid()) {
+			auto lib = f.tags()["_lib"];
+			if(lib != "") {
+				auto lib_target = path_directory(loadedFile) + "/" + lib;
+				makeLower(lib);
+				auto lib_url = path_directory(currentInfo.path) + "/" + lib;
+				files++;
+				RemoteLoader &loader = RemoteLoader::getInstance();
+				loader.load(lib_url, [=](File f) {
+					LOGD("Got lib file %s, copying to %s", f.getName(), lib_target);
+					File::copy(f.getName(), lib_target);
+					files--;
+				});
+			}
+		}
+		files--;
+	});
+}
 
 }

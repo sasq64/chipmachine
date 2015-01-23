@@ -1,0 +1,71 @@
+cmake_minimum_required(VERSION 2.8.4)
+project(chipmachine)
+
+add_definitions(-DAPP_NAME=chipmachine)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2")
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -DCM_DEBUG")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -DCM_DEBUG")
+
+set(CPP_MODS ../apone/mods)
+
+include_directories(${CPP_MODS})
+
+file(GLOB SOURCE_FILES src/*.cpp)
+
+set(CPP_MODS_MODULES
+	coreutils
+	audioplayer
+	grappix
+	bbsutils
+	fft
+	archive
+	webutils
+	json
+	luainterpreter
+	sqlite3
+)
+add_subdirectory(${CPP_MODS} cppmods)
+
+set(MUSICPLAYER_PLUGINS
+	openmptplugin
+	htplugin
+	heplugin
+	ndsplugin
+	gsfplugin
+	gmeplugin
+	sc68plugin
+	usfplugin
+	stsoundplugin
+	adplugin
+	mp3plugin
+	viceplugin
+	hivelyplugin
+	rsnplugin
+)
+
+if(NOT WINDOWS)
+	set(MUSICPLAYER_PLUGINS ${MUSICPLAYER_PLUGINS} uadeplugin)
+endif()
+
+
+add_subdirectory(${CPP_MODS}/musicplayer/plugins plugins)
+
+include_directories(${CPP_MODS}/grappix ${CPP_MODS}/musicplayer/plugins)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++0x")
+
+include(../apone/cmake/Utils.cmake)
+SET_DATA_FILES(data lua)
+
+add_executable(chipmachine MACOSX_BUNDLE ${SOURCE_FILES})
+target_link_libraries(chipmachine ${CPP_MODS_MODULES} ${MUSICPLAYER_PLUGINS})
+
+include(BundleUtilities)
+fixup_bundle(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app "" "dfss")
+verify_app(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app)

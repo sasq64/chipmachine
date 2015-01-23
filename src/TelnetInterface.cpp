@@ -1,9 +1,15 @@
 #include "TelnetInterface.h"
+#include "ChipMachine.h"
 
 #include <coreutils/log.h>
 #include <coreutils/utils.h>
 
-#include <lua/luainterpreter.h>
+#include <luainterpreter/luainterpreter.h>
+
+#include <bbsutils/telnetserver.h>
+#include <bbsutils/console.h>
+#include <bbsutils/ansiconsole.h>
+#include <bbsutils/petsciiconsole.h>
 
 using namespace std;
 using namespace utils;
@@ -11,24 +17,25 @@ using namespace bbs;
 
 namespace chipmachine {
 
-TelnetInterface::TelnetInterface(MusicDatabase &db, MusicPlayerList &player) : db(db), player(player) {}
+typedef std::unordered_map<string, string> strmap;
+
+void TelnetInterface::stop() {
+	telnet->stop();
+}
 
 void TelnetInterface::start() {
-	telnet = make_unique<TelnetServer>(12345);
+	telnet = make_shared<TelnetServer>(12345);
 	telnet->setOnConnect([&](TelnetServer::Session &session) {
 		session.echo(false);
 		string termType = session.getTermType();		
-		LOGD("New connection, TERMTYPE '%s'", termType);
+		LOGD("New telnet connection, TERMTYPE '%s'", termType);
 
-		unique_ptr<Console> console;
 		if(termType.length() > 0) {
-			console = unique_ptr<Console>(new AnsiConsole { session });
+			console = make_shared<AnsiConsole>(session);
 		} else {
-			console = unique_ptr<Console>(new PetsciiConsole { session });
+			console = make_shared<PetsciiConsole>(session);
 		}
 		console->flush();
-		std::vector<SongInfo> songs;
-
 		LuaInterpreter lip;
 
 		console->write("### CHIPMACHINE LUA INTERPRETER\n");
@@ -37,25 +44,63 @@ void TelnetInterface::start() {
 			console->write(s);
 		});
 
-		lip.loadFile("lua/init.lua");
-
-		lip.registerFunction<int, string, int, int, float, int>("Infoscreen.add", [&](const string &q, int x, int y, float scale, int color) -> int {
-			return 0;
+		lip.registerFunction<void, string>("scrolltext", [=](const string &t) {
+			//chipmachine.set_scrolltext(t);
 		});
 
-		lip.registerFunction<void, string>("find", [&](const string &q) {
-			songs = db.find(q);
-			int i = 0;
-			for(const auto &s : songs) {
-				console->write(format("%02d. %s - %s (%s)\n", i++, s.composer, s.title, s.format));
+		lip.registerFunction<vector<strmap>, string>("find", [=](const string &q) -> vector<strmap> {
+
+			vector<int> result;
+			vector<strmap> fullres;
+			result.reserve(100);
+
+			auto &db = MusicDatabase::getInstance();
+
+			db.search(q, result, 100);
+			//int i = 1;
+			//console->write(format("GOT %d hits\n", result.size()));
+			for(const auto &r : result) {
+				SongInfo song = db.getSongInfo(r);
+				//console->write(format("%02d. %s - %s (%s)\n", i++, s.composer, s.title, s.format));
+				strmap s;
+				s["path"] = song.path;
+				s["title"] = song.title;
+				s["composer"] = song.composer;
+				fullres.push_back(s);
 			}				
+			return fullres;
 		});
 
-		lip.registerFunction<void, int>("play", [&](int which) {
-			player.clearSongs();
-			player.addSong(songs[which]);
+		lip.registerFunction<void, string>("play_file", [&](const std::string &path) {
+			SongInfo song(path);
+			player.playSong(song);
+		});
+
+		lip.registerFunction<void, strmap>("play_song", [&](const strmap &s) {
+			SongInfo song(s.at("path"), "", s.at("title"), s.at("composer"));
+			player.playSong(song);
+		});
+
+		lip.registerFunction<void>("next_song", [&]() {
 			player.nextSong();
 		});
+
+		lip.registerFunction<strmap>("get_playing_song", [&]() {
+			SongInfo song = player.getInfo();
+			strmap s;
+			s["path"] = song.path;
+			s["title"] = song.title;
+			s["composer"] = song.composer;
+			return s;
+		});
+
+		lip.registerFunction<void, string, int>("toast", [=](const string &t, int type) {
+			//grappix::screen.run_safely([&]() {
+				//chipmachine.toast(t, type);
+			//});
+		});
+
+		lip.loadFile("lua/init.lua");
 
 		while(true) {
 			auto l = console->getLine(">");
@@ -71,30 +116,13 @@ void TelnetInterface::start() {
 				l += ")";
 				LOGD("Changed to %s", l);
 			}
-			if(!lip.load(l))
-				console->write("** SYNTAX ERROR\n");
-		/*
-			auto cmd = split(l, " ", 1);
-			//LOGD("%s '%s'", cmd[0], cmd[1]);
-			if(cmd[0] == "status") {
-				//LOGD("%s %s", composer, title);
-				//console->write(format("%s - %s\n", composer, title));
-			} else if (cmd[0] == "find") {
-				songs = db.search(cmd[1]);
-				int i = 0;
-				for(const auto &s : songs) {
-					console->write(format("%02d. %s - %s (%s)\n", i++, s.composer, s.title, s.format));
-				}
-			} else if (cmd[0] == "play") {
-				int which = atoi(cmd[1].c_str());
-				play(songs[which]);
-				next();
-			} else if (cmd[0] == "q") {
-				int which = atoi(cmd[1].c_str());
-				play(songs[which]);
-			} else if (cmd[0] == "next") {
-				next();
-			}*/
+			try {
+				if(!lip.load(l))
+					console->write("** SYNTAX ERROR\n");
+			} catch (lua_exception &e) {
+				console->write(format("** %s\n", e.what()));
+			}
+
 		}
 	});
 	telnet->runThread();
