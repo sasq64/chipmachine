@@ -63,6 +63,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++0x")
 include(${AP1_ROOT}/cmake/Utils.cmake)
 SET_DATA_FILES(data lua)
 
+file(COPY ${CMAKE_CURRENT_BINARY_DIR}/plugins/uadeplugin/uade/uadecore DESTINATION data/uade)
+
 if(APPLE)
 	add_executable(chipmachine MACOSX_BUNDLE ${SOURCE_FILES})
 else()
