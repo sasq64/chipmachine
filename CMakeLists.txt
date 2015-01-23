@@ -12,13 +12,14 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -DCM_DEBUG")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -DCM_DEBUG")
 
-set(CPP_MODS ../apone/mods)
+set(AP1_ROOT ../apone)
 
-include_directories(${CPP_MODS})
+
+include_directories(${AP1_ROOT}/mods)
 
 file(GLOB SOURCE_FILES src/*.cpp)
 
-set(CPP_MODS_MODULES
+set(APONE_MODULES
 	coreutils
 	audioplayer
 	grappix
@@ -30,14 +31,14 @@ set(CPP_MODS_MODULES
 	luainterpreter
 	sqlite3
 )
-add_subdirectory(${CPP_MODS} cppmods)
+add_subdirectory(${AP1_ROOT}/mods ap1mods)
 
 set(MUSICPLAYER_PLUGINS
 	openmptplugin
 	htplugin
 	heplugin
 	ndsplugin
-	gsfplugin
+#	gsfplugin
 	gmeplugin
 	sc68plugin
 	usfplugin
@@ -53,19 +54,23 @@ if(NOT WINDOWS)
 	set(MUSICPLAYER_PLUGINS ${MUSICPLAYER_PLUGINS} uadeplugin)
 endif()
 
+add_subdirectory(${AP1_ROOT}/mods/musicplayer/plugins plugins)
 
-add_subdirectory(${CPP_MODS}/musicplayer/plugins plugins)
-
-include_directories(${CPP_MODS}/grappix ${CPP_MODS}/musicplayer/plugins)
+include_directories(${AP1_ROOT}/mods/grappix ${AP1_ROOT}/mods/musicplayer/plugins)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++0x")
 
-include(../apone/cmake/Utils.cmake)
+include(${AP1_ROOT}/cmake/Utils.cmake)
 SET_DATA_FILES(data lua)
 
-add_executable(chipmachine MACOSX_BUNDLE ${SOURCE_FILES})
-target_link_libraries(chipmachine ${CPP_MODS_MODULES} ${MUSICPLAYER_PLUGINS})
+if(APPLE)
+	add_executable(chipmachine MACOSX_BUNDLE ${SOURCE_FILES})
+else()
+	add_executable(chipmachine ${SOURCE_FILES})
+endif()
 
-include(BundleUtilities)
-fixup_bundle(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app "" "dfss")
-verify_app(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app)
+target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
+
+#include(BundleUtilities)
+#fixup_bundle(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app "" "dfss")
+#verify_app(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app)
