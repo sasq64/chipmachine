@@ -35,12 +35,14 @@ enum ChipAction {
 	LAYOUT_SCREEN,
 	VOLUME_UP,
 	VOLUME_DOWN,
+	QUIT,
 	LOGIN,
 	LAST_ACTION
 };
 
 static const uint32_t SHIFT = 0x10000;
 static const uint32_t CTRL = 0x20000;
+static const uint32_t ALT = 0x40000;
 
 void ChipMachine::setup_rules() {
 
@@ -78,6 +80,9 @@ void ChipMachine::setup_rules() {
 	smac.add(Window::LEFT, PREV_SUBTUNE);
 	smac.add(Window::RIGHT, NEXT_SUBTUNE);
 	smac.add(Window::F4, LAYOUT_SCREEN);
+
+	smac.add(Window::F4 | ALT, QUIT);
+	smac.add(Window::ESCAPE | SHIFT, QUIT);
 
 	smac.add('-', VOLUME_DOWN);
 	smac.add("=+", VOLUME_UP);
@@ -130,6 +135,8 @@ void ChipMachine::update_keys() {
 	}
 	if(screen.key_pressed(Window::CTRL_LEFT) || screen.key_pressed(Window::CTRL_RIGHT))
 		k |= CTRL;
+	if(screen.key_pressed(Window::ALT_LEFT) || screen.key_pressed(Window::ALT_RIGHT))
+		k |= ALT;
 
 	if((k & (CTRL|SHIFT)) == 0 && currentScreen == SEARCH_SCREEN)
 		songList.on_key(key);
@@ -304,6 +311,9 @@ void ChipMachine::update_keys() {
 			break;			
 		case LAYOUT_SCREEN:
 			layoutScreen();
+			break;
+		case QUIT:
+			screen.close();
 			break;
 		case NO_ACTION:
 		case LOGIN:

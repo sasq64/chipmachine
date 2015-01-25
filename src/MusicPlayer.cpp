@@ -243,6 +243,7 @@ uint16_t *MusicPlayer::getSpectrum() {
 
 void MusicPlayer::setVolume(float v) {
 	volume = clamp(v);
+	AudioPlayer::set_volume(volume *100);
 }
 
 float MusicPlayer::getVolume() {

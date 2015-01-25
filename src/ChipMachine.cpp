@@ -521,8 +521,9 @@ void ChipMachine::render(uint32_t delta) {
 
 #ifdef PIXEL_EQ
 	static std::vector<float> fSlots(25);
-	for(int i=0; i<24; i++)
+	for(int i=0; i<24; i++) {
 		fSlots[i] = spectrumHeight * eq[i]  / 256.0;
+	}
 	fSlots[24] = fSlots[23];
 
 	eqProgram.use();
