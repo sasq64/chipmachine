@@ -3,16 +3,13 @@
 ------
 Settings = {}
 
-HD = false
-if SCREEN_WIDTH >= 800 then
-	HD = true
+TV = false
+if SCREEN_WIDTH == 720 and SCREEN_HEIGHT == 576 then
+	TV = true
 end
 
-GSCALE = 1.0
+GSCALE = SCREEN_HEIGHT / 576.0
 
-if SCREEN_HEIGHT >= 800 then
-	GSCALE = 2.0
-end
 -- print('HD',SCREEN_WIDTH,SCREEN_HEIGHT,HD)
 
 X0 = 80
@@ -21,7 +18,7 @@ X1 = 636
 Y1 = 520
 
 
-if HD then
+if not TV then
 X0 = 10
 Y0 = 10
 X1 = SCREEN_WIDTH-10
@@ -37,8 +34,8 @@ if true then
  SEARCH_COLOR = 0xffaaaaff
  FORMAT_COLOR = 0xffffffaa
  RESULT_COLOR = 0xff20c020
- SPECTRUM_COLOR0 = 0xff00aaee
- SPECTRUM_COLOR1 = 0xff111155
+ SPECTRUM_COLOR0 = 0xffffffff
+ SPECTRUM_COLOR1 = 0xff444444
 else
  TEXT_COLOR = 0xff000000
  DIGITS_COLOR = 0xff202080
@@ -71,12 +68,12 @@ Settings.xinfo_field = { X0 - 4, SY + 35 * GSCALE, GSCALE * 0.75, 0xffffffff }
 Settings.favicon = { X0 + 330 * GSCALE, SY - GSCALE*25, 8*8 * GSCALE, 8*6 * GSCALE }
 
 
-if HD then
+if TV then
+  Settings.scroll = { Y1 - 100, 2.0, 4, "data/Bello.otf" }
+  Settings.spectrum = { X0-40, Y1+40, 26, 80.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
+else
   Settings.scroll = { Y1 - 200, 4.0, 4, "data/Bello.otf" }
   Settings.spectrum = { X0, Y1, 32, 100.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
-else
-  Settings.scroll = { Y1 - 100, 2.0, 4, "data/Bello.otf" }
-  Settings.spectrum = { X0-50, Y1+40, 26, 64.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
 end
 
 x = SCREEN_WIDTH - 300 * GSCALE

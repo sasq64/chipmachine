@@ -172,6 +172,8 @@ private:
 	int oldHeight;
 	int resizeDelay;
 	int showVolume;
+
+	bool hasMoved;
 };
 
 }

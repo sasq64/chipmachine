@@ -74,6 +74,6 @@ target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
 add_custom_command(TARGET chipmachine POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/plugins/uadeplugin/uade/uadecore data/uade)
 
-#include(BundleUtilities)
-#fixup_bundle(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app "" "dfss")
-#verify_app(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app)
+include(BundleUtilities)
+fixup_bundle(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app "" "dfssds")
+verify_app(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app)

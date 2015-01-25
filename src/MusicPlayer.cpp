@@ -24,6 +24,9 @@ static std::string find_file(const std::string &name) {
 
 MusicPlayer::MusicPlayer() : fifo(32786*4) {
 
+	AudioPlayer::set_volume(80);
+	volume = 0.8;
+
 	ChipPlugin::createPlugins(find_file("data"), plugins);
 	plugins.insert(plugins.begin(), make_shared<RSNPlugin>(plugins));
 
@@ -231,7 +234,7 @@ uint16_t *MusicPlayer::getSpectrum() {
 	LOCK_GUARD(fftMutex);
 	auto delay = AudioPlayer::get_delay();
 	if(fft.size() > delay) {
-		while(fft.size() > delay) {
+		while(fft.size() > delay+4) {
 			fft.popLevels();
 		}
 		spectrum = fft.getLevels();

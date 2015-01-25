@@ -89,6 +89,7 @@ void ChipMachine::setup_rules() {
 }
 
 void ChipMachine::show_main() {
+	hasMoved = true;
 	if(currentScreen != MAIN_SCREEN) {
 		currentScreen = MAIN_SCREEN;
 		Tween::make().to(spectrumColor, spectrumColorMain).seconds(0.5);
@@ -241,13 +242,15 @@ void ChipMachine::update_keys() {
 			break;
 		case ADD_SEARCH_CHAR:
 			LOGD("%d %02x", currentScreen, action.event);
-			if(currentScreen == MAIN_SCREEN && action.event != ' ')
+			if(hasMoved && action.event != ' ')
 				iquery.clear();
+			hasMoved = false;
 			show_search();
 			iquery.addLetter(tolower(action.event));
 			searchUpdated = true;
 			break;
 		case DEL_SEARCH_CHAR:
+			hasMoved = false;
 			show_search();
 			iquery.removeLast();
 			searchUpdated = true;

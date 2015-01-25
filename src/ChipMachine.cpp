@@ -9,9 +9,9 @@ using namespace utils;
 using namespace grappix;
 using namespace tween;
 
-#ifndef RASPBERRYPI
-#define PIXEL_EQ
-#endif
+//#ifndef RASPBERRYPI
+//#define PIXEL_EQ
+//#endif
 
 namespace chipmachine {
 
@@ -146,7 +146,7 @@ static const std::string eqShaderF = R"(
 	}
 )";
 
-ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen), commandMode(false) {
+ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen), commandMode(false), hasMoved(false) {
 
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
 		string e = error;
@@ -209,7 +209,9 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	showVolume = 0;
-	volPos = { (float)screen.width() - 19*5 - 5, (float)screen.height() - 19*3 - 5, 19*5, 19*3 };
+	float ww = 19*15;
+	float hh = 19*10;
+	volPos = { ((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh };
 
 	// SEARCHSCREEN
 
@@ -245,7 +247,7 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	searchScreen.add(commandField);
 	commandField->visible(false);
 
-	scrollEffect.set("scrolltext", "Chipmachine Beta 1 -- Begin typing to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- F8 to clear queue -- ESCAPE to clear search text ----- ");
+	scrollEffect.set("scrolltext", "Chipmachine Beta 2 -- Begin typing to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- F8 to clear queue -- ESCAPE to clear search text ----- ");
 	toastField = make_shared<TextField>(font, "", tv0.x, tv1.y - 134, 2.0, 0x00ffffff);
 	renderSet.add(toastField);
 	starEffect.fadeIn();
@@ -255,9 +257,9 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 		userName = f.read();
 
 	image::bitmap eqbar(spectrumWidth*24, spectrumHeight);
-	Color col(0xff00aa00);
-	Color toc0(0xff00aaaa);
-	Color toc1(0xff0000aa);
+	Color col(0xff66ff66);
+	Color toc0(0xff008888);
+	Color toc1(0xff000066);
 	int h2 = eqbar.height() / 2;
 	Color deltac = (toc0 - col) / (float)h2;
 	//auto eqtween = Tween::make().to(c, 0xffff0000).seconds(eqbar.height());
@@ -519,6 +521,20 @@ void ChipMachine::render(uint32_t delta) {
 
 	screen.clear(0xff000000 | bgcolor);
 
+	if(showVolume) {
+		static Color color = 0xff000000;
+		showVolume--;
+
+		//if(showVolume == 10)
+		//	tween::make().to(color, 0x0).seconds(0.5);
+
+		screen.draw(volumeTexture, volPos.x, volPos.y, volPos.w, volPos.h, nullptr);
+		int v = player.getVolume() * 10;
+		v = v * volPos.w / 10;
+		screen.rectangle(volPos.x + v, volPos.y, volPos.w - v, volPos.h, color);
+		screen.text(listFont, std::to_string((int)(v*100)), volPos.x, volPos.y, 1.0, 0xff8888ff);
+	}
+
 #ifdef PIXEL_EQ
 	static std::vector<float> fSlots(25);
 	for(int i=0; i<24; i++) {
@@ -534,7 +550,7 @@ void ChipMachine::render(uint32_t delta) {
 	eqProgram.setUniform("spech", spectrumHeight);
 	screen.draw(eqTexture, spectrumPos.x, spectrumPos.y-spectrumHeight, spectrumWidth * 24, spectrumHeight, nullptr, eqProgram);
 #else
-	screen.draw(eqTexture, spectrumPos.x, spectrumPos.y-spectrumHeight, spectrumWidth * 24, spectrumHeight, nullptr);
+	screen.draw(eqTexture, spectrumPos.x, spectrumPos.y-spectrumHeight, spectrumWidth * 24, spectrumHeight, nullptr, spectrumColor);
 	for(int i=0; i<(int)eq.size(); i++) {
 		screen.rectangle(spectrumPos.x + (spectrumWidth)*i, spectrumPos.y-spectrumHeight, spectrumWidth, spectrumHeight-(spectrumHeight * eq[i]  / 256), 0xff000000);
 	}
@@ -554,19 +570,6 @@ void ChipMachine::render(uint32_t delta) {
 		songList.render();
 	}
 
-	if(showVolume) {
-		static Color color = 0xff000000;
-		showVolume--;
-
-		//if(showVolume == 10)
-		//	tween::make().to(color, 0x0).seconds(0.5);
-
-		screen.draw(volumeTexture, volPos.x, volPos.y, volPos.w, volPos.h, nullptr);
-		int v = player.getVolume() * 10;
-		v = v * volPos.w / 10;
-		screen.rectangle(volPos.x + v, volPos.y, volPos.w - v, volPos.h, color);
-		screen.text(listFont, std::to_string((int)(v*100)), volPos.x, volPos.y, 1.0, 0xff8888ff);
-	}
 
 	if(WebRPC::inProgress() > 0 || WebGetter::inProgress() > 0) {
 		screen.draw(netTexture, 2, 2, 8*3, 5*3, nullptr);
