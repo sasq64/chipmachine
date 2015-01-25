@@ -54,9 +54,12 @@ public:
 	// Returns silence (from now) in seconds
 	int getSilence();
 
+	void setVolume(float v);
+	float getVolume();
+
 	// Fadeout music
 	void fadeOut(float secs);
-	float getVolume() {
+	float getFadeVolume() {
 		return fifo.getVolume();
 	}
 
@@ -86,6 +89,7 @@ private:
 	int fadeOutPos;
 	int silentFrames;
 	int currentTune;
+	float volume;
 	//bool changedSong = false;
 	std::atomic<bool> dontPlay;
 	std::atomic<bool> playEnded;

@@ -20,6 +20,62 @@ public:
 	virtual const char *what() const throw() { return "Not found exception"; }
 };
 
+// console -- sid -- tracker -- amiga
+enum Formats {
+
+	NOT_SET,
+
+	UNKNOWN_FORMAT,
+	NO_FORMAT,
+
+	CONSOLE,
+
+	HES,
+
+	NINTENDO,
+
+	GAMEBOY,
+	NES,
+	SNES,
+	NINTENDO64,
+	GBA,
+	NDS,
+
+	SEGA,
+
+	SEGAMS,
+	MEGADRIVE,
+	DREAMCAST,
+
+	SONY,
+
+	PLAYSTATION,
+	PLAYSTATION2,
+
+	COMPUTER,
+	C64,
+	SID,
+
+	SPECTRUM,
+
+	ATARI,
+
+	PC,
+
+	MP3,
+
+	ADPLUG,
+	TRACKER = 0x30,
+	SCREAMTRACKER,
+	IMPULSETRACKER,
+	FASTTRACKER,
+
+	AMIGA,
+	PROTRACKER,
+
+	UADE,
+};
+
 class MusicDatabase : public SearchProvider {
 public:
 	MusicDatabase() : db(utils::File::getCacheDir() + "music.db"), reindexNeeded(false) {

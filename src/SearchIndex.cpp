@@ -346,24 +346,37 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 	const auto &tv = stringMap[v];
 
 	LOGD("Searching %d candidates for '%s'", tv.size(), query);
-	if(q3) {
-		result = tv;
+	if(filter) {
+		LOGD("Filtering");
+		if(q3) {
+			for(int index : tv) {
+				if(!filter(index))
+					result.push_back(index);
+			}
+		} else {
+			for(int index : tv) {
+				if(filter(index))
+					continue;
+				string s = strings[index];
+				simplify(s);
+				if(s.find(query) != string::npos) {
+					result.push_back(index);
+				}
+			}
+		}
 	} else {
-
-		//BMSearch bms { query } ;
-
-		for(int index : tv) {
-			string s = strings[index];
-			simplify(s);			
-			//if(bms.search(s.c_str(), s.length())) {
-			if(s.find(query) != string::npos) {
-				result.push_back(index);
-				//if(result.size() >= searchLimit)
-				//	break;
+		if(q3) {
+			result = tv;
+		} else {
+			for(int index : tv) {
+				string s = strings[index];
+				simplify(s);
+				if(s.find(query) != string::npos) {
+					result.push_back(index);
+				}
 			}
 		}
 	}
-
 	return result.size();
 }
 

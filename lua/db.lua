@@ -63,5 +63,13 @@ DB = {
 	song_list = "data/amiremix.txt",
 	local_dir = "/opt/Music/amiremix",
 	color = 0xfffff
+},
+{
+	type = "scenesat",
+	id = 8,
+	source = "",
+	song_list = "data/scenesat.txt",
+	local_dir = "/opt/Music/scenesat",
+	color = 0xfffff
 }
 };

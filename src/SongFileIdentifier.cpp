@@ -5,6 +5,9 @@
 #include <coreutils/file.h>
 #include <coreutils/log.h>
 #include <archive/archive.h>
+
+#define WITH_MPG123
+
 #ifdef WITH_MPG123
 #include <mpg123.h>
 #endif

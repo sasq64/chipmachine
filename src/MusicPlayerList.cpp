@@ -219,7 +219,7 @@ void MusicPlayerList::update() {
 	}
 
 	if(state == FADING) {
-		if(mp.getVolume() <= 0.01) {
+		if(mp.getFadeVolume() <= 0.01) {
 			LOCK_GUARD(plMutex);
 			LOGD("#### Music ended");
 			if(playList.size() == 0)

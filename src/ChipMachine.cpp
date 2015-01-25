@@ -9,14 +9,33 @@ using namespace utils;
 using namespace grappix;
 using namespace tween;
 
-//#define PIXEL_EQ
+#ifndef RASPBERRYPI
+#define PIXEL_EQ
+#endif
 
 namespace chipmachine {
 
 
 void ChipMachine::render_item(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
 
-	static const uint32_t colors[] = { 0xff0000ff, 0xff00ff00, 0xffff0000, 0xffff00ff, 0xffffff00, 0xff00ffff, 0xff4488ff, 0xff8888ff  };
+	if(commandMode)
+		render_command(rec, y, index, hilight);
+	else
+		render_song(rec, y, index, hilight);
+}
+
+struct Command {
+	string name;
+	string luaFunction;
+	uint32_t ShortCut;
+};
+
+void ChipMachine::render_command(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
+}
+
+void ChipMachine::render_song(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
+
+	static const uint32_t colors[] = { 0xff0000ff, 0xff00ff00, 0xffff0000, 0xffff00ff, 0xffffff00, 0xff00ffff, 0xff4488ff, 0xff8888ff, 0xff8844ff  };
 	Color c;
 	string text;
 
@@ -28,7 +47,22 @@ void ChipMachine::render_item(grappix::Rectangle &rec, int y, uint32_t index, bo
 		auto parts = split(res, "\t");
 		int f = atoi(parts[3].c_str());
 		text = format("%s / %s", parts[0], parts[1]);
-		c = colors[f>>8];//resultFieldTemplate->color;
+		//c = colors[f>>8];//resultFieldTemplate->color;
+		int g = f&0xff;
+		c = 0xff555555;
+		if(g == MP3)
+			c = 0x088ff88;
+		else
+		if(g >= AMIGA)
+			c = 0xff6666cc;
+		else if(g >= PC)
+			c = 0xffcccccc;
+		else if(g >= ATARI)
+			c = 0xffcccc33;
+		else if(g >= C64)
+			c = 0xffcc8844;
+		else if(g >= CONSOLE)
+			c = 0xffdd3355;
 		c = c * 0.75f;
 	}
 
@@ -112,7 +146,7 @@ static const std::string eqShaderF = R"(
 	}
 )";
 
-ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen) {
+ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen), commandMode(false) {
 
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
 		string e = error;
@@ -130,10 +164,10 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	scrollEffect.set("font", ff.getName());
 
 
-//#ifdef ENABLE_TELNET
+#ifdef ENABLE_TELNET
 	telnet = make_unique<TelnetInterface>(player);
 	telnet->start();
-//#endif
+#endif
 
 	for(int i=0; i<3; i++) {
 		mainScreen.add(prevInfoField.fields[i]);
@@ -168,6 +202,15 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
+	bm = image::bitmap(19, 19, &volume_icon[0]);
+	volumeTexture = Texture(bm);
+	glBindTexture(GL_TEXTURE_2D, volumeTexture.id());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	showVolume = 0;
+	volPos = { (float)screen.width() - 19*5 - 5, (float)screen.height() - 19*3 - 5, 19*5, 19*3 };
+
 	// SEARCHSCREEN
 
 	iquery = MusicDatabase::getInstance().createQuery();
@@ -196,6 +239,8 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	playlistField = make_shared<TextField>(listFont, "Favorites", tv1.x - 80, tv1.y - 10, 0.5, 0xff888888);
 	//mainScreen.add(playlistField);
 
+	//volumeField = make_shared<TextField>(listFont, "Favorites", tv1.x - 80, tv1.y - 10, 0.5, 0xff888888);
+
 	commandField = make_shared<LineEdit>(font, ">", tv0.x, tv0.y, 1.0, 0xff888888);
 	searchScreen.add(commandField);
 	commandField->visible(false);
@@ -218,7 +263,7 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	//auto eqtween = Tween::make().to(c, 0xffff0000).seconds(eqbar.height());
 	for(int y=eqbar.height()-1; y>-0; y--) {
 		for(int x=0; x<eqbar.width(); x++) {
-			eqbar[x+y*eqbar.width()] = (y%3 != 0) && (x%spectrumWidth !=0) ? (uint32_t)col : 0x00000000;
+			eqbar[x+y*eqbar.width()] = (y%5 > 1) && (x%spectrumWidth !=0) ? (uint32_t)col : 0x00000000;
 		}
 		col = col + deltac;
 		if(y == h2) {
@@ -506,6 +551,20 @@ void ChipMachine::render(uint32_t delta) {
 	} else {
 		searchScreen.render(delta);
 		songList.render();
+	}
+
+	if(showVolume) {
+		static Color color = 0xff000000;
+		showVolume--;
+
+		//if(showVolume == 10)
+		//	tween::make().to(color, 0x0).seconds(0.5);
+
+		screen.draw(volumeTexture, volPos.x, volPos.y, volPos.w, volPos.h, nullptr);
+		int v = player.getVolume() * 10;
+		v = v * volPos.w / 10;
+		screen.rectangle(volPos.x + v, volPos.y, volPos.w - v, volPos.h, color);
+		screen.text(listFont, std::to_string((int)(v*100)), volPos.x, volPos.y, 1.0, 0xff8888ff);
 	}
 
 	if(WebRPC::inProgress() > 0 || WebGetter::inProgress() > 0) {

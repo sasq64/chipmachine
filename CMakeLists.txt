@@ -63,8 +63,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++0x")
 include(${AP1_ROOT}/cmake/Utils.cmake)
 SET_DATA_FILES(data lua)
 
-file(COPY ${CMAKE_CURRENT_BINARY_DIR}/plugins/uadeplugin/uade/uadecore DESTINATION data/uade)
-
 if(APPLE)
 	add_executable(chipmachine MACOSX_BUNDLE ${SOURCE_FILES})
 else()
@@ -72,6 +70,9 @@ else()
 endif()
 
 target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
+
+add_custom_command(TARGET chipmachine POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/plugins/uadeplugin/uade/uadecore data/uade)
 
 #include(BundleUtilities)
 #fixup_bundle(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app "" "dfss")

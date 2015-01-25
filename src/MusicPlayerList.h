@@ -108,6 +108,14 @@ public:
 
 	void setReportSongs(bool on) { reportSongs = on; }
 
+	void setVolume(float volume) {
+		mp.setVolume(volume);
+	}
+
+	float getVolume() {
+		return mp.getVolume();
+	}
+
 private:
 	void playCurrent();
 	bool playFile(const std::string &fileName);

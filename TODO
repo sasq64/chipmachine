@@ -1,18 +1,39 @@
-* MP3 on Raspberry
+
+
+X MP3 on Raspberry
 * Search hits shown twice when term is in both composer and title
-* Star skip
-* Hilight color fade to type color
-* Key repeat
+X Star skip
+X Hilight color fade to type color
+X Key repeat
 * Mouse click select and scroll
-* Skip to next prev composer
+X Skip to next prev composer
 
+* &amp; in mp3 names
+* List displays old result after last
+* Local MP3 not mp3 format
+* Fade out eq on list screen
+* EQ colors from screen.lua
 
+* Report song failed to play
+
+* VOLUME CONTROL
+* QUIT
 
 
 // FILTER
 
 Collection & Type stored
 Configure colors in lua file
+
+Collection IS <name>
+Format IS between <lower> and <higher>
+
+COMMAND MODE
+
+Default TAB to Enter, ENTER to leave
+Uses searchIndex for registered commands to render the main list
+
+
 
 
 

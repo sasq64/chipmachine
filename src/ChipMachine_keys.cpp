@@ -8,6 +8,7 @@ using namespace tween;
 
 namespace chipmachine {
 
+
 enum ChipAction {
 	NO_ACTION,
 	NEXT_SUBTUNE,
@@ -32,6 +33,8 @@ enum ChipAction {
 	SEND_PLAYLIST,
 	NEXT_COMPOSER,
 	LAYOUT_SCREEN,
+	VOLUME_UP,
+	VOLUME_DOWN,
 	LOGIN,
 	LAST_ACTION
 };
@@ -76,6 +79,8 @@ void ChipMachine::setup_rules() {
 	smac.add(Window::RIGHT, NEXT_SUBTUNE);
 	smac.add(Window::F4, LAYOUT_SCREEN);
 
+	smac.add('-', VOLUME_DOWN);
+	smac.add("=+", VOLUME_UP);
 }
 
 void ChipMachine::show_main() {
@@ -289,6 +294,14 @@ void ChipMachine::update_keys() {
 				RemoteLists::getInstance().sendList(plist.songs, plist.name, [=]() { toast("Uploaded", 2); });
 			}
 			break;
+		case VOLUME_UP:
+			player.setVolume(player.getVolume() + 0.1);
+			showVolume = 30;
+			break;
+		case VOLUME_DOWN:
+			player.setVolume(player.getVolume() - 0.1);
+			showVolume = 30;
+			break;			
 		case LAYOUT_SCREEN:
 			layoutScreen();
 			break;

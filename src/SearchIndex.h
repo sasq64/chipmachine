@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <functional>
 
 class SearchProvider {
 public:
@@ -83,8 +84,13 @@ public:
 	static void simplify(std::string &s);
 	static unsigned int tlcode(const char *s);
 
+	void setFilter(std::function<bool(int)> f) {
+		filter = f;
+	}
 
 private:
+
+	std::function<bool(int)> filter;
 
 	static void initTrans();
 

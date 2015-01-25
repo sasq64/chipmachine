@@ -35,6 +35,8 @@ class ChipMachine : public grappix::VerticalList::Renderer {
 public:
 
 	virtual void render_item(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) override;
+	void render_song(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
+	void render_command(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
 
 	ChipMachine();
 	~ChipMachine();
@@ -119,6 +121,7 @@ private:
 	grappix::Texture favTexture;
 	grappix::Texture netTexture;
 	grappix::Texture eqTexture;
+	grappix::Texture volumeTexture;
 	grappix::Rectangle favPos = { 80, 300, 16*8, 16*6 };
 
 	RenderSet searchScreen;
@@ -128,6 +131,8 @@ private:
 	std::shared_ptr<TextField> topStatus;
 
 	std::shared_ptr<TextField>resultFieldTemplate;
+
+	grappix::Rectangle volPos;
 
 	int numLines = 20;
 
@@ -155,6 +160,8 @@ private:
 
 	bool playlistEdit = false;
 
+	bool commandMode = true;
+
 	std::shared_ptr<Dialog> currentDialog;
 
 	std::string userName;
@@ -164,6 +171,7 @@ private:
 	int oldWidth;
 	int oldHeight;
 	int resizeDelay;
+	int showVolume;
 };
 
 }

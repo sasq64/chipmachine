@@ -241,6 +241,14 @@ uint16_t *MusicPlayer::getSpectrum() {
 
 }
 
+void MusicPlayer::setVolume(float v) {
+	volume = clamp(v);
+}
+
+float MusicPlayer::getVolume() {
+	return volume;
+}
+
 // PRIVATE
 
 shared_ptr<ChipPlayer> MusicPlayer::fromFile(const string &fileName) {
