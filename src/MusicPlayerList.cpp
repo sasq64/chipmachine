@@ -148,6 +148,7 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 			state = PLAY_STARTED;
 			return true;
 		} else {
+			errors.push_back("Could not play song");
 			state = STOPPED;
 		}
 	}
@@ -268,7 +269,15 @@ void MusicPlayerList::playCurrent() {
 	};
 
 	state = LOADING;
+
+	if(File::exists(currentInfo.path)) {
+		loadedFile = currentInfo.path;
+		files = 0;
+		return;
+	}
+
 	loadedFile = "";
+
 	auto ext = path_extension(currentInfo.path);
 	makeLower(ext);
 	LOGD("EXT: %s", ext);
@@ -276,6 +285,7 @@ void MusicPlayerList::playCurrent() {
 	string ext2;
 	if(fmt_2files.count(ext) > 0)
 		ext2 = fmt_2files.at(ext);
+
 
 	RemoteLoader &loader = RemoteLoader::getInstance();
 
@@ -300,6 +310,8 @@ void MusicPlayerList::playCurrent() {
 				auto lib_target = path_directory(loadedFile) + "/" + lib;
 				makeLower(lib);
 				auto lib_url = path_directory(currentInfo.path) + "/" + lib;
+				//if(lib_url[0] == '/')
+				//	lib_url = lib_url.substr(1);
 				files++;
 				RemoteLoader &loader = RemoteLoader::getInstance();
 				loader.load(lib_url, [=](File f) {

@@ -234,14 +234,16 @@ bool parseMp3(SongInfo &info) {
 	mpg123_id3v2 *v2;
 	if(meta & MPG123_ID3 && mpg123_id3(mp3, &v1, &v2) == MPG123_OK) {
 		if(v2) {
-			info.title = v2->title->p;
-			info.composer = v2->artist->p;
+			info.title = htmldecode(v2->title->p);
+			info.composer = htmldecode(v2->artist->p);
 		} else
 		if(v1) {
-			info.title = (char*)v2->title;
-			info.composer = (char*)v2->artist;
+			info.title = htmldecode((char*)v2->title);
+			info.composer = htmldecode((char*)v2->artist);
 		}
 	}
+
+	info.format = "MP3";
 
 	if(mp3) {
 		mpg123_close(mp3);

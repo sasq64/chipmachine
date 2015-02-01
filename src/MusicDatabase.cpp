@@ -81,6 +81,8 @@ void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
 						continue;
 					query.bind(song.title, song.game, song.composer, song.format, song.path, id);
 				} else if(isRKO) {
+					parts[3] = htmldecode(parts[3]);
+					parts[4] = htmldecode(parts[4]);
 					SongInfo song(parts[0], "", parts[3], parts[4], "MP3");
 					query.bind(song.title, song.game, song.composer, song.format, song.path, id);
 				} else if(isAmiRemix) {

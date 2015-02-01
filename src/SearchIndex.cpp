@@ -181,6 +181,12 @@ int IncrementalQuery::numHits() const {
 
 //#define BM
 
+/*
+
+TODO: keep 'lastResult' between searches and only reset when needed
+
+*/
+
 void IncrementalQuery::search() {
 
 	lastStart = -1;
@@ -189,12 +195,17 @@ void IncrementalQuery::search() {
 	string q = string(&query[0], query.size());
 
 	auto parts = split(q);
+
+	// Parts ex IRON LORD -> 3L= "IRO"
+
 	// Remove empty strings
 	parts.erase(remove_if(parts.begin(), parts.end(), [&](const string &a) { return a.size() == 0; }), parts.end());
 	LOGD("Parts: [%s]", parts);
 
 	if(oldParts.size() == 0 || oldParts[0] != parts[0]) {
+		// First word has changed
 		provider->search(parts[0], firstResult, searchLimit);
+		// In chipmachine this is a proxy that searches in two separate providers
 	}
 	oldParts = parts;
 
@@ -202,6 +213,9 @@ void IncrementalQuery::search() {
 		finalResult = firstResult;
 		return;
 	}
+
+
+	// Check id the other parts (or words) is contained in the result
 
 	finalResult.resize(0);
 
