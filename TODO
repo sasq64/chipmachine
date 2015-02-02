@@ -8,16 +8,22 @@ X Key repeat
 * Mouse click select and scroll
 X Skip to next prev composer
 
-* &amp; in mp3 names
+X &amp; in mp3 names
 * List displays old result after last
-* Local MP3 not mp3 format
-* Fade out eq on list screen
-* EQ colors from screen.lua
+X Local MP3 not mp3 format
+X Fade out eq on list screen
+X EQ colors from screen.lua
 
-* Report song failed to play
+X Report song failed to play
 
-* VOLUME CONTROL
-* QUIT
+X VOLUME CONTROL
+X QUIT
+
+## PLUGINS
+
+AYFLY For spectrum formats
+TEDPLAY
+
 
 
 // FILTER

@@ -70,7 +70,6 @@ void ChipMachine::setup_rules() {
 
 	smac.add(Window::DOWN | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), NEXT_COMPOSER);
 
-
 	smac.add(Window::F8 | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), EDIT_PLAYLIST);
 
 	smac.add(Window::F7, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_FAVORITE);
@@ -106,10 +105,6 @@ void ChipMachine::show_search() {
 }
 
 SongInfo ChipMachine::get_selected_song() {
-	//auto r = MusicDatabase::getInstance().getFullString(iquery.getIndex(songList.selected() - playlists.size()));
-	//auto parts = split(r, "\t");
-	//SongInfo si(parts[0], "", parts[1], parts[2], parts[3]);
-	//return si;
 	return MusicDatabase::getInstance().getSongInfo(iquery.getIndex(songList.selected() - playlists.size()));
 }
 

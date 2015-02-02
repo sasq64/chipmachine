@@ -45,7 +45,7 @@ public:
 	        if (j < 0) {
 	            return (st + i+1);
 	        }
-	 
+
 	        i += max(delta1[tolower(string[i])], delta2[j]);
 	    }
 	    return nullptr;
@@ -179,14 +179,6 @@ int IncrementalQuery::numHits() const {
 	return finalResult.size();
 }
 
-//#define BM
-
-/*
-
-TODO: keep 'lastResult' between searches and only reset when needed
-
-*/
-
 void IncrementalQuery::search() {
 
 	lastStart = -1;
@@ -262,13 +254,11 @@ void IncrementalQuery::search() {
 	}
 }
 
-//#include <iconv.h>
-
 bool SearchIndex::transInited = false;
 std::vector<uint8_t> SearchIndex::to7bit(256);
 std::vector<uint8_t> SearchIndex::to7bitlow(256);
 
-const char *translit = "!c$oY|S\"ca<n-R 0/23'uP.,1o>   ?AAAAAAACEEEEIIIIDNOOOOOxOUUUUYTsaaaaaaaceeeeiiiidnooooo:ouuuuyty";
+static const char *translit = "!c$oY|S\"ca<n-R 0/23'uP.,1o>   ?AAAAAAACEEEEIIIIDNOOOOOxOUUUUYTsaaaaaaaceeeeiiiidnooooo:ouuuuyty";
 
 void SearchIndex::initTrans() {
 	transInited = true;
@@ -284,36 +274,6 @@ void SearchIndex::initTrans() {
 		if(to7bitlow[i] == '-' || to7bitlow[i] == '\'')
 			to7bitlow[i] = 0;
 	}
-/*
-	iconv_t fd = iconv_open("ASCII//TRANSLIT", "ISO_8859-1");
-	if(fd >= 0) {
-
-		uint8_t in[2];
-		in[1] = 0;
-		uint8_t out[4];
-
-		for(int i=0; i<256; i++) {
-			in[0] = i;
-			char *inptr = (char*)&in;
-			char *outptr = (char*)&out;
-			size_t inleft = 1;
-			size_t outleft = 4;
-			*outptr = ' ';
-			int rc = iconv(fd, &inptr, &inleft, &outptr, &outleft);
-			if(4-outleft > 1) {
-				if(!isalpha(out[0]))
-					out[0] = out[1];
-			}
-			to7bit[i] = out[0];
-			to7bitlow[i] = tolower(out[0]);
-			if(to7bitlow[i] == '-' || to7bitlow[i] == '\'')
-				to7bitlow[i] = 0;
-		}
-		//LOGD("%s", string((char*)&to7bitlow[1], 0, 255));
-		//printf("%02x\n", (int)outdata[0xe4]);
-		//printf("%02x\n", (int)outdata[0xe5]);
-		iconv_close(fd);
-	}*/
 }
 
 void SearchIndex::simplify(string &s) {
@@ -321,17 +281,6 @@ void SearchIndex::simplify(string &s) {
 	if(!transInited) {
 		initTrans();
 	}
-#if 0
-	unsigned char *conv = &to7bitlow[0];
-	int l = s.length();
-	for(int i=0; i<l; i++) {
-		if(!(s[i] = conv[s[i] & 0xff])) {
-			s.erase(i, 1);
-			l--;
-			i--;
-		}
-	}
-#else
 	unsigned char *p = (unsigned char*)&s[0];
 	unsigned char *conv = &to7bitlow[0];
 	while(*p) {
@@ -342,7 +291,6 @@ void SearchIndex::simplify(string &s) {
 		}
 		p++;
 	}
-#endif
 }
 
 
