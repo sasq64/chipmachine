@@ -202,10 +202,24 @@ void IncrementalQuery::search() {
 	parts.erase(remove_if(parts.begin(), parts.end(), [&](const string &a) { return a.size() == 0; }), parts.end());
 	LOGD("Parts: [%s]", parts);
 
+
 	if(oldParts.size() == 0 || oldParts[0] != parts[0]) {
 		// First word has changed
-		provider->search(parts[0], firstResult, searchLimit);
-		// In chipmachine this is a proxy that searches in two separate providers
+		//  - If something was just added, we can filter our firstResult more
+		//  - Otherwise do a new search
+
+		if(parts[0].size() > 3 && parts[0].find(oldParts[0]) == 0) {
+			firstResult.erase(
+				std::remove_if(firstResult.begin(), firstResult.end(), [=](const int &index) -> bool {
+					string str = provider->getString(index);
+					SearchIndex::simplify(str);
+					return str.find(parts[0]) == string::npos;
+				}),
+			firstResult.end());
+		} else { 
+			// In chipmachine this is a proxy that searches in two separate providers
+			provider->search(parts[0], firstResult, searchLimit);
+		}
 	}
 	oldParts = parts;
 
