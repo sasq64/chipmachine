@@ -18,23 +18,6 @@ namespace chipmachine {
 
 void ChipMachine::render_item(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
 
-	if(commandMode)
-		render_command(rec, y, index, hilight);
-	else
-		render_song(rec, y, index, hilight);
-}
-
-struct Command {
-	string name;
-	string luaFunction;
-	uint32_t ShortCut;
-};
-
-void ChipMachine::render_command(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
-}
-
-void ChipMachine::render_song(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
-
 	static const uint32_t colors[] = { 0xff0000ff, 0xff00ff00, 0xffff0000, 0xffff00ff, 0xffffff00, 0xff00ffff, 0xff4488ff, 0xff8888ff, 0xff8844ff  };
 	Color c;
 	string text;
@@ -273,7 +256,6 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 			deltac = (toc1 - col) / (float)h2;
 		}
 	}
-	//save_png(eqbar, "bar.png");
 	eqTexture = Texture(eqbar);
 	glBindTexture(GL_TEXTURE_2D, eqTexture.id());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

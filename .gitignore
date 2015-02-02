@@ -1,6 +1,7 @@
 *.a
 obj/
 generated/
+builds/
 *~
 _cache/
 _files/
