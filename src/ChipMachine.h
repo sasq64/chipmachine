@@ -35,6 +35,8 @@ class ChipMachine : public grappix::VerticalList::Renderer {
 public:
 
 	virtual void render_item(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) override;
+	void render_song(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
+	void render_command(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
 
 	ChipMachine();
 	~ChipMachine();
@@ -128,7 +130,7 @@ private:
 	std::shared_ptr<LineEdit> commandField;
 	std::shared_ptr<TextField> topStatus;
 
-	std::shared_ptr<TextField> resultFieldTemplate;
+	std::shared_ptr<TextField>resultFieldTemplate;
 
 	grappix::Rectangle volPos;
 
