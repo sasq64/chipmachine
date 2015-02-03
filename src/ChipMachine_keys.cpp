@@ -68,6 +68,8 @@ void ChipMachine::setup_rules() {
 	smac.add(Window::ENTER, if_equals(currentScreen, SEARCH_SCREEN), PLAY_LIST_SONG);
 	smac.add(Window::ENTER | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_SONG);
 
+	smac.add(Window::F9, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_SONG);
+
 	smac.add(Window::DOWN | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), NEXT_COMPOSER);
 
 	smac.add(Window::F8 | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), EDIT_PLAYLIST);
@@ -75,7 +77,7 @@ void ChipMachine::setup_rules() {
 	smac.add(Window::F7, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_FAVORITE);
 	smac.add(Window::F7, if_equals(currentScreen, MAIN_SCREEN), ADD_CURRENT_FAVORITE);
 	smac.add(Window::F8, CLEAR_SONGS);
-	smac.add(Window::F9, SEND_PLAYLIST);
+	//smac.add(Window::F9, SEND_PLAYLIST);
 	smac.add(Window::LEFT, PREV_SUBTUNE);
 	smac.add(Window::RIGHT, NEXT_SUBTUNE);
 	smac.add(Window::F4, LAYOUT_SCREEN);

@@ -200,7 +200,7 @@ void IncrementalQuery::search() {
 		//  - If something was just added, we can filter our firstResult more
 		//  - Otherwise do a new search
 
-		if(parts[0].size() > 3 && parts[0].find(oldParts[0]) == 0) {
+		if(parts[0].size() > 4 && parts[0].find(oldParts[0]) == 0) {
 			firstResult.erase(
 				std::remove_if(firstResult.begin(), firstResult.end(), [=](const int &index) -> bool {
 					string str = provider->getString(index);

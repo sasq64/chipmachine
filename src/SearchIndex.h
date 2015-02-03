@@ -23,7 +23,7 @@ public:
 
 	IncrementalQuery() : provider(nullptr) {}
 
-	IncrementalQuery(SearchProvider *provider) : newRes(false), provider(provider), searchLimit(10000), lastStart(-1), lastSize(-1) {}
+	IncrementalQuery(SearchProvider *provider) : newRes(false), provider(provider), searchLimit(20000), lastStart(-1), lastSize(-1) {}
 
 	void addLetter(char c);
 	void removeLast();

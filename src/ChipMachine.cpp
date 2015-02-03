@@ -13,6 +13,8 @@ using namespace tween;
 //#define PIXEL_EQ
 //#endif
 
+#define ENABLE_TELNET
+
 namespace chipmachine {
 
 

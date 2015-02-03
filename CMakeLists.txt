@@ -49,9 +49,9 @@ set(MUSICPLAYER_PLUGINS
 	rsnplugin
 )
 
-if(NOT WINDOWS)
-	set(MUSICPLAYER_PLUGINS ${MUSICPLAYER_PLUGINS} uadeplugin)
-endif()
+#if(NOT WINDOWS)
+#	set(MUSICPLAYER_PLUGINS ${MUSICPLAYER_PLUGINS} uadeplugin)
+#endif()
 
 add_subdirectory(${AP1_ROOT}/mods/musicplayer/plugins plugins)
 
@@ -68,10 +68,11 @@ SET_DATA_FILES(data lua)
 	add_executable(chipmachine ${SOURCE_FILES})
 #endif()
 
-target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
+#add_custom_command(OUTPUT data/uade/uadecore DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/plugins/uadeplugin/uade/uadecore
+#	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/plugins/uadeplugin/uade/uadecore ${CMAKE_CURRENT_BINARY_DIR}/data/uade)
 
-add_custom_command(TARGET chipmachine POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/plugins/uadeplugin/uade/uadecore ${CMAKE_CURRENT_BINARY_DIR}/data/uade)
+target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
+#add_dependencies(chipmachine data/uade/uadecore)
 
 #include(BundleUtilities)
 #fixup_bundle(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app "" "dfssds")
