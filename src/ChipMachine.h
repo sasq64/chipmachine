@@ -15,6 +15,8 @@
 #include "LineEdit.h"
 #include "Dialog.h"
 
+#include "PiTFT.h"
+
 #include "../demofx/StarField.h"
 #include "../demofx/Scroller.h"
 
@@ -122,6 +124,7 @@ private:
 	grappix::Texture netTexture;
 	grappix::Texture eqTexture;
 	grappix::Texture volumeTexture;
+	grappix::Texture extTexture;
 	grappix::Rectangle favPos = { 80, 300, 16*8, 16*6 };
 
 	RenderSet searchScreen;
@@ -174,6 +177,17 @@ private:
 	int showVolume;
 
 	bool hasMoved;
+
+	std::atomic<bool> hasFrame;
+	std::mutex frameMutex;
+	std::thread frameThread;
+	uint8_t frameData[320*240*4];
+
+
+#ifdef RASPBERRYPI
+	PiTFT tft;
+#endif
+
 };
 
 }

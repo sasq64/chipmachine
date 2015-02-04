@@ -1,4 +1,5 @@
 
+## ISSUES
 
 X MP3 on Raspberry
 * Search hits shown twice when term is in both composer and title
@@ -19,6 +20,27 @@ X Report song failed to play
 X VOLUME CONTROL
 X QUIT
 
+* Preload next song (RemoteLoader.assureCached() ?)
+
+## STATIC PLAYLISTS
+
+* Should be created as a step of database creation / indexing
+* Looks like a song in the database, points out the .pls file
+
+### CSDb
+
+* Open dump file
+* Create one song per line
+* 
+
+### Sounds of Scenesat
+
+### Amiga Classics
+
+
+
+
+
 ## PLUGINS
 
 AYFLY For spectrum formats
@@ -26,7 +48,7 @@ TEDPLAY
 
 
 
-// FILTER
+## FILTER
 
 Collection & Type stored
 Configure colors in lua file
@@ -34,7 +56,7 @@ Configure colors in lua file
 Collection IS <name>
 Format IS between <lower> and <higher>
 
-COMMAND MODE
+## COMMAND MODE
 
 Default TAB to Enter, ENTER to leave
 Uses searchIndex for registered commands to render the main list

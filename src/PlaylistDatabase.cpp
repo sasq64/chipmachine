@@ -81,6 +81,19 @@ void PlaylistDatabase::renamePlaylist(const string &oldName, const string &newNa
 	}
 }
 
+void PlaylistDatabase::dumpPlaylist(const std::string &name, const std::string &dirName) {
+	int id = 1;
+	for(const auto &p : playlists) {
+		if(p.name == name) {
+			File f { dirName + "/" + name };
+			for(const auto &song : p.songs) {
+				f.write(format("%s\n", song.path));
+			}
+			f.close();
+		}
+	}
+}
+
 void PlaylistDatabase::addToPlaylist(const std::string &name, const SongInfo &song) {
 	int id = 1;
 	for(auto &p : playlists) {

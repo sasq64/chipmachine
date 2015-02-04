@@ -13,6 +13,8 @@ using namespace tween;
 //#define PIXEL_EQ
 //#endif
 
+//#define EXTERNAL_SCREEN
+
 #define ENABLE_TELNET
 
 namespace chipmachine {
@@ -209,6 +211,34 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	glBindTexture(GL_TEXTURE_2D, volumeTexture.id());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+#ifdef EXTERNAL_SCREEN
+	extTexture = Texture(320, 240);
+
+	frameThread = std::thread([=]() {
+
+		while(true) {
+			if(hasFrame) {				
+				frameMutex.lock();
+				uint16_t *ptr = tft.ptr();
+				for(int y=0; y<240; y++) {
+					for(int x=0; x<320; x++) {
+						int i = x+y*320;
+						// BGRA
+						ptr[(240-y)*320+x] = ((frameData[i*4+2]&0x1f)<<11) | ((frameData[i*4+1]&0x2f)<<5) | (frameData[i*4+2]&0x1f);
+					}
+				}
+				hasFrame = false;
+				frameMutex.unlock();
+			} else
+				sleepms(20);
+		}
+
+	});
+	frameThread.detach();
+
+
+#endif
 
 	showVolume = 0;
 	float ww = 19*15;
@@ -507,6 +537,8 @@ void ChipMachine::toast(const std::string &txt, int type) {
 
 void ChipMachine::render(uint32_t delta) {
 
+	static vector<uint16_t> temp2(8);
+
 	if(oldWidth != screen.width() || oldHeight != screen.height())
 		resizeDelay = 2;
 	oldWidth = screen.width();
@@ -518,7 +550,8 @@ void ChipMachine::render(uint32_t delta) {
 			layoutScreen();
 		}
 	}
-
+//#define GL_INVALID_OPERATION              0x0502
+//#define GL_INVALID_FRAMEBUFFER_OPERATION  0x0506
 
 	screen.clear(0xff000000 | bgcolor);
 
@@ -577,6 +610,25 @@ void ChipMachine::render(uint32_t delta) {
 	}
 
 	renderSet.render(delta);
+
+
+#ifdef EXTERNAL_SCREEN
+	if(!hasFrame) {
+		glBindTexture(GL_TEXTURE_2D, extTexture.id());
+		extTexture.clear(0xff33cc33);
+		extTexture.text(font, currentInfo.title, 10, 10);
+		extTexture.text(font, currentInfo.composer, 10, 60);
+
+		for(int i=0; i<(int)eq.size(); i++) {
+			extTexture.rectangle(10 + 10*i, 100, 8, 100-(50 * eq[i]  / 256), 0xffff00ff);
+		}
+		frameMutex.lock();
+		hasFrame = true;
+		extTexture.get_pixels(frameData);
+		frameMutex.unlock();
+	}
+#endif
+
 
 	font.update_cache();
 	listFont.update_cache();

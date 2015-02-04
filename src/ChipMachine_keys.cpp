@@ -37,6 +37,7 @@ enum ChipAction {
 	VOLUME_DOWN,
 	QUIT,
 	LOGIN,
+	DUMP_FAVORITES,
 	LAST_ACTION
 };
 
@@ -72,7 +73,7 @@ void ChipMachine::setup_rules() {
 
 	smac.add(Window::DOWN | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), NEXT_COMPOSER);
 
-	smac.add(Window::F8 | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), EDIT_PLAYLIST);
+	smac.add(Window::F8 | SHIFT, DUMP_FAVORITES);
 
 	smac.add(Window::F7, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_FAVORITE);
 	smac.add(Window::F7, if_equals(currentScreen, MAIN_SCREEN), ADD_CURRENT_FAVORITE);
@@ -266,6 +267,9 @@ void ChipMachine::update_keys() {
 			break;
 		case ADD_LIST_FAVORITE:
 			PlaylistDatabase::getInstance().addToPlaylist(currentPlaylistName, get_selected_song());
+			break;
+		case DUMP_FAVORITES:
+		PlaylistDatabase::getInstance().dumpPlaylist(currentPlaylistName, "playlists");
 			break;
 		case NEXT_SUBTUNE:
 			if(currentTune < currentInfo.numtunes-1)
