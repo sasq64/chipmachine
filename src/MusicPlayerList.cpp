@@ -11,7 +11,8 @@ using namespace utils;
 
 namespace chipmachine {
 
-MusicPlayerList::MusicPlayerList() { //: webgetter(File::getCacheDir() + "_webfiles") {
+
+MusicPlayerList::MusicPlayerList(const std::string &workDir) : mp(workDir) { //: webgetter(File::getCacheDir() + "_webfiles") {
 	state = STOPPED;
 	wasAllowed = true;
 	permissions = 0xff;
@@ -38,7 +39,7 @@ bool MusicPlayerList::addSong(const SongInfo &si, int pos) {
 	if(!checkPermission(CAN_ADD_SONG)) return false;
 	LOCK_GUARD(plMutex);
 
-	LOGD("Add song %s %s %s", si.title, si.composer, si.format);
+	LOGD("Add song %s %s %s %s", si.path, si.title, si.composer, si.format);
 
 	if(pos >= 0) {
 		if((int)playList.size() >= pos)
@@ -74,7 +75,7 @@ void MusicPlayerList::nextSong() {
 void MusicPlayerList::playSong(const SongInfo &si) {
 	if(!checkPermission(CAN_SWITCH_SONG)) return;
 	LOCK_GUARD(plMutex);
-currentInfo = si;
+	currentInfo = si;
 	state = PLAY_NOW;
 }
 
@@ -138,6 +139,34 @@ int MusicPlayerList::listSize() {
 bool MusicPlayerList::playFile(const std::string &fileName) {
 	//LOCK_GUARD(plMutex);
 	if(fileName != "") {
+
+		if(path_extension(fileName) == "plist") {
+			clearSongs();
+			File f { fileName };
+
+			auto lines = f.getLines();
+
+			lines.erase(std::remove_if(lines.begin(), lines.end(), [=](const string &l) {
+				if(l[0] == ';') {
+					return true;
+				}
+				return false;
+			}), lines.end());
+/*
+			if(lines.size() > 10) {
+				std::random_device rd;
+			    std::shuffle(lines.begin(), lines.end(), rd);
+			}
+*/
+			for(const string &s : lines) {
+				addSong(SongInfo(s));
+			}
+			SongInfo &si = playList.front();
+			si = MusicDatabase::getInstance().lookup(si.path);
+			state = WAITING;
+			return true;
+		}
+
 		if(mp.playFile(fileName)) {
 			if(reportSongs)
 				RemoteLists::getInstance().song_played(currentInfo.path);
@@ -192,21 +221,19 @@ void MusicPlayerList::update() {
 
 		auto pos = mp.getPosition();
 		auto length = mp.getLength();
-		length = 0;
 		if(!changedSong && playList.size() > 0) {
-			//LOGD("%d vs %d (SIL %d)", pos, length, mp.getSilence());
 			if(!mp.playing()) {
 				if(playList.size() == 0)
 					state = STOPPED;
 				else
 					state = WAITING;
 			} else
-			if((length > 0 && pos > length) || pos > 7*44100) {
+			if((length > 0 && pos > length) && pos > 7) {
 				LOGD("#### SONGLENGTH");
 				mp.fadeOut(3.0);
 				state = FADING;
 			} else
-			if(mp.getSilence() > 44100*6) {
+			if(mp.getSilence() > 44100*6 && pos > 7) {
 				LOGD("############# SILENCE");
 				mp.fadeOut(0.5);
 				state = FADING;
@@ -230,10 +257,6 @@ void MusicPlayerList::update() {
 		}
 	}
 
-	//if(state == PLAY_STARTED) {
-	//	state = PLAYING;
-	//}
-
 	if(state == LOADING) {
 		if(files == 0) {
 			playFile(loadedFile);
@@ -247,6 +270,12 @@ void MusicPlayerList::update() {
 			currentInfo = playList.front();
 			LOGD("INFO SET");
 			playList.pop_front();
+
+			if(playList.size() > 0) {
+				SongInfo &si = playList.front();
+				si = MusicDatabase::getInstance().lookup(si.path);
+			}
+
 			//pos = 0;
 		}
 		LOGD("##### New song: %s (%s)", currentInfo.path, currentInfo.title);
@@ -286,8 +315,22 @@ void MusicPlayerList::playCurrent() {
 	if(fmt_2files.count(ext) > 0)
 		ext2 = fmt_2files.at(ext);
 
-
 	RemoteLoader &loader = RemoteLoader::getInstance();
+
+	if(ext == "mp3" || toLower(currentInfo.format) == "mp3") {
+
+		shared_ptr<Streamer> streamer = mp.streamFile("dummy.mp3");
+
+		if(streamer) {
+
+		 	files = 0;
+		 	state = PLAY_STARTED;
+		 	loader.stream(currentInfo.path, [=](uint8_t *ptr, int size) {
+		 		streamer->put(ptr, size);
+		 	});
+		}
+	 	return;
+	}
 
 	if(ext2 != "") {
 		files++;
@@ -310,8 +353,6 @@ void MusicPlayerList::playCurrent() {
 				auto lib_target = path_directory(loadedFile) + "/" + lib;
 				makeLower(lib);
 				auto lib_url = path_directory(currentInfo.path) + "/" + lib;
-				//if(lib_url[0] == '/')
-				//	lib_url = lib_url.substr(1);
 				files++;
 				RemoteLoader &loader = RemoteLoader::getInstance();
 				loader.load(lib_url, [=](File f) {

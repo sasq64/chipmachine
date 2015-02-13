@@ -108,19 +108,23 @@ void ChipMachine::show_search() {
 }
 
 SongInfo ChipMachine::get_selected_song() {
-	return MusicDatabase::getInstance().getSongInfo(iquery.getIndex(songList.selected() - playlists.size()));
+	return MusicDatabase::getInstance().getSongInfo(iquery->getIndex(songList.selected() - playlists.size()));
 }
 
 
 void ChipMachine::update_keys() {
 
+
 	// Update some flags
-	haveSearchChars = (iquery.getString().length() > 0);
+	haveSearchChars = (iquery->getString().length() > 0);
 
 	bool searchUpdated = false;
 	auto last_selection = songList.selected();
 
 	auto key = screen.get_key();
+
+	if(indexingDatabase)
+		return;
 
 	uint32_t k = key;
 	bool ascii = (k >= 'A' && k <= 'Z');
@@ -210,7 +214,7 @@ void ChipMachine::update_keys() {
 				string composer;
 				int index = songList.selected();
 				while(index < songList.size()) {
-					auto res = iquery.getResult(index-playlists.size());
+					auto res = iquery->getResult(index-playlists.size());
 					auto parts = split(res, "\t");
 					if(composer == "")
 						composer = parts[1];
@@ -241,20 +245,20 @@ void ChipMachine::update_keys() {
 		case ADD_SEARCH_CHAR:
 			LOGD("%d %02x", currentScreen, action.event);
 			if(hasMoved && action.event != ' ')
-				iquery.clear();
+				iquery->clear();
 			hasMoved = false;
 			show_search();
-			iquery.addLetter(tolower(action.event));
+			iquery->addLetter(tolower(action.event));
 			searchUpdated = true;
 			break;
 		case DEL_SEARCH_CHAR:
 			hasMoved = false;
 			show_search();
-			iquery.removeLast();
+			iquery->removeLast();
 			searchUpdated = true;
 			break;
 		case CLEAR_SEARCH:
-			iquery.clear();
+			iquery->clear();
 			searchUpdated = true;
 			break;
 		case ADD_CURRENT_FAVORITE:
@@ -327,19 +331,19 @@ void ChipMachine::update_keys() {
 	}
 
 	if(searchUpdated) {
-		searchField->setText(iquery.getString());
+		searchField->setText(iquery->getString());
 		//searchField->color = searchColor;
 		searchField->visible(true);
 		topStatus->visible(false);
 		playlists.clear();
-		PlaylistDatabase::getInstance().search(iquery.getString(), playlists);
-		songList.set_total(iquery.numHits() + playlists.size());
+		PlaylistDatabase::getInstance().search(iquery->getString(), playlists);
+		songList.set_total(iquery->numHits() + playlists.size());
 	}
 
-	if(songList.selected() != last_selection && iquery.numHits() > 0) {
+	if(songList.selected() != last_selection && iquery->numHits() > 0) {
 		int i = songList.selected() - playlists.size();
 		if(i >= 0) {
-			SongInfo song = MusicDatabase::getInstance().getSongInfo(iquery.getIndex(i));
+			SongInfo song = MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
 			auto ext = path_extension(song.path);
 			topStatus->setText(format("Format: %s (%s)", song.format, ext));
 			//searchField->color = Color(formatColor);

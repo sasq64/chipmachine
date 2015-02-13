@@ -256,10 +256,35 @@ bool parseMp3(SongInfo &info) {
 #endif
 }
 
+bool parsePList(SongInfo &info) {
+
+	File f { info.path };
+
+	info.title = path_basename(info.path);
+	info.composer = "";
+	info.format = "Playlist";
+
+	for(auto l : f.getLines()) {
+		if(l.length() > 0 && l[0] == ';') {
+			auto parts = split(l.substr(1), "\t");
+			info.title = parts[0];
+			if(parts.size() >= 2) {
+				info.composer = parts[1];
+				info.format = "C64 Demo";
+			} else
+				info.format = "C64 Event";
+		}
+	}
+	return true;
+}
+
 bool identify_song(SongInfo &info, string ext) {
 
 	if(ext == "")
 		ext = path_extension(info.path);
+
+	if(ext == "plist")
+		return parsePList(info);
 	if(ext == "rsn")
 		return parseSnes(info);
 	if(ext == "sid")

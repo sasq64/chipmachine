@@ -6,6 +6,7 @@
 #include <coreutils/utils.h>
 #include <archive/archive.h>
 #include <set>
+#include <chrono>
 
 using namespace std;
 using namespace utils;
@@ -16,28 +17,29 @@ static const std::set<std::string> secondary = { "smpl", "sam", "ins", "smp" };
 
 #ifdef RASPBERRYPI
 static std::unordered_set<std::string> exclude = {
-	"Nintendo DS Sound Format", "Gameboy Sound Format", "Dreamcast Sound Format", "Ultra64 Sound Format",
-	"Saturn Sound Format" /*, "RealSID", "PlaySID" */
+	"Gameboy Sound Format", "Dreamcast Sound Format", "Saturn Sound Format"
 };
 #else
-static std::unordered_set<std::string> exclude = { /*"RealSID", "PlaySID",*/ "Saturn Sound Format" };
+static std::unordered_set<std::string> exclude = { "Gameboy Sound Format", "Saturn Sound Format" };
 #endif
 
 
-void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
+void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<string, string> &vars) {
 
 	auto type = vars["type"];
-	LOGD("Init db '%s'", type);
+	auto name = vars["name"];
 	auto source = vars["source"];
 	auto local_dir = vars["local_dir"];
 	auto song_list = vars["song_list"];
 	auto description = vars["description"];
 	auto xformats = vars["exclude_formats"];
-	auto id = stol(vars["id"]);
-
-	// Return if this collection has already been indexed
-	if(db.query("SELECT 1 FROM collection WHERE name = ?", type).step())
+	
+	// Return if this collection has already been indexed in this version
+	auto cq = db.query<uint64_t>("SELECT ROWID FROM collection WHERE id = ?", type);
+	if(cq.step()) {
 		return;
+	}
+	cq.finalize();
 
 	reindexNeeded = true;
 
@@ -48,21 +50,19 @@ void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
 			ex_copy.insert(p);
 	}
 
-	print_fmt("Creating '%s' database\n", type);
-
-	db.exec("BEGIN TRANSACTION");
-
-	if(!endsWith(local_dir, "/"))
+	if(local_dir != "" && !endsWith(local_dir, "/"))
 		local_dir += "/";
 
-	db.exec("INSERT INTO collection (name, url, localdir, description, id) VALUES (?, ?, ?, ?, ?)",
-		type, source, local_dir, description, id);
+	print_fmt("Creating '%s' database\n", name);
+
+	db.exec("BEGIN TRANSACTION");
+	db.exec("INSERT INTO collection (name, id, url, localdir, description) VALUES (?, ?, ?, ?, ?)",
+		name, type, source, local_dir, description);
+	auto collection_id = db.last_rowid();
+
+	File listFile = File::findFile(workDir, song_list);
 
 	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?)");
-
-	auto path = current_exe_path() + ":" + File::getAppDir();
-	File listFile = File::findFile(path, song_list);
-	//File listFile(song_list);
 
 	if(listFile.exists()) {
 
@@ -79,29 +79,30 @@ void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
 						continue;
 					if(ex_copy.count(song.format) > 0)
 						continue;
-					query.bind(song.title, song.game, song.composer, song.format, song.path, id);
+					query.bind(song.title, song.game, song.composer, song.format, song.path, collection_id);
 				} else if(isRKO) {
 					parts[3] = htmldecode(parts[3]);
 					parts[4] = htmldecode(parts[4]);
 					SongInfo song(parts[0], "", parts[3], parts[4], "MP3");
-					query.bind(song.title, song.game, song.composer, song.format, song.path, id);
+					query.bind(song.title, song.game, song.composer, song.format, song.path, collection_id);
 				} else if(isAmiRemix) {
 					if(parts[0].find(source) == 0)
 						parts[0] = parts[0].substr(source.length());
 					SongInfo song(parts[0], "", parts[2], parts[3], "MP3");
-					query.bind(song.title, song.game, song.composer, song.format, song.path, id);
+					query.bind(song.title, song.game, song.composer, song.format, song.path, collection_id);
 				} else {
 					SongInfo song(parts[4], parts[1], parts[0], parts[2], parts[3]);
-					query.bind(song.title, song.game, song.composer, song.format, song.path, id);
+					query.bind(song.title, song.game, song.composer, song.format, song.path, collection_id);
 				}
 				query.step();
 			}
 		}
-	} else {
+	} else if(local_dir != "") {
 
 		makedir(".rsntemp");
 		function<void(File &)> checkDir;
 		checkDir = [&](File &root) {
+			LOGD("DIR %s", root.getName());
 			for(auto &rf : root.listFiles()) {
 				if(rf.isDir()) {
 					checkDir(rf);
@@ -115,13 +116,19 @@ void MusicDatabase::initDatabase(unordered_map<string, string> &vars) {
 							name = name.substr(pos + local_dir.length());
 						}
 
-						query.bind(songInfo.title, songInfo.game, songInfo.composer, songInfo.format, name, id);
+						query.bind(songInfo.title, songInfo.game, songInfo.composer, songInfo.format, name, collection_id);
 						query.step();
 					}
 				}
 			}
 		};
+
+		if(local_dir[0] != '/')
+			local_dir = workDir + "/" + local_dir;
 		File root { local_dir };
+
+		LOGD("Checking local dir '%s'", root.getName());
+
 		checkDir(root);
 	}
 	db.exec("COMMIT");
@@ -250,13 +257,13 @@ SongInfo MusicDatabase::lookup(const std::string &p) {
 			path = parts[0];
 	}
 
-	auto q = db.query<string, string, string, string, string>("SELECT title, game, composer, format, collection.name FROM song, collection WHERE song.path=? AND song.collection = collection.id", path);
+	auto q = db.query<string, string, string, string, string>("SELECT title, game, composer, format, collection.id FROM song, collection WHERE song.path=? AND song.collection = collection.ROWID", path);
 
 	SongInfo song;
 	if(q.step()) {
 		string coll;
-		LOGD("Found %s in %s", song.title, path);
 		tie(song.title, song.game, song.composer, song.format, coll) = q.get_tuple();
+		LOGD("Found %s from %s", song.title, path);
 		song.path = coll + "::"+ path;
 	}
 	return song;
@@ -267,7 +274,7 @@ SongInfo MusicDatabase::getSongInfo(int id) const {
 	id++;
 	LOGD("ID %d", id);
 
-	auto q = db.query<string, string, string, string, string, string>("SELECT title, game, composer, format, song.path, collection.name FROM song, collection WHERE song.ROWID = ? AND song.collection = collection.id", id);
+	auto q = db.query<string, string, string, string, string, string>("SELECT title, game, composer, format, song.path, collection.id FROM song, collection WHERE song.ROWID = ? AND song.collection = collection.ROWID", id);
 	if(q.step()) {
 		//string title, game, composer, format, path, collection;
 		SongInfo song;
@@ -287,410 +294,7 @@ SongInfo MusicDatabase::getSongInfo(int id) const {
 	throw not_found_exception();
 }
 
-const char *adlib_formats[] = {
-	"adl",
-	"adlib tracker 2",
-	"adlib tracker 2 (v9 - v11)",
-	"adlib tracker",
-	"amusic",
-	"amusic xms",
-	"apogee",
-	"beni tracker",
-	"bob's adlib music",
-	"boom tracker 4.0",
-	"creative music file",
-	"defy adlib tracker",
-	"digital fm",
-	"dosbox",
-	"drum traker",
-	"edlib",
-	"exotic adlib",
-	"extra simple music",
-	"faust music creator",
-	"fm-kingtracker",
-	"fm tracker",
-	"herad music system agd",
-	"herad music system sdb",
-	"herad music system sqx",
-	"hsc adlib composer",
-	"jch-d00",
-	"jch-d01",
-	"johannes bjerregard module",
-	"ken's adlib music",
-	"loudness sound system",
-	"lucasarts",
-	"martin fernandez",
-	"master tracker",
-	"mk-jamz",
-	"mlat adlib tracker",
-	"mpu-401 trakker",
-	"mus",
-	"palladix",
-	"pixel painters",
-	"rdosplay raw",
-	"reality adlib tracker",
-	"shadowlands",
-	"sierra",
-	"sng player",
-	"sound images generation 2",
-	"sound interface system",
-	"surprise! adlib tracker 2.0",
-	"surprise! adlib tracker",
-	"twin trackplayer",
-	"ultima 6",
-	"vibrants",
-	"visual composer",
-};
-
-const char *uade_formats[] = {
-	"actionamics",
-	"activision pro",
-	"aero studio",
-	"ahx",
-	"all sound tracker",
-	"am composer",
-	"anders oland",
-	"and xsynth",
-	"aprosys",
-	"arkostracker",
-	"art and magic",
-	"art of noise",
-	"asylum",
-	"atari digi-mix",
-	"athtune",
-	"audio sculpture",
-	"axs",
-	"beathoven synthesizer",
-	"beaver sweeper",
-	"beepola",
-	"ben daglish",
-	"ben daglish sid",
-	"berotracker",
-	"boyscout",
-	"bp soundmon 2",
-	"bp soundmon 3",
-	"buzz",
-	"buzzic 1.0",
-	"buzzic 1.1",
-	"buzzic 2.0",
-	"cba",
-	"composer 669",
-	"compoz",
-	"core design",
-	"cubic tiny xm",
-	"custommade",
-	"cybertracker",
-	"cybertracker c64",
-	"darius zendeh",
-	"darkwave studio",
-	"dave lowe",
-	"dave lowe new",
-	"david hanney",
-	"david whittaker",
-	"delitracker custom",
-	"delta music 2",
-	"delta music",
-	"delta packer",
-	"desire",
-	"digibooster",
-	"digibooster pro",
-	"digital-fm music",
-	"digital mugician 2",
-	"digital mugician",
-	"digital sonix and chrome",
-	"digital sound and music interface",
-	"digital sound interface kit",
-	"digital sound interface kit riff",
-	"digital sound studio",
-	"digital tracker dtm",
-	"digital tracker mod",
-	"digitrakker",
-	"digitrekker",
-	"dirk bialluch",
-	"disorder tracker 2",
-	"dreamstation",
-	"dynamic studio professional",
-	"dynamic synthesizer",
-	"earache",
-	"electronic music system",
-	"electronic music system v6",
-	"epic megagames masi",
-	"extreme tracker",
-	"face the music",
-	"famitracker",
-	"farandole composer",
-	"fashion tracker",
-	"follin player ii",
-	"forgotten worlds",
-	"fred gray",
-	"fredmon",
-	"fuchstracker",
-	"funktracker",
-	"future composer 1.3",
-	"future composer 1.4",
-	"future composer bsi",
-	"future player",
-	"game music creator",
-	"general digimusic",
-	"gluemon",
-	"goattracker 2",
-	"goattracker",
-	"goattracker stereo",
-	"graoumf tracker 2",
-	"graoumf tracker",
-	"gt game systems",
-	"hes",
-	"hippel 7v",
-	"hippel-atari",
-	"hippel-coso",
-	"hippel",
-	"hippel-st",
-	"hivelytracker",
-	"howie davies",
-	"images music system",
-	"imago orpheus",
-	"instereo! 2.0",
-	"instereo!",
-	"ixalance",
-	"jamcracker",
-	"janko mrsic-flogel",
-	"jason brooke",
-	"jason page",
-	"jason page old",
-	"jaytrax",
-	"jeroen tel",
-	"jesper olsen",
-	"ken's digital music",
-	"klystrack",
-	"kris hatlelid",
-	"kss",
-	"leggless music editor",
-	"lionheart",
-	"liquid tracker",
-	"mad tracker 2",
-	"magnetic fields packer",
-	"maniacs of noise",
-	"maniacs of noise old",
-	"mark cooksey",
-	"mark cooksey old",
-	"mark ii",
-	"maxtrax",
-	"mcmd",
-	"mdx",
-	"medley",
-	"megastation",
-	"megastation midi",
-	"megatracker",
-	"mike davies",
-	"monotone",
-	"multimedia sound",
-	"music assembler",
-	"music editor",
-	"musicline editor",
-	"musicmaker",
-	"musicmaker v8",
-	"mvs tracker",
-	"mvx module",
-	"nerdtracker 2",
-	"noisetrekker 2",
-	"noisetrekker",
-	"novotrade packer",
-	"octalyser",
-	"octamed mmd0",
-	"octamed mmd1",
-	"octamed mmd2",
-	"octamed mmd3",
-	"octamed mmdc",
-	"oktalyzer",
-	"onyx music file",
-	"organya 2",
-	"organya",
-	"paul robotham",
-	"paul shields",
-	"paul summers",
-	"peter verswyvelen",
-	"picatune2",
-	"picatune",
-	"pierre adane packer",
-	"piston collage",
-	"playerpro",
-	"pmd",
-	"pokeynoise",
-	"pollytracker",
-	"polytracker",
-	"powertracker",
-	"professional sound artists",
-	"protracker",
-	"protracker 3.6",
-	"protrekkr 2.0",
-	"protrekkr",
-	"psycle",
-	"pumatracker",
-	"quadra composer",
-	"quartet psg",
-	"quartet st",
-	"ramtracker",
-	"real tracker",
-	"renoise 1.1.1 (rns05)",
-	"renoise 1.2.7 (rns15)",
-	"renoise 1.2.8.1 (rns16)",
-	"renoise 1.5.0 (rns17)",
-	"renoise 1.5.1 (rns18)",
-	"renoise 1.8 (ver04)",
-	"renoise 1.9.1 (ver10)",
-	"renoise 1.9 (ver09)",
-	"renoise 2.0 (ver14)",
-	"renoise 2.1 (ver15)",
-	"renoise 2.5 (ver21)",
-	"renoise 2.6 (ver22)",
-	"renoise 2.7 (ver30)",
-	"renoise 2.8 (ver37)",
-	"richard joseph",
-	"riff raff",
-	"rob hubbard 2",
-	"rob hubbard",
-	"rob hubbard st",
-	"ron klaren",
-	"sam coupe cop",
-	"sam coupe sng",
-	"sbstudio",
-	"scumm",
-	"sean connolly",
-	"sean conran",
-	"shroom",
-	"sidmon 1",
-	"sidmon 2",
-	"sidplayer",
-	"silmarils",
-	"skale tracker",
-	"sonic arranger",
-	"sound club 2",
-	"sound club",
-	"soundcontrol",
-	"soundfactory",
-	"soundfx 2",
-	"soundfx",
-	"sound images",
-	"sound master ii v1",
-	"sound master ii v3",
-	"sound master",
-	"soundplayer",
-	"sound programming language",
-	"soundtracker 2.6",
-	"soundtracker pro ii",
-	"special fx",
-	"special fx st",
-	"speedy a1 system",
-	"speedy system",
-	"spu",
-	"starkos",
-	"startrekker am",
-	"stereo sidplayer",
-	"steve barrett",
-	"stonetracker",
-	"suntronic",
-	"sunvox",
-	"svar tracker",
-	"symphonie",
-	"synder sng-player",
-	"synder sng-player stereo",
-	"synder tracker",
-	"synth dream",
-	"synthesis",
-	"syntracker",
-	"tcb tracker",
-	"tfm music maker",
-	"tfmx",
-	"tfmx st",
-	"the 0ok amazing synth tracker",
-	"the holy noise",
-	"the musical enlightenment",
-	"thomas hermann",
-	"tomy tracker",
-	"tss",
-	"tunefish",
-	"unique development",
-	"unis 669",
-	"velvet studio",
-	"vgm music maker",
-	"vic-tracker",
-	"voodoo supreme synthesizer",
-	"wally beben",
-	"x-tracker",
-	"zoundmonitor"
-};
-
-const char *other_formats[] = {
-	"fasttracker 2",
-	"fasttracker",
-	"impulsetracker",
-	"screamtracker 3",
-	"nintendo ds sound format",
-	"nintendo sound format",
-	"s98",
-	"sc68",
-	"screamtracker 2",
-	"megadrive cym",
-	"megadrive gym",
-
-	"mikmod unitrk",
-	"multitracker",
-
-	"ay amadeus",
-	"ay emul",
-	"ay strc",
-
-	"ultratracker",
-
-	"v2",
-
-	"capcom q-sound format",
-	"playstation sound format",
-	"spectrum asc sound master",
-	"spectrum fast tracker",
-	"spectrum flash tracker",
-	"spectrum fuxoft ay language",
-	"spectrum global tracker",
-	"spectrum pro sound creator",
-	"spectrum pro sound maker",
-	"spectrum pro tracker 1",
-	"spectrum pro tracker 2",
-	"spectrum pro tracker 3",
-	"spectrum sound tracker 1.1",
-	"spectrum sound tracker 1.3",
-	"spectrum sound tracker pro 2",
-	"spectrum sound tracker pro",
-	"spectrum sq tracker",
-	"spectrum st song compiler",
-	"spectrum vortex",
-	"spectrum vortex tracker ii",
-	"spectrum zxs",
-	"super nintendo sound format",
-	"ultra64 sound format",
-	"bbc micro",
-	"colecovision",
-	"gameboy sound format",
-	"gameboy sound system",
-	"gameboy sound system gbr",
-	"gameboy tracker",
-	"sega 32x",
-	"sega game gear",
-	"sega master system",
-	"sega mega cd",
-	"sega megadrive",
-	"sega sc-3000",
-	"sega sg-1000",
-	"vectrex",
-	"ym",
-	"ymst",
-	"wonderswan",
-	"commodore 64",
-	"super nintendo",
-	"atari st",
-	"atari 8bit",
-	"mp3",
-	"dreamcast sound format",
-};
+#include "formats.h"
 
 static std::unordered_map<std::string, uint8_t> format_map;
 
@@ -715,6 +319,9 @@ void initFormats() {
 	format_map["sega game gear"] = SEGAMS;
 	format_map["playstation sound format"] = PLAYSTATION;
 	format_map["dreamcast sound format"] = DREAMCAST;
+	format_map["playlist"] = PLAYLIST;
+	format_map["c64 demo"] = PLAYLIST;
+	format_map["c64 event"] = PLAYLIST;
 }
 
 static uint8_t formatToByte(const std::string &fmt) {
@@ -782,6 +389,13 @@ template <typename T> static void writeVector(std::vector<T> &v, File &f) {
 }
 
 void MusicDatabase::readIndex(File &f) {
+
+	indexVersion = 0;
+	auto marker = f.read<uint16_t>();
+	if(marker == 0xFEDC)
+		indexVersion = f.read<uint16_t>();
+	else
+		f.seek(0);
 	readVector(titleToComposer, f);
 	readVector(composerToTitle, f);
 	readVector(composerTitleStart, f);
@@ -792,6 +406,8 @@ void MusicDatabase::readIndex(File &f) {
 }
 
 void MusicDatabase::writeIndex(File &f) {
+	f.write<uint16_t>(0xFEDC);
+	f.write<uint16_t>(dbVersion);
 	writeVector(titleToComposer, f);
 	writeVector(composerToTitle, f);
 	writeVector(composerTitleStart, f);
@@ -806,9 +422,10 @@ void MusicDatabase::generateIndex() {
 	lock_guard<mutex>{dbMutex};
 
 	RemoteLoader &loader = RemoteLoader::getInstance();
-	auto q = db.query<int, string, string, string>("SELECT ROWID,name,url,localdir FROM collection");
+	auto q = db.query<int, string, string, string>("SELECT ROWID,id,url,localdir FROM collection");
 	while(q.step()) {
 		auto c = q.get<Collection>();
+		// NOTE c.name is really c.id
 		loader.registerSource(c.name, c.url, c.local_dir);
 	}
 
@@ -900,33 +517,54 @@ void MusicDatabase::generateIndex() {
 	reindexNeeded = false;
 }
 
+void MusicDatabase::initFromLuaAsync(const string &workDir) {
+	indexing = true;
+	initFuture = std::async(std::launch::async, [&]() {
+		std::lock_guard<std::mutex>{dbMutex};
+		initFromLua(workDir);
+		indexing = false;
+	});
+}
 
-void MusicDatabase::initFromLua(const string &fileName) {
+
+void MusicDatabase::initFromLua(const string &workDir) {
 
 	reindexNeeded = false;
+
+	File fi { File::getCacheDir() + "index.dat" };
+
+	indexVersion = 0;
+	if(fi.exists()) {
+		auto marker = fi.read<uint16_t>();
+		if(marker == 0xFEDC)
+			indexVersion = fi.read<uint16_t>();
+	}
 
 	LuaInterpreter lua;
 
 	lua.registerFunction<void, string, string>("set_db_var", [&](string name, string val) {
 		static unordered_map<string, string> dbmap;
-		LOGD("%s %s", name, val);
 		if(val == "start") {
 		} else if(val == "end") {
-			initDatabase(dbmap);
+			initDatabase(workDir, dbmap);
 			dbmap.clear();
 		} else {
 			dbmap[name] = val;
 		}
 	});
 
-	File f { fileName };
-
-	if(fileName == "") {
-		auto path = File::getUserDir() + ":" + current_exe_path() + ":" + File::getAppDir();
-		f = File::findFile(path, "lua/db.lua");
-	}
+	File f = File::findFile(workDir, "lua/db.lua");
 
 	lua.loadFile(f.getName());
+
+	dbVersion = lua.getGlobal<int>("VERSION");
+	LOGD("DBVERSION %d INDEXVERSION %d", dbVersion, indexVersion);
+	if(dbVersion != indexVersion) {
+		db.exec("DELETE FROM collection");
+		db.exec("DELETE FROM song");
+		reindexNeeded = true;
+	}
+
 	lua.load(R"(
 		for a,b in pairs(DB) do
 			if type(b) == 'table' then

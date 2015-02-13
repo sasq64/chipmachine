@@ -21,13 +21,13 @@ PlaylistDatabase::PlaylistDatabase() : db(File::getCacheDir() + "play.db") {
 	db.exec("CREATE TABLE IF NOT EXISTS song (playlist INT, title STRING, game STRING, composer STRING, format STRING, path STRING)");
 
 	createPlaylist("Favorites");
-
+/*
 	RemoteLists::getInstance().getLists([=](vector<string> lists) {
 		for(auto l : lists) {
 			playlists.emplace_back(l, true);
 		}
 	});
-
+*/
 
 	string title, path;
 	int rowid, id;

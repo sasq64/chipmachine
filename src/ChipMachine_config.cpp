@@ -32,7 +32,7 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 		{ "result_field", resultFieldTemplate.get() },
 	};
 
-	auto path = current_exe_path() + ":" + File::getAppDir();
+	auto path = workDir;//current_exe_path() + ":" + File::getAppDir();
 
 	if(fields.count(name) > 0) {
 		auto &f = (*fields[name]);
@@ -125,7 +125,6 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 			}
 			break;
 		}
-		LOGD("%d %f %d", scrollEffect.scrolly, scrollEffect.scrollsize, scrollEffect.scrollspeed);
 	} else
 	if(name == "hilight_color") {
 		hilightColor = Color(stoll(val));

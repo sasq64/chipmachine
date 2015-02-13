@@ -17,17 +17,17 @@ using namespace utils;
 
 namespace chipmachine {
 
-static std::string find_file(const std::string &name) {
-	auto f = File::findFile(current_exe_path() + ":" + File::getAppDir(), name);
-	return f.getName();
+void Streamer::put(uint8_t *ptr, int size) {
+	LOCK_GUARD(playerMutex);
+	player->putStream(ptr, size);
 }
 
-MusicPlayer::MusicPlayer() : fifo(32786*4) {
+MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786*4) {
 
 	AudioPlayer::set_volume(80);
 	volume = 0.8;
 
-	ChipPlugin::createPlugins(find_file("data"), plugins);
+	ChipPlugin::createPlugins(workDir, plugins);
 	plugins.insert(plugins.begin(), make_shared<RSNPlugin>(plugins));
 
 	dontPlay = playEnded = false;
@@ -56,12 +56,14 @@ void MusicPlayer::update() {
 	if(!tempBuf)
 		tempBuf = new int16_t [fifo.size()];
 
-	LOCK_GUARD(playerMutex);
 
 	if(!paused && player) {
 
-		sub_title = player->getMeta("sub_title");
-
+		{ LOCK_GUARD(playerMutex);
+			sub_title = player->getMeta("sub_title");
+			length = player->getMetaInt("length");
+			message = player->getMeta("message");
+		}
 		silentFrames = fifo.getSilence();
 
 		while(true) {
@@ -70,9 +72,13 @@ void MusicPlayer::update() {
 
 			if(f < 4096)
 				break; 
-			int rc = player->getSamples(tempBuf, f - 1024);
 
-			if(rc <= 0) {
+			int rc;
+			{ LOCK_GUARD(playerMutex);
+				rc = player->getSamples(tempBuf, f - 1024);
+			}
+
+			if(rc < 0) {
 				LOGD("PLAY ENDED %d vs %d", rc, f - 1024);
 				playEnded = true;
 				break;
@@ -120,6 +126,39 @@ void MusicPlayer::fadeOut(float secs) {
 	fadeOutPos = pos + fadeLength;
 }
 
+std::shared_ptr<Streamer> MusicPlayer::streamFile(const string &fileName) {
+	dontPlay = true;
+	silentFrames = 0;
+
+	{
+		LOCK_GUARD(infoMutex);
+		playingInfo = SongInfo();
+	}
+
+	string name = fileName;
+
+
+	LOCK_GUARD(playerMutex);
+	player = nullptr;
+	player = fromStream(fileName);
+
+	dontPlay = false;
+	playEnded = false;
+
+	if(player) {
+
+
+		fifo.clear();
+		fadeOutPos = 0;
+		pause(false);
+		pos = 0;
+		//updatePlayingInfo();
+		currentTune = playingInfo.starttune;
+		return make_shared<Streamer>(playerMutex, player);
+	}
+	return nullptr;
+}
+
 
 bool MusicPlayer::playFile(const string &fileName) {
 
@@ -150,10 +189,8 @@ bool MusicPlayer::playFile(const string &fileName) {
 	}
 
 	LOCK_GUARD(playerMutex);
-	//toPlay = name;
 	player = nullptr;
 	player = fromFile(name);
-	//toPlay = "";
 
 	dontPlay = false;
 	playEnded = false;
@@ -162,7 +199,6 @@ bool MusicPlayer::playFile(const string &fileName) {
 
 		fifo.clear();
 		fadeOutPos = 0;
-		//changedSong = false;
 		pause(false);
 		pos = 0;
 		updatePlayingInfo();
@@ -211,8 +247,7 @@ string MusicPlayer::getMeta(const string &what) {
 	if(what == "message") {
 		LOCK_GUARD(infoMutex);
 		return message;
-	}
-
+	} else
 	if(what == "sub_title") {
 		LOCK_GUARD(infoMutex);
 		return sub_title;
@@ -263,6 +298,20 @@ shared_ptr<ChipPlayer> MusicPlayer::fromFile(const string &fileName) {
 		if(plugin->canHandle(name)) {
 			LOGD("Playing with %s\n", plugin->name());
 			player = shared_ptr<ChipPlayer>(plugin->fromFile(fileName));
+			break;
+		}
+	}
+	return player;
+}
+
+shared_ptr<ChipPlayer> MusicPlayer::fromStream(const string &fileName) {
+	shared_ptr<ChipPlayer> player;
+	string name = fileName;
+	utils::makeLower(name);
+	for(auto &plugin : plugins) {
+		if(plugin->canHandle(name)) {
+			LOGD("Playing with %s\n", plugin->name());
+			player = shared_ptr<ChipPlayer>(plugin->fromStream());
 			break;
 		}
 	}

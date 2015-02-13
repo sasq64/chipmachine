@@ -54,9 +54,19 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
+	string path = current_exe_path() + ":" + current_exe_path() + "/../Resources:" + File::getAppDir();
+	string workDir = File::findFile(path, "data").getDirectory();
+
+	if(workDir == "") {
+		fprintf(stderr, "**Error: Could not find data files\n");
+		exit(-1);
+	}
+
+	LOGD("WorkDir:%s", workDir);
+
 	if(server) {
-		MusicPlayerList player;
-		MusicDatabase::getInstance().initFromLua();
+		MusicPlayerList player(workDir);
+		MusicDatabase::getInstance().initFromLua(workDir);
 		TelnetInterface telnet(player);
 		telnet.start();
 		while(true) sleepms(500);
@@ -66,7 +76,7 @@ int main(int argc, char* argv[]) {
 
 		Console *c = Console::createLocalConsole();
 
-		MusicPlayerList mpl;
+		MusicPlayerList mpl(workDir);
 		for(auto &s : songs) {
 			LOGD("Adding '%s'", s.path);
 			mpl.addSong(s);
@@ -102,7 +112,7 @@ int main(int argc, char* argv[]) {
 	else
 		grappix::screen.open(w, h, false);
 
-	static chipmachine::ChipMachine app;
+	static chipmachine::ChipMachine app(workDir);
 
 	grappix::screen.render_loop([](uint32_t delta) {
 		app.update();

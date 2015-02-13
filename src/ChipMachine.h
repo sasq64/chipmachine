@@ -40,7 +40,7 @@ public:
 	void render_song(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
 	void render_command(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
 
-	ChipMachine();
+	ChipMachine(const std::string &workDir);
 	~ChipMachine();
 
 	void initLua();
@@ -49,6 +49,7 @@ public:
 	void update();
 	void render(uint32_t delta);
 	void toast(const std::string &txt, int type);
+	void removeToast();
 
 	void set_scrolltext(const std::string &txt);
 
@@ -64,6 +65,8 @@ private:
 
 	void setup_rules();
 	void update_keys();
+
+	std::string workDir;
 
 	MusicPlayerList player;
 
@@ -148,7 +151,7 @@ private:
 	grappix::Color markColor = 0xff00ff00;
 	grappix::Color hilightColor = 0xffffffff;
 
-	IncrementalQuery iquery;
+	std::shared_ptr<IncrementalQuery> iquery;
 
 	grappix::VerticalList songList;
 
@@ -163,7 +166,7 @@ private:
 
 	bool playlistEdit = false;
 
-	bool commandMode = true;
+	bool commandMode = false;
 
 	std::shared_ptr<Dialog> currentDialog;
 
@@ -176,17 +179,18 @@ private:
 	int resizeDelay;
 	int showVolume;
 
-	bool hasMoved;
+	bool hasMoved = false;
 
 	std::atomic<bool> hasFrame;
 	std::mutex frameMutex;
 	std::thread frameThread;
 	uint8_t frameData[320*240*4];
 
-
 #ifdef RASPBERRYPI
 	PiTFT tft;
 #endif
+
+	bool indexingDatabase = false;
 
 };
 

@@ -47,13 +47,21 @@ void ChipMachine::render_song(grappix::Rectangle &rec, int y, uint32_t index, bo
 		text = format("<%s>", playlists[index]);
 		c = Color(0xff6688ff);
 	} else {
-		auto res = iquery.getResult(index-playlists.size());
+		auto res = iquery->getResult(index-playlists.size());
 		auto parts = split(res, "\t");
 		int f = atoi(parts[3].c_str());
 		text = format("%s / %s", parts[0], parts[1]);
 		//c = colors[f>>8];//resultFieldTemplate->color;
 		int g = f&0xff;
 		c = 0xff555555;
+
+		if(g == PLAYLIST) {
+			if(parts[1] == "")
+				text = format("<%s>", parts[0]);
+			else
+				text = format("<%s / %s>", parts[0], parts[1]);
+			c = 0xffffff88;
+		} else
 		if(g == MP3)
 			c = 0x088ff88;
 		else
@@ -150,7 +158,7 @@ static const std::string eqShaderF = R"(
 	}
 )";
 
-ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen), commandMode(false), hasMoved(false) {
+ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(workDir), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen)  {
 
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
 		string e = error;
@@ -162,9 +170,7 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 
 	PlaylistDatabase::getInstance();
 
-	auto path = current_exe_path() + ":" + File::getAppDir();
-	LOGD("####### Finding font");
-	File ff = File::findFile(path, "data/Bello.otf");
+	File ff = File::findFile(workDir, "data/Bello.otf");
 	scrollEffect.set("font", ff.getName());
 
 
@@ -259,11 +265,19 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	searchScreen.add(topStatus);
 	topStatus->visible(false);
 
+
 	setup_rules();
 
 	initLua();
-	MusicDatabase::getInstance().initFromLua();
 	layoutScreen();
+
+	toastField = make_shared<TextField>(font, "", tv0.x, tv1.y - 134, 2.0, 0x00ffffff);
+	renderSet.add(toastField);
+
+	MusicDatabase::getInstance().initFromLuaAsync(this->workDir);
+	if(MusicDatabase::getInstance().busy()) {
+		indexingDatabase = true;
+	}
 
 	oldWidth = screen.width();
 	oldHeight = screen.height();
@@ -279,9 +293,7 @@ ChipMachine::ChipMachine() : currentScreen(0), eq(SpectrumAnalyzer::eq_slots), s
 	searchScreen.add(commandField);
 	commandField->visible(false);
 
-	scrollEffect.set("scrolltext", "Chipmachine Beta 2 -- Begin typing to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- F8 to clear queue -- ESCAPE to clear search text ----- ");
-	toastField = make_shared<TextField>(font, "", tv0.x, tv1.y - 134, 2.0, 0x00ffffff);
-	renderSet.add(toastField);
+	scrollEffect.set("scrolltext", "Chipmachine Beta 3 -- Begin typing to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- F8 to clear queue -- ESCAPE to clear search text ----- ");
 	starEffect.fadeIn();
 
 	File f { File::getCacheDir() + "login" };
@@ -336,8 +348,7 @@ void ChipMachine::layoutScreen()  {
 
 	LOGD("LAYOUT SCREEN");
 
-	auto path = File::getUserDir() + ":" + current_exe_path() + ":" + File::getAppDir();
-	File f = File::findFile(path, "lua/screen.lua");
+	File f (workDir + "/lua/screen.lua");
 
 	lua.setGlobal("SCREEN_WIDTH", screen.width());
 	lua.setGlobal("SCREEN_HEIGHT", screen.height());
@@ -369,6 +380,20 @@ void ChipMachine::play(const SongInfo &si) {
 
 void ChipMachine::update() {
 
+	if(indexingDatabase) {
+
+		static int delay = 30;
+		if(delay-- == 0)
+			toast("Indexing database", 3);
+
+		if(!MusicDatabase::getInstance().busy()) {
+			indexingDatabase = false;
+			removeToast();
+		} else
+			return;
+	}
+
+
 	static string msg;
 	auto m = player.getMeta("message");
 	if(m != msg) {
@@ -389,7 +414,7 @@ void ChipMachine::update() {
 	update_keys();
 
 	auto state = player.getState();
-	//LOGD("STATE %d vs %d %d %d", state, MusicPlayerList::STOPPED, MusicPlayerList::WAITING, MusicPlayerList::PLAY_STARTED);
+
 	if(state == MusicPlayerList::PLAY_STARTED) {
 		LOGD("MUSIC STARTING");
 		currentInfo = player.getInfo();
@@ -434,18 +459,20 @@ void ChipMachine::update() {
 	if(state == MusicPlayerList::PLAYING || state == MusicPlayerList::STOPPED) {
 		auto psz = player.listSize();
 		if(psz > 0) {
-			auto n = player.getInfo(1);
-			if(n.path != currentNextPath) {
-				if(n.title == "") {
-					n.title = path_filename(urldecode(n.path, ""));
+			auto info = player.getInfo(1);
+			if(info.path != "")
+				RemoteLoader::getInstance().preCache(info.path);
+			if(info.path != currentNextPath) {
+				if(info.title == "") {
+					info.title = path_filename(urldecode(info.path, ""));
 				}
 
 				if(psz == 1)
 					nextField->setText("Next");
 				else
 					nextField->setText(format("Next (%d)", psz));
-				nextInfoField.setInfo(n);
-				currentNextPath = n.path;
+				nextInfoField.setInfo(info);
+				currentNextPath = info.path;
 			}
 		} else if(nextField->getText() != "") {
 			nextInfoField.setInfo(SongInfo());
@@ -511,7 +538,6 @@ void ChipMachine::update() {
 		for(int i=0; i<player.spectrumSize(); i++) {
 			if(spectrum[i] > 5) {
 				unsigned f = static_cast<uint8_t>(logf(spectrum[i]) * 64);
-				//LOGD("%d %d\n", spectrumHeight, f);
 				if(f > 255) f = 255;
 				if(f > eq[i])
 					eq[i] = f;
@@ -528,11 +554,17 @@ void ChipMachine::toast(const std::string &txt, int type) {
 	toastField->setText(txt);
 	int tlen = toastField->getWidth();
 	toastField->pos.x = tv0.x + ((tv1.x - tv0.x) - tlen) / 2;
-	toastField->color = colors[type];
+	toastField->color = colors[type % 3];
 
 	Tween::make().to(toastField->color.alpha, 1.0).seconds(0.25).onComplete([=]() {
-		Tween::make().to(toastField->color.alpha, 0.0).delay(1.0).seconds(0.25);
+		if(type < 3)
+			Tween::make().to(toastField->color.alpha, 0.0).delay(1.0).seconds(0.25);
 	});
+}
+
+void ChipMachine::removeToast() {
+	toastField->setText("");
+	toastField->color = 0;
 }
 
 void ChipMachine::render(uint32_t delta) {
@@ -550,17 +582,12 @@ void ChipMachine::render(uint32_t delta) {
 			layoutScreen();
 		}
 	}
-//#define GL_INVALID_OPERATION              0x0502
-//#define GL_INVALID_FRAMEBUFFER_OPERATION  0x0506
 
 	screen.clear(0xff000000 | bgcolor);
 
 	if(showVolume) {
 		static Color color = 0xff000000;
 		showVolume--;
-
-		//if(showVolume == 10)
-		//	tween::make().to(color, 0x0).seconds(0.5);
 
 		screen.draw(volumeTexture, volPos.x, volPos.y, volPos.w, volPos.h, nullptr);
 		int v = player.getVolume() * 10;

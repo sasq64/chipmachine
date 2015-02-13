@@ -75,8 +75,8 @@ bool RemoteLists::checkError(JSon &json) {
 		return false;
 	}
 	try {
-		int rc = json("rc");
-		string msg = json("msg");
+		int rc = json["rc"];
+		string msg = json["msg"];
 		if(rc != 0) {
 			onErrorCallback(rc, msg);
 			return false;
@@ -98,9 +98,9 @@ void RemoteLists::getLists(function<void(vector<string>)> f) {
 		JSon json = JSon::parse(result);
 		if(!checkError(json))
 			return;
-		for(auto pl : json("lists")) {
-			string user = pl("user");
-			string name = pl("name");
+		for(auto pl : json["lists"]) {
+			string user = pl["user"];
+			string name = pl["name"];
 			lists.emplace_back(name + ":" + user);
 		}
 		f(lists);
@@ -136,8 +136,8 @@ void RemoteLists::getList(const string &name, function<void(const string&, const
 		auto jres =  JSon::parse(result);
 		if(!checkError(jres))
 			return;
-		string name = jres("name");
-		vector<string> songs = jres("songs");
+		string name = jres["name"];
+		vector<string> songs = jres["songs"];
 		for(auto &s : songs) {
 			LOGD("GETTING %s", s);
 		}
