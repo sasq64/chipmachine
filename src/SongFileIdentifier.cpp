@@ -1,12 +1,15 @@
 #include "SongFileIdentifier.h"
 
-#include <string>
 #include <coreutils/utils.h>
 #include <coreutils/file.h>
 #include <coreutils/log.h>
 #include <archive/archive.h>
 
+#include <string>
+#include <algorithm>
+
 #define WITH_MPG123
+
 
 #ifdef WITH_MPG123
 #include <mpg123.h>

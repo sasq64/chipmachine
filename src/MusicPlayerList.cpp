@@ -3,7 +3,7 @@
 #include <musicplayer/PSFFile.h>
 #include <coreutils/log.h>
 #include <coreutils/utils.h>
-
+#include <algorithm>
 #include <unordered_map>
 
 using namespace std;
