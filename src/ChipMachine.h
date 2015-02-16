@@ -17,6 +17,8 @@
 
 #include "PiTFT.h"
 
+#include "MusicBars.h"
+
 #include "../demofx/StarField.h"
 #include "../demofx/Scroller.h"
 
@@ -36,9 +38,9 @@ namespace chipmachine {
 class ChipMachine : public grappix::VerticalList::Renderer {
 public:
 
-	virtual void render_item(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) override;
-	void render_song(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
-	void render_command(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
+	virtual void renderItem(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) override;
+	void renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
+	void renderCommand(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
 
 	ChipMachine(const std::string &workDir);
 	~ChipMachine();
@@ -51,20 +53,20 @@ public:
 	void toast(const std::string &txt, int type);
 	void removeToast();
 
-	void set_scrolltext(const std::string &txt);
+	void setScrolltext(const std::string &txt);
 
-	MusicPlayerList &music_player() { return player; }
+	MusicPlayerList &musicPlayer() { return player; }
 
 private:
 
 	void setVariable(const std::string &name, int index, const std::string &val);
 
-	void show_main();
-	void show_search();
-	SongInfo get_selected_song();
+	void showMain();
+	void showSearch();
+	SongInfo getSelectedSong();
 
-	void setup_rules();
-	void update_keys();
+	void setupRules();
+	void updateKeys();
 
 	std::string workDir;
 
@@ -172,8 +174,6 @@ private:
 
 	std::string userName;
 
-	grappix::Program eqProgram;
-
 	int oldWidth;
 	int oldHeight;
 	int resizeDelay;
@@ -181,16 +181,9 @@ private:
 
 	bool hasMoved = false;
 
-	std::atomic<bool> hasFrame;
-	std::mutex frameMutex;
-	std::thread frameThread;
-	uint8_t frameData[320*240*4];
-
-#ifdef RASPBERRYPI
-	PiTFT tft;
-#endif
-
 	bool indexingDatabase = false;
+
+	MusicBars musicBars;
 
 };
 

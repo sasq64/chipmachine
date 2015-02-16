@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(chipmachine)
 
-add_definitions(-DAPP_NAME=chipmachine)
+add_definitions(-DAPP_NAME=chipmachine -DENABLE_TELNET)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
@@ -18,6 +18,7 @@ include_directories(${AP1_ROOT}/mods)
 
 set(SOURCE_FILES
 	src/ChipMachine.cpp
+	src/MusicBars.cpp
 	src/ChipMachine_config.cpp
 	src/ChipMachine_keys.cpp
 	src/MusicDatabase.cpp

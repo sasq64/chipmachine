@@ -100,11 +100,11 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 	} else
 	if(name == "top_left") {
 		tv0[index-1] = stol(val);
-		songList.set_area(Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28));
+		songList.setArea(Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28));
 	} else
 	if(name == "down_right") {
 		tv1[index-1] = stol(val);
-		songList.set_area(Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28));
+		songList.setArea(Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28));
 	} else
 	if(name == "scroll") {
 		switch(index) {
@@ -133,7 +133,7 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 	} else
 	if(name == "result_lines") {
 		numLines = stol(val);
-		songList.set_visible(numLines);
+		songList.setVisible(numLines);
 	}
 }
 

@@ -169,7 +169,7 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 
 		if(mp.playFile(fileName)) {
 			if(reportSongs)
-				RemoteLists::getInstance().song_played(currentInfo.path);
+				RemoteLists::getInstance().songPlayed(currentInfo.path);
 
 			changedSong = false;
 			updateInfo();

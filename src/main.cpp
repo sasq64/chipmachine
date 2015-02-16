@@ -16,8 +16,6 @@ using namespace utils;
 
 int main(int argc, char* argv[]) {
 
-	bool fullScreen = false;
-
 #ifdef CM_DEBUG
 	logging::setLevel(logging::DEBUG);
 #else
@@ -27,6 +25,7 @@ int main(int argc, char* argv[]) {
 	vector<SongInfo> songs;
 	int w = 960;
 	int h = 540;
+	bool fullScreen = false;
 	bool server = false;
 
 	for(int i=1; i<argc; i++) {
@@ -50,11 +49,11 @@ int main(int argc, char* argv[]) {
 				break;
 			}
 		} else {
-			songs.push_back(SongInfo(argv[i]));
+			songs.emplace_back(argv[i]);
 		}
 	}
 
-	string path = current_exe_path() + ":" + current_exe_path() + "/../Resources:" + File::getAppDir();
+	string path = File::getExeDir() + ":" + File::getExeDir() + "/../Resources:" + File::getAppDir();
 	string workDir = File::findFile(path, "data").getDirectory();
 
 	if(workDir == "") {
@@ -120,4 +119,3 @@ int main(int argc, char* argv[]) {
 	}, 20);
 	return 0;
 }
-

@@ -45,7 +45,7 @@ static const uint32_t SHIFT = 0x10000;
 static const uint32_t CTRL = 0x20000;
 static const uint32_t ALT = 0x40000;
 
-void ChipMachine::setup_rules() {
+void ChipMachine::setupRules() {
 
 	using namespace statemachine;
 
@@ -90,7 +90,7 @@ void ChipMachine::setup_rules() {
 	smac.add("=+", VOLUME_UP);
 }
 
-void ChipMachine::show_main() {
+void ChipMachine::showMain() {
 	hasMoved = true;
 	if(currentScreen != MAIN_SCREEN) {
 		currentScreen = MAIN_SCREEN;
@@ -99,7 +99,7 @@ void ChipMachine::show_main() {
 	}
 }
 
-void ChipMachine::show_search() {
+void ChipMachine::showSearch() {
 	if(currentScreen != SEARCH_SCREEN) {
 		currentScreen = SEARCH_SCREEN;
 		Tween::make().to(spectrumColor, spectrumColorSearch).seconds(0.5);
@@ -107,15 +107,13 @@ void ChipMachine::show_search() {
 	}
 }
 
-SongInfo ChipMachine::get_selected_song() {
+SongInfo ChipMachine::getSelectedSong() {
 	return MusicDatabase::getInstance().getSongInfo(iquery->getIndex(songList.selected() - playlists.size()));
 }
 
 
-void ChipMachine::update_keys() {
+void ChipMachine::updateKeys() {
 
-
-	// Update some flags
 	haveSearchChars = (iquery->getString().length() > 0);
 
 	bool searchUpdated = false;
@@ -142,7 +140,7 @@ void ChipMachine::update_keys() {
 		k |= ALT;
 
 	if((k & (CTRL|SHIFT)) == 0 && currentScreen == SEARCH_SCREEN)
-		songList.on_key(key);
+		songList.onKey(key);
 
 	if(key != Window::NO_KEY)
 		smac.put_event(k);
@@ -192,7 +190,7 @@ void ChipMachine::update_keys() {
 				Tween::make().to(timeField->add, 0.0).seconds(0.5);
 			break;
 		case ADD_LIST_SONG:
-			if(player.addSong(get_selected_song()))
+			if(player.addSong(getSelectedSong()))
 				songList.select(songList.selected()+1);
 			break;
 		case PLAY_LIST_SONG:
@@ -206,8 +204,8 @@ void ChipMachine::update_keys() {
 					player.nextSong();
 				});
 			} else
-				player.playSong(get_selected_song());
-			show_main();
+				player.playSong(getSelectedSong());
+			showMain();
 			break;
 		case NEXT_COMPOSER:
 			{
@@ -227,18 +225,18 @@ void ChipMachine::update_keys() {
 			}
 			break;
 		case NEXT_SONG:
-			show_main();
+			showMain();
 			player.nextSong();
 			break;
 		case SHOW_MAIN:
-			show_main();
+			showMain();
 			break;
 		case SHOW_SEARCH:
 			if(currentScreen == MAIN_SCREEN) {
-				show_search();
-				songList.on_key(key);
+				showSearch();
+				songList.onKey(key);
 			} else {
-				show_search();
+				showSearch();
 			}
 			searchUpdated = true;
 			break;
@@ -247,13 +245,13 @@ void ChipMachine::update_keys() {
 			if(hasMoved && action.event != ' ')
 				iquery->clear();
 			hasMoved = false;
-			show_search();
+			showSearch();
 			iquery->addLetter(tolower(action.event));
 			searchUpdated = true;
 			break;
 		case DEL_SEARCH_CHAR:
 			hasMoved = false;
-			show_search();
+			showSearch();
 			iquery->removeLast();
 			searchUpdated = true;
 			break;
@@ -270,7 +268,7 @@ void ChipMachine::update_keys() {
 			isFavorite = !isFavorite;
 			break;
 		case ADD_LIST_FAVORITE:
-			PlaylistDatabase::getInstance().addToPlaylist(currentPlaylistName, get_selected_song());
+			PlaylistDatabase::getInstance().addToPlaylist(currentPlaylistName, getSelectedSong());
 			break;
 		case DUMP_FAVORITES:
 		PlaylistDatabase::getInstance().dumpPlaylist(currentPlaylistName, "playlists");
@@ -337,7 +335,7 @@ void ChipMachine::update_keys() {
 		topStatus->visible(false);
 		playlists.clear();
 		PlaylistDatabase::getInstance().search(iquery->getString(), playlists);
-		songList.set_total(iquery->numHits() + playlists.size());
+		songList.setTotal(iquery->numHits() + playlists.size());
 	}
 
 	if(songList.selected() != last_selection && iquery->numHits() > 0) {

@@ -223,7 +223,6 @@ void MusicPlayer::updatePlayingInfo() {
 
 		si.composer = player->getMeta("composer");
 		si.format = player->getMeta("format");
-		//si.length = player->getMetaInt("length");
 		si.numtunes = player->getMetaInt("songs");
 		si.starttune = player->getMetaInt("startSong");
 

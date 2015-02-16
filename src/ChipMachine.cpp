@@ -3,78 +3,61 @@
 #include "Icons.h"
 
 #include <cctype>
+#include <map>
 
 using namespace std;
 using namespace utils;
 using namespace grappix;
 using namespace tween;
 
-//#ifndef RASPBERRYPI
-//#define PIXEL_EQ
-//#endif
-
-//#define EXTERNAL_SCREEN
-
-#define ENABLE_TELNET
-
 namespace chipmachine {
 
 
-void ChipMachine::render_item(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
+void ChipMachine::renderItem(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
 
-	if(commandMode)
-		render_command(rec, y, index, hilight);
-	else
-		render_song(rec, y, index, hilight);
+	//if(commandMode)
+	//	renderCommand(rec, y, index, hilight);
+	//else
+		renderSong(rec, y, index, hilight);
 }
 
-struct Command {
-	string name;
-	string luaFunction;
-	uint32_t ShortCut;
-};
 
-void ChipMachine::render_command(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
-}
+void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
 
-void ChipMachine::render_song(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
+	static const map<uint32_t, uint32_t> colors = {
+		{ NOT_SET, 0xffff00ff },
+		{ PLAYLIST, 0xffffff88 },
+		{ MP3, 0xff88ff88 },
+		{ AMIGA, 0xff6666cc },
+		{ PC, 0xffcccccc },
+		{ ATARI, 0xffcccc33 },
+		{ C64, 0xffcc8844 },
+		{ CONSOLE, 0xffdd3355 },
+		{ 0xff, 0xff00ffff }
+	};
 
-	static const uint32_t colors[] = { 0xff0000ff, 0xff00ff00, 0xffff0000, 0xffff00ff, 0xffffff00, 0xff00ffff, 0xff4488ff, 0xff8888ff, 0xff8844ff  };
 	Color c;
 	string text;
 
 	if(index < playlists.size()) {
 		text = format("<%s>", playlists[index]);
-		c = Color(0xff6688ff);
+		c = 0xff6688ff;
 	} else {
 		auto res = iquery->getResult(index-playlists.size());
 		auto parts = split(res, "\t");
 		int f = atoi(parts[3].c_str());
-		text = format("%s / %s", parts[0], parts[1]);
-		//c = colors[f>>8];//resultFieldTemplate->color;
-		int g = f&0xff;
-		c = 0xff555555;
+		int g = f & 0xff;
 
 		if(g == PLAYLIST) {
 			if(parts[1] == "")
 				text = format("<%s>", parts[0]);
 			else
 				text = format("<%s / %s>", parts[0], parts[1]);
-			c = 0xffffff88;
 		} else
-		if(g == MP3)
-			c = 0x088ff88;
-		else
-		if(g >= AMIGA)
-			c = 0xff6666cc;
-		else if(g >= PC)
-			c = 0xffcccccc;
-		else if(g >= ATARI)
-			c = 0xffcccc33;
-		else if(g >= C64)
-			c = 0xffcc8844;
-		else if(g >= CONSOLE)
-			c = 0xffdd3355;
+			text = format("%s / %s", parts[0], parts[1]);
+
+		auto it = colors.upper_bound(g)--;
+		c = it->second;
 		c = c * 0.75f;
 	}
 
@@ -92,71 +75,6 @@ void ChipMachine::render_song(grappix::Rectangle &rec, int y, uint32_t index, bo
 	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate->scale);
 }
 
-static const std::string eqShaderV = R"(
-	attribute vec4 vertex;
-	attribute vec2 uv;
-
-	uniform mat4 matrix;
-	varying vec2 UV;
-
-	void main() {
-		gl_Position = matrix * vertex;
-		//vec4 r = matrix * vec4(uv, 0.0, 1.0);
-		UV = uv;
-		UV.y = uv.y * -10.0 * matrix[1].y;
-	}
-)";
-
-static const std::string eqShaderF = R"(
-	uniform float slots[25];
-	uniform float specx;
-	uniform float specy;
-	uniform float specw;
-	uniform float spech;
-
-	const vec4 color0 = vec4(0.0, 0.0, 0.0, 1.0);
-	const vec4 color1 = vec4(0.0, 0.4, 0.0, 1.0);
-	const vec4 color2 = vec4(0.8, 0.8, 0.0, 1.0);
-
-	varying vec2 UV;
-
-	uniform sampler2D sTexture;
-
-	void main() {
-
-		vec4 c = texture2D(sTexture, UV);
-
-		// int(h) is the eq slot to read
-		float h = 24.0 * (gl_FragCoord.x - specx) / specw;
-		
-		float f = fract(h);
-
-		// Linear interpolation between slots
-		// float y = mix(slots[int(h)], slots[int(h)+1], f);
-		float y = slots[int(h)]; // 0 -> spech
-
-		// Blend from color0 -> color1 -> color 0 over y+4 -> y-4
-
-		float fy = gl_FragCoord.y - specy;
-
-		//vec4 rgb = mix(color1, color2, (y - fy) / specy);
-		//vec4 rgb = mix(color0, color2, smoothstep(y + 2.0, y - 2.0, fy));
-
-		vec4 rgb = mix(color0, c, smoothstep(y + 1.0, y - 1.0, fy));
-
-		//vec4 rgb = mix(color1, color2, smoothstep(fy + 20.0, fy - 20.0, y));
-		//rgb = mix(rgb, color0, smoothstep(fy - 2.0, fy - 4.0, y));
-
-
-		//rgb = rgb * mod(h, 1.0);
-		//rgb = rgb * mod(UV.y * 256.0, 2.0);
-
-		// MODIFY UV HERE
-		//vec4 color = texture2D(sTexture, UV);
-		// MODIFY COLOR HERE
-		gl_FragColor = rgb;
-	}
-)";
 
 ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(workDir), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen)  {
 
@@ -179,7 +97,7 @@ ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(
 	telnet->start();
 #endif
 
-	for(int i=0; i<3; i++) {
+	for(auto i : count_to(3)) {
 		mainScreen.add(prevInfoField.fields[i]);
 		mainScreen.add(currentInfoField.fields[i]);
 		mainScreen.add(nextInfoField.fields[i]);
@@ -199,52 +117,18 @@ ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(
 	songField = make_shared<TextField>();
 	mainScreen.add(songField);
 
+	auto createTexture = [](int w, int h, const uint32_t *data) -> Texture {
+		auto bm = image::bitmap(w, h, data);
+		Texture t(bm);
+		glBindTexture(GL_TEXTURE_2D, t.id());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		return t;
+	};
 
-	auto bm = image::bitmap(8, 6, &heart_icon[0]);
-	favTexture = Texture(bm);
-	glBindTexture(GL_TEXTURE_2D, favTexture.id());
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	bm = image::bitmap(8, 5, &net_icon[0]);
-	netTexture = Texture(bm);
-	glBindTexture(GL_TEXTURE_2D, netTexture.id());
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	bm = image::bitmap(19, 19, &volume_icon[0]);
-	volumeTexture = Texture(bm);
-	glBindTexture(GL_TEXTURE_2D, volumeTexture.id());
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-#ifdef EXTERNAL_SCREEN
-	extTexture = Texture(320, 240);
-
-	frameThread = std::thread([=]() {
-
-		while(true) {
-			if(hasFrame) {				
-				frameMutex.lock();
-				uint16_t *ptr = tft.ptr();
-				for(int y=0; y<240; y++) {
-					for(int x=0; x<320; x++) {
-						int i = x+y*320;
-						// BGRA
-						ptr[(240-y)*320+x] = ((frameData[i*4+2]&0x1f)<<11) | ((frameData[i*4+1]&0x2f)<<5) | (frameData[i*4+2]&0x1f);
-					}
-				}
-				hasFrame = false;
-				frameMutex.unlock();
-			} else
-				sleepms(20);
-		}
-
-	});
-	frameThread.detach();
-
-
-#endif
+	favTexture = createTexture(8, 6, &heart_icon[0]);
+	netTexture = createTexture(8, 5, &net_icon[0]);
+	volumeTexture = createTexture(19, 19, &volume_icon[0]);
 
 	showVolume = 0;
 	float ww = 19*15;
@@ -265,11 +149,12 @@ ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(
 	searchScreen.add(topStatus);
 	topStatus->visible(false);
 
-
-	setup_rules();
+	setupRules();
 
 	initLua();
 	layoutScreen();
+
+	musicBars.setup(spectrumWidth, spectrumHeight, 24);
 
 	toastField = make_shared<TextField>(font, "", tv0.x, tv1.y - 134, 2.0, 0x00ffffff);
 	renderSet.add(toastField);
@@ -299,34 +184,6 @@ ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(
 	File f { File::getCacheDir() + "login" };
 	if(f.exists())
 		userName = f.read();
-
-	image::bitmap eqbar(spectrumWidth*24, spectrumHeight);
-	Color col(0xff66ff66);
-	Color toc0(0xff008888);
-	Color toc1(0xff000066);
-	int h2 = eqbar.height() / 2;
-	Color deltac = (toc0 - col) / (float)h2;
-	//auto eqtween = Tween::make().to(c, 0xffff0000).seconds(eqbar.height());
-	for(int y=eqbar.height()-1; y>-0; y--) {
-		for(int x=0; x<eqbar.width(); x++) {
-			eqbar[x+y*eqbar.width()] = (y%5 > 1) && (x%spectrumWidth !=0) ? (uint32_t)col : 0x00000000;
-		}
-		col = col + deltac;
-		if(y == h2) {
-			col = toc0;
-			deltac = (toc1 - col) / (float)h2;
-		}
-	}
-	eqTexture = Texture(eqbar);
-	glBindTexture(GL_TEXTURE_2D, eqTexture.id());
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	eqProgram = grappix::get_program(grappix::TEXTURED_PROGRAM).clone();
-#ifdef PIXEL_EQ
-	eqProgram.setFragmentSource(eqShaderF);
-#endif
-	//eqProgram.setVertexSource(eqShaderV);
 }
 
 ChipMachine::~ChipMachine() {
@@ -334,7 +191,7 @@ ChipMachine::~ChipMachine() {
 		telnet->stop();
 }
 
-void ChipMachine::set_scrolltext(const std::string &txt) {
+void ChipMachine::setScrolltext(const std::string &txt) {
 	scrollEffect.set("scrolltext", txt);
 }
 
@@ -411,7 +268,10 @@ void ChipMachine::update() {
 	if(currentDialog && currentDialog->getParent() == nullptr)
 		currentDialog = nullptr;
 
-	update_keys();
+	updateKeys();
+
+
+	// DEAL WITH MUSICPLAYER STATE
 
 	auto state = player.getState();
 
@@ -524,18 +384,18 @@ void ChipMachine::update() {
 		toast(player.getError(), 1);
 	}
 
-	for(int i=0; i<(int)eq.size(); i++) {
-		if(!player.isPaused()) {
-			if(eq[i] >= 4*4)
-				eq[i]-=2*4;
+	if(!player.isPaused()) {
+		for(auto &e : eq) {
+			if(e >= 4*4)
+				e -=2*4;
 			else
-				eq[i] = 2*4;
+				e = 2*4;
 		}
 	}
 
 	if(player.playing()) {
 		auto spectrum = player.getSpectrum();
-		for(int i=0; i<player.spectrumSize(); i++) {
+		for(auto i : count_to(player.spectrumSize())) {
 			if(spectrum[i] > 5) {
 				unsigned f = static_cast<uint8_t>(logf(spectrum[i]) * 64);
 				if(f > 255) f = 255;
@@ -596,26 +456,7 @@ void ChipMachine::render(uint32_t delta) {
 		screen.text(listFont, std::to_string((int)(v*100)), volPos.x, volPos.y, 1.0, 0xff8888ff);
 	}
 
-#ifdef PIXEL_EQ
-	static std::vector<float> fSlots(25);
-	for(int i=0; i<24; i++) {
-		fSlots[i] = spectrumHeight * eq[i]  / 256.0;
-	}
-	fSlots[24] = fSlots[23];
-
-	eqProgram.use();
-	eqProgram.setUniform("slots", &fSlots[0], 25);
-	eqProgram.setUniform("specx", spectrumPos.x);
-	eqProgram.setUniform("specy", screen.height() - spectrumPos.y);
-	eqProgram.setUniform("specw", spectrumWidth * 24);
-	eqProgram.setUniform("spech", spectrumHeight);
-	screen.draw(eqTexture, spectrumPos.x, spectrumPos.y-spectrumHeight, spectrumWidth * 24, spectrumHeight, nullptr, eqProgram);
-#else
-	screen.draw(eqTexture, spectrumPos.x, spectrumPos.y-spectrumHeight, spectrumWidth * 24, spectrumHeight, nullptr, spectrumColor);
-	for(int i=0; i<(int)eq.size(); i++) {
-		screen.rectangle(spectrumPos.x + (spectrumWidth)*i, spectrumPos.y-spectrumHeight, spectrumWidth, spectrumHeight-(spectrumHeight * eq[i]  / 256), 0xff000000);
-	}
-#endif
+	musicBars.render(spectrumPos, spectrumColor, eq);
 
 	if(starsOn)
 		starEffect.render(delta);
@@ -637,25 +478,6 @@ void ChipMachine::render(uint32_t delta) {
 	}
 
 	renderSet.render(delta);
-
-
-#ifdef EXTERNAL_SCREEN
-	if(!hasFrame) {
-		glBindTexture(GL_TEXTURE_2D, extTexture.id());
-		extTexture.clear(0xff33cc33);
-		extTexture.text(font, currentInfo.title, 10, 10);
-		extTexture.text(font, currentInfo.composer, 10, 60);
-
-		for(int i=0; i<(int)eq.size(); i++) {
-			extTexture.rectangle(10 + 10*i, 100, 8, 100-(50 * eq[i]  / 256), 0xffff00ff);
-		}
-		frameMutex.lock();
-		hasFrame = true;
-		extTexture.get_pixels(frameData);
-		frameMutex.unlock();
-	}
-#endif
-
 
 	font.update_cache();
 	listFont.update_cache();

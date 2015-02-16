@@ -26,7 +26,7 @@ RemoteLists::RemoteLists() : rpc(HOST_NAME), done(true) {
 }
 
 //~RemoteLists();
-void RemoteLists::song_played(const string &fileName) {
+void RemoteLists::songPlayed(const string &fileName) {
 
 	if(!done) {
 		LOGD("Tracking still in progress!");
@@ -41,6 +41,7 @@ void RemoteLists::song_played(const string &fileName) {
 	json.add("version", API_VERSION);
 
 	rpc.post("song_played", json.to_string(), [=](const string &result) {
+		LOGD("RESULT:%s", result);
 		JSon json = JSon::parse(result);
 		if(!checkError(json)) {
 			LOGD("trackDone:" + result);
@@ -82,6 +83,7 @@ bool RemoteLists::checkError(JSon &json) {
 			return false;
 		}
 	} catch(json_exception &e) {
+		LOGD("EXCEPTION: %s", e.msg);
 		onErrorCallback(JSON_INVALID, "Invalid response");
 		return false;
 	}

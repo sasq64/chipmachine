@@ -11,7 +11,6 @@
 #include <string>
 #include <memory>
 #include <thread>
-#include <mutex>
 
 using namespace chipmachine;
 using namespace std;
@@ -26,18 +25,16 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	vector<shared_ptr<ChipPlugin>> plugins;
-	ChipPlugin::createPlugins("data", plugins);
-
 	File file { argv[1] };
-	ChipPlayer *player = nullptr;
+	shared_ptr<ChipPlayer> player;
+	string name = toLower(file.getName());
 
-	string name = file.getName();
-	makeLower(name);
+	auto plugins = ChipPlugin::createPlugins(File::getExeDir());
+
 	for(auto plugin : plugins) {
 		if(plugin->canHandle(name)) {
 			printf("Playing with %s\n", plugin->name().c_str());
-			player = plugin->fromFile(file.getName());
+			player = shared_ptr<ChipPlayer>(plugin->fromFile(file.getName()));
 			break;
 		}
 	}
@@ -45,8 +42,7 @@ int main(int argc, char* argv[]) {
 	if(player) {
 
 		AudioFifo<int16_t> fifo(32768);
-
-		fifo.setVolume(0.1);
+		fifo.setVolume(0.5);
 
 		std::thread playerThread([&]() mutable {
 			int chunkSize = 8192;

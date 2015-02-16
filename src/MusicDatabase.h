@@ -62,15 +62,18 @@ enum Formats {
 
 	ATARI,
 
-	PC,
-
 	MP3,
+
+	OGG,
+
+	PC,
 
 	ADPLUG,
 	TRACKER = 0x30,
 	SCREAMTRACKER,
 	IMPULSETRACKER,
 	FASTTRACKER,
+
 
 	AMIGA,
 	PROTRACKER,

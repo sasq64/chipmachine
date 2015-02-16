@@ -8,6 +8,56 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 
+	std::atomic<bool> hasFrame;
+	std::mutex frameMutex;
+	std::thread frameThread;
+	uint8_t frameData[320*240*4];
+
+#ifdef RASPBERRYPI
+	PiTFT tft;
+#endif
+
+	extTexture = Texture(320, 240);
+
+	frameThread = std::thread([=]() {
+
+		while(true) {
+			if(hasFrame) {				
+				frameMutex.lock();
+				uint16_t *ptr = tft.ptr();
+				for(int y=0; y<240; y++) {
+					for(int x=0; x<320; x++) {
+						int i = x+y*320;
+						// BGRA
+						ptr[(240-y)*320+x] = ((frameData[i*4+2]&0x1f)<<11) | ((frameData[i*4+1]&0x2f)<<5) | (frameData[i*4+2]&0x1f);
+					}
+				}
+				hasFrame = false;
+				frameMutex.unlock();
+			} else
+				sleepms(20);
+		}
+
+	});
+	frameThread.detach();
+
+
+#ifdef EXTERNAL_SCREEN
+	if(!hasFrame) {
+		glBindTexture(GL_TEXTURE_2D, extTexture.id());
+		extTexture.clear(0xff33cc33);
+		extTexture.text(font, currentInfo.title, 10, 10);
+		extTexture.text(font, currentInfo.composer, 10, 60);
+
+		for(int i=0; i<(int)eq.size(); i++) {
+			extTexture.rectangle(10 + 10*i, 100, 8, 100-(50 * eq[i]  / 256), 0xffff00ff);
+		}
+		frameMutex.lock();
+		hasFrame = true;
+		extTexture.get_pixels(frameData);
+		frameMutex.unlock();
+	}
+#endif
 
 
 PiTFT::PiTFT() {
