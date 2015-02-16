@@ -19,6 +19,10 @@ public:
 
 	bool stream(const std::string &path, std::function<void(uint8_t *data, int size)> data_cb);
 
+	void preCache(const std::string &path);
+
+	bool inCache(const std::string &path) const;
+
 	static RemoteLoader& getInstance() {
 		static RemoteLoader loader;
 		return loader;

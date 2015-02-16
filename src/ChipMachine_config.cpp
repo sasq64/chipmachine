@@ -32,7 +32,7 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 		{ "result_field", resultFieldTemplate.get() },
 	};
 
-	auto path = current_exe_path() + ":" + File::getAppDir();
+	auto path = workDir;//current_exe_path() + ":" + File::getAppDir();
 
 	if(fields.count(name) > 0) {
 		auto &f = (*fields[name]);
@@ -100,11 +100,11 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 	} else
 	if(name == "top_left") {
 		tv0[index-1] = stol(val);
-		songList.set_area(Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28));
+		songList.setArea(Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28));
 	} else
 	if(name == "down_right") {
 		tv1[index-1] = stol(val);
-		songList.set_area(Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28));
+		songList.setArea(Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28));
 	} else
 	if(name == "scroll") {
 		switch(index) {
@@ -125,7 +125,6 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 			}
 			break;
 		}
-		LOGD("%d %f %d", scrollEffect.scrolly, scrollEffect.scrollsize, scrollEffect.scrollspeed);
 	} else
 	if(name == "hilight_color") {
 		hilightColor = Color(stoll(val));
@@ -134,7 +133,7 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 	} else
 	if(name == "result_lines") {
 		numLines = stol(val);
-		songList.set_visible(numLines);
+		songList.setVisible(numLines);
 	}
 }
 

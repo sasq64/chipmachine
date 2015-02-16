@@ -6,18 +6,17 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -O2")
 
 add_definitions(-DAPP_NAME=miniplay)
 
+set(AP1_ROOT ../../apone)
 
-set(CPP_MODS ../../cpp-mods)
+include_directories(${AP1_ROOT}/mods)
 
 set(SOURCE_FILES miniplay.cpp)
 
-include_directories(${CPP_MODS} ${CPP_MODS}/musicplayer/plugins)
-
-set(CPP_MODS_MODULES
+set(APONE_MODULES
 	coreutils
 	audioplayer
 )
-add_subdirectory(${CPP_MODS} cppmods)
+add_subdirectory(${AP1_ROOT}/mods ap1mods)
 
 set(MUSICPLAYER_PLUGINS
 	openmptplugin
@@ -34,12 +33,12 @@ set(MUSICPLAYER_PLUGINS
 	uadeplugin
 	viceplugin
 )
-add_subdirectory(${CPP_MODS}/musicplayer/plugins plugins)
+add_subdirectory(${AP1_ROOT}/mods/musicplayer/plugins plugins)
 
-message("SOURCE FILES " ${SOURCE_FILES})
+include_directories(${AP1_ROOT}/mods/musicplayer/plugins)
 
 
-set(CMAKE_CXX_FLAGS "--std=c++0x")
+set(CMAKE_CXX_FLAGS "-std=c++0x")
 
 add_executable(miniplay ${SOURCE_FILES})
-target_link_libraries(miniplay ${CPP_MODS_MODULES} ${MUSICPLAYER_PLUGINS})
+target_link_libraries(miniplay ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})

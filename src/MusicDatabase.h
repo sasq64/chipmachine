@@ -12,6 +12,7 @@
 #include <mutex>
 #include <vector>
 #include <string>
+#include <future>
 
 namespace chipmachine {
 
@@ -27,6 +28,7 @@ enum Formats {
 
 	UNKNOWN_FORMAT,
 	NO_FORMAT,
+	PLAYLIST,
 
 	CONSOLE,
 
@@ -60,15 +62,18 @@ enum Formats {
 
 	ATARI,
 
-	PC,
-
 	MP3,
+
+	OGG,
+
+	PC,
 
 	ADPLUG,
 	TRACKER = 0x30,
 	SCREAMTRACKER,
 	IMPULSETRACKER,
 	FASTTRACKER,
+
 
 	AMIGA,
 	PROTRACKER,
@@ -79,15 +84,13 @@ enum Formats {
 class MusicDatabase : public SearchProvider {
 public:
 	MusicDatabase() : db(utils::File::getCacheDir() + "music.db"), reindexNeeded(false) {
-		db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, localdir STRING, description STRING, id INTEGER, version INTEGER)");
+		db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, localdir STRING, description STRING, id UNIQUE, version INTEGER)");
 		db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
 	}
 
-	void initDatabase(std::unordered_map<std::string, std::string> &vars);
 
-	void initFromLua(const std::string &fileName = "");
-
-	void generateIndex();
+	void initFromLua(const std::string &workDir);
+	void initFromLuaAsync(const std::string &workDir);
 
 	int search(const std::string &query, std::vector<int> &result, unsigned int searchLimit) override;
 	// Lookup internal string for index
@@ -105,13 +108,20 @@ public:
 		return composerIndex.getString(titleToComposer[index]);
 	}
 
-	//virtual std::vector<SongInfo> find(const std::string &pattern);
-
-	IncrementalQuery createQuery() {
+	std::shared_ptr<IncrementalQuery> createQuery() {
 		std::lock_guard<std::mutex>{dbMutex};
-		return IncrementalQuery(this);
+		return std::make_shared<IncrementalQuery>(this);
 	}
 
+	bool busy() {
+		if(indexing)
+			return true;
+		if(dbMutex.try_lock()) {
+			dbMutex.unlock();
+			return false;
+		}
+		return true;
+	}
 
 	SongInfo lookup(const std::string &path);
 
@@ -121,6 +131,9 @@ public:
 	}
 
 private:
+
+	void initDatabase(const std::string &workDir, std::unordered_map<std::string, std::string> &vars);
+	void generateIndex();
 
 	struct Collection {
 		Collection(int id = -1, const std::string &name = "", const std::string url = "", const std::string local_dir = "") : id(id), name(name), url(url), local_dir(local_dir) {}
@@ -146,6 +159,12 @@ private:
 
 	std::mutex dbMutex;
 	sqlite3db::Database db;
+
+	uint16_t dbVersion;
+	uint16_t indexVersion;
+
+	std::future<void> initFuture;
+	std::atomic<bool> indexing;
 };
 
 }

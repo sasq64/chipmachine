@@ -16,7 +16,7 @@ class RemoteLists {
 public:
 	RemoteLists();
 	//~RemoteLists();
-	void song_played(const std::string &fileName);
+	void songPlayed(const std::string &fileName);
 	void sendList(const std::vector<SongInfo> &songs, const std::string &name, const std::function<void()> done);
 	void getLists(std::function<void(std::vector<std::string>)> f);
 	void login(const std::string &name, std::function<void(int)> f);

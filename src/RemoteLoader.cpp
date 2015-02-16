@@ -23,6 +23,29 @@ void RemoteLoader::registerSource(const std::string &name, const std::string url
 //}
 
 // modland:Protracker/X/Y.mod"
+bool RemoteLoader::inCache(const std::string &p) const {
+	Source source;
+	string path = p;
+	const auto parts = split(path, "::");
+	if(parts.size() > 1) {
+		source = sources.at(parts[0]);
+		path = parts[1];
+	}
+
+	string local_path = source.local_dir + path;
+	if(File::exists(local_path))
+		return true;
+
+	string url = source.url + path;
+
+	if(url.find("snesmusic.org") != string::npos) {
+		url = url.substr(0, url.length()-4);
+	}
+
+	return webgetter.inCache(url);
+}
+
+
 bool RemoteLoader::load(const std::string &p, function<void(File f)> done_cb) {
 
 	Source source;
@@ -58,8 +81,32 @@ bool RemoteLoader::load(const std::string &p, function<void(File f)> done_cb) {
 	return true;
 }
 
-bool RemoteLoader::stream(const std::string &path, std::function<void(uint8_t *data, int size)> data_cb) {
-	return false;
+void RemoteLoader::preCache(const std::string &path) {
+
+}
+
+
+bool RemoteLoader::stream(const std::string &p, std::function<void(uint8_t *data, int size)> data_cb) {
+
+	Source source;
+	string path = p;
+
+	auto parts = split(path, "::");
+	if(parts.size() > 1) {
+		source = sources[parts[0]];
+		path = parts[1];
+	}
+
+	string local_path = source.local_dir + path;
+	//if(File::exists(local_path)) {
+	//	done_cb(File(local_path));
+	//	return true;
+	//}
+
+	string url = source.url + path;
+
+	webgetter.streamData(url, data_cb);
+	return true;
 }
 
 

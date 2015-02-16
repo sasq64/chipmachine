@@ -1,5 +1,9 @@
 
+## ISSUES
 
+* Repeating tweens sometimes die (title scrolling stops, selection hilight gone)
+* Unpause when starting new song
+* webgetter renaming failes when downloading the same song in parallell.
 X MP3 on Raspberry
 * Search hits shown twice when term is in both composer and title
 X Star skip
@@ -19,6 +23,40 @@ X Report song failed to play
 X VOLUME CONTROL
 X QUIT
 
+X Slow playlist info parsing
+X Remove slash on non demo lists
+* Parse collection color from db.lua ?
+* sid titles wrong encoding 
+
+* DB init in thread, progess display
+
+X Update db rules
+
+X Remove online playlists for now
+
+X Mods don't end (Compilications.mod)
+* Tween source position for songs that are not NEXT seems wrong
+* Preload next song (RemoteLoader.assureCached() ?)
+
+INFO LINE
+
+Format (extension)
+
+## STATIC PLAYLISTS
+
+* Should be created as a step of database creation / indexing
+* Read all files under playlists/
+* Looks like a song in the database, points out the .pls file
+
+
+### Sounds of Scenesat
+
+### Amiga Classics
+
+
+
+
+
 ## PLUGINS
 
 AYFLY For spectrum formats
@@ -26,7 +64,7 @@ TEDPLAY
 
 
 
-// FILTER
+## FILTER
 
 Collection & Type stored
 Configure colors in lua file
@@ -34,7 +72,7 @@ Configure colors in lua file
 Collection IS <name>
 Format IS between <lower> and <higher>
 
-COMMAND MODE
+## COMMAND MODE
 
 Default TAB to Enter, ENTER to leave
 Uses searchIndex for registered commands to render the main list

@@ -4,6 +4,8 @@
 #include <coreutils/log.h>
 #include <coreutils/utils.h>
 
+#include <grappix/window.h>
+
 #include <luainterpreter/luainterpreter.h>
 
 #include <bbsutils/telnetserver.h>
@@ -23,6 +25,18 @@ void TelnetInterface::stop() {
 	telnet->stop();
 }
 
+using grappix::Window;
+
+static unordered_map<int, int> key_translate = {
+	{ Console::KEY_UP, Window::UP },
+	{ Console::KEY_DOWN, Window::DOWN },
+	{ Console::KEY_PAGEUP, Window::PAGEUP },
+	{ Console::KEY_PAGEDOWN, Window::PAGEDOWN },
+	{ Console::KEY_ENTER, Window::ENTER },
+	{ Console::KEY_ESCAPE, Window::ESCAPE },
+	{ Console::KEY_BACKSPACE, Window::BACKSPACE },
+};
+
 void TelnetInterface::start() {
 	telnet = make_shared<TelnetServer>(12345);
 	telnet->setOnConnect([&](TelnetServer::Session &session) {
@@ -35,7 +49,18 @@ void TelnetInterface::start() {
 		} else {
 			console = make_shared<PetsciiConsole>(session);
 		}
+
+		while(true) {
+			int key = console->getKey(100);
+			if(key != Console::KEY_TIMEOUT) {
+				if(key_translate.count(key))
+					key = key_translate[key];
+				putEvent<grappix::KeyEvent>(key);
+			}
+		}
+
 		console->flush();
+
 		LuaInterpreter lip;
 
 		console->write("### CHIPMACHINE LUA INTERPRETER\n");

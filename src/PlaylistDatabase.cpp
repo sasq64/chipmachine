@@ -21,13 +21,13 @@ PlaylistDatabase::PlaylistDatabase() : db(File::getCacheDir() + "play.db") {
 	db.exec("CREATE TABLE IF NOT EXISTS song (playlist INT, title STRING, game STRING, composer STRING, format STRING, path STRING)");
 
 	createPlaylist("Favorites");
-
+/*
 	RemoteLists::getInstance().getLists([=](vector<string> lists) {
 		for(auto l : lists) {
 			playlists.emplace_back(l, true);
 		}
 	});
-
+*/
 
 	string title, path;
 	int rowid, id;
@@ -77,6 +77,19 @@ void PlaylistDatabase::renamePlaylist(const string &oldName, const string &newNa
 		if(p.name == oldName) {
 			p.name = newName;
 			break;
+		}
+	}
+}
+
+void PlaylistDatabase::dumpPlaylist(const std::string &name, const std::string &dirName) {
+	int id = 1;
+	for(const auto &p : playlists) {
+		if(p.name == name) {
+			File f { dirName + "/" + name };
+			for(const auto &song : p.songs) {
+				f.write(format("%s\n", song.path));
+			}
+			f.close();
 		}
 	}
 }

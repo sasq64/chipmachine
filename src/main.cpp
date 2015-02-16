@@ -16,8 +16,6 @@ using namespace utils;
 
 int main(int argc, char* argv[]) {
 
-	bool fullScreen = false;
-
 #ifdef CM_DEBUG
 	logging::setLevel(logging::DEBUG);
 #else
@@ -27,6 +25,7 @@ int main(int argc, char* argv[]) {
 	vector<SongInfo> songs;
 	int w = 960;
 	int h = 540;
+	bool fullScreen = false;
 	bool server = false;
 
 	for(int i=1; i<argc; i++) {
@@ -50,13 +49,23 @@ int main(int argc, char* argv[]) {
 				break;
 			}
 		} else {
-			songs.push_back(SongInfo(argv[i]));
+			songs.emplace_back(argv[i]);
 		}
 	}
 
+	string path = File::getExeDir() + ":" + File::getExeDir() + "/../Resources:" + File::getAppDir();
+	string workDir = File::findFile(path, "data").getDirectory();
+
+	if(workDir == "") {
+		fprintf(stderr, "**Error: Could not find data files\n");
+		exit(-1);
+	}
+
+	LOGD("WorkDir:%s", workDir);
+
 	if(server) {
-		MusicPlayerList player;
-		MusicDatabase::getInstance().initFromLua();
+		MusicPlayerList player(workDir);
+		MusicDatabase::getInstance().initFromLua(workDir);
 		TelnetInterface telnet(player);
 		telnet.start();
 		while(true) sleepms(500);
@@ -66,7 +75,7 @@ int main(int argc, char* argv[]) {
 
 		Console *c = Console::createLocalConsole();
 
-		MusicPlayerList mpl;
+		MusicPlayerList mpl(workDir);
 		for(auto &s : songs) {
 			LOGD("Adding '%s'", s.path);
 			mpl.addSong(s);
@@ -102,7 +111,7 @@ int main(int argc, char* argv[]) {
 	else
 		grappix::screen.open(w, h, false);
 
-	static chipmachine::ChipMachine app;
+	static chipmachine::ChipMachine app(workDir);
 
 	grappix::screen.render_loop([](uint32_t delta) {
 		app.update();
@@ -110,4 +119,3 @@ int main(int argc, char* argv[]) {
 	}, 20);
 	return 0;
 }
-

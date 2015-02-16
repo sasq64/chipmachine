@@ -2,22 +2,40 @@
 -- source : Base path or url from where to load files
 -- song_list : List of all songs to add. May not be needed if db is local and supports file scanning
 -- local_dir : If exists, will be checked first for files before downloading. Also used to create song list
--- id : unique id for database. Also sort order
 -- If song_list or or source can not be found, database will not be added
 
+VERSION = 1;
 
 DB = {
 {
+	name = "Amiga Playlists",
+	type = "amipl",
+	local_dir = "data/playlists/amiga",
+	color = 0xfffff
+},
+{
+	name = "CSDb",
+	type = "csdb",
+	local_dir = "data/playlists/csdb",
+	color = 0xfffff
+},
+{
+	name = "Sounds of Scenesat",
+	type = "scensatpl",
+	local_dir = "data/playlists/scenesat",
+	color = 0xfffff
+},
+{
+	name = "Modland",
 	type = "modland",
-	id = 1,
 	source = "ftp://ftp.modland.com/pub/modules/",
 	song_list = "data/allmods.txt",
 	exclude_formats = "RealSID;PlaySID;Nintendo SPC;SNDH;Slight Atari Player",
 	color = 0xfffff
 },
 {
+	name = "HVSC",
 	type = "hvsc",
-	id = 2,
 	-- source = "http://www.prg.dtu.dk/HVSC/C64Music/",
 	source = "http://hvsc.etv.cx/C64Music/",
 	song_list = "data/hvsc.txt",
@@ -25,49 +43,50 @@ DB = {
 	color = 0xfffff
 },
 {
+	name = "snesmusic.org",
 	type = "rsn",
-	id = 3,
 	source = "http://snesmusic.org/v2/download.php?spcNow=",
+	make_source = snes,
 	song_list = "data/rsn.txt",
 	local_dir = "/opt/Music/spcsets",
 	color = 0xfffff
 },
 {
+	name = "sndh",
 	type = "sndh",
-	id = 4,
 	source = "http://sndh.atari.org/sndh/sndh_lf/",
 	song_list = "data/sndh.txt",
 	local_dir = "/opt/Music/sndh_lf",
 	color = 0xfffff
 },
 {
+	name = "asma",
 	type = "asma",
-	id = 5,
 	source = "http://asma.atari.org/asma/",
 	song_list = "data/asma.txt",
 	local_dir = "/opt/Music/asma",
 	color = 0xfffff
 },
 {
+	name = "remix.kwed.org",
 	type = "rko",
-	id = 6,
 	source = "http://remix.kwed.org/download.php/",
 	song_list = "data/rko.txt",
 	local_dir = "/opt/Music/rko",
 	color = 0xfffff
 },
 {
+	name = "amigaremix",
 	type = "amigaremix",
-	id = 7,
 	source = "http://amigaremix.com/listen/",
 	song_list = "data/amiremix.txt",
 	local_dir = "/opt/Music/amiremix",
 	color = 0xfffff
 },
 {
+	name = "scenesat",
 	type = "scenesat",
-	id = 8,
-	source = "",
+	source = "http://nightmode.synology.me/scenesat/",
 	song_list = "data/scenesat.txt",
 	local_dir = "/opt/Music/scenesat",
 	color = 0xfffff

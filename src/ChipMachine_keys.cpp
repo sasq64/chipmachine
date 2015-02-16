@@ -37,6 +37,7 @@ enum ChipAction {
 	VOLUME_DOWN,
 	QUIT,
 	LOGIN,
+	DUMP_FAVORITES,
 	LAST_ACTION
 };
 
@@ -44,7 +45,7 @@ static const uint32_t SHIFT = 0x10000;
 static const uint32_t CTRL = 0x20000;
 static const uint32_t ALT = 0x40000;
 
-void ChipMachine::setup_rules() {
+void ChipMachine::setupRules() {
 
 	using namespace statemachine;
 
@@ -68,14 +69,16 @@ void ChipMachine::setup_rules() {
 	smac.add(Window::ENTER, if_equals(currentScreen, SEARCH_SCREEN), PLAY_LIST_SONG);
 	smac.add(Window::ENTER | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_SONG);
 
+	smac.add(Window::F9, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_SONG);
+
 	smac.add(Window::DOWN | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), NEXT_COMPOSER);
 
-	smac.add(Window::F8 | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), EDIT_PLAYLIST);
+	smac.add(Window::F8 | SHIFT, DUMP_FAVORITES);
 
 	smac.add(Window::F7, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_FAVORITE);
 	smac.add(Window::F7, if_equals(currentScreen, MAIN_SCREEN), ADD_CURRENT_FAVORITE);
 	smac.add(Window::F8, CLEAR_SONGS);
-	smac.add(Window::F9, SEND_PLAYLIST);
+	//smac.add(Window::F9, SEND_PLAYLIST);
 	smac.add(Window::LEFT, PREV_SUBTUNE);
 	smac.add(Window::RIGHT, NEXT_SUBTUNE);
 	smac.add(Window::F4, LAYOUT_SCREEN);
@@ -87,7 +90,7 @@ void ChipMachine::setup_rules() {
 	smac.add("=+", VOLUME_UP);
 }
 
-void ChipMachine::show_main() {
+void ChipMachine::showMain() {
 	hasMoved = true;
 	if(currentScreen != MAIN_SCREEN) {
 		currentScreen = MAIN_SCREEN;
@@ -96,7 +99,7 @@ void ChipMachine::show_main() {
 	}
 }
 
-void ChipMachine::show_search() {
+void ChipMachine::showSearch() {
 	if(currentScreen != SEARCH_SCREEN) {
 		currentScreen = SEARCH_SCREEN;
 		Tween::make().to(spectrumColor, spectrumColorSearch).seconds(0.5);
@@ -104,20 +107,22 @@ void ChipMachine::show_search() {
 	}
 }
 
-SongInfo ChipMachine::get_selected_song() {
-	return MusicDatabase::getInstance().getSongInfo(iquery.getIndex(songList.selected() - playlists.size()));
+SongInfo ChipMachine::getSelectedSong() {
+	return MusicDatabase::getInstance().getSongInfo(iquery->getIndex(songList.selected() - playlists.size()));
 }
 
 
-void ChipMachine::update_keys() {
+void ChipMachine::updateKeys() {
 
-	// Update some flags
-	haveSearchChars = (iquery.getString().length() > 0);
+	haveSearchChars = (iquery->getString().length() > 0);
 
 	bool searchUpdated = false;
 	auto last_selection = songList.selected();
 
 	auto key = screen.get_key();
+
+	if(indexingDatabase)
+		return;
 
 	uint32_t k = key;
 	bool ascii = (k >= 'A' && k <= 'Z');
@@ -135,7 +140,7 @@ void ChipMachine::update_keys() {
 		k |= ALT;
 
 	if((k & (CTRL|SHIFT)) == 0 && currentScreen == SEARCH_SCREEN)
-		songList.on_key(key);
+		songList.onKey(key);
 
 	if(key != Window::NO_KEY)
 		smac.put_event(k);
@@ -185,7 +190,7 @@ void ChipMachine::update_keys() {
 				Tween::make().to(timeField->add, 0.0).seconds(0.5);
 			break;
 		case ADD_LIST_SONG:
-			if(player.addSong(get_selected_song()))
+			if(player.addSong(getSelectedSong()))
 				songList.select(songList.selected()+1);
 			break;
 		case PLAY_LIST_SONG:
@@ -199,15 +204,15 @@ void ChipMachine::update_keys() {
 					player.nextSong();
 				});
 			} else
-				player.playSong(get_selected_song());
-			show_main();
+				player.playSong(getSelectedSong());
+			showMain();
 			break;
 		case NEXT_COMPOSER:
 			{
 				string composer;
 				int index = songList.selected();
 				while(index < songList.size()) {
-					auto res = iquery.getResult(index-playlists.size());
+					auto res = iquery->getResult(index-playlists.size());
 					auto parts = split(res, "\t");
 					if(composer == "")
 						composer = parts[1];
@@ -220,38 +225,38 @@ void ChipMachine::update_keys() {
 			}
 			break;
 		case NEXT_SONG:
-			show_main();
+			showMain();
 			player.nextSong();
 			break;
 		case SHOW_MAIN:
-			show_main();
+			showMain();
 			break;
 		case SHOW_SEARCH:
 			if(currentScreen == MAIN_SCREEN) {
-				show_search();
-				songList.on_key(key);
+				showSearch();
+				songList.onKey(key);
 			} else {
-				show_search();
+				showSearch();
 			}
 			searchUpdated = true;
 			break;
 		case ADD_SEARCH_CHAR:
 			LOGD("%d %02x", currentScreen, action.event);
 			if(hasMoved && action.event != ' ')
-				iquery.clear();
+				iquery->clear();
 			hasMoved = false;
-			show_search();
-			iquery.addLetter(tolower(action.event));
+			showSearch();
+			iquery->addLetter(tolower(action.event));
 			searchUpdated = true;
 			break;
 		case DEL_SEARCH_CHAR:
 			hasMoved = false;
-			show_search();
-			iquery.removeLast();
+			showSearch();
+			iquery->removeLast();
 			searchUpdated = true;
 			break;
 		case CLEAR_SEARCH:
-			iquery.clear();
+			iquery->clear();
 			searchUpdated = true;
 			break;
 		case ADD_CURRENT_FAVORITE:
@@ -263,7 +268,10 @@ void ChipMachine::update_keys() {
 			isFavorite = !isFavorite;
 			break;
 		case ADD_LIST_FAVORITE:
-			PlaylistDatabase::getInstance().addToPlaylist(currentPlaylistName, get_selected_song());
+			PlaylistDatabase::getInstance().addToPlaylist(currentPlaylistName, getSelectedSong());
+			break;
+		case DUMP_FAVORITES:
+		PlaylistDatabase::getInstance().dumpPlaylist(currentPlaylistName, "playlists");
 			break;
 		case NEXT_SUBTUNE:
 			if(currentTune < currentInfo.numtunes-1)
@@ -321,19 +329,19 @@ void ChipMachine::update_keys() {
 	}
 
 	if(searchUpdated) {
-		searchField->setText(iquery.getString());
+		searchField->setText(iquery->getString());
 		//searchField->color = searchColor;
 		searchField->visible(true);
 		topStatus->visible(false);
 		playlists.clear();
-		PlaylistDatabase::getInstance().search(iquery.getString(), playlists);
-		songList.set_total(iquery.numHits() + playlists.size());
+		PlaylistDatabase::getInstance().search(iquery->getString(), playlists);
+		songList.setTotal(iquery->numHits() + playlists.size());
 	}
 
-	if(songList.selected() != last_selection && iquery.numHits() > 0) {
+	if(songList.selected() != last_selection && iquery->numHits() > 0) {
 		int i = songList.selected() - playlists.size();
 		if(i >= 0) {
-			SongInfo song = MusicDatabase::getInstance().getSongInfo(iquery.getIndex(i));
+			SongInfo song = MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
 			auto ext = path_extension(song.path);
 			topStatus->setText(format("Format: %s (%s)", song.format, ext));
 			//searchField->color = Color(formatColor);

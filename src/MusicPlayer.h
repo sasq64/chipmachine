@@ -19,16 +19,28 @@ namespace chipmachine {
 class ChipPlugin;
 class ChipPlayer;
 
+class Streamer {
+public:
+	Streamer(std::mutex &m, std::shared_ptr<ChipPlayer> pl) : playerMutex(m), player(pl) {}
+	void put(uint8_t *ptr, int size);
+private:
+	std::mutex &playerMutex;
+	std::shared_ptr<ChipPlayer> player;
+};
+
 // MUST BE THREAD SAFE
 class MusicPlayer {
 public:
-	MusicPlayer();
+	MusicPlayer(const std::string &workDir);
 	~MusicPlayer();
 	bool playFile(const std::string &fileName);
+	std::shared_ptr<Streamer> streamFile(const std::string &fileName);
 	bool playing() { return !playEnded && player != nullptr; }
 	void stop() { LOCK_GUARD(playerMutex); player = nullptr; }
 	uint32_t getPosition() { return pos/44100; };
 	uint32_t getLength() { return length; }
+
+	//void addStreamData(uint8_t *ptr, int size);
 
 	void pause(bool dopause = true);
 
@@ -67,6 +79,7 @@ public:
 
 private:
 	std::shared_ptr<ChipPlayer> fromFile(const std::string &fileName);
+	std::shared_ptr<ChipPlayer> fromStream(const std::string &fileName);
 	void updatePlayingInfo();
 
 	AudioFifo<int16_t> fifo;

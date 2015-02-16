@@ -15,6 +15,10 @@
 #include "LineEdit.h"
 #include "Dialog.h"
 
+#include "PiTFT.h"
+
+#include "MusicBars.h"
+
 #include "../demofx/StarField.h"
 #include "../demofx/Scroller.h"
 
@@ -34,9 +38,11 @@ namespace chipmachine {
 class ChipMachine : public grappix::VerticalList::Renderer {
 public:
 
-	virtual void render_item(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) override;
+	virtual void renderItem(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) override;
+	void renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
+	void renderCommand(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
 
-	ChipMachine();
+	ChipMachine(const std::string &workDir);
 	~ChipMachine();
 
 	void initLua();
@@ -45,21 +51,24 @@ public:
 	void update();
 	void render(uint32_t delta);
 	void toast(const std::string &txt, int type);
+	void removeToast();
 
-	void set_scrolltext(const std::string &txt);
+	void setScrolltext(const std::string &txt);
 
-	MusicPlayerList &music_player() { return player; }
+	MusicPlayerList &musicPlayer() { return player; }
 
 private:
 
 	void setVariable(const std::string &name, int index, const std::string &val);
 
-	void show_main();
-	void show_search();
-	SongInfo get_selected_song();
+	void showMain();
+	void showSearch();
+	SongInfo getSelectedSong();
 
-	void setup_rules();
-	void update_keys();
+	void setupRules();
+	void updateKeys();
+
+	std::string workDir;
 
 	MusicPlayerList player;
 
@@ -120,6 +129,7 @@ private:
 	grappix::Texture netTexture;
 	grappix::Texture eqTexture;
 	grappix::Texture volumeTexture;
+	grappix::Texture extTexture;
 	grappix::Rectangle favPos = { 80, 300, 16*8, 16*6 };
 
 	RenderSet searchScreen;
@@ -128,7 +138,7 @@ private:
 	std::shared_ptr<LineEdit> commandField;
 	std::shared_ptr<TextField> topStatus;
 
-	std::shared_ptr<TextField> resultFieldTemplate;
+	std::shared_ptr<TextField>resultFieldTemplate;
 
 	grappix::Rectangle volPos;
 
@@ -143,7 +153,7 @@ private:
 	grappix::Color markColor = 0xff00ff00;
 	grappix::Color hilightColor = 0xffffffff;
 
-	IncrementalQuery iquery;
+	std::shared_ptr<IncrementalQuery> iquery;
 
 	grappix::VerticalList songList;
 
@@ -158,20 +168,23 @@ private:
 
 	bool playlistEdit = false;
 
-	bool commandMode = true;
+	bool commandMode = false;
 
 	std::shared_ptr<Dialog> currentDialog;
 
 	std::string userName;
-
-	grappix::Program eqProgram;
 
 	int oldWidth;
 	int oldHeight;
 	int resizeDelay;
 	int showVolume;
 
-	bool hasMoved;
+	bool hasMoved = false;
+
+	bool indexingDatabase = false;
+
+	MusicBars musicBars;
+
 };
 
 }

@@ -33,6 +33,7 @@ public:
 	void createPlaylist(const std::string &name);
 	void renamePlaylist(const std::string &oldName, const std::string &newName);
 	void addToPlaylist(const std::string &name, const SongInfo &info);
+	void dumpPlaylist(const std::string &name, const std::string &dirName);
 	void removeFromPlaylist(const std::string &name, const SongInfo &info);
 	void getPlaylist(const std::string &name, std::function<void(const Playlist &)> cb);
 	Playlist getPlaylist(const std::string &name);

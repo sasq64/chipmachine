@@ -29,7 +29,7 @@ public:
 		PLAY_NOW
 	};
 
-	MusicPlayerList();
+	MusicPlayerList(const std::string &workDir);
 
 	~MusicPlayerList() {
 		quitThread = true;

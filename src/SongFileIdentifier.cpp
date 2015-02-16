@@ -68,22 +68,19 @@ vector<string> getLines(const std::string &text) {
 bool parseSap(SongInfo &info) {
 	File f { info.path };
 
-	char* ptr = (char*)f.getPtr();
-	int size = f.getSize();
+	auto data = f.readAll();
 
-	int i = 0;
-	while(i<size && ptr[i] != -1) i++;
-	auto header = string(ptr, 0, size);
-
+	auto end_of_header = search_n(data.begin(), data.end(), 2, 0xff);
+	auto header = string(data.begin(), end_of_header);
 	auto lines = getLines(header); 
-	//LOGD("LINES %d", lines.size());
+
 	if(lines.size() == 0 || lines[0] != "SAP")
 		return false;
 
 	for(const auto &l : lines) {
-		//LOGD("LINE %s", l);
 		if(startsWith(l, "AUTHOR"))
 			info.composer = lrstrip(l.substr(7), '\"');
+		else
 		if(startsWith(l, "NAME"))
 			info.title = lrstrip(l.substr(5), '\"');
 	}
@@ -104,9 +101,12 @@ bool parseSndh(SongInfo &info) {
 	File f { info.path };
 	LOGD("SNDH >%s", info.path);
 	uint8_t *unpackptr = nullptr;
-	uint8_t *ptr = f.getPtr();
-	int size = f.getSize();
-	string head = string((char*)ptr, 0, 4);
+	//uint8_t *ptr = f.getPtr();
+	//int size = f.getSize();
+	auto data = f.readAll();
+	auto *ptr = &data[0];
+	int size = data.size();
+	string head = get_string(ptr, 4);
 	if(head == "ICE!") {
 		int dsize = unice68_get_depacked_size(ptr, NULL);
 		LOGD("Unicing %d bytes to %d bytes", size, dsize);
@@ -256,10 +256,35 @@ bool parseMp3(SongInfo &info) {
 #endif
 }
 
+bool parsePList(SongInfo &info) {
+
+	File f { info.path };
+
+	info.title = path_basename(info.path);
+	info.composer = "";
+	info.format = "Playlist";
+
+	for(auto l : f.getLines()) {
+		if(l.length() > 0 && l[0] == ';') {
+			auto parts = split(l.substr(1), "\t");
+			info.title = parts[0];
+			if(parts.size() >= 2) {
+				info.composer = parts[1];
+				info.format = "C64 Demo";
+			} else
+				info.format = "C64 Event";
+		}
+	}
+	return true;
+}
+
 bool identify_song(SongInfo &info, string ext) {
 
 	if(ext == "")
 		ext = path_extension(info.path);
+
+	if(ext == "plist")
+		return parsePList(info);
 	if(ext == "rsn")
 		return parseSnes(info);
 	if(ext == "sid")

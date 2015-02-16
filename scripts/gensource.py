@@ -14,7 +14,7 @@ def main(argv) :
 
 	print "NAME:" + collname
 	dbc = db.cursor()
-	dbc.execute('select id from collection where name=?', (collname,))
+	dbc.execute('select ROWID from collection where id=?', (collname,))
 	res = dbc.fetchone()
 	if not res :
 		return
