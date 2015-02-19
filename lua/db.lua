@@ -86,7 +86,7 @@ DB = {
 {
 	name = "scenesat",
 	type = "scenesat",
-	source = "http://nightmode.synology.me/scenesat/",
+	source = "http://sos.scenesat.com/play/",
 	song_list = "data/scenesat.txt",
 	local_dir = "/opt/Music/scenesat",
 	color = 0xfffff

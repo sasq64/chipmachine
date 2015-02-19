@@ -162,7 +162,14 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 				addSong(SongInfo(s));
 			}
 			SongInfo &si = playList.front();
+			auto path = si.path;
 			si = MusicDatabase::getInstance().lookup(si.path);
+			if(si.path == "") {
+				LOGD("Could not lookup '%s'", path);
+				errors.push_back("Bad song in playlist");
+				state = STOPPED;
+				return false;
+			}
 			state = WAITING;
 			return true;
 		}

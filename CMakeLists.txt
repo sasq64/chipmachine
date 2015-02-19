@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(chipmachine)
 
+include(${AP1_ROOT}/cmake/Utils.cmake)
+
 add_definitions(-DAPP_NAME=chipmachine -DENABLE_TELNET)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
@@ -59,7 +61,6 @@ set(MUSICPLAYER_PLUGINS
 	htplugin
 	heplugin
 	ndsplugin
-#	gsfplugin
 	gmeplugin
 	sc68plugin
 	usfplugin
@@ -81,7 +82,6 @@ include_directories(${AP1_ROOT}/mods/grappix ${AP1_ROOT}/mods/musicplayer/plugin
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
-include(${AP1_ROOT}/cmake/Utils.cmake)
 SET_DATA_FILES(data lua)
 
 if(APPLE)
@@ -98,9 +98,7 @@ endif()
 #	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/plugins/uadeplugin/uade/uadecore ${CMAKE_CURRENT_BINARY_DIR}/data/uade)
 
 target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
-
 #add_dependencies(chipmachine data/uade/uadecore)
-
 #include(BundleUtilities)
 #fixup_bundle(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app "" "dfssds")
 #verify_app(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app)

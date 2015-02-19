@@ -69,10 +69,13 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 		bool isModland = (type == "modland");
 		bool isRKO = (type == "rko");
 		bool isAmiRemix = (type == "amigaremix");
+		bool isScenesat = (type == "scenesat");
 
 		for(const auto &s : listFile.getLines()) {
-			auto parts = split(s, "\t");
+			auto parts = split(s, "\t");			
 			if(parts.size() >= 2) {
+				if(isScenesat)
+					LOGD("%s ### %s", parts[1], parts[4]);
 				if(isModland) {
 					SongInfo song(parts[1]);
 					if(!parseModlandPath(song))
@@ -245,17 +248,14 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 	return j;
 }
 
+// Lookup the given path in the database
 SongInfo MusicDatabase::lookup(const std::string &p) {
+
 	auto path = p;
 
 	auto parts = split(path, "::");
 	if(parts.size() > 1)
 		path = parts[1];
-	else {
-		parts = split(path, ":");
-		if(parts[1] == "modland" || parts[1] == "hvsc")
-			path = parts[0];
-	}
 
 	auto q = db.query<string, string, string, string, string>("SELECT title, game, composer, format, collection.id FROM song, collection WHERE song.path=? AND song.collection = collection.ROWID", path);
 
