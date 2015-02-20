@@ -1,5 +1,5 @@
 #include "MusicBars.h"
-
+#include <grappix/GL_Header.h>
 #include <string>
 
 //#ifndef RASPBERRYPI
@@ -45,7 +45,7 @@ static const std::string eqShaderF = R"(
 
 		// int(h) is the eq slot to read
 		float h = 24.0 * (gl_FragCoord.x - specx) / specw;
-		
+
 		float f = fract(h);
 
 		// Linear interpolation between slots

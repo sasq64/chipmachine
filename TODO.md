@@ -4,16 +4,23 @@
 * Repeating tweens sometimes die (title scrolling stops, selection hilight gone)
 * Unpause when starting new song
 * webgetter renaming failes when downloading the same song in parallell.
-X MP3 on Raspberry
+* Format colors wrong
+* Parse collection color from db.lua ?
+* sid titles wrong encoding 
+* Mouse click select and scroll
 * Search hits shown twice when term is in both composer and title
+* List displays old result after last
+* Tween source position for songs that are not NEXT seems wrong
+* Preload next song (RemoteLoader.assureCached() ?)
+* 
+
+X MP3 on Raspberry
 X Star skip
 X Hilight color fade to type color
 X Key repeat
-* Mouse click select and scroll
 X Skip to next prev composer
 
 X &amp; in mp3 names
-* List displays old result after last
 X Local MP3 not mp3 format
 X Fade out eq on list screen
 X EQ colors from screen.lua
@@ -25,18 +32,14 @@ X QUIT
 
 X Slow playlist info parsing
 X Remove slash on non demo lists
-* Parse collection color from db.lua ?
-* sid titles wrong encoding 
 
-* DB init in thread, progess display
+X DB init in thread, progess display
 
 X Update db rules
 
 X Remove online playlists for now
 
 X Mods don't end (Compilications.mod)
-* Tween source position for songs that are not NEXT seems wrong
-* Preload next song (RemoteLoader.assureCached() ?)
 
 INFO LINE
 

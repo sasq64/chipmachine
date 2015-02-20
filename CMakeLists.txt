@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(chipmachine)
 
+set(AP1_ROOT ../apone)
 include(${AP1_ROOT}/cmake/Utils.cmake)
 
 add_definitions(-DAPP_NAME=chipmachine -DENABLE_TELNET)
@@ -14,7 +15,6 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -DCM_DEBUG")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -DCM_DEBUG")
 
-set(AP1_ROOT ../apone)
 
 include_directories(${AP1_ROOT}/mods)
 
@@ -38,9 +38,9 @@ set(SOURCE_FILES
 	src/main.cpp
 )
 
-if(RASPBERRY)
-	set(SOURCE_FILES ${SOURCE_FILES} src/PiTFT.cpp)
-endif()
+#if(RASPBERRY)
+#	set(SOURCE_FILES ${SOURCE_FILES} src/PiTFT.cpp)
+#endif()
 
 set(APONE_MODULES
 	coreutils
@@ -55,6 +55,13 @@ set(APONE_MODULES
 	sqlite3
 )
 add_subdirectory(${AP1_ROOT}/mods ap1mods)
+
+if(APPLE)
+	set(DATA_TARGET ${CMAKE_CURRENT_BINARY_DIR}/Chipmachine.app/Contents/Resources/)
+	set(UADECORE_TARGET "${DATA_TARGET}data/uade/")
+else()
+	set(UADECORE_TARGET "${CMAKE_CURRENT_BINARY_DIR}/data/uade/")
+endif()
 
 set(MUSICPLAYER_PLUGINS
 	openmptplugin
@@ -82,57 +89,24 @@ include_directories(${AP1_ROOT}/mods/grappix ${AP1_ROOT}/mods/musicplayer/plugin
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
-SET_DATA_FILES(data lua)
-
 if(APPLE)
 	add_executable(chipmachine MACOSX_BUNDLE ${SOURCE_FILES})
-	add_custom_command(TARGET chipmachine POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
-	  ${CMAKE_CURRENT_BINARY_DIR}/data ${CMAKE_CURRENT_BINARY_DIR}/Chipmachine.app/Contents/Resources/data)
-	add_custom_command(TARGET chipmachine POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory
-	  ${CMAKE_CURRENT_BINARY_DIR}/lua ${CMAKE_CURRENT_BINARY_DIR}/Chipmachine.app/Contents/Resources/lua)
 else()
 	add_executable(chipmachine ${SOURCE_FILES})
 endif()
 
-#add_custom_command(OUTPUT data/uade/uadecore DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/plugins/uadeplugin/uade/uadecore
-#	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/plugins/uadeplugin/uade/uadecore ${CMAKE_CURRENT_BINARY_DIR}/data/uade)
 
 target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
-#add_dependencies(chipmachine data/uade/uadecore)
-#include(BundleUtilities)
-#fixup_bundle(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app "" "dfssds")
-#verify_app(${CMAKE_CURRENT_BINARY_DIR}/chipmachine.app)
-#install(TARGETS chipmachine DESTINATION Chipmachine.app/Contents/MacOS)
-#install(DIRECTORY data lua DESTINATION Chipmachine.app/Contents/Resources)
-#install(FILES ${CMAKE_BINARY_DIR}/data/uade/uadecore DESTINATION Chipmachine.app/Contents/Resources/data/uade/)
+SET_DATA_FILES(data lua)
 
-set(APPS ${CMAKE_CURRENT_BINARY_DIR}/Chipmachine.app)
-set(DIRS "")
-# install(CODE [=[
-#    file(MAKE_DIRECTORY Chipmachine.app/Contents/MacOS)
-#    file(MAKE_DIRECTORY Chipmachine.app/Contents/Frameworks)
-#    file(COPY chipmachine DESTINATION Chipmachine.app/Contents/MacOS)
-# ]=] COMPONENT Runtime)
-install(CODE " 
-   file(COPY data lua DESTINATION Chipmachine.app/Contents/Resources/)
-   file(COPY \"${CMAKE_SOURCE_DIR}/note.png\" DESTINATION Chipmachine.app/Contents/)
-   file(COPY /Library/Frameworks/SDL.framework DESTINATION Chipmachine.app/Contents/Frameworks/)
-   file(COPY \"${CMAKE_SOURCE_DIR}/Info.plist\" DESTINATION Chipmachine.app/Contents/)
-   include(BundleUtilities)
-   fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
-   " COMPONENT Runtime)
-
-
-# set(CPACK_PACKAGE_NAME "Chipmachine")
-# set(CPACK_PACKAGE_FILE_NAME "chipmachine")
-# set(CPACK_PACKAGE_ICON "note.png")
-
-# set(CPACK_BUNDLE_NAME "Chipmachine")
-# set(CPACK_BUNDLE_ICON "note.png")
-# set(CPACK_BUNDLE_PLIST "Info.plist")
-# set(CPACK_BUNDLE_STARTUP_COMMAND "chipmachine")
-
-# set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Jonas Minnberg")
-
-# set(CPACK_GENERATOR "Bundle")
-# include(CPack)
+if(APPLE)
+	set(APPS ${CMAKE_CURRENT_BINARY_DIR}/Chipmachine.app)
+	set(DIRS "")
+	install(CODE "
+	   file(COPY \"${CMAKE_SOURCE_DIR}/note.png\" DESTINATION Chipmachine.app/Contents/)
+	   file(COPY /Library/Frameworks/SDL.framework DESTINATION Chipmachine.app/Contents/Frameworks/)
+	   file(COPY \"${CMAKE_SOURCE_DIR}/Info.plist\" DESTINATION Chipmachine.app/Contents/)
+	   include(BundleUtilities)
+       fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
+       " COMPONENT Runtime)
+endif()
