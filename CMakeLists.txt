@@ -88,6 +88,7 @@ add_subdirectory(${AP1_ROOT}/mods/musicplayer/plugins plugins)
 include_directories(${AP1_ROOT}/mods/grappix ${AP1_ROOT}/mods/musicplayer/plugins)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+include_directories(${AP1_ROOT}/mods/glew/glew-1.11.0/include ${AP1_ROOT}mods/musicplayer/plugins/mp3plugin/mpg123-1.21.0/src/libmpg123)
 
 if(APPLE)
 	add_executable(chipmachine MACOSX_BUNDLE ${SOURCE_FILES})

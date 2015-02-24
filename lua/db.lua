@@ -4,7 +4,7 @@
 -- local_dir : If exists, will be checked first for files before downloading. Also used to create song list
 -- If song_list or or source can not be found, database will not be added
 
-VERSION = 1;
+VERSION = 2;
 
 DB = {
 {

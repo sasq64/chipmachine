@@ -27,13 +27,13 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 	static const map<uint32_t, uint32_t> colors = {
 		{ NOT_SET, 0xffff00ff },
 		{ PLAYLIST, 0xffffff88 },
-		{ MP3, 0xff88ff88 },
-		{ AMIGA, 0xff6666cc },
-		{ PC, 0xffcccccc },
-		{ ATARI, 0xffcccc33 },
-		{ C64, 0xffcc8844 },
 		{ CONSOLE, 0xffdd3355 },
-		{ 0xff, 0xff00ffff }
+		{ C64, 0xffcc8844 },
+		{ ATARI, 0xffcccc33 },
+		{ MP3, 0xff88ff88 },
+		{ PC, 0xffcccccc },
+		{ AMIGA, 0xff6666cc },
+		{ 255, 0xff00ffff }
 	};
 
 	Color c;
@@ -45,10 +45,9 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 	} else {
 		auto res = iquery->getResult(index-playlists.size());
 		auto parts = split(res, "\t");
-		int f = atoi(parts[3].c_str());
-		int g = f & 0xff;
+		int f = atoi(parts[3].c_str()) & 0xff;
 
-		if(g == PLAYLIST) {
+		if(f == PLAYLIST) {
 			if(parts[1] == "")
 				text = format("<%s>", parts[0]);
 			else
@@ -56,7 +55,7 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 		} else
 			text = format("%s / %s", parts[0], parts[1]);
 
-		auto it = colors.upper_bound(g)--;
+		auto it = --colors.upper_bound(f);
 		c = it->second;
 		c = c * 0.75f;
 	}
@@ -178,7 +177,7 @@ ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(
 	searchScreen.add(commandField);
 	commandField->visible(false);
 
-	scrollEffect.set("scrolltext", "Chipmachine Beta 3 -- Begin typing to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- F8 to clear queue -- ESCAPE to clear search text ----- ");
+	scrollEffect.set("scrolltext", "Chipmachine Beta 4 -- Begin typing to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- F8 to clear queue -- ESCAPE to clear search text ----- ");
 	starEffect.fadeIn();
 
 	File f { File::getCacheDir() + "login" };

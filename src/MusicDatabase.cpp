@@ -33,7 +33,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 	auto song_list = vars["song_list"];
 	auto description = vars["description"];
 	auto xformats = vars["exclude_formats"];
-	
+
 	// Return if this collection has already been indexed in this version
 	auto cq = db.query<uint64_t>("SELECT ROWID FROM collection WHERE id = ?", type);
 	if(cq.step()) {
@@ -72,7 +72,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 		bool isScenesat = (type == "scenesat");
 
 		for(const auto &s : listFile.getLines()) {
-			auto parts = split(s, "\t");			
+			auto parts = split(s, "\t");
 			if(parts.size() >= 2) {
 				if(isScenesat)
 					LOGD("%s ### %s", parts[1], parts[4]);
@@ -92,6 +92,9 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 					if(parts[0].find(source) == 0)
 						parts[0] = parts[0].substr(source.length());
 					SongInfo song(parts[0], "", parts[2], parts[3], "MP3");
+					query.bind(song.title, song.game, song.composer, song.format, song.path, collection_id);
+				} else if(isScenesat) {
+					SongInfo song(parts[4], parts[1], parts[2], parts[0], "MP3");
 					query.bind(song.title, song.game, song.composer, song.format, song.path, collection_id);
 				} else {
 					SongInfo song(parts[4], parts[1], parts[0], parts[2], parts[3]);

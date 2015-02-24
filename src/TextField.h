@@ -11,21 +11,25 @@
 class TextField : public Renderable {
 public:
 
-	TextField() : Renderable(grappix::screenptr), pos(0, 0), scale(1.0), color(0xffffffff), add(0), f {&pos.x, &pos.y, &scale, &color.r, &color.g, &color.b, &color.a, &add}, text(""), tsize(-1, -1) {
+	TextField() : Renderable(grappix::screenptr), pos(0, 0), scale(1.0), color(0xffffffff), add(0), text(""), tsize(-1, -1) {
 	}
 
-	TextField(const grappix::Font &font, const std::string &text = "", float x = 0.0, float y = 0.0, float sc = 1.0, uint32_t col = 0xffffffff) : Renderable(grappix::screenptr), pos(x, y), scale(sc), color(col), add(0), f {&pos.x, &pos.y, &scale, &color.r, &color.g, &color.b, &color.a, &add}, text(text), tsize(-1, -1), font(font) {
+	TextField(const grappix::Font &font, const std::string &text = "", float x = 0.0, float y = 0.0, float sc = 1.0, uint32_t col = 0xffffffff) : Renderable(grappix::screenptr), pos(x, y), scale(sc), color(col), add(0), text(text), tsize(-1, -1), font(font) {
 	}
 
-	utils::vec2f pos;
 
-	float scale;
-	grappix::Color color;
-	float add;
+	union {
+		float data[8];
+		struct {
+			utils::vec2f pos;
+			float scale;
+			grappix::Color color;
+			float add;
+		};
+	};
 
-	float& operator[](int i) { return *f[i]; }
-
-	int size() const { return 8; }
+	float& operator[](int i) { return data[i]; }
+	//int size() const { return 8; }
 
 	virtual void setText(const std::string &t) {
 		text = t;
@@ -56,12 +60,17 @@ public:
 		target->text(font, text, x, y, color + add, scale);
 	}
 
+	float *begin() { return std::begin(data); }
+	float *end() { return std::end(data); }
+
+
 protected:
-	float* f[8];
+	//float* f[8];
 	std::string text;
 	mutable utils::vec2i tsize;
 	grappix::Font font;
 };
+
 
 
 #endif // TEXT_FIELD_H

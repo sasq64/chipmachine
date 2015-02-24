@@ -7,12 +7,14 @@
 struct SongInfoField {
 
 	SongInfoField() {
+		fields.resize(3);
 		fields[0] = std::make_shared<TextField>();
 		fields[1] = std::make_shared<TextField>();
 		fields[2] = std::make_shared<TextField>();
 	}
 
 	SongInfoField(grappix::Font &font, int x = 0, int y = 0, float sc = 1.0, uint32_t color = 0xffffffff) {
+		fields.resize(3);
 		fields[0] = std::make_shared<TextField>(font, "", x, y, sc, color);
 		fields[1] = std::make_shared<TextField>(font, "", x, y+50*sc, sc*0.6, color);
 		fields[2] = std::make_shared<TextField>(font, "", x, y+100*sc, sc*0.4, color);
@@ -41,10 +43,40 @@ struct SongInfoField {
 		return other.path == path;
 	}
 
-	std::shared_ptr<TextField> fields[3];
+	std::vector<std::shared_ptr<TextField>> fields;
+
+
+	struct iterator  {
+		iterator(std::vector<std::shared_ptr<TextField>> fields, int index) : fields(fields), index(index) {}
+		iterator(const iterator& rhs) : fields(rhs.fields), index(rhs.index) {}
+
+		bool operator!= (const iterator& other) const {
+			return index != other.index;
+		}
+
+		TextField& operator* () {
+			return *fields[index];
+		}
+
+		const iterator& operator++ () {
+			++index;
+			return *this;
+		}
+
+		std::vector<std::shared_ptr<TextField>> fields;
+		int index;
+	};
+
+	iterator begin() {
+		return iterator(fields, 0);
+	}
+
+	iterator end() {
+		return iterator(fields, 3);
+	}
 
 	TextField& operator[](int i) { return *fields[i]; }
-	int size() const { return 3; }
+	//int size() const { return 3; }
 	std::string path;
 
 };
