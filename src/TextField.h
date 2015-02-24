@@ -18,18 +18,10 @@ public:
 	}
 
 
-	union {
-		float data[8];
-		struct {
-			utils::vec2f pos;
-			float scale;
-			grappix::Color color;
-			float add;
-		};
-	};
-
-	float& operator[](int i) { return data[i]; }
-	//int size() const { return 8; }
+	utils::vec2f pos;
+	float scale;
+	grappix::Color color;
+	float add;
 
 	virtual void setText(const std::string &t) {
 		text = t;
@@ -60,9 +52,43 @@ public:
 		target->text(font, text, x, y, color + add, scale);
 	}
 
-	float *begin() { return std::begin(data); }
-	float *end() { return std::end(data); }
+	struct iterator  {
+		iterator(TextField *field, int index) : field(field), index(index) {}
+		iterator(const iterator& rhs) : field(rhs.field), index(rhs.index) {}
 
+		bool operator!= (const iterator& other) const {
+			return index != other.index;
+		}
+
+		float& operator* () {
+			if(index <4)
+				return field->color[index];
+			else if(index == 4)
+				return field->pos.x;
+			else if(index == 5)
+				return field->pos.y;
+			else if(index == 6)
+				return field->scale;
+			else
+				return field->add;
+		}
+
+		const iterator& operator++ () {
+			++index;
+			return *this;
+		}
+
+		TextField *field;
+		int index;
+	};
+
+	iterator begin() {
+		return iterator(this, 0);
+	}
+
+	iterator end() {
+		return iterator(this, 8);
+	}
 
 protected:
 	//float* f[8];

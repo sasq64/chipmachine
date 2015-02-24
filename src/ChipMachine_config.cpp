@@ -53,7 +53,13 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 				markTween.start();
 			}
 		} else {
-			f[index-1] = stod(val);
+			auto x = stod(val);
+			if(index == 1)
+				f.pos.x = x;
+			else if(index == 2)
+				f.pos.y = x;
+			else
+				f.scale = x;
 		}
 	} else
 	if(name == "spectrum") {
