@@ -8,7 +8,7 @@ using namespace utils;
 void RemoteLoader::registerSource(const std::string &name, const std::string url, const std::string local_dir) {
 	Source s(url, local_dir);
 
-	LOGD("REGISTER %s", name);
+	//LOGD("REGISTER %s", name);
 
 	//if(s.url[s.url.length()-1] != '/')
 	//	s.url += '/';

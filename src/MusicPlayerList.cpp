@@ -39,7 +39,7 @@ bool MusicPlayerList::addSong(const SongInfo &si, int pos) {
 	if(!checkPermission(CAN_ADD_SONG)) return false;
 	LOCK_GUARD(plMutex);
 
-	LOGD("Add song %s %s %s %s", si.path, si.title, si.composer, si.format);
+	//LOGD("Add song %s %s %s %s", si.path, si.title, si.composer, si.format);
 
 	if(pos >= 0) {
 		if((int)playList.size() >= pos)
@@ -180,7 +180,7 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 
 			changedSong = false;
 			updateInfo();
-			LOGD("PLAY STARTED");
+			LOGD("STATE: Play started");
 			state = PLAY_STARTED;
 			return true;
 		} else {
@@ -220,7 +220,7 @@ void MusicPlayerList::update() {
 
 	if(state == PLAY_NOW) {
 		state = STARTED;
-		LOGD("##### PLAY NOW: %s (%s)", currentInfo.path, currentInfo.title);
+		//LOGD("##### PLAY NOW: %s (%s)", currentInfo.path, currentInfo.title);
 		playCurrent();
 	}
 
@@ -236,12 +236,12 @@ void MusicPlayerList::update() {
 					state = WAITING;
 			} else
 			if((length > 0 && pos > length) && pos > 7) {
-				LOGD("#### SONGLENGTH");
+				LOGD("STATE: Song length exceeded");
 				mp.fadeOut(3.0);
 				state = FADING;
 			} else
 			if(mp.getSilence() > 44100*6 && pos > 7) {
-				LOGD("############# SILENCE");
+				LOGD("STATE: Silence detected");
 				mp.fadeOut(0.5);
 				state = FADING;
 			}
@@ -256,7 +256,7 @@ void MusicPlayerList::update() {
 	if(state == FADING) {
 		if(mp.getFadeVolume() <= 0.01) {
 			LOCK_GUARD(plMutex);
-			LOGD("#### Music ended");
+			LOGD("STATE: Music ended");
 			if(playList.size() == 0)
 				state = STOPPED;
 			else
@@ -275,7 +275,6 @@ void MusicPlayerList::update() {
 			LOCK_GUARD(plMutex);
 			state = STARTED;
 			currentInfo = playList.front();
-			LOGD("INFO SET");
 			playList.pop_front();
 
 			if(playList.size() > 0) {
@@ -285,7 +284,7 @@ void MusicPlayerList::update() {
 
 			//pos = 0;
 		}
-		LOGD("##### New song: %s (%s)", currentInfo.path, currentInfo.title);
+		LOGD("Next song from queue : %s", currentInfo.path);
 		if(partyMode) {
 			partyLockDown = true;
 			setPermissions(CAN_PAUSE | CAN_ADD_SONG | PARTYMODE);
@@ -316,7 +315,7 @@ void MusicPlayerList::playCurrent() {
 
 	auto ext = path_extension(currentInfo.path);
 	makeLower(ext);
-	LOGD("EXT: %s", ext);
+	//LOGD("EXT: %s", ext);
 	files = 1;
 	string ext2;
 	if(fmt_2files.count(ext) > 0)
@@ -342,17 +341,17 @@ void MusicPlayerList::playCurrent() {
 	if(ext2 != "") {
 		files++;
 		auto smpl_file = path_directory(currentInfo.path) + "/" + path_basename(currentInfo.path) + "." + ext2;
-		LOGD("LOADING %s", smpl_file);
+		LOGD("Loading secondary (sample) file '%s'", smpl_file);
 		loader.load(smpl_file, [=](File f) {
 			files--;
 		});
 	}
 
-	LOGD("LOADING:%s", currentInfo.path);
+	// LOGD("LOADING:%s", currentInfo.path);
 	loader.load(currentInfo.path, [=](File f0) {
-		LOGD("Got file");
+		//LOGD("Got file");
 		loadedFile = f0.getName();
-		LOGD("loadedFile %s", loadedFile);
+		LOGD("Loaded file '%s'", loadedFile);
 		PSFFile f { loadedFile };
 		if(f.valid()) {
 			auto lib = f.tags()["_lib"];
@@ -361,6 +360,7 @@ void MusicPlayerList::playCurrent() {
 				makeLower(lib);
 				auto lib_url = path_directory(currentInfo.path) + "/" + lib;
 				files++;
+				LOGD("Loading library file '%s'");
 				RemoteLoader &loader = RemoteLoader::getInstance();
 				loader.load(lib_url, [=](File f) {
 					LOGD("Got lib file %s, copying to %s", f.getName(), lib_target);

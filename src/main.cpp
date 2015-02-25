@@ -1,3 +1,11 @@
+#ifdef LINUX
+#define BACKWARD_HAS_BFD 1
+#include <backward-cpp/backward.hpp>
+namespace backward {
+	backward::SignalHandling sh;
+}
+#endif
+
 #include "ChipMachine.h"
 #include "MusicPlayerList.h"
 
@@ -57,7 +65,7 @@ int main(int argc, char* argv[]) {
 	string workDir = File::findFile(path, "data").getDirectory();
 
 	if(workDir == "") {
-		fprintf(stderr, "**Error: Could not find data files\n");
+		fprintf(stderr, "** Error: Could not find data files\n");
 		exit(-1);
 	}
 

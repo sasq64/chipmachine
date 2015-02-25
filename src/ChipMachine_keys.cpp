@@ -146,7 +146,7 @@ void ChipMachine::updateKeys() {
 		smac.put_event(k);
 	auto action = smac.next_action();
 	if(action.id != NO_ACTION) {
-		LOGD("ACTION %d", action.id);
+		//LOGD("ACTION %d", action.id);
 		string name;
 		switch((ChipAction)action.id) {
 		case EDIT_PLAYLIST:
@@ -180,7 +180,7 @@ void ChipMachine::updateKeys() {
 			break;
 		case CANCEL_COMMAND:
 			commandField->visible(false);
-			playlistEdit = false;		
+			playlistEdit = false;
 			break;
 		case PLAY_PAUSE:
 			player.pause(!player.isPaused());
@@ -241,7 +241,7 @@ void ChipMachine::updateKeys() {
 			searchUpdated = true;
 			break;
 		case ADD_SEARCH_CHAR:
-			LOGD("%d %02x", currentScreen, action.event);
+			//LOGD("%d %02x", currentScreen, action.event);
 			if(hasMoved && action.event != ' ')
 				iquery->clear();
 			hasMoved = false;
@@ -314,7 +314,7 @@ void ChipMachine::updateKeys() {
 		case VOLUME_DOWN:
 			player.setVolume(player.getVolume() - 0.1);
 			showVolume = 30;
-			break;			
+			break;
 		case LAYOUT_SCREEN:
 			layoutScreen();
 			break;

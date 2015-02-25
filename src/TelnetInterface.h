@@ -24,6 +24,7 @@ public:
 	void start();
 	void stop();
 private:
+	void runClient(std::shared_ptr<bbs::Console> console);
 	//MusicDatabase& db;
 	MusicPlayerList& player;
 	//ChipMachine &chipmachine;

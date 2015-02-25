@@ -275,23 +275,15 @@ SongInfo MusicDatabase::lookup(const std::string &p) {
 SongInfo MusicDatabase::getSongInfo(int id) const {
 
 	id++;
-	LOGD("ID %d", id);
 
 	auto q = db.query<string, string, string, string, string, string>("SELECT title, game, composer, format, song.path, collection.id FROM song, collection WHERE song.ROWID = ? AND song.collection = collection.ROWID", id);
 	if(q.step()) {
-		//string title, game, composer, format, path, collection;
 		SongInfo song;
 		string collection;
 		tie(song.title, song.game, song.composer, song.format, song.path, collection) = q.get_tuple();
-
 		song.path = collection + "::" + song.path;
-
 		if(song.game != "")
 			song.title = utils::format("%s [%s]", song.game, song.title);
-
-		//string r = utils::format("%s\t%s\t%s\t%s", path, title, composer, format);
-		//LOGD("RESULT %s", r);
-		//return r;
 		return song;
 	}
 	throw not_found_exception();

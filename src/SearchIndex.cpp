@@ -34,7 +34,7 @@ public:
 	    int i;
 
 	   	const unsigned char *string = (const unsigned char*)st;
-	 
+
 	    i = patlen-1;
 	    while (i < stringlen) {
 	        int j = patlen-1;
@@ -62,8 +62,8 @@ private:
 	        delta1[pat[i]] = patlen-1 - i;
 	    }
 	}
-	 
-	// true if the suffix of word starting from word[pos] is a prefix 
+
+	// true if the suffix of word starting from word[pos] is a prefix
 	// of word
 	int is_prefix(const unsigned char *word, int wordlen, int pos) {
 	    int i;
@@ -76,7 +76,7 @@ private:
 	    }
 	    return 1;
 	}
-	 
+
 	// length of the longest suffix of word ending on word[pos].
 	// suffix_length("dddbcabc", 8, 4) = 2
 	int suffix_length(const unsigned char *word, int wordlen, int pos) {
@@ -86,11 +86,11 @@ private:
 	    for (i = 0; (word[pos-i] == word[wordlen-1-i]) && (i < pos); i++);
 	    return i;
 	}
-	 
+
 	void make_delta2(int *delta2, const unsigned char *pat, int32_t patlen) {
 	    int p;
 	    int last_prefix_index = patlen-1;
-	 
+
 	    // first loop
 	    for (p=patlen-1; p>=0; p--) {
 	        if (is_prefix(pat, patlen, p+1)) {
@@ -98,7 +98,7 @@ private:
 	        }
 	        delta2[p] = last_prefix_index + (patlen-1 - p);
 	    }
-	 
+
 	    // second loop
 	    for (p=0; p < patlen-1; p++) {
 	        int slen = suffix_length(pat, patlen, p);
@@ -120,8 +120,8 @@ void IncrementalQuery::addLetter(char c) {
 		if(query.size() == 0 || query.back() == ' ')
 			return;
 	}
-	LOGD("Adding %c", c);
-	query.push_back(c);	
+	LOGV("Adding %c", c);
+	query.push_back(c);
 	if(query.size() > 0) {
 		search();
 	}
@@ -152,7 +152,7 @@ void IncrementalQuery::clear() {
 	query.resize(0);
 }
 
-const string IncrementalQuery::getString() { 
+const string IncrementalQuery::getString() {
 	return string(&query[0], query.size());
 }
 
@@ -167,7 +167,7 @@ const vector<string> &IncrementalQuery::getResult(int start, int size) {
 		textResult.resize(0);
 
 		for(int i = start; i<start+size && i < (int)finalResult.size(); i++) {
-			int index = finalResult[i];		
+			int index = finalResult[i];
 			textResult.push_back(provider->getString(index));
 		}
 		lastStart = start;
@@ -192,7 +192,7 @@ void IncrementalQuery::search() {
 
 	// Remove empty strings
 	parts.erase(remove_if(parts.begin(), parts.end(), [&](const string &a) { return a.size() == 0; }), parts.end());
-	LOGD("Parts: [%s]", parts);
+	LOGV("Parts: [%s]", parts);
 
 
 	if(oldParts.size() == 0 || oldParts[0] != parts[0]) {
@@ -208,7 +208,7 @@ void IncrementalQuery::search() {
 					return str.find(parts[0]) == string::npos;
 				}),
 			firstResult.end());
-		} else { 
+		} else {
 			// In chipmachine this is a proxy that searches in two separate providers
 			provider->search(parts[0], firstResult, searchLimit);
 		}
@@ -242,7 +242,7 @@ void IncrementalQuery::search() {
 			}
 
 			const auto &p = parts[i];
-			//LOGD("Find %s in %s", p, str);
+			//LOGV("Find %s in %s", p, str);
 			if(str.find(p) == string::npos) {
 				found = false;
 				break;
@@ -315,15 +315,15 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 	string query = q;
 	simplify(query);
 
-	//LOGD("Checking '%s' among %d+%d sub strings", query, titleMap.size(), composerMap.size());
+	//LOGV("Checking '%s' among %d+%d sub strings", query, titleMap.size(), composerMap.size());
 
 	uint16_t v = tlcode(query.substr(0,3).c_str());
 
 	const auto &tv = stringMap[v];
 
-	LOGD("Searching %d candidates for '%s'", tv.size(), query);
+	LOGV("Searching %d candidates for '%s'", tv.size(), query);
 	if(filter) {
-		LOGD("Filtering");
+		LOGV("Filtering");
 		if(q3) {
 			for(int index : tv) {
 				if(!filter(index))
@@ -419,14 +419,14 @@ int SearchIndex::add(const string &str, bool stringonly) {
 		if(!isalnum(c)) {
 			if(!wordAdded) {
 				uint16_t code = tlcode(tl.c_str());
-				//LOGD("Adding '%s'", tl);
+				//LOGV("Adding '%s'", tl);
 				if(used.count(code) == 0) {
 					stringMap[code].push_back(index);
 					used.insert(code);
 				}
-				wordAdded = true;				
+				wordAdded = true;
 			}
-			tl.resize(0);			
+			tl.resize(0);
 			continue;
 		}
 		wordAdded = false;
