@@ -78,11 +78,11 @@ void TelnetInterface::runClient(shared_ptr<Console> console) {
 		console->write(s);
 	});
 
-	lip.registerFunction<void, string>("scrolltext", [=](const string &t) {
+	lip.registerFunction("scrolltext", [=](const string &t) {
 		//chipmachine.set_scrolltext(t);
 	});
 
-	lip.registerFunction<vector<strmap>, string>("find", [=](const string &q) -> vector<strmap> {
+	lip.registerFunction("find", [=](const string &q) -> vector<strmap> {
 
 		vector<int> result;
 		vector<strmap> fullres;
@@ -105,21 +105,21 @@ void TelnetInterface::runClient(shared_ptr<Console> console) {
 		return fullres;
 	});
 
-	lip.registerFunction<void, string>("play_file", [&](const std::string &path) {
+	lip.registerFunction("play_file", [&](const std::string &path) {
 		SongInfo song(path);
 		player.playSong(song);
 	});
 
-	lip.registerFunction<void, strmap>("play_song", [&](const strmap &s) {
+	lip.registerFunction("play_song", [&](const strmap &s) {
 		SongInfo song(s.at("path"), "", s.at("title"), s.at("composer"));
 		player.playSong(song);
 	});
 
-	lip.registerFunction<void>("next_song", [&]() {
+	lip.registerFunction("next_song", [&]() {
 		player.nextSong();
 	});
 
-	lip.registerFunction<strmap>("get_playing_song", [&]() {
+	lip.registerFunction("get_playing_song", [&]() -> strmap {
 		SongInfo song = player.getInfo();
 		strmap s;
 		s["path"] = song.path;
@@ -128,7 +128,7 @@ void TelnetInterface::runClient(shared_ptr<Console> console) {
 		return s;
 	});
 
-	lip.registerFunction<void, string, int>("toast", [=](const string &t, int type) {
+	lip.registerFunction("toast", [=](const string &t, int type) {
 		//grappix::screen.run_safely([&]() {
 			//chipmachine.toast(t, type);
 		//});

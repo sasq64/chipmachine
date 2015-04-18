@@ -537,7 +537,7 @@ void MusicDatabase::initFromLua(const string &workDir) {
 
 	LuaInterpreter lua;
 
-	lua.registerFunction<void, string, string>("set_db_var", [&](string name, string val) {
+	lua.registerFunction("set_db_var", [&](string name, string val) {
 		static unordered_map<string, string> dbmap;
 		if(val == "start") {
 		} else if(val == "end") {

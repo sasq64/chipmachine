@@ -195,7 +195,7 @@ void ChipMachine::setScrolltext(const std::string &txt) {
 }
 
 void ChipMachine::initLua() {
-	lua.registerFunction<void, string, uint32_t, string>("set_var", [=](string name, uint32_t index, string val) {
+	lua.registerFunction("set_var", [=](string name, uint32_t index, string val) {
 		setVariable(name, index, val);
 	});
 }
