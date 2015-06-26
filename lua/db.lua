@@ -90,5 +90,11 @@ DB = {
 	song_list = "data/scenesat.txt",
 	local_dir = "/opt/Music/scenesat",
 	color = 0xfffff
+},
+{
+	name = "Bitjam",
+	type = "bitjam",
+	song_list = "http://www.bitfellas.org/podcast/podcast.xml",
+	color = 0xfffff
 }
 };

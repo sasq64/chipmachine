@@ -285,6 +285,7 @@ void ChipMachine::updateKeys() {
 			player.clearSongs();
 			toast("Playlist cleared", 2);
 			break;
+#ifdef USE_REMOTELISTS		
 		case SEND_PLAYLIST:
 			if(userName == "") {
 				currentDialog = make_shared<Dialog>(screenptr, font, "Login with handle:");
@@ -307,6 +308,7 @@ void ChipMachine::updateKeys() {
 				RemoteLists::getInstance().sendList(plist.songs, plist.name, [=]() { toast("Uploaded", 2); });
 			}
 			break;
+#endif
 		case VOLUME_UP:
 			player.setVolume(player.getVolume() + 0.1);
 			showVolume = 30;

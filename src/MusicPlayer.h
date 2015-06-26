@@ -22,7 +22,7 @@ class ChipPlayer;
 class Streamer {
 public:
 	Streamer(std::mutex &m, std::shared_ptr<ChipPlayer> pl) : playerMutex(m), player(pl) {}
-	void put(uint8_t *ptr, int size);
+	void put(const uint8_t *ptr, int size);
 private:
 	std::mutex &playerMutex;
 	std::shared_ptr<ChipPlayer> player;

@@ -1,5 +1,7 @@
 #include "PlaylistDatabase.h"
+#ifdef USE_REMOTELISTS
 #include "RemoteLists.h"
+#endif
 #include <coreutils/utils.h>
 #include <coreutils/file.h>
 #include <archive/archive.h>
@@ -133,6 +135,7 @@ Playlist PlaylistDatabase::getPlaylist(const std::string &name) {
 /*Playlist */ void PlaylistDatabase::getPlaylist(const std::string &name, std::function<void(const Playlist &)> cb) {
 	for(auto &p : playlists) {
 		if(p.name == name) {
+#ifdef USE_REMOTELISTS
 			if(p.isRemote) {
 				RemoteLists::getInstance().getList(name, [=](const string &name, const vector<string> &list) {
 
@@ -156,6 +159,7 @@ Playlist PlaylistDatabase::getPlaylist(const std::string &name) {
 					cb(*pl);
 				});
 			} else
+#endif
 				cb(p);
 		}
 	}

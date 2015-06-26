@@ -175,9 +175,10 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 		}
 
 		if(mp.playFile(fileName)) {
+#ifdef USE_REMOTELISTS
 			if(reportSongs)
 				RemoteLists::getInstance().songPlayed(currentInfo.path);
-
+#endif
 			changedSong = false;
 			updateInfo();
 			LOGD("STATE: Play started");
@@ -331,8 +332,9 @@ void MusicPlayerList::playCurrent() {
 
 		 	files = 0;
 		 	state = PLAY_STARTED;
-		 	loader.stream(currentInfo.path, [=](uint8_t *ptr, int size) {
+		 	loader.stream(currentInfo.path, [=](const uint8_t *ptr, int size) -> bool{
 		 		streamer->put(ptr, size);
+		 		return true;
 		 	});
 		}
 	 	return;

@@ -77,6 +77,7 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 
 ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(workDir), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen)  {
 
+#ifdef USE_REMOTELISTS
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
 		string e = error;
 		if(rc == RemoteLists::JSON_INVALID)
@@ -84,6 +85,7 @@ ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(
 		toast(e, 1);
 		player.setReportSongs(false);
 	});
+#endif
 
 	PlaylistDatabase::getInstance();
 
@@ -186,8 +188,10 @@ ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(
 }
 
 ChipMachine::~ChipMachine() {
+#ifdef ENABLE_TELNET
 	if(telnet)
 		telnet->stop();
+#endif
 }
 
 void ChipMachine::setScrolltext(const std::string &txt) {
@@ -472,7 +476,11 @@ void ChipMachine::render(uint32_t delta) {
 	}
 
 
-	if(WebRPC::inProgress() > 0 || WebGetter::inProgress() > 0) {
+	if(
+#ifdef ENABLE_TELNET
+		WebRPC::inProgress() > 0 || 
+#endif
+		net::WebGetter::inProgress() > 0) {
 		screen.draw(netTexture, 2, 2, 8*3, 5*3, nullptr);
 	}
 

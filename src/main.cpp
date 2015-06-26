@@ -1,10 +1,10 @@
-#ifdef LINUX
-#define BACKWARD_HAS_BFD 1
-#include <backward-cpp/backward.hpp>
-namespace backward {
-	backward::SignalHandling sh;
-}
-#endif
+// #ifdef LINUX
+// #define BACKWARD_HAS_BFD 1
+// #include <backward-cpp/backward.hpp>
+// namespace backward {
+// 	backward::SignalHandling sh;
+// }
+// #endif
 
 #include "ChipMachine.h"
 #include "MusicPlayerList.h"
@@ -74,13 +74,15 @@ int main(int argc, char* argv[]) {
 	if(server) {
 		MusicPlayerList player(workDir);
 		MusicDatabase::getInstance().initFromLua(workDir);
+#ifdef ENABLE_TELNET
 		TelnetInterface telnet(player);
 		telnet.start();
+#endif
 		while(true) sleepms(500);
 	}
 
 	if(songs.size() > 0) {
-
+#ifdef ENABLE_CONSOLE
 		Console *c = Console::createLocalConsole();
 
 		MusicPlayerList mpl(workDir);
@@ -112,6 +114,9 @@ int main(int argc, char* argv[]) {
 				}
 			}
 		}
+#else
+#endif
+
 	}
 
 	if(fullScreen)

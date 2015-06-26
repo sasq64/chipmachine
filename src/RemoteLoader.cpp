@@ -86,7 +86,7 @@ void RemoteLoader::preCache(const std::string &path) {
 }
 
 
-bool RemoteLoader::stream(const std::string &p, std::function<void(uint8_t *data, int size)> data_cb) {
+bool RemoteLoader::stream(const std::string &p, std::function<bool(const uint8_t *data, int size)> data_cb) {
 
 	Source source;
 	string path = p;

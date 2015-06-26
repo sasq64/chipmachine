@@ -2,11 +2,14 @@
 #include "SongFileIdentifier.h"
 #include "RemoteLoader.h"
 
+#include "tinyxml2.h"
+
 #include <luainterpreter/luainterpreter.h>
 #include <coreutils/utils.h>
 #include <archive/archive.h>
 #include <set>
 #include <chrono>
+
 
 using namespace std;
 using namespace utils;
@@ -15,6 +18,63 @@ namespace chipmachine {
 
 static const std::set<std::string> secondary = { "smpl", "sam", "ins", "smp" };
 
+template <typename T> class node {
+public:
+	node(std::shared_ptr<node> next, T value) : value(value), next(next) {}
+	T value;
+	std::shared_ptr<node> next;
+
+};
+
+template <typename T> class list {
+public:
+
+	class const_iterator  {
+	public:
+		const_iterator(std::shared_ptr<node<T>> n) : n(n) {}
+		const_iterator(const const_iterator& rhs) : n(rhs.n) {}
+
+		bool operator!= (const const_iterator& other) const {
+	    	return n != other.n;
+		}
+
+	    T operator* () const {
+	    	return n->value;
+	    }
+
+		const const_iterator& operator++ () {
+			n = n->next;
+			return *this;
+		}
+	private:
+		std::shared_ptr<node<T>> n;
+	};
+
+	const_iterator begin() const { return const_iterator(first); }
+	const_iterator end() const { return const_iterator(nullptr); } 
+
+	list() {}
+
+	const T& head() const { return first->value; }
+	const list tail() const { return list(first->next); }
+	const list operator<<(const T &t) const {
+
+		if(!first)
+			return list(nullptr, t);
+
+		return list(first->next, t);
+	}
+
+private:
+
+	list(std::shared_ptr<node<T>> first) : first(first) {}
+
+	list(std::shared_ptr<node<T>> first, T t) : first( std::make_shared<node<T>>(first, t) ) {}
+
+	std::shared_ptr<node<T>> first;
+};
+
+
 #ifdef RASPBERRYPI
 static std::unordered_set<std::string> exclude = {
 	"Gameboy Sound Format", "Dreamcast Sound Format", "Saturn Sound Format"
@@ -22,6 +82,83 @@ static std::unordered_set<std::string> exclude = {
 #else
 static std::unordered_set<std::string> exclude = { "Gameboy Sound Format", "Saturn Sound Format" };
 #endif
+
+class xmlnode {
+public:
+
+	xmlnode(tinyxml2::XMLNode *node) : node(node) {}
+
+	xmlnode operator[](const std::string &tag) const {
+		return xmlnode(node->FirstChildElement(tag.c_str()));
+	}
+
+	class const_iterator  {
+		public:
+			const_iterator(tinyxml2::XMLNode *node, const char *name = nullptr) : node(node), name(name) {}
+			const_iterator(const const_iterator& rhs) : node(rhs.node), name(rhs.name) {}
+
+			bool operator!= (const const_iterator& other) const {
+		    	return node != other.node;
+			}
+
+		    xmlnode operator* () const {
+		    	return xmlnode(node);
+		    }
+
+			const const_iterator& operator++ () {
+				node = node->NextSiblingElement(name);
+				return *this;
+			}
+		private:
+			tinyxml2::XMLNode *node;
+			const char *name;
+		};
+
+		class xmlnodelist {
+		public:
+			xmlnodelist(tinyxml2::XMLNode *node, const std::string &name = "") : node(node), name(name) {}
+			const_iterator begin() const { return const_iterator(node, name == "" ? nullptr : name.c_str()); }
+			const_iterator end() const { return const_iterator(nullptr); } 
+		private:
+			tinyxml2::XMLNode *node;
+			std::string name;
+		};
+
+		xmlnodelist all(const std::string &name = "") const {
+			return xmlnodelist(node->FirstChildElement(name.c_str()), name);
+		}
+
+		std::string attr(const std::string &name) const {
+			return ((tinyxml2::XMLElement*)node)->Attribute(name.c_str());
+		}
+
+		std::string text() const {
+			return ((tinyxml2::XMLElement*)node)->GetText();
+		}
+
+
+protected:
+	tinyxml2::XMLNode *node;
+
+};
+
+class xmldoc : public xmlnode {
+public:
+	static xmldoc fromText(const std::string &text) {
+		return xmldoc(text);
+	}
+
+	xmldoc(const xmldoc &other) = default;
+
+private:
+	xmldoc(const std::string &text) : xmlnode(nullptr) {
+		doc = std::make_shared<tinyxml2::XMLDocument>();
+    	doc->Parse(text.c_str());
+    	node = doc.get();
+	}
+
+	std::shared_ptr<tinyxml2::XMLDocument> doc;	
+};
 
 
 void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<string, string> &vars) {
@@ -55,6 +192,11 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 
 	print_fmt("Creating '%s' database\n", name);
 
+	bool rss = (type == "bitjam");
+	if(rss) {
+		source = "http://malus.exotica.org.uk/pub/";
+	}
+
 	db.exec("BEGIN TRANSACTION");
 	db.exec("INSERT INTO collection (name, id, url, localdir, description) VALUES (?, ?, ?, ?, ?)",
 		name, type, source, local_dir, description);
@@ -64,6 +206,40 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 
 	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?)");
 
+	if(rss) {
+
+		atomic<bool> done;
+		string xml;
+
+		net::WebGetter getter;
+
+		getter.getData(song_list, [&](const vector<uint8_t> &data) {
+			xml = string(data.begin(), data.end());
+			done = true;
+		});
+
+		while(!done) sleepms(100);
+
+		auto doc = xmldoc::fromText(xml);
+		for(const auto &i : doc["rss"]["channel"].all("item")) {
+			auto title = i["title"].text();
+			auto enclosure = i["enclosure"].attr("url");
+	    	string composer = "";
+
+	    	auto dash = title.rfind(" - ");
+	    	if(dash != string::npos) {
+	    		composer = title.substr(dash+2);
+	    		title = title.substr(0, dash);
+	    	}
+
+	    	auto pos = enclosure.find("file=");
+	    	if(pos != string::npos)
+	    		enclosure = enclosure.substr(pos+5);
+
+			query.bind(title, "", composer, "MP3", enclosure, collection_id).step();
+		}
+
+	} else
 	if(listFile.exists()) {
 
 		bool isModland = (type == "modland");
@@ -74,33 +250,29 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 		for(const auto &s : listFile.getLines()) {
 			auto parts = split(s, "\t");
 			if(parts.size() >= 2) {
-				if(isScenesat)
-					LOGD("%s ### %s", parts[1], parts[4]);
+				if(isScenesat) LOGV("%s ### %s", parts[1], parts[4]);
+				SongInfo song;
+
 				if(isModland) {
-					SongInfo song(parts[1]);
+					song = SongInfo(parts[1]);
 					if(!parseModlandPath(song))
 						continue;
 					if(ex_copy.count(song.format) > 0)
 						continue;
-					query.bind(song.title, song.game, song.composer, song.format, song.path, collection_id);
 				} else if(isRKO) {
 					parts[3] = htmldecode(parts[3]);
 					parts[4] = htmldecode(parts[4]);
-					SongInfo song(parts[0], "", parts[3], parts[4], "MP3");
-					query.bind(song.title, song.game, song.composer, song.format, song.path, collection_id);
+					song = SongInfo(parts[0], "", parts[3], parts[4], "MP3");
 				} else if(isAmiRemix) {
 					if(parts[0].find(source) == 0)
 						parts[0] = parts[0].substr(source.length());
-					SongInfo song(parts[0], "", parts[2], parts[3], "MP3");
-					query.bind(song.title, song.game, song.composer, song.format, song.path, collection_id);
+					song = SongInfo(parts[0], "", parts[2], parts[3], "MP3");
 				} else if(isScenesat) {
-					SongInfo song(parts[4], parts[1], parts[2], parts[0], "MP3");
-					query.bind(song.title, song.game, song.composer, song.format, song.path, collection_id);
+					song = SongInfo(parts[4], parts[1], parts[2], parts[0], "MP3");
 				} else {
-					SongInfo song(parts[4], parts[1], parts[0], parts[2], parts[3]);
-					query.bind(song.title, song.game, song.composer, song.format, song.path, collection_id);
+					song = SongInfo(parts[4], parts[1], parts[0], parts[2], parts[3]);
 				}
-				query.step();
+				query.bind(song.title, song.game, song.composer, song.format, song.path, collection_id).step();
 			}
 		}
 	} else if(local_dir != "") {
@@ -122,8 +294,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 							name = name.substr(pos + local_dir.length());
 						}
 
-						query.bind(songInfo.title, songInfo.game, songInfo.composer, songInfo.format, name, collection_id);
-						query.step();
+						query.bind(songInfo.title, songInfo.game, songInfo.composer, songInfo.format, name, collection_id).step();
 					}
 				}
 			}

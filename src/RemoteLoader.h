@@ -1,7 +1,7 @@
 #ifndef REMOTE_LOADER_H
 #define REMOTE_LOADER_H
 
-#include <webutils/webgetter.h>
+#include <net/webgetter.h>
 #include <coreutils/file.h>
 
 #include <string>
@@ -17,7 +17,7 @@ public:
 
 	bool load(const std::string &path, std::function<void(utils::File)> done_cb);
 
-	bool stream(const std::string &path, std::function<void(uint8_t *data, int size)> data_cb);
+	bool stream(const std::string &path, std::function<bool(const uint8_t *data, int size)> data_cb);
 
 	void preCache(const std::string &path);
 
@@ -39,7 +39,7 @@ private:
 
 	std::unordered_map<std::string, Source> sources;
 
-	WebGetter webgetter;
+	net::WebGetter webgetter;
 
 };
 

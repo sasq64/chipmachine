@@ -17,7 +17,7 @@ using namespace utils;
 
 namespace chipmachine {
 
-void Streamer::put(uint8_t *ptr, int size) {
+void Streamer::put(const uint8_t *ptr, int size) {
 	LOCK_GUARD(playerMutex);
 	player->putStream(ptr, size);
 }

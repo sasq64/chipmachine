@@ -4,7 +4,8 @@ project(chipmachine)
 set(AP1_ROOT ../apone)
 include(${AP1_ROOT}/cmake/Utils.cmake)
 
-add_definitions(-DAPP_NAME=chipmachine -DENABLE_TELNET)
+add_definitions(-DAPP_NAME=chipmachine)
+#(-DUSE_REMOTELISTS -DENABLE_TELNET)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
@@ -14,6 +15,9 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2")
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -DCM_DEBUG")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -DCM_DEBUG")
+
+
+#set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
 
 include_directories(${AP1_ROOT}/mods)
@@ -27,15 +31,16 @@ set(SOURCE_FILES
 	src/MusicPlayer.cpp
 	src/MusicPlayerList.cpp
 	src/PlaylistDatabase.cpp
-	src/RemoteLists.cpp
+#	src/RemoteLists.cpp
 	src/RemoteLoader.cpp
 	src/SearchIndex.cpp
 	src/SongFileIdentifier.cpp
-	src/TelnetInterface.cpp
+#	src/TelnetInterface.cpp
 	src/renderable.cpp
 	src/renderset.cpp
 	src/state_machine.cpp
 	src/main.cpp
+	src/tinyxml2.cpp
 )
 
 #if(RASPBERRY)
@@ -46,13 +51,14 @@ set(APONE_MODULES
 	coreutils
 	audioplayer
 	grappix
-	bbsutils
+#	bbsutils
 	fft
 	archive
-	webutils
-	json
+#	webutils
+#	json
 	luainterpreter
 	sqlite3
+	net
 )
 add_subdirectory(${AP1_ROOT}/mods ap1mods)
 
@@ -87,7 +93,7 @@ add_subdirectory(${AP1_ROOT}/mods/musicplayer/plugins plugins)
 
 include_directories(${AP1_ROOT}/mods/grappix ${AP1_ROOT}/mods/musicplayer/plugins)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 include_directories(${AP1_ROOT}/mods/glew/glew-1.11.0/include ${AP1_ROOT}mods/musicplayer/plugins/mp3plugin/mpg123-1.21.0/src/libmpg123)
 
 if(APPLE)
