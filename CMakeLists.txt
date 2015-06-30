@@ -7,8 +7,8 @@ include(${AP1_ROOT}/cmake/Utils.cmake)
 add_definitions(-DAPP_NAME=chipmachine)
 #(-DUSE_REMOTELISTS -DENABLE_TELNET)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -funsigned-char")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -funsigned-char")
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O2")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2")
@@ -102,6 +102,8 @@ else()
 	add_executable(chipmachine ${SOURCE_FILES})
 endif()
 
+add_executable(modland modland.cpp)
+target_link_libraries(modland coreutils)
 
 target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
 SET_DATA_FILES(data lua)

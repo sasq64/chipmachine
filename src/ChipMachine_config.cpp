@@ -9,19 +9,24 @@ namespace chipmachine {
 
 void ChipMachine::setVariable(const std::string &name, int index, const std::string &val) {
 
+	// The text fields that are configurable lfrom lua
 	static unordered_map<string, TextField*> fields = {
 		{ "main_title", &currentInfoField[0] },
 		{ "main_composer", &currentInfoField[1] },
 		{ "main_format", &currentInfoField[2] },
+
 		{ "next_title", &nextInfoField[0] },
 		{ "next_composer", &nextInfoField[1] },
 		{ "next_format", &nextInfoField[2] },
+
 		{ "exit_title", &prevInfoField[0] },
 		{ "exit_composer", &prevInfoField[1] },
 		{ "exit_format", &prevInfoField[2] },
+
 		{ "enter_title", &outsideInfoField[0] },
 		{ "enter_composer", &outsideInfoField[1] },
 		{ "enter_format", &outsideInfoField[2] },
+
 		{ "length_field", lengthField.get() },
 		{ "time_field", timeField.get() },
 		{ "song_field", songField.get() },
@@ -38,13 +43,13 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 		auto &f = (*fields[name]);
 		if(index >= 4) {
 			auto c = Color(stoll(val));
-			if(name == "main_title" || name == "next_title")
+			/*if(name == "main_title" || name == "next_title")
 				outsideInfoField[0].color = c;
 			else if(name == "main_composer" || name == "next_composer")
 				outsideInfoField[1].color = c;
 			else if(name == "main_format" || name == "next_format")
 				outsideInfoField[2].color = c;
-			else if(name == "time_field")
+			else */ if(name == "time_field")
 				timeColor = c;
 			f.color = c;
 			if(name == "result_field") {
@@ -105,12 +110,12 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 		starsOn = stol(val) != 0;
 	} else
 	if(name == "top_left") {
-		tv0[index-1] = stol(val);
-		songList.setArea(Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28));
+		topLeft[index-1] = stol(val);
+		songList.setArea(Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x, downRight.y - topLeft.y - 28));
 	} else
 	if(name == "down_right") {
-		tv1[index-1] = stol(val);
-		songList.setArea(Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28));
+		downRight[index-1] = stol(val);
+		songList.setArea(Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x, downRight.y - topLeft.y - 28));
 	} else
 	if(name == "scroll") {
 		switch(index) {

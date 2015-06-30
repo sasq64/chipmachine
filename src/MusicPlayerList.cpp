@@ -361,14 +361,18 @@ void MusicPlayerList::playCurrent() {
 				auto lib_target = path_directory(loadedFile) + "/" + lib;
 				makeLower(lib);
 				auto lib_url = path_directory(currentInfo.path) + "/" + lib;
-				files++;
-				LOGD("Loading library file '%s'");
-				RemoteLoader &loader = RemoteLoader::getInstance();
-				loader.load(lib_url, [=](File f) {
-					LOGD("Got lib file %s, copying to %s", f.getName(), lib_target);
-					File::copy(f.getName(), lib_target);
-					files--;
-				});
+				if(!File::exists(lib_target)) {
+					files++;
+					LOGD("Loading library file '%s'");
+					RemoteLoader &loader = RemoteLoader::getInstance();
+					loader.load(lib_url, [=](File f) {
+						if(f.getName() != lib_target) {
+							LOGD("Got lib file %s, copying to %s", f.getName(), lib_target);
+							File::copy(f.getName(), lib_target);
+						}
+						files--;
+					});
+				}
 			}
 		}
 		files--;

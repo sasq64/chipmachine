@@ -38,6 +38,11 @@ enum ChipAction {
 	QUIT,
 	LOGIN,
 	DUMP_FAVORITES,
+	RANDOM_SHUFFLE,
+	FORMAT_SHUFFLE,
+	COLLECTION_SHUFFLE,
+	COMPOSER_SHUFFLE,
+	RESULT_SHUFFLE,
 	LAST_ACTION
 };
 
@@ -86,6 +91,11 @@ void ChipMachine::setupRules() {
 	smac.add(Window::F4 | ALT, QUIT);
 	smac.add(Window::ESCAPE | SHIFT, QUIT);
 
+	smac.add('r' | CTRL, RANDOM_SHUFFLE);
+	smac.add('f' | CTRL, FORMAT_SHUFFLE);
+	smac.add('c' | CTRL, COMPOSER_SHUFFLE);
+	smac.add('s' | CTRL, RESULT_SHUFFLE);
+
 	smac.add('-', VOLUME_DOWN);
 	smac.add("=+", VOLUME_UP);
 }
@@ -111,6 +121,16 @@ SongInfo ChipMachine::getSelectedSong() {
 	return MusicDatabase::getInstance().getSongInfo(iquery->getIndex(songList.selected() - playlists.size()));
 }
 
+void ChipMachine::shuffleSongs(const SongInfo &match, int limit) {
+	vector<SongInfo> target;
+
+	MusicDatabase::getInstance().getSongs(target, match, limit, true);
+	player.clearSongs();
+	for(const auto &s : target) {
+		player.addSong(s);
+	}
+	player.nextSong();
+}
 
 void ChipMachine::updateKeys() {
 
@@ -146,6 +166,9 @@ void ChipMachine::updateKeys() {
 		smac.put_event(k);
 	auto action = smac.next_action();
 	if(action.id != NO_ACTION) {
+
+		SongInfo realCurrent = MusicDatabase::getInstance().lookup(currentInfo.path);
+
 		//LOGD("ACTION %d", action.id);
 		string name;
 		switch((ChipAction)action.id) {
@@ -285,8 +308,8 @@ void ChipMachine::updateKeys() {
 			player.clearSongs();
 			toast("Playlist cleared", 2);
 			break;
-#ifdef USE_REMOTELISTS		
 		case SEND_PLAYLIST:
+#ifdef USE_REMOTELISTS		
 			if(userName == "") {
 				currentDialog = make_shared<Dialog>(screenptr, font, "Login with handle:");
 				currentDialog->on_ok([=](const string &text) {
@@ -307,8 +330,8 @@ void ChipMachine::updateKeys() {
 				auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
 				RemoteLists::getInstance().sendList(plist.songs, plist.name, [=]() { toast("Uploaded", 2); });
 			}
-			break;
 #endif
+			break;
 		case VOLUME_UP:
 			player.setVolume(player.getVolume() + 0.1);
 			showVolume = 30;
@@ -322,6 +345,27 @@ void ChipMachine::updateKeys() {
 			break;
 		case QUIT:
 			screen.close();
+			break;
+		case RANDOM_SHUFFLE:
+			toast("Random shuffle!", 2);
+			shuffleSongs(SongInfo("", "", "", "", ""), 100);
+			break;
+		case COMPOSER_SHUFFLE:
+			toast("Composer shuffle!", 2);
+			shuffleSongs(SongInfo("", "", "", realCurrent.composer, ""), 100);
+			break;
+		case FORMAT_SHUFFLE:
+			toast("Format shuffle!", 2);
+			shuffleSongs(SongInfo("", "", "", "", realCurrent.format), 100);
+			break;
+		case RESULT_SHUFFLE:
+			toast("Result shuffle!", 2);
+			for(int i=0; i<iquery->numHits(); i++) {
+				auto res = iquery->getResult(i);
+				LOGD("%s", res);
+				auto parts = split(res, "\t");
+				SongInfo song;
+			}
 			break;
 		case NO_ACTION:
 		case LOGIN:

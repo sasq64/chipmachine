@@ -30,6 +30,7 @@ DB = {
 	type = "modland",
 	source = "ftp://ftp.modland.com/pub/modules/",
 	song_list = "data/allmods.txt",
+	local_dir = "/opt/Music/MODLAND",
 	exclude_formats = "RealSID;PlaySID;Nintendo SPC;SNDH;Slight Atari Player",
 	color = 0xfffff
 },

@@ -1,6 +1,10 @@
 
 ## ISSUES
 
+* UADE SONG END does not go to next?
+* Loop detecton, max play or remember skip position?
+* Length 0:01 on MP3s
+
 * Repeating tweens sometimes die (title scrolling stops, selection hilight gone)
 * Unpause when starting new song
 * webgetter renaming failes when downloading the same song in parallell.
@@ -12,7 +16,7 @@
 * List displays old result after last
 * Tween source position for songs that are not NEXT seems wrong
 * Preload next song (RemoteLoader.assureCached() ?)
-* 
+* Indicate error if lua fails
 
 X MP3 on Raspberry
 X Star skip

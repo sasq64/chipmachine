@@ -171,6 +171,8 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 	auto description = vars["description"];
 	auto xformats = vars["exclude_formats"];
 
+	LOGD("Checking %s", name);
+
 	// Return if this collection has already been indexed in this version
 	auto cq = db.query<uint64_t>("SELECT ROWID FROM collection WHERE id = ?", type);
 	if(cq.step()) {
@@ -209,6 +211,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 	if(rss) {
 
 		atomic<bool> done;
+		done = false;
 		string xml;
 
 		net::WebGetter getter;
@@ -595,7 +598,7 @@ void MusicDatabase::generateIndex() {
 		loader.registerSource(c.name, c.url, c.local_dir);
 	}
 
-	File f { File::getCacheDir() + "index.dat" };
+	File f { File::getCacheDir() / "index.dat" };
 
 	if(!reindexNeeded && f.exists()) {
 		readIndex(f);
@@ -683,21 +686,22 @@ void MusicDatabase::generateIndex() {
 	reindexNeeded = false;
 }
 
-void MusicDatabase::initFromLuaAsync(const string &workDir) {
+void MusicDatabase::initFromLuaAsync(const File &workDir) {
 	indexing = true;
-	initFuture = std::async(std::launch::async, [&]() {
+	initFuture = std::async(std::launch::async, [=]() {
 		std::lock_guard<std::mutex>{dbMutex};
-		initFromLua(workDir);
+		if(!initFromLua(workDir)) {
+		}
 		indexing = false;
 	});
 }
 
 
-void MusicDatabase::initFromLua(const string &workDir) {
+bool MusicDatabase::initFromLua(const File &workDir) {
 
 	reindexNeeded = false;
 
-	File fi { File::getCacheDir() + "index.dat" };
+	File fi { File::getCacheDir() / "index.dat" };
 
 	indexVersion = 0;
 	if(fi.exists()) {
@@ -721,7 +725,10 @@ void MusicDatabase::initFromLua(const string &workDir) {
 
 	File f = File::findFile(workDir, "lua/db.lua");
 
-	lua.loadFile(f.getName());
+	if(!lua.loadFile(f.getName())) {
+		LOGE("Could not load db.lua");
+		return false;
+	}
 
 	dbVersion = lua.getGlobal<int>("VERSION");
 	LOGD("DBVERSION %d INDEXVERSION %d", dbVersion, indexVersion);
@@ -743,7 +750,41 @@ void MusicDatabase::initFromLua(const string &workDir) {
 		end
 	)");
 	generateIndex();
+	return true;
 }
 
+int MusicDatabase::getSongs(std::vector<SongInfo> &target, const SongInfo &match, int limit, bool random) {
+
+	string txt = "SELECT path, game, title, composer, format, collection.id FROM song, collection WHERE song.collection = collection.ROWID";
+
+	if(match.format != "")
+		txt += format(" AND format=?", match.format);
+	if(match.composer != "")
+		txt += format(" AND composer=?", match.composer);
+	if(random)
+		txt += " ORDER BY RANDOM()";
+	if(limit > 0)
+		txt += format(" LIMIT %d", limit);
+
+	LOGD("SQL:%s", txt);
+
+	auto q = db.query<string, string, string, string, string, string>(txt);
+	int index = 1;
+	if(match.format != "")
+		q.bind(index++, match.format);
+	if(match.composer != "")
+		q.bind(index++, match.composer);
+
+	while(q.step()) {
+		string collection;
+		SongInfo song;
+		tie(song.path, song.game, song.title, song.composer, song.format, collection) = q.get_tuple();
+		song.path = collection + "::" + song.path;
+		if(song.game != "")
+			song.title = utils::format("%s [%s]", song.game, song.title);
+		target.push_back(song);
+	}
+	return 0;
+}
 
 }

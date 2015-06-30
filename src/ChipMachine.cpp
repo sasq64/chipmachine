@@ -75,15 +75,17 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 }
 
 
-ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(workDir), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen)  {
+ChipMachine::ChipMachine(const std::string &wd) : workDir(wd), player(wd), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen)  {
 
 #ifdef USE_REMOTELISTS
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
 		string e = error;
 		if(rc == RemoteLists::JSON_INVALID)
 			e = "Server unavailable";
-		toast(e, 1);
-		player.setReportSongs(false);
+		screen.run_safely([=]{
+			toast(e, 1);
+			player.setReportSongs(false);
+		});
 	});
 #endif
 
@@ -118,8 +120,8 @@ ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(
 	songField = make_shared<TextField>();
 	mainScreen.add(songField);
 
-	auto createTexture = [](int w, int h, const uint32_t *data) -> Texture {
-		auto bm = image::bitmap(w, h, data);
+	auto createTexture = [](const Icon &icon) -> Texture {
+		auto bm = image::bitmap(icon.w, icon.h, &icon.data[0]);
 		Texture t(bm);
 		glBindTexture(GL_TEXTURE_2D, t.id());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -127,13 +129,13 @@ ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(
 		return t;
 	};
 
-	favTexture = createTexture(8, 6, &heart_icon[0]);
-	netTexture = createTexture(8, 5, &net_icon[0]);
-	volumeTexture = createTexture(19, 19, &volume_icon[0]);
+	favTexture = createTexture(heart_icon);
+	netTexture = createTexture(net_icon);
+	volumeTexture = createTexture(volume_icon);
 
 	showVolume = 0;
-	float ww = 19*15;
-	float hh = 19*10;
+	float ww =volume_icon.w*15;
+	float hh =volume_icon.h*10;
 	volPos = { ((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh };
 
 	// SEARCHSCREEN
@@ -157,10 +159,12 @@ ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(
 
 	musicBars.setup(spectrumWidth, spectrumHeight, 24);
 
-	toastField = make_shared<TextField>(font, "", tv0.x, tv1.y - 134, 2.0, 0x00ffffff);
+	toastField = make_shared<TextField>(font, "", topLeft.x, downRight.y - 134, 2.0, 0x00ffffff);
 	renderSet.add(toastField);
 
+	LOGD("WORKDIR %s", workDir.getName());
 	MusicDatabase::getInstance().initFromLuaAsync(this->workDir);
+
 	if(MusicDatabase::getInstance().busy()) {
 		indexingDatabase = true;
 	}
@@ -169,20 +173,20 @@ ChipMachine::ChipMachine(const std::string &workDir) : workDir(workDir), player(
 	oldHeight = screen.height();
 	resizeDelay = 0;
 
-	songList = VerticalList(this, grappix::Rectangle(tv0.x, tv0.y + 28, screen.width() - tv0.x, tv1.y - tv0.y - 28), numLines);
-	playlistField = make_shared<TextField>(listFont, "Favorites", tv1.x - 80, tv1.y - 10, 0.5, 0xff888888);
+	songList = VerticalList(this, grappix::Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x, downRight.y - topLeft.y - 28), numLines);
+	playlistField = make_shared<TextField>(listFont, "Favorites", downRight.x - 80, downRight.y - 10, 0.5, 0xff888888);
 	//mainScreen.add(playlistField);
 
-	//volumeField = make_shared<TextField>(listFont, "Favorites", tv1.x - 80, tv1.y - 10, 0.5, 0xff888888);
+	//volumeField = make_shared<TextField>(listFont, "Favorites", downRight.x - 80, downRight.y - 10, 0.5, 0xff888888);
 
-	commandField = make_shared<LineEdit>(font, ">", tv0.x, tv0.y, 1.0, 0xff888888);
+	commandField = make_shared<LineEdit>(font, ">", topLeft.x, topLeft.y, 1.0, 0xff888888);
 	searchScreen.add(commandField);
 	commandField->visible(false);
 
 	scrollEffect.set("scrolltext", "Chipmachine Beta 4 -- Begin typing to search -- CRSR UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- CRSR LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- F8 to clear queue -- ESCAPE to clear search text ----- ");
 	starEffect.fadeIn();
 
-	File f { File::getCacheDir() + "login" };
+	File f { File::getCacheDir() / "login" };
 	if(f.exists())
 		userName = f.read();
 }
@@ -207,14 +211,16 @@ void ChipMachine::initLua() {
 void ChipMachine::layoutScreen()  {
 
 	LOGD("LAYOUT SCREEN");
+	currentTween.finish();
+	currentTween = Tween();
 
-	File f (workDir + "/lua/screen.lua");
+	File f (workDir / "lua" / "screen.lua");
 
 	lua.setGlobal("SCREEN_WIDTH", screen.width());
 	lua.setGlobal("SCREEN_HEIGHT", screen.height());
 
-	Resources::getInstance().load<string>(f.getName() /*"lua/screen.lua" */, [=](shared_ptr<string> contents) {
-		lua.load(*contents, "lua/screen.lua");
+	Resources::getInstance().load<string>(f.getName(), [=](shared_ptr<string> contents) {
+		lua.load(*contents, f);
 
 		lua.load(R"(
 			for a,b in pairs(Settings) do
@@ -298,7 +304,7 @@ void ChipMachine::update() {
 
 		auto f = [=]() {
 			xinfoField->setText(sub_title);
-			int d = (tw-(tv1.x-tv0.x-20));
+			int d = (tw-(downRight.x-topLeft.x-20));
 			if(d > 20)
 				Tween::make().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200)/200.0f);
 		};
@@ -307,13 +313,18 @@ void ChipMachine::update() {
 		auto favsong = find(favorites.begin(), favorites.end(), currentInfo);
 		isFavorite = (favsong != favorites.end());
 
+
 		if(nextInfoField == currentInfoField) {
-			currentTween = Tween::make().from(prevInfoField, currentInfoField).
-			from(currentInfoField, nextInfoField).
-			from(nextInfoField, outsideInfoField).seconds(1.5).onComplete(f);
+			currentTween = Tween::make().
+				from(prevInfoField, currentInfoField).
+				from(currentInfoField, nextInfoField).
+				from(nextInfoField, outsideInfoField).
+				seconds(1.5).onComplete(f);
 		} else {
-			currentTween = Tween::make().from(prevInfoField, currentInfoField).
-			from(currentInfoField, outsideInfoField).seconds(1.5).onComplete(f);
+			currentTween = Tween::make().
+				from(prevInfoField, currentInfoField).
+				from(currentInfoField, outsideInfoField).
+				seconds(1.5).onComplete(f);
 		}
 		currentTween.start();
 
@@ -416,7 +427,7 @@ void ChipMachine::toast(const std::string &txt, int type) {
 
 	toastField->setText(txt);
 	int tlen = toastField->getWidth();
-	toastField->pos.x = tv0.x + ((tv1.x - tv0.x) - tlen) / 2;
+	toastField->pos.x = topLeft.x + ((downRight.x - topLeft.x) - tlen) / 2;
 	toastField->color = colors[type % 3];
 
 	Tween::make().to(toastField->color.alpha, 1.0).seconds(0.25).onComplete([=]() {

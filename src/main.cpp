@@ -61,7 +61,8 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	string path = File::getExeDir() + ":" + File::getExeDir() + "/../Resources:" + File::getAppDir();
+	string path = File::makePath({File::getExeDir(), (File::getExeDir() / ".." / "Resources:"), File::getAppDir()});
+	LOGD("PATH:%s", path);
 	string workDir = File::findFile(path, "data").getDirectory();
 
 	if(workDir == "") {

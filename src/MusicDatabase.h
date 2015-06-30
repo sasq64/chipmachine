@@ -83,14 +83,14 @@ enum Formats {
 
 class MusicDatabase : public SearchProvider {
 public:
-	MusicDatabase() : db(utils::File::getCacheDir() + "music.db"), reindexNeeded(false) {
+	MusicDatabase() : db(utils::File::getCacheDir() / "music.db"), reindexNeeded(false) {
 		db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, localdir STRING, description STRING, id UNIQUE, version INTEGER)");
 		db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, format STRING, path STRING, collection INTEGER)");
 	}
 
 
-	void initFromLua(const std::string &workDir);
-	void initFromLuaAsync(const std::string &workDir);
+	bool initFromLua(const utils::File &workDir);
+	void initFromLuaAsync(const utils::File &workDir);
 
 	int search(const std::string &query, std::vector<int> &result, unsigned int searchLimit) override;
 	// Lookup internal string for index
@@ -112,6 +112,8 @@ public:
 		std::lock_guard<std::mutex>{dbMutex};
 		return std::make_shared<IncrementalQuery>(this);
 	}
+
+	int getSongs(std::vector<SongInfo> &target, const SongInfo &match, int limit, bool random);
 
 	bool busy() {
 		if(indexing)

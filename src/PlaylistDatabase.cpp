@@ -17,7 +17,7 @@ namespace chipmachine {
 
 
 // void PlaylistDatabase::init() {
-PlaylistDatabase::PlaylistDatabase() : db(File::getCacheDir() + "play.db") {
+PlaylistDatabase::PlaylistDatabase() : db(File::getCacheDir() / "play.db") {
 
 	db.exec("CREATE TABLE IF NOT EXISTS playlist (title STRING PRIMARY KEY UNIQUE)");
 	db.exec("CREATE TABLE IF NOT EXISTS song (playlist INT, title STRING, game STRING, composer STRING, format STRING, path STRING)");

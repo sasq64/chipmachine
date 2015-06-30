@@ -43,13 +43,9 @@ public:
 	virtual void render(uint32_t delta) override {
 		if(color.a == 0.0)
 			return;
-		auto x = pos.x;
-		auto y = pos.y;
 		if(tsize.x == -1)
 			tsize = font.get_size(text, scale);
-		//if(x < 0) x = grappix::screen.width() - tlen + x;
-		//if(y < 0) y = grappix::screen.height() + y;
-		target->text(font, text, x, y, color + add, scale);
+		target->text(font, text, pos.x, pos.y, color + add, scale);
 	}
 
 	struct iterator  {
@@ -91,7 +87,6 @@ public:
 	}
 
 protected:
-	//float* f[8];
 	std::string text;
 	mutable utils::vec2i tsize;
 	grappix::Font font;

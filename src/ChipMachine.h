@@ -54,6 +54,7 @@ public:
 	void removeToast();
 
 	void setScrolltext(const std::string &txt);
+	void shuffleSongs(const SongInfo &match, int limit);
 
 	MusicPlayerList &musicPlayer() { return player; }
 
@@ -68,7 +69,7 @@ private:
 	void setupRules();
 	void updateKeys();
 
-	std::string workDir;
+	utils::File workDir;
 
 	MusicPlayerList player;
 
@@ -82,8 +83,8 @@ private:
 
 	std::unique_ptr<TelnetInterface> telnet;
 
-	utils::vec2i tv0 = { 80, 54 };
-	utils::vec2i tv1 = { 636, 520 };
+	utils::vec2i topLeft = { 80, 54 };
+	utils::vec2i downRight = { 636, 520 };
 
 	grappix::Font font;
 	grappix::Font listFont;
