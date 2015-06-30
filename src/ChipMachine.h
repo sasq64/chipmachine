@@ -54,7 +54,7 @@ public:
 	void removeToast();
 
 	void setScrolltext(const std::string &txt);
-	void shuffleSongs(const SongInfo &match, int limit);
+	void shuffleSongs(bool format, bool composer, bool collection, int limit);
 
 	MusicPlayerList &musicPlayer() { return player; }
 

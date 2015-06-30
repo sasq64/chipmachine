@@ -34,26 +34,28 @@ bool MusicPlayerList::checkPermission(int flags) {
 	return true;
 }
 
-bool MusicPlayerList::addSong(const SongInfo &si, int pos) {
+bool MusicPlayerList::addSong(const SongInfo &si, bool shuffle) {
 
 	if(!checkPermission(CAN_ADD_SONG)) return false;
 	LOCK_GUARD(plMutex);
 
 	//LOGD("Add song %s %s %s %s", si.path, si.title, si.composer, si.format);
 
-	if(pos >= 0) {
-		if((int)playList.size() >= pos)
-			playList.insert(playList.begin() + pos, si);
-	} else {
-		if(partyMode) {
-			if(playList.size() >= 50) {
+	// if(pos >= 0) {
+	// 	if((int)playList.size() >= pos)
+	// 		playList.insert(playList.begin() + pos, si);
+	// } else {
+		if(partyMode || shuffle) {
+			if(partyMode && playList.size() >= 50) {
 				wasAllowed = false;
 				return false;
 			}
 			playList.insert(playList.begin() + (rand() % (playList.size()+1)), si);
-		} else
+		} else {
+			LOGD("PUSH %s", si.path);
 			playList.push_back(si);
-	}
+		}
+	//}
 	return true;
 }
 
@@ -305,6 +307,14 @@ void MusicPlayerList::playCurrent() {
 	};
 
 	state = LOADING;
+
+	LOGD("PLAY PATH:%s", currentInfo.path);
+
+	if(startsWith(currentInfo.path, "index::")) {
+		int index = stol(currentInfo.path.substr(7));
+		currentInfo = MusicDatabase::getInstance().getSongInfo(index);
+	}
+
 
 	if(File::exists(currentInfo.path)) {
 		loadedFile = currentInfo.path;

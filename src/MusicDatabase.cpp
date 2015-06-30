@@ -431,8 +431,20 @@ SongInfo MusicDatabase::lookup(const std::string &p) {
 	auto path = p;
 
 	auto parts = split(path, "::");
-	if(parts.size() > 1)
+	if(parts.size() > 1) {
 		path = parts[1];
+		if(parts[0] == "index") {
+			int index = stol(path);
+			SongInfo song = getSongInfo(index);
+			path = song.path;
+			parts = split(path, "::");
+			if(parts.size() > 1) {
+				path = parts[1];
+			}
+		}
+		LOGD("INDEX %s %s", parts[0], path);
+	}
+
 
 	auto q = db.query<string, string, string, string, string>("SELECT title, game, composer, format, collection.id FROM song, collection WHERE song.path=? AND song.collection = collection.ROWID", path);
 
@@ -757,10 +769,20 @@ int MusicDatabase::getSongs(std::vector<SongInfo> &target, const SongInfo &match
 
 	string txt = "SELECT path, game, title, composer, format, collection.id FROM song, collection WHERE song.collection = collection.ROWID";
 
+	string collection = "";
+	if(match.path != "") {
+		auto parts = split(match.path, "::");
+		if(parts.size() >= 2)
+			collection = parts[0];
+	}
+
+
 	if(match.format != "")
 		txt += format(" AND format=?", match.format);
 	if(match.composer != "")
 		txt += format(" AND composer=?", match.composer);
+	if(collection != "")
+		txt += format(" AND collection.id=?", collection);
 	if(random)
 		txt += " ORDER BY RANDOM()";
 	if(limit > 0)
@@ -774,6 +796,8 @@ int MusicDatabase::getSongs(std::vector<SongInfo> &target, const SongInfo &match
 		q.bind(index++, match.format);
 	if(match.composer != "")
 		q.bind(index++, match.composer);
+	if(collection != "")
+		q.bind(index++, collection);
 
 	while(q.step()) {
 		string collection;

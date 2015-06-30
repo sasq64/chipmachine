@@ -95,6 +95,13 @@ void ChipMachine::setupRules() {
 	smac.add('f' | CTRL, FORMAT_SHUFFLE);
 	smac.add('c' | CTRL, COMPOSER_SHUFFLE);
 	smac.add('s' | CTRL, RESULT_SHUFFLE);
+	smac.add('o' | CTRL, COLLECTION_SHUFFLE);
+
+	smac.add('1' | CTRL, RANDOM_SHUFFLE);
+	smac.add('2' | CTRL, COLLECTION_SHUFFLE);
+	smac.add('3' | CTRL, FORMAT_SHUFFLE);
+	smac.add('4' | CTRL, COMPOSER_SHUFFLE);
+	smac.add('5' | CTRL, RESULT_SHUFFLE);
 
 	smac.add('-', VOLUME_DOWN);
 	smac.add("=+", VOLUME_UP);
@@ -121,14 +128,23 @@ SongInfo ChipMachine::getSelectedSong() {
 	return MusicDatabase::getInstance().getSongInfo(iquery->getIndex(songList.selected() - playlists.size()));
 }
 
-void ChipMachine::shuffleSongs(const SongInfo &match, int limit) {
+void ChipMachine::shuffleSongs(bool format, bool composer, bool collection, int limit) {
 	vector<SongInfo> target;
+	SongInfo match = (currentScreen == SEARCH_SCREEN) ? getSelectedSong() : MusicDatabase::getInstance().lookup(currentInfo.path);
+
+	LOGD("SHUFFLE %s", match.path);
+
+	if(!format) match.format = "";
+	if(!composer) match.composer = "";
+	if(!collection) match.path = "";
+	match.title = match.game;
 
 	MusicDatabase::getInstance().getSongs(target, match, limit, true);
 	player.clearSongs();
 	for(const auto &s : target) {
 		player.addSong(s);
 	}
+	showMain();
 	player.nextSong();
 }
 
@@ -166,8 +182,6 @@ void ChipMachine::updateKeys() {
 		smac.put_event(k);
 	auto action = smac.next_action();
 	if(action.id != NO_ACTION) {
-
-		SongInfo realCurrent = MusicDatabase::getInstance().lookup(currentInfo.path);
 
 		//LOGD("ACTION %d", action.id);
 		string name;
@@ -348,24 +362,40 @@ void ChipMachine::updateKeys() {
 			break;
 		case RANDOM_SHUFFLE:
 			toast("Random shuffle!", 2);
-			shuffleSongs(SongInfo("", "", "", "", ""), 100);
+			shuffleSongs(false, false, false, 100);
 			break;
 		case COMPOSER_SHUFFLE:
 			toast("Composer shuffle!", 2);
-			shuffleSongs(SongInfo("", "", "", realCurrent.composer, ""), 100);
+			shuffleSongs(false, true, false, 1000);
 			break;
 		case FORMAT_SHUFFLE:
 			toast("Format shuffle!", 2);
-			shuffleSongs(SongInfo("", "", "", "", realCurrent.format), 100);
+			shuffleSongs(true, false, false, 100);
+			break;
+		case COLLECTION_SHUFFLE:
+			toast("Collection shuffle!", 2);
+			shuffleSongs(false, false, true, 100);
 			break;
 		case RESULT_SHUFFLE:
 			toast("Result shuffle!", 2);
+			player.clearSongs();
 			for(int i=0; i<iquery->numHits(); i++) {
 				auto res = iquery->getResult(i);
 				LOGD("%s", res);
 				auto parts = split(res, "\t");
+
+				int f = atoi(parts[3].c_str()) & 0xff;
+				if(f == PLAYLIST)
+					continue;
+
 				SongInfo song;
+				song.title = parts[0];
+				song.composer = parts[1];
+				song.path = "index::" + parts[2];
+				player.addSong(song, true);
 			}
+			showMain();
+			player.nextSong();
 			break;
 		case NO_ACTION:
 		case LOGIN:

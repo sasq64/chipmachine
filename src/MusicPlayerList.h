@@ -36,7 +36,7 @@ public:
 		playerThread.join();
 	}
 
-	bool addSong(const SongInfo &si, int pos = -1);
+	bool addSong(const SongInfo &si, bool shuffle = false);
 	void playSong(const SongInfo &si);
 	void clearSongs();
 	void nextSong();
