@@ -102,8 +102,8 @@ else()
 	add_executable(chipmachine ${SOURCE_FILES})
 endif()
 
-add_executable(modland modland.cpp)
-target_link_libraries(modland coreutils)
+#add_executable(modland modland.cpp)
+#target_link_libraries(modland coreutils)
 
 target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
 SET_DATA_FILES(data lua)
