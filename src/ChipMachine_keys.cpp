@@ -167,6 +167,10 @@ void ChipMachine::updateKeys() {
 	if(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_RIGHT)) {
 		if(ascii)
 			k = toupper(k);
+		else if(k == Window::DOWN)
+			key = Window::UP;
+		else if(k == Window::RIGHT)
+			key = Window::LEFT;
 		else
 			k |= SHIFT;
 	}
