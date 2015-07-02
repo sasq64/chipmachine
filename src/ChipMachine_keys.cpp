@@ -142,7 +142,8 @@ void ChipMachine::shuffleSongs(bool format, bool composer, bool collection, int 
 	MusicDatabase::getInstance().getSongs(target, match, limit, true);
 	player.clearSongs();
 	for(const auto &s : target) {
-		player.addSong(s);
+		if(!endsWith(s.path, ".plist"))
+			player.addSong(s);
 	}
 	showMain();
 	player.nextSong();

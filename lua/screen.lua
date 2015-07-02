@@ -69,10 +69,10 @@ Settings.favicon = { X0 + 330 * GSCALE, SY - GSCALE*25, 8*8 * GSCALE, 8*6 * GSCA
 
 
 if TV then
-  Settings.scroll = { Y1 - 100, 2.0, 8, "data/Bello.otf" }
+  Settings.scroll = { Y1 - 100, 2.0, 4, "data/Bello.otf" }
   Settings.spectrum = { X0-40, Y1+40, 28, 80.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
 else
-  Settings.scroll = { Y1 - 200, 4.0, 8, "data/Bello.otf" }
+  Settings.scroll = { Y1 - 140, 2.0, 4, "data/Bello.otf" }
   Settings.spectrum = { X0, Y1, 32, 100.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
 end
 

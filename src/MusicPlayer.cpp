@@ -78,6 +78,9 @@ void MusicPlayer::update() {
 				rc = player->getSamples(tempBuf, f - 1024);
 			}
 
+			if(rc == 0)
+				break;
+
 			if(rc < 0) {
 				LOGD("PLAY ENDED %d vs %d", rc, f - 1024);
 				playEnded = true;

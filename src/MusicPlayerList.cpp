@@ -362,6 +362,13 @@ void MusicPlayerList::playCurrent() {
 	// LOGD("LOADING:%s", currentInfo.path);
 	loader.load(currentInfo.path, [=](File f0) {
 		//LOGD("Got file");
+		if(f0 == File::NO_FILE) {
+			//toast("Could not load file");
+			errors.push_back("Could not load file");
+			state = STOPPED;
+			files--;
+			return;
+		}
 		loadedFile = f0.getName();
 		LOGD("Loaded file '%s'", loadedFile);
 		PSFFile f { loadedFile };

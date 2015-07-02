@@ -83,6 +83,9 @@ set(MUSICPLAYER_PLUGINS
 	viceplugin
 	hivelyplugin
 	rsnplugin
+	ayflyplugin
+	mdxplugin
+	s98plugin
 )
 
 if(NOT WINDOWS)

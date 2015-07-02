@@ -1,23 +1,28 @@
 
 ## ISSUES
 
+* MDX Needs seconday file download
+
+* Better tween on song failure, and go to next after delay
 * UADE SONG END does not go to next?
 * Loop detecton, max play or remember skip position?
-* Length 0:01 on MP3s
+* Limit stream speed
 
 * Repeating tweens sometimes die (title scrolling stops, selection hilight gone)
 * Unpause when starting new song
-* webgetter renaming failes when downloading the same song in parallell.
+* webgetter renaming fails when downloading the same song in parallell.
 * Format colors wrong
 * Parse collection color from db.lua ?
 * sid titles wrong encoding 
 * Mouse click select and scroll
 * Search hits shown twice when term is in both composer and title
 * List displays old result after last
-* Tween source position for songs that are not NEXT seems wrong
 * Preload next song (RemoteLoader.assureCached() ?)
 * Indicate error if lua fails
 
+## DONE
+
+X Tween source position for songs that are not NEXT seems wrong
 X MP3 on Raspberry
 X Star skip
 X Hilight color fade to type color

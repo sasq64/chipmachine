@@ -16,7 +16,6 @@ using namespace utils;
 
 namespace chipmachine {
 
-static const std::set<std::string> secondary = { "smpl", "sam", "ins", "smp" };
 
 template <typename T> class node {
 public:
@@ -316,13 +315,15 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 
 bool MusicDatabase::parseModlandPath(SongInfo &song) {
 
+	static const std::set<std::string> secondary = { "smpl", "sam", "ins", "smp" };
+
 	static const unordered_set<string> hasSubFormats = {
 		"Ad Lib",
 		"Video Game Music"
 	};
 
 	string ext = path_extension(song.path);
-	if(secondary.count(ext) > 0) {
+	if(secondary.count(ext) > 0 || endsWith(ext, "sflib")) {
 		return false;
 	}
 
