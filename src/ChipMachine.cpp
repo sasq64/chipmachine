@@ -84,7 +84,6 @@ ChipMachine::ChipMachine(const std::string &wd) : workDir(wd), player(wd), curre
 			e = "Server unavailable";
 		screen.run_safely([=]{
 			toast(e, 1);
-			player.setReportSongs(false);
 		});
 	});
 #endif
@@ -134,8 +133,8 @@ ChipMachine::ChipMachine(const std::string &wd) : workDir(wd), player(wd), curre
 	volumeTexture = createTexture(volume_icon);
 
 	showVolume = 0;
-	float ww =volume_icon.w*15;
-	float hh =volume_icon.h*10;
+	float ww = volume_icon.w*15;
+	float hh = volume_icon.h*10;
 	volPos = { ((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh };
 
 	// SEARCHSCREEN
@@ -259,6 +258,11 @@ void ChipMachine::update() {
 			return;
 	}
 
+	auto click = screen.get_click();
+	if(click != Window::NO_CLICK) {
+		LOGD("Clicked at %d %d\n", click.x, click.y);
+	}
+
 
 	static string msg;
 	auto m = player.getMeta("message");
@@ -292,6 +296,7 @@ void ChipMachine::update() {
 		currentInfoField.setInfo(currentInfo);
 		currentTune = currentInfo.starttune;
 		currentTween.finish();
+		currentInfoField[0].pos.x = currentInfoField[1].pos.x;
 
 		if(currentInfo.numtunes > 0)
 			songField->setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
@@ -328,6 +333,23 @@ void ChipMachine::update() {
 		}
 		currentTween.start();
 
+	}
+
+	if(state == MusicPlayerList::ERROR) {
+		player.stop();
+		currentTween.finish();
+		currentInfoField[0].pos.x = currentInfoField[1].pos.x;
+
+		SongInfo song = player.getInfo();
+		prevInfoField.setInfo(song);
+		LOGD("SONG %s could not be played", song.path);
+		currentTween = Tween::make().
+			from(prevInfoField, nextInfoField).
+			seconds(3.0).onComplete([=]() {
+				if(player.getState() == MusicPlayerList::STOPPED)
+					player.nextSong();
+			});
+		currentTween.start();
 	}
 
 	if(state == MusicPlayerList::PLAYING || state == MusicPlayerList::STOPPED) {

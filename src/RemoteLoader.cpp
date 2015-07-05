@@ -69,7 +69,7 @@ bool RemoteLoader::load(const std::string &p, function<void(File f)> done_cb) {
 		url = url.substr(0, url.length()-4);
 	}
 
-	webgetter.getFile(url, [=](File f) {
+	lastSession = webgetter.getFile(url, [=](File f) {
 		string fileName = f.getName();
 		if(fileName.find("snesmusic.org") != string::npos) {
 			auto newFile = fileName + ".rsn";
@@ -105,7 +105,7 @@ bool RemoteLoader::stream(const std::string &p, std::function<bool(const uint8_t
 
 	string url = source.url + path;
 
-	webgetter.streamData(url, data_cb);
+	lastSession = webgetter.streamData(url, data_cb);
 	return true;
 }
 

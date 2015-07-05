@@ -20,6 +20,7 @@ class MusicPlayerList {
 public:
 	enum State {
 		STOPPED,
+		ERROR,
 		WAITING,
 		LOADING,
 		STARTED,
@@ -114,6 +115,11 @@ public:
 
 	float getVolume() {
 		return mp.getVolume();
+	}
+
+	void stop() {
+		state = STOPPED;
+		mp.stop();
 	}
 
 private:

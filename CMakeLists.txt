@@ -59,6 +59,7 @@ set(APONE_MODULES
 	luainterpreter
 	sqlite3
 	net
+	xml
 )
 add_subdirectory(${AP1_ROOT}/mods ap1mods)
 
@@ -86,6 +87,8 @@ set(MUSICPLAYER_PLUGINS
 	ayflyplugin
 	mdxplugin
 	s98plugin
+	aoplugin
+	gsfplugin
 )
 
 if(NOT WINDOWS)

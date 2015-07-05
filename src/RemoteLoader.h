@@ -28,6 +28,12 @@ public:
 		return loader;
 	}
 
+	void cancel() {
+		if(lastSession)
+			lastSession->stop();
+		lastSession = nullptr;
+	}
+
 private:
 
 	struct Source {
@@ -40,7 +46,7 @@ private:
 	std::unordered_map<std::string, Source> sources;
 
 	net::WebGetter webgetter;
-
+	std::shared_ptr<net::HttpSession> lastSession;
 };
 
 #endif // REMOTE_LOADER_H

@@ -1,12 +1,10 @@
 
 ## ISSUES
 
-* MDX Needs seconday file download
-
-* Better tween on song failure, and go to next after delay
 * UADE SONG END does not go to next?
 * Loop detecton, max play or remember skip position?
 * Limit stream speed
+* _lib2 and _lib3 support for PSF
 
 * Repeating tweens sometimes die (title scrolling stops, selection hilight gone)
 * Unpause when starting new song
@@ -16,12 +14,39 @@
 * sid titles wrong encoding 
 * Mouse click select and scroll
 * Search hits shown twice when term is in both composer and title
-* List displays old result after last
 * Preload next song (RemoteLoader.assureCached() ?)
 * Indicate error if lua fails
 
+## TASKS / FEATURES
+
+Deal with different encodings
+
+### Deal with multi file songs
+
+Problem: Some SNG files does not require INS files.
+Problem: We want to treat some multi song files as one song with subtunes
+
+DO:
+
+When parsing modland, look for multi file songs.
+Create paths such as
+modland::some/path::file.ins::file.sng
+or
+modland::some/game::song01.psf::song02.psf....
+The latter case should be treated as sub songs.
+
+When loading path, load all files
+Mark secondary files. If more than one primary file, treat as sub songs
+
+
+
+
 ## DONE
 
+X Better tween on song failure, and go to next after delay
+X List displays old result after last
+X Second word digits => wrong results
+X MDX Needs secondary file download
 X Tween source position for songs that are not NEXT seems wrong
 X MP3 on Raspberry
 X Star skip
@@ -49,6 +74,14 @@ X Update db rules
 X Remove online playlists for now
 
 X Mods don't end (Compilications.mod)
+
+
+
+
+
+## OLD STUFF
+
+
 
 INFO LINE
 

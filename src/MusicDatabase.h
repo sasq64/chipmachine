@@ -95,6 +95,10 @@ public:
 	int search(const std::string &query, std::vector<int> &result, unsigned int searchLimit) override;
 	// Lookup internal string for index
 	std::string getString(int index) const override {
+		return utils::format("%s %s", getTitle(index), getComposer(index));
+	}
+
+	std::string getFullString(int index) const override {
 		return utils::format("%s\t%s\t%d\t%d", getTitle(index), getComposer(index), index, formats[index]);
 	}
 	// Get full data, may require SQL query

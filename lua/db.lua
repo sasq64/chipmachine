@@ -28,11 +28,10 @@ DB = {
 {
 	name = "Modland",
 	type = "modland",
-	-- source = "ftp://ftp.modland.com/pub/modules/",
-	source = "http://apone.org:8765/MODLAND/",
+	source = "http://ftp.modland.com/pub/modules/",
 	song_list = "data/allmods.txt",
 	local_dir = "/opt/Music/MODLAND",
-	exclude_formats = "RealSID;PlaySID;Nintendo SPC;SNDH;Slight Atari Player",
+	exclude_formats = "RealSID;PlaySID;Nintendo SPC;SNDH;Slight Atari Player;Super Nintendo Sound Format",
 	color = 0xfffff
 },
 {

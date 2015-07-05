@@ -15,7 +15,7 @@ public:
 	// Lookup internal string for index
 	virtual std::string getString(int index) const = 0;
 	// Get full data, may require SQL query
-	//virtual std::string getFullString(int index) const { return getString(index); }
+	virtual std::string getFullString(int index) const { return getString(index); }
 };
 
 class IncrementalQuery {

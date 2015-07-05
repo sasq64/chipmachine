@@ -158,7 +158,7 @@ const string IncrementalQuery::getString() {
 
 const string IncrementalQuery::getResult(int i) {
 	int index = finalResult[i];
-	return provider->getString(index);
+	return provider->getFullString(index);
 }
 
 const vector<string> &IncrementalQuery::getResult(int start, int size) {
@@ -168,7 +168,7 @@ const vector<string> &IncrementalQuery::getResult(int start, int size) {
 
 		for(int i = start; i<start+size && i < (int)finalResult.size(); i++) {
 			int index = finalResult[i];
-			textResult.push_back(provider->getString(index));
+			textResult.push_back(provider->getFullString(index));
 		}
 		lastStart = start;
 		lastSize = size;
@@ -192,15 +192,15 @@ void IncrementalQuery::search() {
 
 	// Remove empty strings
 	parts.erase(remove_if(parts.begin(), parts.end(), [&](const string &a) { return a.size() == 0; }), parts.end());
-	LOGV("Parts: [%s]", parts);
+	LOGD("Parts: [%s]", parts);
 
 
 	if(oldParts.size() == 0 || oldParts[0] != parts[0]) {
 		// First word has changed
 		//  - If something was just added, we can filter our firstResult more
 		//  - Otherwise do a new search
-
 		if(parts[0].size() > 4 && parts[0].find(oldParts[0]) == 0) {
+			// Erase things that don't match from existing result
 			firstResult.erase(
 				std::remove_if(firstResult.begin(), firstResult.end(), [=](const int &index) -> bool {
 					string str = provider->getString(index);
@@ -209,6 +209,7 @@ void IncrementalQuery::search() {
 				}),
 			firstResult.end());
 		} else {
+			// Do full search
 			// In chipmachine this is a proxy that searches in two separate providers
 			provider->search(parts[0], firstResult, searchLimit);
 		}
@@ -242,11 +243,12 @@ void IncrementalQuery::search() {
 			}
 
 			const auto &p = parts[i];
-			//LOGV("Find %s in %s", p, str);
 			if(str.find(p) == string::npos) {
 				found = false;
 				break;
 			}
+			LOGD("Found %s in %s", p, str);
+
 
 		}
 		if(found)

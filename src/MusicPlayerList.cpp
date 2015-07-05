@@ -169,7 +169,7 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 			if(si.path == "") {
 				LOGD("Could not lookup '%s'", path);
 				errors.push_back("Bad song in playlist");
-				state = STOPPED;
+				state = ERROR;
 				return false;
 			}
 			state = WAITING;
@@ -188,7 +188,7 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 			return true;
 		} else {
 			errors.push_back("Could not play song");
-			state = STOPPED;
+			state = ERROR;
 		}
 	}
 	return false;
@@ -281,6 +281,7 @@ void MusicPlayerList::update() {
 			playList.pop_front();
 
 			if(playList.size() > 0) {
+				// Update info for next song from
 				SongInfo &si = playList.front();
 				si = MusicDatabase::getInstance().lookup(si.path);
 			}
@@ -334,6 +335,8 @@ void MusicPlayerList::playCurrent() {
 
 	RemoteLoader &loader = RemoteLoader::getInstance();
 
+	loader.cancel();
+
 	if(ext == "mp3" || toLower(currentInfo.format) == "mp3") {
 
 		shared_ptr<Streamer> streamer = mp.streamFile("dummy.mp3");
@@ -365,12 +368,35 @@ void MusicPlayerList::playCurrent() {
 		if(f0 == File::NO_FILE) {
 			//toast("Could not load file");
 			errors.push_back("Could not load file");
-			state = STOPPED;
+			state = ERROR;
 			files--;
 			return;
 		}
 		loadedFile = f0.getName();
+		auto ext = toLower(path_extension(loadedFile));
 		LOGD("Loaded file '%s'", loadedFile);
+		if(ext == "mdx") {
+			vector<uint8_t> header(2048);
+			f0.read(&header[0], 2048);
+			for(int i=0; i<2045; i++) {
+				if(header[i] == 0x0d && header[i+1] == 0xa && header[i+2] == 0x1a) {
+					if(header[i+3] != 0) {
+						auto pdxFile = string((char*)&header[i+3]) + ".pdx";
+						auto target = path_directory(loadedFile) + "/" + pdxFile;
+						LOGD("Checking for pdx %s", target);
+						if(!File::exists(target)) {
+							auto url = path_directory(currentInfo.path) + "/" + pdxFile;
+							files++;
+							RemoteLoader &loader = RemoteLoader::getInstance();
+							loader.load(url, [=](File f) {
+								files--;
+							});
+						}
+					}
+					break;
+				}
+			}
+		}
 		PSFFile f { loadedFile };
 		if(f.valid()) {
 			auto lib = f.tags()["_lib"];
