@@ -40,7 +40,7 @@ set(SOURCE_FILES
 	src/renderset.cpp
 	src/state_machine.cpp
 	src/main.cpp
-	src/tinyxml2.cpp
+#	src/tinyxml2.cpp
 )
 
 #if(RASPBERRY)

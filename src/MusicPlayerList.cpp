@@ -269,6 +269,7 @@ void MusicPlayerList::update() {
 
 	if(state == LOADING) {
 		if(files == 0) {
+			RemoteLoader::getInstance().cancel();
 			playFile(loadedFile);
 		}
 	}
@@ -358,6 +359,10 @@ void MusicPlayerList::playCurrent() {
 		auto smpl_file = path_directory(currentInfo.path) + "/" + path_basename(currentInfo.path) + "." + ext2;
 		LOGD("Loading secondary (sample) file '%s'", smpl_file);
 		loader.load(smpl_file, [=](File f) {
+			if(f == File::NO_FILE) {
+				errors.push_back("Could not load secondary file");
+				state = ERROR;
+			};
 			files--;
 		});
 	}
@@ -409,6 +414,10 @@ void MusicPlayerList::playCurrent() {
 					LOGD("Loading library file '%s'");
 					RemoteLoader &loader = RemoteLoader::getInstance();
 					loader.load(lib_url, [=](File f) {
+						if(f == File::NO_FILE) {
+							errors.push_back("Could not load lib file");
+							state = ERROR;
+						} else
 						if(f.getName() != lib_target) {
 							LOGD("Got lib file %s, copying to %s", f.getName(), lib_target);
 							File::copy(f.getName(), lib_target);

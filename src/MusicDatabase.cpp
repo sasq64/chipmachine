@@ -19,7 +19,7 @@ namespace chipmachine {
 //	"Gameboy Sound Format", "Dreamcast Sound Format", "Saturn Sound Format"
 //};
 //#else
-static std::unordered_set<std::string> exclude = { };//"Gameboy Sound Format", "Saturn Sound Format" };
+static std::unordered_set<std::string> exclude = { "SPUx" };//"Gameboy Sound Format", "Saturn Sound Format" };
 //#endif
 
 
@@ -79,7 +79,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 		net::WebGetter getter;
 
 		getter.getData(song_list, [&](const vector<uint8_t> &data) {
-			xml = string(data.begin(), data.end());
+			xml = string(begin(data), end(data));
 			done = true;
 		});
 

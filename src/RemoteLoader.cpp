@@ -59,7 +59,7 @@ bool RemoteLoader::load(const std::string &p, function<void(File f)> done_cb) {
 
 	string local_path = source.local_dir + path;
 	if(File::exists(local_path)) {
-		done_cb(File(local_path));
+		schedule_callback([=]() { done_cb(File(local_path)); });
 		return true;
 	}
 
