@@ -172,18 +172,28 @@ void ChipMachine::updateKeys() {
 			k = toupper(k);
 		else if(k == Window::DOWN)
 			key = Window::UP;
-		else if(k == Window::RIGHT)
-			key = Window::LEFT;
 		else
 			k |= SHIFT;
 	}
-	if(screen.key_pressed(Window::CTRL_LEFT) || screen.key_pressed(Window::CTRL_RIGHT))
-		k |= CTRL;
+
+	if(screen.key_pressed(Window::CTRL_LEFT) || screen.key_pressed(Window::CTRL_RIGHT)) {
+		if(k == Window::DOWN)
+			key = Window::PAGEDOWN;
+		else if(k == Window::UP)
+			key = Window::PAGEUP;
+		else
+			k |= CTRL;
+	}
 	if(screen.key_pressed(Window::ALT_LEFT) || screen.key_pressed(Window::ALT_RIGHT))
 		k |= ALT;
 
 	if((k & (CTRL|SHIFT)) == 0 && currentScreen == SEARCH_SCREEN)
 		songList.onKey(key);
+
+
+	if(k == (Window::RIGHT | SHIFT))
+		k = Window::LEFT;
+
 
 	if(key != Window::NO_KEY)
 		smac.put_event(k);

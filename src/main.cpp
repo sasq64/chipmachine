@@ -51,6 +51,10 @@ int main(int argc, char* argv[]) {
 				break;
 			case 's':
 				server = true;
+			case 't':
+				w = 720;
+				h = 576;
+				break;
 			case 'h':
 				w = 1280;
 				h = 720;

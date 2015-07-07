@@ -247,7 +247,7 @@ void IncrementalQuery::search() {
 				found = false;
 				break;
 			}
-			LOGD("Found %s in %s", p, str);
+			//LOGD("Found %s in %s", p, str);
 
 
 		}

@@ -7,6 +7,11 @@ include(${AP1_ROOT}/cmake/Utils.cmake)
 add_definitions(-DAPP_NAME=chipmachine)
 #(-DUSE_REMOTELISTS -DENABLE_TELNET)
 
+if(RASPBERRYPI)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv6 -mfpu=vfp -mfloat-abi=hard")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv6 -mfpu=vfp -mfloat-abi=hard")
+endif()
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -funsigned-char")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -funsigned-char")
 
@@ -21,6 +26,7 @@ set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -DCM_DEBUG")
 
 
 include_directories(${AP1_ROOT}/mods)
+
 
 set(SOURCE_FILES
 	src/ChipMachine.cpp
