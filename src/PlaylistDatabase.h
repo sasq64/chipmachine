@@ -8,7 +8,7 @@
 #include <sqlite3/database.h>
 
 #include <unordered_set>
-#include <mutex>
+#include <coreutils/thread.h>
 #include <vector>
 #include <string>
 

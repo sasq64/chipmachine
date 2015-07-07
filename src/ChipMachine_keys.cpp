@@ -125,7 +125,7 @@ void ChipMachine::showSearch() {
 }
 
 SongInfo ChipMachine::getSelectedSong() {
-	auto i = songList.selected() - playlists.size();
+	int i = songList.selected() - playlists.size();
 	if(i < 0) return SongInfo();
 	return MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
 }
