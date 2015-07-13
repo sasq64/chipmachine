@@ -27,19 +27,19 @@ public:
 						inProgress++;
 					}
 					if(sourceVec) {
-						LOGD("WORK STARTING");
+						//LOGD("WORK STARTING");
 						for(int i=tno; i<sourceVec->size(); i += threadCount) {
 							const T& item = (*sourceVec)[i];
 							if(filterFunc(item)) {
 								// Dealing with index 'i'. Need to wait until all lower indexes has been dealt with.
-								while(handled < i)
-									utils::sleepms(0);
+								//while(handled < i)
+								//	utils::sleepms(0);
 								auto p = counter.fetch_add(1);
 								(*targetVec)[p] = item;
 							}
-							handled++;
+							//handled++;
 						}
-						LOGD("WORK DONE");
+						//LOGD("WORK DONE");
 					}
 					inProgress--;
 					done_cv.notify_all();
@@ -84,7 +84,7 @@ public:
 	}
 
 private:
-	int threadCount = 8;
+	int threadCount = 4;
 
 	std::vector<std::thread> threads;
 	std::atomic<size_t> counter;

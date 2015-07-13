@@ -3,8 +3,11 @@
 
 #include "SongInfo.h"
 #include "MusicPlayer.h"
+#ifdef USE_REMOTELISTS
 #include "RemoteLists.h"
+#endif
 #include "RemoteLoader.h"
+#include "MusicDatabase.h"
 
 //#include <webutils/webgetter.h>
 

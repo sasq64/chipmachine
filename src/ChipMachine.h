@@ -7,7 +7,9 @@
 #include "SongInfoField.h"
 
 #include "TelnetInterface.h"
+#ifdef USE_REMOTELISTS
 #include "RemoteLists.h"
+#endif
 
 #include "state_machine.h"
 #include "renderset.h"

@@ -263,12 +263,6 @@ void ChipMachine::update() {
 		LOGD("Clicked at %d %d\n", click.x, click.y);
 	}
 
-	auto scroll = screen.get_scroll();
-	if(scroll != Window::NO_SCROLL) {
-		songList.scroll(-scroll.y * 10);
-	}
-
-
 	static string msg;
 	auto m = player.getMeta("message");
 	if(m != msg) {

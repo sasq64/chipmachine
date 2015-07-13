@@ -361,7 +361,7 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 			LOGD("## SLOW: First word filtering");
 
 #ifdef USE_THREADS
-			result = worker.reduce_p(tv, [=](int i) {
+			result = worker.reduce(tv, [=](int i) {
 				string s = strings[i];
 				simplify(s);
 				return (s.find(query) != string::npos);

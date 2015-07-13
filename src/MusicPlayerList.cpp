@@ -404,14 +404,16 @@ void MusicPlayerList::playCurrent() {
 		}
 		PSFFile f { loadedFile };
 		if(f.valid()) {
+			LOGD("IS PSF");
 			auto lib = f.tags()["_lib"];
 			if(lib != "") {
 				auto lib_target = path_directory(loadedFile) + "/" + lib;
 				makeLower(lib);
 				auto lib_url = path_directory(currentInfo.path) + "/" + lib;
-				if(!File::exists(lib_target)) {
+				LOGD("LIB:%s", lib_target);
+				//if(!File::exists(lib_target)) {
 					files++;
-					LOGD("Loading library file '%s'");
+					LOGD("Loading library file '%s'", lib_url);
 					RemoteLoader &loader = RemoteLoader::getInstance();
 					loader.load(lib_url, [=](File f) {
 						if(f == File::NO_FILE) {
@@ -424,7 +426,7 @@ void MusicPlayerList::playCurrent() {
 						}
 						files--;
 					});
-				}
+				//}
 			}
 		}
 		files--;

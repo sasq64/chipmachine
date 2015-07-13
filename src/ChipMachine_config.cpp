@@ -111,11 +111,11 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 	} else
 	if(name == "top_left") {
 		topLeft[index-1] = stol(val);
-		songList.setArea(Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x, downRight.y - topLeft.y - 28));
+		songList.setArea(grappix::Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x, downRight.y - topLeft.y - 28));
 	} else
 	if(name == "down_right") {
 		downRight[index-1] = stol(val);
-		songList.setArea(Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x, downRight.y - topLeft.y - 28));
+		songList.setArea(grappix::Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x, downRight.y - topLeft.y - 28));
 	} else
 	if(name == "scroll") {
 		switch(index) {
