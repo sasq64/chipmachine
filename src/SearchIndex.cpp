@@ -10,6 +10,8 @@
 using namespace std;
 using namespace utils;
 
+#define USE_THREADS
+
 // BOYER MOORE STUFF
 
 #define ALPHABET_LEN 256
@@ -186,70 +188,80 @@ void IncrementalQuery::search() {
 
 	string q = string(&query[0], query.size());
 
-	auto parts = split(q);
+	auto words = split(q);
 
-	// Parts ex IRON LORD -> 3L= "IRO"
+	// Words : IRON LORD -> 3L= "IRO"
 
 	// Remove empty strings
-	parts.erase(remove_if(parts.begin(), parts.end(), [&](const string &a) { return a.size() == 0; }), parts.end());
-	LOGD("Parts: [%s]", parts);
+	words.erase(remove_if(words.begin(), words.end(), [&](const string &a) { return a.size() == 0; }), words.end());
+	LOGD("words: [%s]", words);
 
 
-	if(oldParts.size() == 0 || oldParts[0] != parts[0]) {
+	if(oldWords.size() == 0 || oldWords[0] != words[0]) {
+		LOGD("## First word changed");
 		// First word has changed
 		//  - If something was just added, we can filter our firstResult more
 		//  - Otherwise do a new search
-		if(parts[0].size() > 4 && parts[0].find(oldParts[0]) == 0) {
+		if(words[0].size() > 4 && words[0].find(oldWords[0]) == 0) {
 			// Erase things that don't match from existing result
+			LOGD("## FAST: Filter prevous result");
 			firstResult.erase(
 				std::remove_if(firstResult.begin(), firstResult.end(), [=](const int &index) -> bool {
 					string str = provider->getString(index);
 					SearchIndex::simplify(str);
-					return str.find(parts[0]) == string::npos;
+					return str.find(words[0]) == string::npos;
 				}),
 			firstResult.end());
 		} else {
 			// Do full search
 			// In chipmachine this is a proxy that searches in two separate providers
-			provider->search(parts[0], firstResult, searchLimit);
+			// This will do the 3L 16bit lookup and grep for the word in all hits. May take time
+			LOGD("## SLOW: Full search");
+			provider->search(words[0], firstResult, searchLimit);
 		}
 	}
-	oldParts = parts;
+	oldWords = words;
 
-	if(parts.size() == 1) {
+	if(words.size() == 1) {
 		finalResult = firstResult;
 		return;
 	}
 
 
-	// Check id the other parts (or words) is contained in the result
+	// Check if the other words (or words) is contained in the result
 
 	finalResult.resize(0);
 
+	// TODO: Parallellize this!
+
+	LOGD("## OTHER PARTS");
 	for(auto &index : firstResult) {
 		//string rc = r;
 		//makeLower(rc);
 		bool found = true;
-		//for(auto p : parts) {
+		//for(auto p : words) {
 
+		// Get the full searchable string for this result
 		string str = provider->getString(index);
+		// Simplify it
 		SearchIndex::simplify(str);
 
-		for(size_t i=1; i<parts.size(); i++) {
+		// Check against the other words from the searchline 
+		for(size_t i=1; i<words.size(); i++) {
 
-			size_t pos = str.find(parts[i-1]);
+
+			size_t pos = str.find(words[i-1]);
 			if(pos != string::npos) {
-				str.erase(pos, parts[i-1].length());
+				// Remove the previous match from the result string to avoid double matching
+				str.erase(pos, words[i-1].length());
 			}
 
-			const auto &p = parts[i];
+			const auto &p = words[i];
 			if(str.find(p) == string::npos) {
+				// All words must match
 				found = false;
 				break;
 			}
-			//LOGD("Found %s in %s", p, str);
-
-
 		}
 		if(found)
 			finalResult.push_back(index);//format("%s\t%s\t%d", sdb->getTitle(index), sdb->getComposer(index), index));
@@ -346,13 +358,25 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 		if(q3) {
 			result = tv;
 		} else {
-			for(int index : tv) {
+			LOGD("## SLOW: First word filtering");
+
+#ifdef USE_THREADS
+			result = worker.reduce_p(tv, [=](int i) {
+				string s = strings[i];
+				simplify(s);
+				return (s.find(query) != string::npos);
+			});
+#else
+			auto sz = tv.size();
+			for(int i = 0; i<sz; i++) {
+				auto index = tv[i];
 				string s = strings[index];
 				simplify(s);
 				if(s.find(query) != string::npos) {
 					result.push_back(index);
 				}
 			}
+#endif
 		}
 	}
 	return result.size();
