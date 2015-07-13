@@ -416,15 +416,17 @@ void MusicPlayerList::playCurrent() {
 					LOGD("Loading library file '%s'", lib_url);
 					RemoteLoader &loader = RemoteLoader::getInstance();
 					loader.load(lib_url, [=](File f) {
+						File targetFile { lib_target };
 						if(f == File::NO_FILE) {
 							errors.push_back("Could not load lib file");
 							state = ERROR;
 						} else
-						if(f.getName() != lib_target) {
-							LOGD("Got lib file %s, copying to %s", f.getName(), lib_target);
+						if(f != targetFile) {
+							LOGD("Got lib file %s, copying to %s", f.getName(), targetFile.getName());
 							File::copy(f.getName(), lib_target);
 						}
 						files--;
+						LOGD("Files now %d", files);
 					});
 				//}
 			}

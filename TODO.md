@@ -5,6 +5,7 @@
 * Loop detecton, max play or remember skip position?
 * Limit stream speed
 * _lib2 and _lib3 support for PSF
+* Common resampler in player, not in plugins
 
 * Repeating tweens sometimes die (title scrolling stops, selection hilight gone)
 * Unpause when starting new song
@@ -19,14 +20,15 @@
 
 ## TASKS / FEATURES
 
-Deal with different encodings
+### Deal with different encodings
 
 ### Deal with multi file songs
 
 Problem: Some SNG files does not require INS files.
+
 Problem: We want to treat some multi song files as one song with subtunes
 
-DO:
+*DO:*
 
 When parsing modland, look for multi file songs.
 Create paths such as
@@ -38,6 +40,10 @@ The latter case should be treated as sub songs.
 When loading path, load all files
 Mark secondary files. If more than one primary file, treat as sub songs
 
+### Rewrite search interface
+
+Search string -> words
+Lookup first word in all indexes
 
 
 
@@ -81,33 +87,16 @@ X Mods don't end (Compilications.mod)
 
 ## OLD STUFF
 
-
-
-INFO LINE
-
-Format (extension)
-
 ## STATIC PLAYLISTS
-
-* Should be created as a step of database creation / indexing
-* Read all files under playlists/
-* Looks like a song in the database, points out the .pls file
-
 
 ### Sounds of Scenesat
 
 ### Amiga Classics
 
 
+## PLUGINS TO BE ADDED
 
-
-
-## PLUGINS
-
-AYFLY For spectrum formats
-TEDPLAY
-
-
+* TEDPLAY
 
 ## FILTER
 
