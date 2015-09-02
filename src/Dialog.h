@@ -6,7 +6,8 @@
 
 class Dialog : public Renderable {
 public:
-	Dialog(std::shared_ptr<grappix::RenderTarget> target, const grappix::Font &font, const std::string &text, float scale = 1.0F) : Renderable(target), font(font), textField(font, text), lineEdit(font) {
+	Dialog(std::shared_ptr<grappix::RenderTarget> target, const grappix::Font &font, const std::string &text, float scale = 1.0F) : font(font), textField(font, text), lineEdit(font) {
+		setTarget(target);
 		auto size = font.get_size(text, scale);
 		bounds.w = size.x + 20;
 		bounds.h = size.y * 3;

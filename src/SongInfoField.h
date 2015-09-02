@@ -4,7 +4,7 @@
 #include "TextField.h"
 #include "SongInfo.h"
 
-struct SongInfoField {
+struct SongInfoField : public Renderable {
 
 	SongInfoField() {
 		fields.resize(3);
@@ -41,6 +41,11 @@ struct SongInfoField {
 
 	bool operator==(const SongInfoField &other) const {
 		return other.path == path;
+	}
+
+	virtual void render(uint32_t delta) override {
+		for(const auto &f : fields)
+			f->render(delta);
 	}
 
 	std::vector<std::shared_ptr<TextField>> fields;

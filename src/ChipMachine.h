@@ -76,7 +76,7 @@ private:
 	MusicPlayerList player;
 
 	RenderSet renderSet;
-	std::shared_ptr<TextField> toastField;
+	TextField toastField;
 
 	const int MAIN_SCREEN = 0;
 	const int SEARCH_SCREEN = 1;
@@ -114,12 +114,12 @@ private:
 	SongInfoField prevInfoField;
 	SongInfoField outsideInfoField;
 
-	std::shared_ptr<TextField> timeField;
-	std::shared_ptr<TextField> lengthField;
-	std::shared_ptr<TextField> songField;
-	std::shared_ptr<TextField> nextField;
-	std::shared_ptr<TextField> xinfoField;
-	std::shared_ptr<TextField> playlistField;
+	TextField timeField;
+	TextField lengthField;
+	TextField songField;
+	TextField nextField;
+	TextField xinfoField;
+	TextField playlistField;
 
 	string currentNextPath;
 	SongInfo currentInfo;
@@ -137,11 +137,11 @@ private:
 
 	RenderSet searchScreen;
 
-	std::shared_ptr<LineEdit> searchField;
-	std::shared_ptr<LineEdit> commandField;
-	std::shared_ptr<TextField> topStatus;
+	LineEdit searchField;
+	LineEdit commandField;
+	TextField topStatus;
 
-	std::shared_ptr<TextField>resultFieldTemplate;
+	TextField resultFieldTemplate;
 
 	grappix::Rectangle volPos;
 

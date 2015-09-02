@@ -66,7 +66,19 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 		name, type, source, local_dir, description);
 	auto collection_id = db.last_rowid();
 
-	File listFile = File::findFile(workDir, song_list);
+	LOGD("Workdir:%s", workDir);
+	File listFile;
+	bool writeListFile = false;
+	//File listFile = File::findFile(workDir, song_list);
+	if(song_list != "") {
+		listFile = File(workDir, song_list);
+		writeListFile = listFile.exists();
+	}
+
+	bool isModland = (type == "modland");
+	bool isRKO = (type == "rko");
+	bool isAmiRemix = (type == "amigaremix");
+	bool isScenesat = (type == "scenesat");
 
 	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) VALUES (?, ?, ?, ?, ?, ?)");
 
@@ -104,13 +116,44 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 			query.bind(title, "", composer, "MP3", enclosure, collection_id).step();
 		}
 
-	} else
-	if(listFile.exists()) {
+	} else if(File::exists(local_dir) && !isModland) {
 
-		bool isModland = (type == "modland");
-		bool isRKO = (type == "rko");
-		bool isAmiRemix = (type == "amigaremix");
-		bool isScenesat = (type == "scenesat");
+		makedir(".rsntemp");
+		function<void(File &)> checkDir;
+		checkDir = [&](File &root) {
+			LOGD("DIR %s", root.getName());
+			for(auto &rf : root.listFiles()) {
+				if(rf.isDir()) {
+					checkDir(rf);
+				} else {
+					auto name = rf.getName();
+					SongInfo songInfo(name);
+					if(identify_song(songInfo)) {
+
+						auto pos = name.find(local_dir);
+						if(pos != string::npos) {
+							name = name.substr(pos + local_dir.length());
+						}
+
+						query.bind(songInfo.title, songInfo.game, songInfo.composer, songInfo.format, name, collection_id).step();
+						if(writeListFile)
+							listFile.writeln(format("%s\t%s\t%s\t%s\t%s", songInfo.title, songInfo.game, songInfo.composer, songInfo.format, name));
+					}
+				}
+			}
+		};
+
+		if(local_dir[0] != '/')
+			local_dir = workDir + "/" + local_dir;
+		File root { local_dir };
+
+		LOGD("Checking local dir '%s'", root.getName());
+
+		checkDir(root);
+
+		listFile.close();
+
+	} else if(listFile.exists()) {
 
 		for(const auto &s : listFile.getLines()) {
 			auto parts = split(s, "\t");
@@ -140,39 +183,8 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 				query.bind(song.title, song.game, song.composer, song.format, song.path, collection_id).step();
 			}
 		}
-	} else if(local_dir != "") {
-
-		makedir(".rsntemp");
-		function<void(File &)> checkDir;
-		checkDir = [&](File &root) {
-			LOGD("DIR %s", root.getName());
-			for(auto &rf : root.listFiles()) {
-				if(rf.isDir()) {
-					checkDir(rf);
-				} else {
-					auto name = rf.getName();
-					SongInfo songInfo(name);
-					if(identify_song(songInfo)) {
-
-						auto pos = name.find(local_dir);
-						if(pos != string::npos) {
-							name = name.substr(pos + local_dir.length());
-						}
-
-						query.bind(songInfo.title, songInfo.game, songInfo.composer, songInfo.format, name, collection_id).step();
-					}
-				}
-			}
-		};
-
-		if(local_dir[0] != '/')
-			local_dir = workDir + "/" + local_dir;
-		File root { local_dir };
-
-		LOGD("Checking local dir '%s'", root.getName());
-
-		checkDir(root);
 	}
+
 	db.exec("COMMIT");
 }
 
@@ -187,7 +199,6 @@ bool MusicDatabase::parseModlandPath(SongInfo &song) {
 
 	string ext = path_extension(song.path);
 	if((secondary.count(ext) > 0) || endsWith(ext, "sflib")) {
-		LOGD("Skipping %s", song.path);
 		return false;
 	}
 
@@ -314,6 +325,7 @@ SongInfo MusicDatabase::lookup(const std::string &p) {
 	auto q = db.query<string, string, string, string, string>("SELECT title, game, composer, format, collection.id FROM song, collection WHERE song.path=? AND song.collection = collection.ROWID", path);
 
 	SongInfo song;
+	song.path = p;
 	if(q.step()) {
 		string coll;
 		tie(song.title, song.game, song.composer, song.format, coll) = q.get_tuple();

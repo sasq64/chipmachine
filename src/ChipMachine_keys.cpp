@@ -163,40 +163,41 @@ void ChipMachine::updateKeys() {
 	if(indexingDatabase)
 		return;
 
-	uint32_t k = key;
-	bool ascii = (k >= 'A' && k <= 'Z');
-	if(ascii)
-		k = tolower(k);
-	if(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_RIGHT)) {
+	uint32_t event = key;
+
+	if(key != Window::NO_KEY) {
+		bool ascii = (event >= 'A' && event <= 'Z');
 		if(ascii)
-			k = toupper(k);
-		else if(k == Window::DOWN)
-			key = Window::UP;
-		else
-			k |= SHIFT;
+			event = tolower(event);
+		if(screen.key_pressed(Window::SHIFT_LEFT) || screen.key_pressed(Window::SHIFT_RIGHT)) {
+			if(ascii)
+				event = toupper(event);
+			else if(event == Window::DOWN)
+				key = Window::UP;
+			else
+				event |= SHIFT;
+		}
+
+		if(screen.key_pressed(Window::CTRL_LEFT) || screen.key_pressed(Window::CTRL_RIGHT)) {
+			if(event == Window::DOWN)
+				key = Window::PAGEDOWN;
+			else if(event == Window::UP)
+				key = Window::PAGEUP;
+			else
+				event |= CTRL;
+		}
+		if(screen.key_pressed(Window::ALT_LEFT) || screen.key_pressed(Window::ALT_RIGHT))
+			event |= ALT;
+
+		if((event & (CTRL|SHIFT)) == 0 && currentScreen == SEARCH_SCREEN)
+			songList.onKey(key);
+
+		if(event == (Window::RIGHT | SHIFT))
+			event = Window::LEFT;
+
+		smac.put_event(event);
 	}
 
-	if(screen.key_pressed(Window::CTRL_LEFT) || screen.key_pressed(Window::CTRL_RIGHT)) {
-		if(k == Window::DOWN)
-			key = Window::PAGEDOWN;
-		else if(k == Window::UP)
-			key = Window::PAGEUP;
-		else
-			k |= CTRL;
-	}
-	if(screen.key_pressed(Window::ALT_LEFT) || screen.key_pressed(Window::ALT_RIGHT))
-		k |= ALT;
-
-	if((k & (CTRL|SHIFT)) == 0 && currentScreen == SEARCH_SCREEN)
-		songList.onKey(key);
-
-
-	if(k == (Window::RIGHT | SHIFT))
-		k = Window::LEFT;
-
-
-	if(key != Window::NO_KEY)
-		smac.put_event(k);
 	auto action = smac.next_action();
 	if(action.id != NO_ACTION) {
 
@@ -208,40 +209,40 @@ void ChipMachine::updateKeys() {
 				editPlaylistName = playlists[songList.selected()];
 			else
 				editPlaylistName = "";
-			commandField->setText(editPlaylistName);
+			commandField.setText(editPlaylistName);
 			playlistEdit = true;
-			commandField->visible(true);
-			searchField->visible(false);
-			topStatus->visible(false);
+			commandField.visible(true);
+			searchField.visible(false);
+			topStatus.visible(false);
 			break;
 		case SELECT_PLAYLIST:
-			currentPlaylistName = commandField->getText();
+			currentPlaylistName = commandField.getText();
 			LOGD("OLDNAME %s NEWNAME %s", editPlaylistName, currentPlaylistName);
 			if(editPlaylistName == "")
 				PlaylistDatabase::getInstance().createPlaylist(currentPlaylistName);
 			else if(editPlaylistName != currentPlaylistName)
 				PlaylistDatabase::getInstance().renamePlaylist(editPlaylistName, currentPlaylistName);
 
-			commandField->visible(false);
+			commandField.visible(false);
 			playlistEdit = false;
-			playlistField->setText(currentPlaylistName);
+			playlistField.setText(currentPlaylistName);
 			break;
 		case ADD_COMMAND_CHAR:
-			commandField->on_key(action.event);
+			commandField.on_key(action.event);
 			break;
 		case ADD_DIALOG_CHAR:
 			currentDialog->on_key(action.event);
 			break;
 		case CANCEL_COMMAND:
-			commandField->visible(false);
+			commandField.visible(false);
 			playlistEdit = false;
 			break;
 		case PLAY_PAUSE:
 			player.pause(!player.isPaused());
 			if(player.isPaused()) {
-				Tween::make().sine().repeating().to(timeField->add, 1.0).seconds(0.5);
+				Tween::make().sine().repeating().to(timeField.add, 1.0).seconds(0.5);
 			} else
-				Tween::make().to(timeField->add, 0.0).seconds(0.5);
+				Tween::make().to(timeField.add, 0.0).seconds(0.5);
 			break;
 		case ADD_LIST_SONG:
 			if(player.addSong(getSelectedSong()))
@@ -422,10 +423,10 @@ void ChipMachine::updateKeys() {
 	}
 
 	if(searchUpdated) {
-		searchField->setText(iquery->getString());
+		searchField.setText(iquery->getString());
 		//searchField->color = searchColor;
-		searchField->visible(true);
-		topStatus->visible(false);
+		searchField.visible(true);
+		topStatus.visible(false);
 		playlists.clear();
 		PlaylistDatabase::getInstance().search(iquery->getString(), playlists);
 		songList.setTotal(iquery->numHits() + playlists.size());
@@ -436,12 +437,12 @@ void ChipMachine::updateKeys() {
 		if(i >= 0) {
 			SongInfo song = MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
 			auto ext = path_extension(song.path);
-			topStatus->setText(format("Format: %s (%s)", song.format, ext));
+			topStatus.setText(format("Format: %s (%s)", song.format, ext));
 			//searchField->color = Color(formatColor);
 		} else
-			topStatus->setText("Format: Playlist");
-		searchField->visible(false);
-		topStatus->visible(true);
+			topStatus.setText("Format: Playlist");
+		searchField.visible(false);
+		topStatus.visible(true);
 	}
 
 }

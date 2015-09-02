@@ -5,6 +5,12 @@
 using namespace std;
 using namespace utils;
 
+RemoteLoader::RemoteLoader() : webgetter(utils::File::getCacheDir() / "_webfiles") {
+	webgetter.setErrorCallback([](int code, const string &msg) {
+		LOGD("Error %d %s", code, msg);
+	});
+}
+
 void RemoteLoader::registerSource(const std::string &name, const std::string url, const std::string local_dir) {
 	Source s(url, local_dir);
 

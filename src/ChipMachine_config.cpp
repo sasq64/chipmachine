@@ -27,14 +27,14 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 		{ "enter_composer", &outsideInfoField[1] },
 		{ "enter_format", &outsideInfoField[2] },
 
-		{ "length_field", lengthField.get() },
-		{ "time_field", timeField.get() },
-		{ "song_field", songField.get() },
-		{ "next_field", nextField.get() },
-		{ "xinfo_field", xinfoField.get() },
-		{ "search_field", searchField.get() },
-		{ "top_status", topStatus.get() },
-		{ "result_field", resultFieldTemplate.get() },
+		{ "length_field", &lengthField },
+		{ "time_field", &timeField },
+		{ "song_field", &songField },
+		{ "next_field", &nextField },
+		{ "xinfo_field", &xinfoField },
+		{ "search_field", &searchField },
+		{ "top_status", &topStatus },
+		{ "result_field", &resultFieldTemplate }
 	};
 
 	auto path = workDir;//current_exe_path() + ":" + File::getAppDir();
@@ -97,7 +97,7 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 
 		if(fontFile.exists()) {
 			listFont = Font(fontFile.getName(), 32, 256);// | Font::DISTANCE_MAP);
-			resultFieldTemplate->setFont(listFont);
+			resultFieldTemplate.setFont(listFont);
 		}
 	} else
 	if(name == "favicon") {

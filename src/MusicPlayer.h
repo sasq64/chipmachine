@@ -1,3 +1,5 @@
+#ifndef MUSIC_PLAYER_H
+#define MUSIC_PLAYER_H
 
 #include "SongInfo.h"
 
@@ -109,3 +111,5 @@ private:
 };
 
 }
+
+#endif // MUSIC_PLAYER_H

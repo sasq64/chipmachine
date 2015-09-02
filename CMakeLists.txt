@@ -57,7 +57,7 @@ set(APONE_MODULES
 	coreutils
 	audioplayer
 	grappix
-#	bbsutils
+	bbsutils
 	fft
 	archive
 #	webutils

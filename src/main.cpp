@@ -7,7 +7,7 @@
 // #endif
 
 #include "ChipMachine.h"
-#include "MusicPlayerList.h"
+#include "MusicPlayer.h"
 
 #include <grappix/grappix.h>
 #include <musicplayer/PSFFile.h>
@@ -16,6 +16,8 @@
 #include <bbsutils/console.h>
 
 #include <vector>
+
+#define ENABLE_CONSOLE
 
 using namespace std;
 using namespace chipmachine;
@@ -87,30 +89,76 @@ int main(int argc, char* argv[]) {
 	}
 
 	if(songs.size() > 0) {
+		int pos = 0;
 #ifdef ENABLE_CONSOLE
 		Console *c = Console::createLocalConsole();
-
-		MusicPlayerList mpl(workDir);
+#endif
+		MusicPlayer pl(workDir);
+		while(true) {
+			if(pos >= songs.size())
+				return 0;
+			pl.playFile(songs[pos++].path);
+			SongInfo info = pl.getPlayingInfo();
+			print_fmt("Playing: %s\n", info.title != "" ? info.title : utils::path_filename(songs[pos-1].path));
+			while(pl.playing()) {
+				pl.update();
+				if(c) {
+					auto k = c->getKey(100);
+					if(k != Console::KEY_TIMEOUT) {
+						switch(k) {
+						case Console::KEY_ENTER:
+							pl.stop();
+							break;
+						}
+					}
+				}
+			}
+		}
+	#if 0
 		for(auto &s : songs) {
 			LOGD("Adding '%s'", s.path);
 			mpl.addSong(s);
 		}
 		mpl.nextSong();
 		printf("\n--------------------------\nCHIPMACHINE CONSOLE PLAYER\n--------------------------\n");
+		int currentTune = 0;
+		SongInfo currentInfo;
 		while(true) {
 			if(mpl.getState() == MusicPlayerList::PLAY_STARTED) {
-				auto si = mpl.getInfo();
+				currentInfo = mpl.getInfo();
+				currentTune = mpl.getTune();
 				auto l = mpl.getLength();
-				print_fmt("%s - %s (%s) [%02d:%02d]\n", si.composer, si.title, si.format, l/60, l%60);
+				auto fileName = path_filename(currentInfo.path);
+				auto title = currentInfo.title;
+				if(title != "") {
+					if(currentInfo.composer != "")
+						title = currentInfo.composer + " - " + title;
+					title += " (" + fileName + ")";
+				} else title = fileName;
+				print_fmt("%s [%s] [%02d:%02d]\n", title, currentInfo.format, l/60, l%60);
 			}
+#ifdef ENABLE_CONSOLE
+
+			int tune = mpl.getTune();
+			if(currentTune != tune) {
+				currentTune = tune;
+				print_fmt("Subtune: %d\n", currentTune);
+			}
+
+
 			if(c) {
 				auto k = c->getKey(100);
-				if(k !=Console::KEY_TIMEOUT) {
-					LOGD("KEY %d", k);
+				if(k != Console::KEY_TIMEOUT) {
 					switch(k) {
 					case ' ':
 						break;
 					case Console::KEY_RIGHT:
+						if(currentTune < currentInfo.numtunes-1)
+							mpl.seek(currentTune+1);
+						break;
+					case Console::KEY_LEFT:
+						if(currentTune > 0)
+							mpl.seek(currentTune-1);
 						break;
 					case Console::KEY_ENTER:
 						mpl.nextSong();
@@ -118,10 +166,11 @@ int main(int argc, char* argv[]) {
 					}
 				}
 			}
-		}
 #else
+			sleepms(500);
 #endif
-
+		}
+#endif
 	}
 
 	if(fullScreen)

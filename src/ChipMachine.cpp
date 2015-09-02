@@ -71,7 +71,7 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 	  	c = markColor;
 	}
 
-	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate->scale);
+	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate.scale);
 }
 
 
@@ -93,31 +93,23 @@ ChipMachine::ChipMachine(const std::string &wd) : workDir(wd), player(wd), curre
 	File ff = File::findFile(workDir, "data/Bello.otf");
 	scrollEffect.set("font", ff.getName());
 
-
 #ifdef ENABLE_TELNET
 	telnet = make_unique<TelnetInterface>(player);
 	telnet->start();
 #endif
 
-	for(auto i : count_to(3)) {
-		mainScreen.add(prevInfoField.fields[i]);
-		mainScreen.add(currentInfoField.fields[i]);
-		mainScreen.add(nextInfoField.fields[i]);
-		mainScreen.add(outsideInfoField.fields[i]);
-	}
+	// SongInfo fields
+	mainScreen.add(&prevInfoField);
+	mainScreen.add(&currentInfoField);
+	mainScreen.add(&nextInfoField);
+	mainScreen.add(&outsideInfoField);
 
-	xinfoField = make_shared<TextField>();
-	mainScreen.add(xinfoField);
-
-	nextField = make_shared<TextField>();
-	mainScreen.add(nextField);
-
-	timeField = make_shared<TextField>();
-	mainScreen.add(timeField);
-	lengthField = make_shared<TextField>();
-	mainScreen.add(lengthField);
-	songField = make_shared<TextField>();
-	mainScreen.add(songField);
+	// Other text fields
+	mainScreen.add(&xinfoField);
+	mainScreen.add(&nextField);
+	mainScreen.add(&timeField);
+	mainScreen.add(&lengthField);
+	mainScreen.add(&songField);
 
 	auto createTexture = [](const Icon &icon) -> Texture {
 		auto bm = image::bitmap(icon.w, icon.h, &icon.data[0]);
@@ -141,15 +133,12 @@ ChipMachine::ChipMachine(const std::string &wd) : workDir(wd), player(wd), curre
 
 	iquery = MusicDatabase::getInstance().createQuery();
 
-	resultFieldTemplate = make_shared<TextField>();
-	searchField = make_shared<LineEdit>();
-	searchField->setPrompt("#");
-	searchScreen.add(searchField);
-	searchField->visible(false);
+	searchField.setPrompt("#");
+	searchScreen.add(&searchField);
+	searchField.visible(false);
 
-	topStatus = make_shared<TextField>();
-	searchScreen.add(topStatus);
-	topStatus->visible(false);
+	searchScreen.add(&topStatus);
+	topStatus.visible(false);
 
 	setupRules();
 
@@ -158,8 +147,8 @@ ChipMachine::ChipMachine(const std::string &wd) : workDir(wd), player(wd), curre
 
 	musicBars.setup(spectrumWidth, spectrumHeight, 24);
 
-	toastField = make_shared<TextField>(font, "", topLeft.x, downRight.y - 134, 2.0, 0x00ffffff);
-	renderSet.add(toastField);
+	toastField = TextField(font, "", topLeft.x, downRight.y - 134, 2.0, 0x00ffffff);
+	renderSet.add(&toastField);
 
 	LOGD("WORKDIR %s", workDir.getName());
 	MusicDatabase::getInstance().initFromLuaAsync(this->workDir);
@@ -173,16 +162,14 @@ ChipMachine::ChipMachine(const std::string &wd) : workDir(wd), player(wd), curre
 	resizeDelay = 0;
 
 	songList = VerticalList(this, grappix::Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x, downRight.y - topLeft.y - 28), numLines);
-	playlistField = make_shared<TextField>(listFont, "Favorites", downRight.x - 80, downRight.y - 10, 0.5, 0xff888888);
+	//playlistField = TextField(listFont, "Favorites", downRight.x - 80, downRight.y - 10, 0.5, 0xff888888);
 	//mainScreen.add(playlistField);
 
-	//volumeField = make_shared<TextField>(listFont, "Favorites", downRight.x - 80, downRight.y - 10, 0.5, 0xff888888);
+	commandField = LineEdit(font, ">", topLeft.x, topLeft.y, 1.0, 0xff888888);
+	searchScreen.add(&commandField);
+	commandField.visible(false);
 
-	commandField = make_shared<LineEdit>(font, ">", topLeft.x, topLeft.y, 1.0, 0xff888888);
-	searchScreen.add(commandField);
-	commandField->visible(false);
-
-	scrollEffect.set("scrolltext", "Chipmachine Beta 4 -- Just type to search -- UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- CTRL+1 to 5 for shuffle play -- F8 to clear queue -- ESCAPE to clear search text ----- ");
+	scrollEffect.set("scrolltext", "Chipmachine Beta 5 -- Just type to search -- UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- CTRL+1 to 5 for shuffle play -- F8 to clear queue -- ESCAPE to clear search text ----- ");
 	starEffect.fadeIn();
 
 	File f { File::getCacheDir() / "login" };
@@ -298,16 +285,16 @@ void ChipMachine::update() {
 		currentInfoField[0].pos.x = currentInfoField[1].pos.x;
 
 		if(currentInfo.numtunes > 0)
-			songField->setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
+			songField.setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
 		else
-			songField->setText("[01/01]");
+			songField.setText("[01/01]");
 
 		auto sub_title = player.getMeta("sub_title");
 
 		int tw = font.get_width(currentInfo.title, currentInfoField[0].scale);
 
 		auto f = [=]() {
-			xinfoField->setText(sub_title);
+			xinfoField.setText(sub_title);
 			int d = (tw-(downRight.x-topLeft.x-20));
 			if(d > 20)
 				Tween::make().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200)/200.0f);
@@ -363,28 +350,28 @@ void ChipMachine::update() {
 				}
 
 				if(psz == 1)
-					nextField->setText("Next");
+					nextField.setText("Next");
 				else
-					nextField->setText(format("Next (%d)", psz));
+					nextField.setText(format("Next (%d)", psz));
 				nextInfoField.setInfo(info);
 				currentNextPath = info.path;
 			}
-		} else if(nextField->getText() != "") {
+		} else if(nextField.getText() != "") {
 			nextInfoField.setInfo(SongInfo());
-			nextField->setText("");
+			nextField.setText("");
 		}
 	}
 
 	int tune = player.getTune();
 	if(currentTune != tune) {
-		songField->add = 0.0;
-		Tween::make().sine().to(songField->add, 1.0).seconds(0.5);
+		songField.add = 0.0;
+		Tween::make().sine().to(songField.add, 1.0).seconds(0.5);
 		currentInfo = player.getInfo();
 		auto sub_title = player.getMeta("sub_title");
-		xinfoField->setText(sub_title);
+		xinfoField.setText(sub_title);
 		currentInfoField.setInfo(currentInfo);
 		currentTune = tune;
-		songField->setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
+		songField.setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
 	}
 
 	if(player.playing()) {
@@ -392,24 +379,24 @@ void ChipMachine::update() {
 		bool party = (player.getPermissions() & MusicPlayerList::PARTYMODE) != 0;
 		if(!lockDown && party) {
 			lockDown = true;
-			Tween::make().to(timeField->color, Color(0xffff0000)).seconds(0.5);
+			Tween::make().to(timeField.color, Color(0xffff0000)).seconds(0.5);
 		} else if(lockDown && !party) {
 			lockDown = false;
-			Tween::make().to(timeField->color, timeColor).seconds(2.0);
+			Tween::make().to(timeField.color, timeColor).seconds(2.0);
 		}
 
 
 		auto p = player.getPosition();
 		int length = player.getLength();
-		timeField->setText(format("%02d:%02d", p/60, p%60));
+		timeField.setText(format("%02d:%02d", p/60, p%60));
 		if(length > 0)
-			lengthField->setText(format("(%02d:%02d)", length/60, length%60));
+			lengthField.setText(format("(%02d:%02d)", length/60, length%60));
 		else
-			lengthField->setText("");
+			lengthField.setText("");
 
 		auto sub_title = player.getMeta("sub_title");
-		if(sub_title != xinfoField->getText())
-			xinfoField->setText(sub_title);
+		if(sub_title != xinfoField.getText())
+			xinfoField.setText(sub_title);
 	}
 
 	if(!player.getAllowed()) {
@@ -446,20 +433,20 @@ void ChipMachine::toast(const std::string &txt, int type) {
 
 	static vector<Color> colors = { 0xffffff, 0xff8888, 0x55aa55 }; // Alpha intentionally left at zero
 
-	toastField->setText(txt);
-	int tlen = toastField->getWidth();
-	toastField->pos.x = topLeft.x + ((downRight.x - topLeft.x) - tlen) / 2;
-	toastField->color = colors[type % 3];
+	toastField.setText(txt);
+	int tlen = toastField.getWidth();
+	toastField.pos.x = topLeft.x + ((downRight.x - topLeft.x) - tlen) / 2;
+	toastField.color = colors[type % 3];
 
-	Tween::make().to(toastField->color.alpha, 1.0).seconds(0.25).onComplete([=]() {
+	Tween::make().to(toastField.color.alpha, 1.0).seconds(0.25).onComplete([=]() {
 		if(type < 3)
-			Tween::make().to(toastField->color.alpha, 0.0).delay(1.0).seconds(0.25);
+			Tween::make().to(toastField.color.alpha, 0.0).delay(1.0).seconds(0.25);
 	});
 }
 
 void ChipMachine::removeToast() {
-	toastField->setText("");
-	toastField->color = 0;
+	toastField.setText("");
+	toastField.color = 0;
 }
 
 void ChipMachine::render(uint32_t delta) {

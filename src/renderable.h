@@ -1,7 +1,7 @@
 #ifndef RENDERABLE_H
 #define RENDERABLE_H
 
-//#include <grappix/render_target.h>
+#include <grappix/grappix.h>
 #include <memory>
 
 namespace grappix {
@@ -9,10 +9,11 @@ namespace grappix {
 }
 
 class RenderSet;
+
 class Renderable
 {
 public:
-	Renderable(std::shared_ptr<grappix::RenderTarget> target) : target(target) {}
+	Renderable() : target(grappix::screenptr) {}
 
 	virtual void render(uint32_t delta) = 0;
 	virtual void visible(bool b) { is_visible = b; }

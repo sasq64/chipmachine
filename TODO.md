@@ -1,4 +1,12 @@
 
+## VERSION 1
+
+* Deal with no Internet
+* Deal with 404
+* 
+
+
+
 ## ISSUES
 
 * UADE SONG END does not go to next?

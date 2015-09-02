@@ -1,12 +1,19 @@
 #ifndef EFFECT_H
 #define EFFECT_H
 
+#include "../src/renderable.h"
+
 #include <tween/tween.h>
+#include <grappix/grappix.h>
 
 namespace demofx {
 
-class Effect {
+class Effect : public Renderable {
 public:
+
+	//Effect() : Renderable(grappix::screenptr) {}
+	//Effect(grappix::RenderTarget &target) : Renderable(grappix::screenptr) {}
+
 	virtual void render(uint32_t delta) = 0;
 
 	virtual void set(const std::string &what, const std::string &val, float seconds = 0.0) {}
