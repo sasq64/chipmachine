@@ -96,7 +96,7 @@ def main(argv) :
 
 			releases[id] = (name, group, fnames)
 		
-			if (type.endswith('Music Collection') or type.endswith('Demo')) and rt > 0 :
+			if (type.endswith('Music Collection') or type.endswith('Diskmag') or type.endswith('Demo')) and rt > 0 :
 				print(type, name)
 				sids = r.getElementsByTagName('HVSCPath')
 				fnames = []

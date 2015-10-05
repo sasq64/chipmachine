@@ -15,8 +15,8 @@ def which(program):
         if is_exe(program):
             return program
     else:
-        for path in os.environ["PATH"].split(os.pathsep):
-            path = path.strip('"')
+        for path in os.environ['PATH'].split(os.pathsep):
+            path = path.strip("'")
             exe_file = os.path.join(path, program)
             if is_exe(exe_file):
                 return exe_file
@@ -25,20 +25,28 @@ def which(program):
 
 
 parser = argparse.ArgumentParser(description='Build chipmachine')
+parser.add_argument('actions', choices=['build', 'clean', 'run'], default='build',
+                   nargs='*', help='Actions to perform')
+
 parser.add_argument('--buildsystem', choices=['ninja', 'make', 'xcode'], default='ninja',
                    help='Build system to use')
 
 parser.add_argument('--config', choices=['release', 'debug'], default='release',
-                   help='Release or debug')
+                   help='Release or Debug config')
 
-parser.add_argument('--cross-target', choices=['native', 'raspberry', 'windows', 'adroid'], default='native',
-                   help='Cross compilation target')
+parser.add_argument('--output', default='builds',
+                   help='Output directory')
+
+parser.add_argument('--target', choices=['native', 'raspberry', 'windows', 'android'], default='native',
+                   help='(Cross) compilation target')
 
 args = parser.parse_args()
 
 print(args.buildsystem)
 
-configs = { 'release' : [ 'release', '-DCMAKE_BUILD_TYPE=Release' ] }
+configs = { 'release' : [ 'release', '-DCMAKE_BUILD_TYPE=Release' ],
+            'debug' : [ 'debug', '-DCMAKE_BUILD_TYPE=Debug' ]
+          }
 buildsystems = { 'ninja' : [ '-GNinja',  ] }
 
 buildArgs = []
@@ -46,14 +54,21 @@ buildArgs.append(configs[args.config][1])
 buildArgs.append(buildsystems[args.buildsystem][0])
 
 print(buildArgs)
+outputDir = os.path.join(args.output, configs[args.config][0])
 
 try :
-	os.mkdir("nbuild")
+	os.makedirs(outputDir)
 except :
 	pass
 
-if not os.path.isfile("nbuild/CMakeCache.txt") :
-	subprocess.call(["cmake", "-Bnbuild", "-H.", "-DCMAKE_BUILD_TYPE=Release", "-GNinja"])
-
-subprocess.call(["ninja", "-C", "nbuild"])
+for a in args.actions :
+    if a == 'build' :
+        if not os.path.isfile(os.path.join(outputDir, 'CMakeCache.txt')) :
+            subprocess.call(['cmake', '-B' + outputDir, '-H.'] + buildArgs)
+        subprocess.call(['ninja', '-C', outputDir])
+    elif a == 'clean' :
+        subprocess.call(['ninja', '-C', outputDir, 'clean'])
+    elif a == 'run' :
+        exe = os.path.join(outputDir, 'Chipmachine.app/Contents/MacOS/chipmachine')
+        os.system(exe + ' -d')
 

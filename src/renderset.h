@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <coreutils/vec.h>
+#include <coreutils/utils.h>
 #include <grappix/grappix.h>
 
 class RenderSet {
@@ -24,16 +25,6 @@ public:
 		}
 	}
 private:
-
-	// Can hold smart_ptr or raw pointer
-	template <typename T> struct Pointer {
-		Pointer(std::shared_ptr<T> p) : sptr(p), ptr(p.get()) {}
-		Pointer(T *p) : ptr(p) {}
-		std::shared_ptr<T> sptr;
-		T *ptr = nullptr;
-		T* operator ->() const { return ptr; }
-		operator std::shared_ptr<T>() const { return sptr; }
-	};
 
 	std::vector<Pointer<Renderable>> fields;
 	std::shared_ptr<grappix::RenderTarget> target;

@@ -17,8 +17,8 @@ void RenderSet::add(Renderable *r) {
 void RenderSet::remove(shared_ptr<Renderable> r) {
 	auto it = fields.begin();
 	while(it != fields.end()) {
-		if(r.get() == it->ptr) {
-			it->ptr->setParent(nullptr);
+		if(r.get() == it->get()) {
+			(*it)->setParent(nullptr);
 			it = fields.erase(it);
 		} else
 			it++;
@@ -28,8 +28,8 @@ void RenderSet::remove(shared_ptr<Renderable> r) {
 void RenderSet::remove(Renderable *r) {
 	auto it = fields.begin();
 	while(it != fields.end()) {
-		if(r == it->ptr) {
-			it->ptr->setParent(nullptr);
+		if(r == it->get()) {
+			(*it)->setParent(nullptr);
 			it = fields.erase(it);
 		} else
 			it++;

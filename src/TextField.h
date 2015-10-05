@@ -7,6 +7,7 @@
 #include <coreutils/vec.h>
 #include <grappix/grappix.h>
 
+#include <cstddef>
 
 class TextField : public Renderable {
 public:
@@ -17,11 +18,12 @@ public:
 	TextField(const grappix::Font &font, const std::string &text = "", float x = 0.0, float y = 0.0, float sc = 1.0, uint32_t col = 0xffffffff) : pos(x, y), scale(sc), color(col), add(0), text(text), tsize(-1, -1), font(font) {
 	}
 
-
+	#pragma pack(4)
+	grappix::Color color;
 	utils::vec2f pos;
 	float scale;
-	grappix::Color color;
 	float add;
+	#pragma pack()
 
 	virtual void setText(const std::string &t) {
 		text = t;
@@ -57,16 +59,7 @@ public:
 		}
 
 		float& operator* () {
-			if(index <4)
 				return field->color[index];
-			else if(index == 4)
-				return field->pos.x;
-			else if(index == 5)
-				return field->pos.y;
-			else if(index == 6)
-				return field->scale;
-			else
-				return field->add;
 		}
 
 		const iterator& operator++ () {
@@ -92,6 +85,7 @@ protected:
 	grappix::Font font;
 };
 
+static_assert(offsetof(TextField, add) - offsetof(TextField, color) == 7*4, "Fields not packed");
 
 
 #endif // TEXT_FIELD_H
