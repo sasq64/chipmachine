@@ -22,7 +22,7 @@ void Streamer::put(const uint8_t *ptr, int size) {
 	player->putStream(ptr, size);
 }
 
-MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786*4) {
+MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4) {
 
 	AudioPlayer::set_volume(80);
 	volume = 0.8;
@@ -34,7 +34,7 @@ MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786*4) {
 	AudioPlayer::play([=](int16_t *ptr, int size) mutable {
 
 		if(dontPlay) {
-			memset(ptr, 0, size*2);
+			memset(ptr, 0, size * 2);
 			return;
 		}
 
@@ -42,10 +42,10 @@ MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786*4) {
 			fifo.get(ptr, size);
 
 			lock_guard<mutex> guard(fftMutex);
-			pos += size/2;
-			fft.addAudio(ptr, size);	
+			pos += size / 2;
+			fft.addAudio(ptr, size);
 		} else
-			memset(ptr, 0, size*2);
+			memset(ptr, 0, size * 2);
 	});
 }
 
@@ -54,12 +54,12 @@ void MusicPlayer::update() {
 
 	static int16_t *tempBuf = nullptr;
 	if(!tempBuf)
-		tempBuf = new int16_t [fifo.size()];
-
+		tempBuf = new int16_t[fifo.size()];
 
 	if(!paused && player) {
 
-		{ LOCK_GUARD(playerMutex);
+		{
+			LOCK_GUARD(playerMutex);
 			sub_title = player->getMeta("sub_title");
 			length = player->getMetaInt("length");
 			message = player->getMeta("message");
@@ -71,10 +71,11 @@ void MusicPlayer::update() {
 			int f = fifo.left();
 
 			if(f < 4096)
-				break; 
+				break;
 
 			int rc;
-			{ LOCK_GUARD(playerMutex);
+			{
+				LOCK_GUARD(playerMutex);
 				rc = player->getSamples(tempBuf, f - 1024);
 			}
 
@@ -91,11 +92,10 @@ void MusicPlayer::update() {
 			}
 
 			fifo.put(tempBuf, rc);
-			if(fifo.filled() >= fifo.size()/2) {
+			if(fifo.filled() >= fifo.size() / 2) {
 				break;
 			}
 		}
-
 	}
 }
 
@@ -112,7 +112,7 @@ void MusicPlayer::seek(int song, int seconds) {
 			pos = seconds * 44100;
 		if(player->seekTo(song, seconds)) {
 			fifo.clear();
-			//length = player->getMetaInt("length");
+			// length = player->getMetaInt("length");
 			updatePlayingInfo();
 			currentTune = song;
 		}
@@ -140,7 +140,6 @@ std::shared_ptr<Streamer> MusicPlayer::streamFile(const string &fileName) {
 
 	string name = fileName;
 
-
 	LOCK_GUARD(playerMutex);
 	player = nullptr;
 	player = fromStream(fileName);
@@ -150,18 +149,16 @@ std::shared_ptr<Streamer> MusicPlayer::streamFile(const string &fileName) {
 
 	if(player) {
 
-
 		fifo.clear();
 		fadeOutPos = 0;
 		pause(false);
 		pos = 0;
-		//updatePlayingInfo();
+		// updatePlayingInfo();
 		currentTune = playingInfo.starttune;
 		return make_shared<Streamer>(playerMutex, player);
 	}
 	return nullptr;
 }
-
 
 bool MusicPlayer::playFile(const string &fileName) {
 
@@ -177,7 +174,7 @@ bool MusicPlayer::playFile(const string &fileName) {
 
 	if(endsWith(name, ".rar")) {
 		try {
-			auto *a = Archive::open(name, "_files");\
+			auto *a = Archive::open(name, "_files");
 			for(const auto &s : *a) {
 				a->extract(s);
 				name = "_files/" + s;
@@ -221,7 +218,7 @@ void MusicPlayer::updatePlayingInfo() {
 			if(si.title != "") {
 				si.title = format("%s (%s)", game, si.title);
 			} else
-			si.title = game;
+				si.title = game;
 		}
 
 		si.composer = player->getMeta("composer");
@@ -240,8 +237,10 @@ void MusicPlayer::updatePlayingInfo() {
 }
 
 void MusicPlayer::pause(bool dopause) {
-	if(dopause) AudioPlayer::pause_audio();
-	else AudioPlayer::resume_audio();
+	if(dopause)
+		AudioPlayer::pause_audio();
+	else
+		AudioPlayer::resume_audio();
 	paused = dopause;
 }
 
@@ -249,13 +248,12 @@ string MusicPlayer::getMeta(const string &what) {
 	if(what == "message") {
 		LOCK_GUARD(infoMutex);
 		return message;
-	} else
-	if(what == "sub_title") {
+	} else if(what == "sub_title") {
 		LOCK_GUARD(infoMutex);
 		return sub_title;
 	}
 
-	//if(what == "song") {
+	// if(what == "song") {
 	//	LOCK_GUARD(infoMutex);
 	//	return current_song;
 	//}
@@ -271,19 +269,18 @@ uint16_t *MusicPlayer::getSpectrum() {
 	LOCK_GUARD(fftMutex);
 	auto delay = AudioPlayer::get_delay();
 	if(fft.size() > delay) {
-		while(fft.size() > delay+4) {
+		while(fft.size() > delay + 4) {
 			fft.popLevels();
 		}
 		spectrum = fft.getLevels();
 		fft.popLevels();
 	}
 	return &spectrum[0];
-
 }
 
 void MusicPlayer::setVolume(float v) {
 	volume = clamp(v);
-	AudioPlayer::set_volume(volume *100);
+	AudioPlayer::set_volume(volume * 100);
 }
 
 float MusicPlayer::getVolume() {
@@ -321,5 +318,4 @@ shared_ptr<ChipPlayer> MusicPlayer::fromStream(const string &fileName) {
 	}
 	return player;
 }
-
 }

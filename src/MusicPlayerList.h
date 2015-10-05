@@ -44,7 +44,7 @@ public:
 	void playSong(const SongInfo &si);
 	void clearSongs();
 	void nextSong();
-	
+
 	uint16_t *getSpectrum();
 	int spectrumSize();
 	SongInfo getInfo(int index = 0);
@@ -56,7 +56,7 @@ public:
 
 	int getTune() { return mp.getTune(); }
 
-	void pause(bool dopause = true) { 
+	void pause(bool dopause = true) {
 		if(!(permissions & CAN_PAUSE))
 			return;
 		mp.pause(dopause);
@@ -65,9 +65,7 @@ public:
 
 	void seek(int song, int seconds = -1);
 
-	std::string getMeta(const std::string &what) {
-		return mp.getMeta(what);
-	}
+	std::string getMeta(const std::string &what) { return mp.getMeta(what); }
 
 	State getState() {
 		State rc = state;
@@ -82,9 +80,7 @@ public:
 		return rc;
 	}
 
-	bool hasError() {
-		return errors.size() > 0;
-	}
+	bool hasError() { return errors.size() > 0; }
 
 	std::string getError() {
 		LOCK_GUARD(plMutex);
@@ -104,21 +100,15 @@ public:
 
 	uint32_t getPermissions() { return permissions; }
 
-	void setPermissions(uint32_t p) {
-		permissions = p;
-	}
+	void setPermissions(uint32_t p) { permissions = p; }
 
 	void setPartyMode(bool on, int lockSeconds = 60, int graceSec = 3);
 
 	void setReportSongs(bool on) { reportSongs = on; }
 
-	void setVolume(float volume) {
-		mp.setVolume(volume);
-	}
+	void setVolume(float volume) { mp.setVolume(volume); }
 
-	float getVolume() {
-		return mp.getVolume();
-	}
+	float getVolume() { return mp.getVolume(); }
 
 	void stop() {
 		state = STOPPED;
@@ -146,10 +136,10 @@ private:
 	std::atomic<int> files;
 	std::string loadedFile;
 
-	//WebGetter webgetter;
-	//RemoteLoader loader;
+	// WebGetter webgetter;
+	// RemoteLoader loader;
 
-	std::atomic<State> state;// = STOPPED;
+	std::atomic<State> state; // = STOPPED;
 	SongInfo currentInfo;
 
 	std::thread playerThread;
@@ -165,11 +155,9 @@ private:
 	int graceSeconds = 3;
 	int lockSeconds = 60;
 
-	//RemoteLists &tracker;
-
+	// RemoteLists &tracker;
 };
 
 } // namespace chipmachine
 
 #endif // MUSIC_PLAYER_LIST_H
-

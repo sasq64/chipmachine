@@ -24,7 +24,7 @@ using namespace chipmachine;
 using namespace bbs;
 using namespace utils;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
 
 #ifdef CM_DEBUG
 	logging::setLevel(logging::DEBUG);
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
 	bool fullScreen = false;
 	bool server = false;
 
-	for(int i=1; i<argc; i++) {
+	for(int i = 1; i < argc; i++) {
 		if(argv[i][0] == '-') {
 			switch(argv[i][1]) {
 			case 'd':
@@ -67,7 +67,8 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
-	string path = File::makePath({File::getExeDir(), (File::getExeDir() / ".." / "Resources:"), File::getAppDir()});
+	string path = File::makePath(
+	    {File::getExeDir(), (File::getExeDir() / ".." / "Resources:"), File::getAppDir()});
 	LOGD("PATH:%s", path);
 	string workDir = File::findFile(path, "data").getDirectory();
 
@@ -85,7 +86,8 @@ int main(int argc, char* argv[]) {
 		TelnetInterface telnet(player);
 		telnet.start();
 #endif
-		while(true) sleepms(500);
+		while(true)
+			sleepms(500);
 	}
 
 	if(songs.size() > 0) {
@@ -99,7 +101,8 @@ int main(int argc, char* argv[]) {
 				return 0;
 			pl.playFile(songs[pos++].path);
 			SongInfo info = pl.getPlayingInfo();
-			print_fmt("Playing: %s\n", info.title != "" ? info.title : utils::path_filename(songs[pos-1].path));
+			print_fmt("Playing: %s\n",
+			          info.title != "" ? info.title : utils::path_filename(songs[pos - 1].path));
 			while(pl.playing()) {
 				pl.update();
 				if(c) {
@@ -114,7 +117,7 @@ int main(int argc, char* argv[]) {
 				}
 			}
 		}
-	#if 0
+#if 0
 		for(auto &s : songs) {
 			LOGD("Adding '%s'", s.path);
 			mpl.addSong(s);
@@ -180,9 +183,11 @@ int main(int argc, char* argv[]) {
 
 	static chipmachine::ChipMachine app(workDir);
 
-	grappix::screen.render_loop([](uint32_t delta) {
-		app.update();
-		app.render(delta);
-	}, 20);
+	grappix::screen.render_loop(
+	    [](uint32_t delta) {
+		    app.update();
+		    app.render(delta);
+		},
+	    20);
 	return 0;
 }

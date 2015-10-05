@@ -10,7 +10,6 @@
 
 #define WITH_MPG123
 
-
 #ifdef WITH_MPG123
 #include <mpg123.h>
 #endif
@@ -20,18 +19,19 @@ using namespace std;
 static string get_string(uint8_t *ptr, int size) {
 
 	auto end = ptr;
-	while(*end && end-ptr < size) end++;
-	return string((const char*)ptr, end-ptr);
+	while(*end && end - ptr < size)
+		end++;
+	return string((const char *)ptr, end - ptr);
 }
 
 bool parseSid(SongInfo &info) {
 	static vector<uint8_t> buffer(0xd8);
-	File f { info.path };
+	File f{info.path};
 	info.format = "Commodore 64";
 	f.read(&buffer[0], buffer.size());
 	info.title = get_string(&buffer[0x16], 0x20);
 	info.composer = get_string(&buffer[0x36], 0x20);
-	//auto copyright = string((const char*)&buffer[0x56], 0x20);
+	// auto copyright = string((const char*)&buffer[0x56], 0x20);
 	f.close();
 	return true;
 }
@@ -45,7 +45,8 @@ vector<string> getLines(const std::string &text) {
 	const char *ptr = text.c_str();
 	bool eol = false;
 	while(*ptr) {
-		if(t - tmp >= 255) break;
+		if(t - tmp >= 255)
+			break;
 
 		while(*ptr == 10 || *ptr == 13) {
 			ptr++;
@@ -69,13 +70,13 @@ vector<string> getLines(const std::string &text) {
 }
 
 bool parseSap(SongInfo &info) {
-	File f { info.path };
+	File f{info.path};
 
 	auto data = f.readAll();
 
 	auto end_of_header = search_n(data.begin(), data.end(), 2, 0xff);
 	auto header = string(data.begin(), end_of_header);
-	auto lines = getLines(header); 
+	auto lines = getLines(header);
 
 	if(lines.size() == 0 || lines[0] != "SAP")
 		return false;
@@ -83,29 +84,27 @@ bool parseSap(SongInfo &info) {
 	for(const auto &l : lines) {
 		if(startsWith(l, "AUTHOR"))
 			info.composer = lrstrip(l.substr(7), '\"');
-		else
-		if(startsWith(l, "NAME"))
+		else if(startsWith(l, "NAME"))
 			info.title = lrstrip(l.substr(5), '\"');
 	}
 
 	info.format = "Atari 8Bit";
 
 	return true;
-
 }
 
 extern "C" {
-int unice68_depacker(void * dest, const void * src);
-int unice68_get_depacked_size(const void * buffer, int * p_csize);
+int unice68_depacker(void *dest, const void *src);
+int unice68_get_depacked_size(const void *buffer, int *p_csize);
 }
 
 bool parseSndh(SongInfo &info) {
 
-	File f { info.path };
+	File f{info.path};
 	LOGD("SNDH >%s", info.path);
 	uint8_t *unpackptr = nullptr;
-	//uint8_t *ptr = f.getPtr();
-	//int size = f.getSize();
+	// uint8_t *ptr = f.getPtr();
+	// int size = f.getSize();
 	auto data = f.readAll();
 	auto *ptr = &data[0];
 	int size = data.size();
@@ -113,7 +112,7 @@ bool parseSndh(SongInfo &info) {
 	if(head == "ICE!") {
 		int dsize = unice68_get_depacked_size(ptr, NULL);
 		LOGD("Unicing %d bytes to %d bytes", size, dsize);
-		unpackptr = new uint8_t [ dsize ];
+		unpackptr = new uint8_t[dsize];
 		int res = unice68_depacker(unpackptr, ptr);
 		if(res == 0) {
 			ptr = unpackptr;
@@ -127,13 +126,13 @@ bool parseSndh(SongInfo &info) {
 
 		info.format = "Atari ST";
 
-		//LOGD("SNDH FILE");
+		// LOGD("SNDH FILE");
 		int count = 10;
 		int got = 0;
 		ptr += 16;
 		string arg;
 		string tag = get_string(ptr, 4);
-		//LOGD("TAG %s", tag);
+		// LOGD("TAG %s", tag);
 		while(tag != "HDNS") {
 			if(count-- == 0)
 				break;
@@ -148,24 +147,24 @@ bool parseSndh(SongInfo &info) {
 			}
 			if(tag == "TITL") {
 				got |= 1;
-				info.title = get_string(p+4, 256);
+				info.title = get_string(p + 4, 256);
 			} else if(tag == "COMM") {
 				got |= 2;
-				info.composer = get_string(p+4, 256);
+				info.composer = get_string(p + 4, 256);
 			}
 			if(got == 3)
 				break;
 			tag = get_string(ptr, 4);
-			//LOGD("TAG %s", tag);
+			// LOGD("TAG %s", tag);
 		}
 		LOGD("%s - %s", info.title, info.composer);
 		if(unpackptr)
-			delete [] unpackptr;
+			delete[] unpackptr;
 		return true;
 	}
 
 	if(unpackptr)
-		delete [] unpackptr;
+		delete[] unpackptr;
 	return false;
 }
 
@@ -176,36 +175,38 @@ bool parseSnes(SongInfo &info) {
 	info.format = "Super Nintendo";
 
 	auto *a = Archive::open(info.path, ".rsntemp", Archive::TYPE_RAR);
-	//LOGD("ARCHIVE %p", a);
+	// LOGD("ARCHIVE %p", a);
 	bool done = false;
 	for(auto s : *a) {
-		//LOGD("FILE %s", s);
-		if(done) continue;
+		// LOGD("FILE %s", s);
+		if(done)
+			continue;
 		if(path_extension(s) == "spc") {
 			a->extract(s);
-			File f { ".rsntemp/" + s };
+			File f{".rsntemp/" + s};
 			f.read(&buffer[0], buffer.size());
 			f.close();
 			if(buffer[0x23] == 0x1a) {
-				//auto title = string((const char*)&buffer[0x2e], 0x20);
-				auto ptr = (const char*)&buffer[0x4e];
+				// auto title = string((const char*)&buffer[0x2e], 0x20);
+				auto ptr = (const char *)&buffer[0x4e];
 				auto end = ptr;
-				while(*end) end++;
+				while(*end)
+					end++;
 				auto game = get_string(&buffer[0x4e], 0x20);
 				auto composer = get_string(&buffer[0xb1], 0x20);
 
 				f.seek(0x10200);
 				int rc = f.read(&buffer[0], buffer.size());
 				if(rc > 12) {
-					auto id = string((const char*)&buffer[0], 4);
+					auto id = string((const char *)&buffer[0], 4);
 					if(id == "xid6") {
-						//int i = 0;
+						// int i = 0;
 						if(buffer[8] == 0x2) {
 							int l = buffer[10];
-							game = string((const char*)&buffer[12], l);
+							game = string((const char *)&buffer[12], l);
 						} else if(buffer[8] == 0x3) {
 							int l = buffer[10];
-							composer = string((const char*)&buffer[12], l);
+							composer = string((const char *)&buffer[12], l);
 						}
 					}
 				}
@@ -239,10 +240,9 @@ bool parseMp3(SongInfo &info) {
 		if(v2) {
 			info.title = htmldecode(v2->title->p);
 			info.composer = htmldecode(v2->artist->p);
-		} else
-		if(v1) {
-			info.title = htmldecode((char*)v2->title);
-			info.composer = htmldecode((char*)v2->artist);
+		} else if(v1) {
+			info.title = htmldecode((char *)v2->title);
+			info.composer = htmldecode((char *)v2->artist);
 		}
 	}
 
@@ -261,7 +261,7 @@ bool parseMp3(SongInfo &info) {
 
 bool parsePList(SongInfo &info) {
 
-	File f { info.path };
+	File f{info.path};
 
 	info.title = path_basename(info.path);
 	info.composer = "";

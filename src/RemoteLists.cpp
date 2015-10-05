@@ -11,18 +11,18 @@ using namespace utils;
 //#define HOST_NAME "http://localhost:8080/"
 
 RemoteLists::RemoteLists() : rpc(HOST_NAME), done(true) {
-	utils::File f { File::getConfigDir() + "userid" };
+	utils::File f{File::getConfigDir() + "userid"};
 	if(!f.exists()) {
 		random_device rd;
-	    default_random_engine re(rd());
-	    uniform_int_distribution<uint64_t> dis;
-	    trackid = dis(re);
-	    f.write(trackid);
+		default_random_engine re(rd());
+		uniform_int_distribution<uint64_t> dis;
+		trackid = dis(re);
+		f.write(trackid);
 	} else {
 		trackid = f.read<uint64_t>();
 	}
-    f.close();
-    LOGD("#### TRACKID %016x", trackid);
+	f.close();
+	LOGD("#### TRACKID %016x", trackid);
 }
 
 //~RemoteLists();
@@ -50,7 +50,8 @@ void RemoteLists::songPlayed(const string &fileName) {
 	});
 }
 
-void RemoteLists::sendList(const vector<SongInfo> &songs, const string &name, const function<void()> done) {
+void RemoteLists::sendList(const vector<SongInfo> &songs, const string &name,
+                           const function<void()> done) {
 	JSon json;
 	json.add("uid", to_string(trackid));
 	json.add("name", name);
@@ -58,7 +59,7 @@ void RemoteLists::sendList(const vector<SongInfo> &songs, const string &name, co
 	auto sl = json.add_array("songs");
 	for(const SongInfo &info : songs) {
 		LOGD("SENDING %s", info.path);
-		sl.add(info.path);//fn + ":" + collection.name);
+		sl.add(info.path); // fn + ":" + collection.name);
 	}
 	rpc.post("set_list", json.to_string(), [=](const string &result) {
 		JSon json = JSon::parse(result);
@@ -124,7 +125,8 @@ void RemoteLists::login(const string &name, function<void(int)> f) {
 	});
 }
 
-void RemoteLists::getList(const string &name, function<void(const string&, const vector<string>&)> f) {
+void RemoteLists::getList(const string &name,
+                          function<void(const string &, const vector<string> &)> f) {
 
 	auto parts = utils::split(name, ":");
 
@@ -135,7 +137,7 @@ void RemoteLists::getList(const string &name, function<void(const string&, const
 
 	rpc.post("get_list", json.to_string(), [=](const string &result) {
 		LOGD("GET LIST: %s", result);
-		auto jres =  JSon::parse(result);
+		auto jres = JSon::parse(result);
 		if(!checkError(jres))
 			return;
 		string name = jres["name"];

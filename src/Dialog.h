@@ -1,24 +1,25 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
-
 #include "renderable.h"
 
 class Dialog : public Renderable {
 public:
-	Dialog(std::shared_ptr<grappix::RenderTarget> target, const grappix::Font &font, const std::string &text, float scale = 1.0F) : font(font), textField(font, text), lineEdit(font) {
+	Dialog(std::shared_ptr<grappix::RenderTarget> target, const grappix::Font &font,
+	       const std::string &text, float scale = 1.0F)
+	    : font(font), textField(font, text), lineEdit(font) {
 		setTarget(target);
 		auto size = font.get_size(text, scale);
 		bounds.w = size.x + 20;
 		bounds.h = size.y * 3;
 		bounds.x = (target->width() - bounds.w) / 2;
 		bounds.y = (target->height() - bounds.h) / 2;
-		textField.pos = { bounds.x + 10, bounds.y + 10 };
-		lineEdit.pos = { bounds.x + 10, bounds.y + size.y + 20 };
+		textField.pos = {bounds.x + 10, bounds.y + 10};
+		lineEdit.pos = {bounds.x + 10, bounds.y + size.y + 20};
 	}
 
-	void on_ok(std::function<void(const std::string&)> cb) {
-		//lineEdit.on_ok(cb);
+	void on_ok(std::function<void(const std::string &)> cb) {
+		// lineEdit.on_ok(cb);
 		onOk = cb;
 	}
 
@@ -35,7 +36,7 @@ public:
 		}
 	}
 
-	virtual void setTarget(std::shared_ptr<grappix::RenderTarget> target) {
+	virtual void setTarget(std::shared_ptr<grappix::RenderTarget> target) override {
 		textField.setTarget(target);
 		lineEdit.setTarget(target);
 		this->target = target;
@@ -47,7 +48,7 @@ public:
 		lineEdit.render(delta);
 	}
 
-	std::function<void(const std::string&)> onOk;
+	std::function<void(const std::string &)> onOk;
 
 	grappix::Font font;
 	std::string text;
@@ -55,8 +56,6 @@ public:
 	grappix::Rectangle bounds;
 	TextField textField;
 	LineEdit lineEdit;
-
 };
-
 
 #endif // DIALOG_H

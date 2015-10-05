@@ -1,7 +1,6 @@
 
 #include <cstdint>
 
-
 class PiTFT {
 public:
 	PiTFT();

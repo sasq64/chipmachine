@@ -11,22 +11,26 @@
 #include <set>
 #include <vector>
 namespace chipmachine {
-//wired-height-596.appspot.com
+// wired-height-596.appspot.com
 class RemoteLists {
 public:
 	RemoteLists();
 	//~RemoteLists();
 	void songPlayed(const std::string &fileName);
-	void sendList(const std::vector<SongInfo> &songs, const std::string &name, const std::function<void()> done);
+	void sendList(const std::vector<SongInfo> &songs, const std::string &name,
+	              const std::function<void()> done);
 	void getLists(std::function<void(std::vector<std::string>)> f);
 	void login(const std::string &name, std::function<void(int)> f);
-	void getList(const std::string &name, std::function<void(const std::string&, const std::vector<std::string>&)> f);
-	static RemoteLists& getInstance() {
+	void getList(const std::string &name,
+	             std::function<void(const std::string &, const std::vector<std::string> &)> f);
+	static RemoteLists &getInstance() {
 		static RemoteLists tracker;
 		return tracker;
 	}
 
-	void onError(const std::function<void(int, const std::string)> callback) { onErrorCallback = callback; }
+	void onError(const std::function<void(int, const std::string)> callback) {
+		onErrorCallback = callback;
+	}
 
 	enum {
 		INVALID_VERSION = -1,
@@ -45,7 +49,6 @@ private:
 	std::atomic<bool> done;
 	std::function<void(int, const std::string)> onErrorCallback;
 };
-
 }
 
 #endif // REMOTE_LISTS_H

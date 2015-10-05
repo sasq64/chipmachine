@@ -5,30 +5,23 @@
 #include <memory>
 
 namespace grappix {
-	class RenderTarget;
+class RenderTarget;
 }
 
 class RenderSet;
 
-class Renderable
-{
+class Renderable {
 public:
 	Renderable() : target(grappix::screenptr) {}
 
 	virtual void render(uint32_t delta) = 0;
 	virtual void visible(bool b) { is_visible = b; }
 	virtual bool visible() { return is_visible; }
-	virtual void setTarget(std::shared_ptr<grappix::RenderTarget> target) {
-		this->target = target;
-	}
+	virtual void setTarget(std::shared_ptr<grappix::RenderTarget> target) { this->target = target; }
 
-	void setParent(RenderSet *p) {
-		parent = p;
-	}
+	void setParent(RenderSet *p) { parent = p; }
 
-	RenderSet *getParent() {
-		return parent;
-	}
+	RenderSet *getParent() { return parent; }
 
 	void remove();
 
@@ -36,6 +29,5 @@ public:
 	RenderSet *parent;
 	std::shared_ptr<grappix::RenderTarget> target;
 };
-
 
 #endif // RENDERABLE_H

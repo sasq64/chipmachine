@@ -8,7 +8,6 @@ using namespace tween;
 
 namespace chipmachine {
 
-
 enum ChipAction {
 	NO_ACTION,
 	NEXT_SUBTUNE,
@@ -55,14 +54,18 @@ void ChipMachine::setupRules() {
 	using namespace statemachine;
 
 	smac.add(Window::F1, if_equals(currentScreen, SEARCH_SCREEN), SHOW_MAIN);
-	smac.add({ Window::F2, Window::UP, Window::DOWN, Window::PAGEUP, Window::PAGEDOWN }, SHOW_SEARCH);
+	smac.add({Window::F2, Window::UP, Window::DOWN, Window::PAGEUP, Window::PAGEDOWN}, SHOW_SEARCH);
 
 	smac.add(Window::F5, PLAY_PAUSE);
-	smac.add("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._0123456789 ", if_true(playlistEdit), ADD_COMMAND_CHAR);
-	smac.add("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._0123456789 ", if_not_null(currentDialog), ADD_DIALOG_CHAR);
-	smac.add({Window::ENTER, Window::ESCAPE, Window::BACKSPACE}, if_not_null(currentDialog), ADD_DIALOG_CHAR);
+	smac.add("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._0123456789 ",
+	         if_true(playlistEdit), ADD_COMMAND_CHAR);
+	smac.add("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._0123456789 ",
+	         if_not_null(currentDialog), ADD_DIALOG_CHAR);
+	smac.add({Window::ENTER, Window::ESCAPE, Window::BACKSPACE}, if_not_null(currentDialog),
+	         ADD_DIALOG_CHAR);
 
-	smac.add({ Window::BACKSPACE, Window::LEFT, Window::RIGHT, Window::HOME, Window::END }, if_true(playlistEdit), ADD_COMMAND_CHAR);
+	smac.add({Window::BACKSPACE, Window::LEFT, Window::RIGHT, Window::HOME, Window::END},
+	         if_true(playlistEdit), ADD_COMMAND_CHAR);
 	smac.add("abcdefghijklmnopqrstuvwxyz0123456789 ", ADD_SEARCH_CHAR);
 	smac.add(Window::BACKSPACE, DEL_SEARCH_CHAR);
 	smac.add(Window::ESCAPE, if_true(playlistEdit), CANCEL_COMMAND);
@@ -83,7 +86,7 @@ void ChipMachine::setupRules() {
 	smac.add(Window::F7, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_FAVORITE);
 	smac.add(Window::F7, if_equals(currentScreen, MAIN_SCREEN), ADD_CURRENT_FAVORITE);
 	smac.add(Window::F8, CLEAR_SONGS);
-	//smac.add(Window::F9, SEND_PLAYLIST);
+	// smac.add(Window::F9, SEND_PLAYLIST);
 	smac.add(Window::LEFT, PREV_SUBTUNE);
 	smac.add(Window::RIGHT, NEXT_SUBTUNE);
 	smac.add(Window::F4, LAYOUT_SCREEN);
@@ -126,19 +129,25 @@ void ChipMachine::showSearch() {
 
 SongInfo ChipMachine::getSelectedSong() {
 	int i = songList.selected() - playlists.size();
-	if(i < 0) return SongInfo();
+	if(i < 0)
+		return SongInfo();
 	return MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
 }
 
 void ChipMachine::shuffleSongs(bool format, bool composer, bool collection, int limit) {
 	vector<SongInfo> target;
-	SongInfo match = (currentScreen == SEARCH_SCREEN) ? getSelectedSong() : MusicDatabase::getInstance().lookup(currentInfo.path);
+	SongInfo match = (currentScreen == SEARCH_SCREEN)
+	                     ? getSelectedSong()
+	                     : MusicDatabase::getInstance().lookup(currentInfo.path);
 
 	LOGD("SHUFFLE %s", match.path);
 
-	if(!format) match.format = "";
-	if(!composer) match.composer = "";
-	if(!collection) match.path = "";
+	if(!format)
+		match.format = "";
+	if(!composer)
+		match.composer = "";
+	if(!collection)
+		match.path = "";
 	match.title = match.game;
 
 	MusicDatabase::getInstance().getSongs(target, match, limit, true);
@@ -189,7 +198,7 @@ void ChipMachine::updateKeys() {
 		if(screen.key_pressed(Window::ALT_LEFT) || screen.key_pressed(Window::ALT_RIGHT))
 			event |= ALT;
 
-		if((event & (CTRL|SHIFT)) == 0 && currentScreen == SEARCH_SCREEN)
+		if((event & (CTRL | SHIFT)) == 0 && currentScreen == SEARCH_SCREEN)
 			songList.onKey(key);
 
 		if(event == (Window::RIGHT | SHIFT))
@@ -201,7 +210,7 @@ void ChipMachine::updateKeys() {
 	auto action = smac.next_action();
 	if(action.id != NO_ACTION) {
 
-		//LOGD("ACTION %d", action.id);
+		// LOGD("ACTION %d", action.id);
 		string name;
 		switch((ChipAction)action.id) {
 		case EDIT_PLAYLIST:
@@ -221,7 +230,8 @@ void ChipMachine::updateKeys() {
 			if(editPlaylistName == "")
 				PlaylistDatabase::getInstance().createPlaylist(currentPlaylistName);
 			else if(editPlaylistName != currentPlaylistName)
-				PlaylistDatabase::getInstance().renamePlaylist(editPlaylistName, currentPlaylistName);
+				PlaylistDatabase::getInstance().renamePlaylist(editPlaylistName,
+				                                               currentPlaylistName);
 
 			commandField.visible(false);
 			playlistEdit = false;
@@ -246,7 +256,7 @@ void ChipMachine::updateKeys() {
 			break;
 		case ADD_LIST_SONG:
 			if(player.addSong(getSelectedSong()))
-				songList.select(songList.selected()+1);
+				songList.select(songList.selected() + 1);
 			break;
 		case PLAY_LIST_SONG:
 			if(songList.selected() < (int)playlists.size()) {
@@ -262,23 +272,21 @@ void ChipMachine::updateKeys() {
 				player.playSong(getSelectedSong());
 			showMain();
 			break;
-		case NEXT_COMPOSER:
-			{
-				string composer;
-				int index = songList.selected();
-				while(index < songList.size()) {
-					auto res = iquery->getResult(index-playlists.size());
-					auto parts = split(res, "\t");
-					if(composer == "")
-						composer = parts[1];
-					if(parts[1] != composer)
-						break;
-					index++;
-				}
-				songList.select(index);
-
+		case NEXT_COMPOSER: {
+			string composer;
+			int index = songList.selected();
+			while(index < songList.size()) {
+				auto res = iquery->getResult(index - playlists.size());
+				auto parts = split(res, "\t");
+				if(composer == "")
+					composer = parts[1];
+				if(parts[1] != composer)
+					break;
+				index++;
 			}
-			break;
+			songList.select(index);
+
+		} break;
 		case NEXT_SONG:
 			showMain();
 			player.nextSong();
@@ -296,7 +304,7 @@ void ChipMachine::updateKeys() {
 			searchUpdated = true;
 			break;
 		case ADD_SEARCH_CHAR:
-			//LOGD("%d %02x", currentScreen, action.event);
+			// LOGD("%d %02x", currentScreen, action.event);
 			if(hasMoved && action.event != ' ')
 				iquery->clear();
 			hasMoved = false;
@@ -316,7 +324,8 @@ void ChipMachine::updateKeys() {
 			break;
 		case ADD_CURRENT_FAVORITE:
 			if(isFavorite) {
-				PlaylistDatabase::getInstance().removeFromPlaylist(currentPlaylistName, currentInfo);
+				PlaylistDatabase::getInstance().removeFromPlaylist(currentPlaylistName,
+				                                                   currentInfo);
 			} else {
 				PlaylistDatabase::getInstance().addToPlaylist(currentPlaylistName, currentInfo);
 			}
@@ -326,22 +335,22 @@ void ChipMachine::updateKeys() {
 			PlaylistDatabase::getInstance().addToPlaylist(currentPlaylistName, getSelectedSong());
 			break;
 		case DUMP_FAVORITES:
-		PlaylistDatabase::getInstance().dumpPlaylist(currentPlaylistName, "playlists");
+			PlaylistDatabase::getInstance().dumpPlaylist(currentPlaylistName, "playlists");
 			break;
 		case NEXT_SUBTUNE:
-			if(currentTune < currentInfo.numtunes-1)
-				player.seek(currentTune+1);
+			if(currentTune < currentInfo.numtunes - 1)
+				player.seek(currentTune + 1);
 			break;
 		case PREV_SUBTUNE:
 			if(currentTune > 0)
-				player.seek(currentTune-1);
+				player.seek(currentTune - 1);
 			break;
 		case CLEAR_SONGS:
 			player.clearSongs();
 			toast("Playlist cleared", 2);
 			break;
 		case SEND_PLAYLIST:
-#ifdef USE_REMOTELISTS		
+#ifdef USE_REMOTELISTS
 			if(userName == "") {
 				currentDialog = make_shared<Dialog>(screenptr, font, "Login with handle:");
 				currentDialog->on_ok([=](const string &text) {
@@ -349,18 +358,21 @@ void ChipMachine::updateKeys() {
 						userName = text;
 						if(rc)
 							toast("Login successful", 2);
-						File f { File::getCacheDir() + "login" };
+						File f{File::getCacheDir() + "login"};
 						f.write(userName);
 						f.close();
-						auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
-						RemoteLists::getInstance().sendList(plist.songs, plist.name, [=]() { toast("Uploaded", 2); });
+						auto plist =
+						    PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
+						RemoteLists::getInstance().sendList(plist.songs, plist.name,
+						                                    [=]() { toast("Uploaded", 2); });
 					});
 
 				});
 				renderSet.add(currentDialog);
 			} else {
 				auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
-				RemoteLists::getInstance().sendList(plist.songs, plist.name, [=]() { toast("Uploaded", 2); });
+				RemoteLists::getInstance().sendList(plist.songs, plist.name,
+				                                    [=]() { toast("Uploaded", 2); });
 			}
 #endif
 			break;
@@ -397,7 +409,7 @@ void ChipMachine::updateKeys() {
 		case RESULT_SHUFFLE:
 			toast("Result shuffle!", 2);
 			player.clearSongs();
-			for(int i=0; i<iquery->numHits(); i++) {
+			for(int i = 0; i < iquery->numHits(); i++) {
 				auto res = iquery->getResult(i);
 				LOGD("%s", res);
 				auto parts = split(res, "\t");
@@ -424,7 +436,7 @@ void ChipMachine::updateKeys() {
 
 	if(searchUpdated) {
 		searchField.setText(iquery->getString());
-		//searchField->color = searchColor;
+		// searchField->color = searchColor;
 		searchField.visible(true);
 		topStatus.visible(false);
 		playlists.clear();
@@ -438,14 +450,12 @@ void ChipMachine::updateKeys() {
 			SongInfo song = MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
 			auto ext = path_extension(song.path);
 			topStatus.setText(format("Format: %s (%s)", song.format, ext));
-			//searchField->color = Color(formatColor);
+			// searchField->color = Color(formatColor);
 		} else
 			topStatus.setText("Format: Playlist");
 		searchField.visible(false);
 		topStatus.visible(true);
 	}
-
 }
 
 } // namespace chipmachine
-

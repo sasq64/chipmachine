@@ -28,13 +28,13 @@ void TelnetInterface::stop() {
 using grappix::Window;
 
 static unordered_map<int, int> key_translate = {
-	{ Console::KEY_UP, Window::UP },
-	{ Console::KEY_DOWN, Window::DOWN },
-	{ Console::KEY_PAGEUP, Window::PAGEUP },
-	{ Console::KEY_PAGEDOWN, Window::PAGEDOWN },
-	{ Console::KEY_ENTER, Window::ENTER },
-	{ Console::KEY_ESCAPE, Window::ESCAPE },
-	{ Console::KEY_BACKSPACE, Window::BACKSPACE },
+    {Console::KEY_UP, Window::UP},
+    {Console::KEY_DOWN, Window::DOWN},
+    {Console::KEY_PAGEUP, Window::PAGEUP},
+    {Console::KEY_PAGEDOWN, Window::PAGEDOWN},
+    {Console::KEY_ENTER, Window::ENTER},
+    {Console::KEY_ESCAPE, Window::ESCAPE},
+    {Console::KEY_BACKSPACE, Window::BACKSPACE},
 };
 
 void TelnetInterface::start() {
@@ -51,7 +51,7 @@ void TelnetInterface::start() {
 				console = make_shared<PetsciiConsole>(session);
 			}
 			runClient(console);
-		} catch (TelnetServer::disconnect_excpetion &e) {
+		} catch(TelnetServer::disconnect_excpetion &e) {
 		}
 	});
 	telnet->runThread();
@@ -74,12 +74,10 @@ void TelnetInterface::runClient(shared_ptr<Console> console) {
 
 	console->write("### CHIPMACHINE LUA INTERPRETER\n");
 
-	lip.setOuputFunction([&](const std::string &s) {
-		console->write(s);
-	});
+	lip.setOuputFunction([&](const std::string &s) { console->write(s); });
 
 	lip.registerFunction("scrolltext", [=](const string &t) {
-		//chipmachine.set_scrolltext(t);
+		// chipmachine.set_scrolltext(t);
 	});
 
 	lip.registerFunction("find", [=](const string &q) -> vector<strmap> {
@@ -91,11 +89,11 @@ void TelnetInterface::runClient(shared_ptr<Console> console) {
 		auto &db = MusicDatabase::getInstance();
 
 		db.search(q, result, 100);
-		//int i = 1;
-		//console->write(format("GOT %d hits\n", result.size()));
+		// int i = 1;
+		// console->write(format("GOT %d hits\n", result.size()));
 		for(const auto &r : result) {
 			SongInfo song = db.getSongInfo(r);
-			//console->write(format("%02d. %s - %s (%s)\n", i++, s.composer, s.title, s.format));
+			// console->write(format("%02d. %s - %s (%s)\n", i++, s.composer, s.title, s.format));
 			strmap s;
 			s["path"] = song.path;
 			s["title"] = song.title;
@@ -115,9 +113,7 @@ void TelnetInterface::runClient(shared_ptr<Console> console) {
 		player.playSong(song);
 	});
 
-	lip.registerFunction("next_song", [&]() {
-		player.nextSong();
-	});
+	lip.registerFunction("next_song", [&]() { player.nextSong(); });
 
 	lip.registerFunction("get_playing_song", [&]() -> strmap {
 		SongInfo song = player.getInfo();
@@ -129,8 +125,8 @@ void TelnetInterface::runClient(shared_ptr<Console> console) {
 	});
 
 	lip.registerFunction("toast", [=](const string &t, int type) {
-		//grappix::screen.run_safely([&]() {
-			//chipmachine.toast(t, type);
+		// grappix::screen.run_safely([&]() {
+		// chipmachine.toast(t, type);
 		//});
 	});
 
@@ -141,10 +137,11 @@ void TelnetInterface::runClient(shared_ptr<Console> console) {
 		auto parts = split(l, " ");
 		if(isalpha(parts[0]) && (parts.size() == 1 || parts[1][0] != '=')) {
 			l = parts[0] + "(";
-			for(int i=1; i<(int)parts.size(); i++) {
+			for(int i = 1; i < (int)parts.size(); i++) {
 				if(isalpha(parts[i]))
 					parts[i] = format("'%s'", parts[i]);
-				if(i!=1) l += ",";
+				if(i != 1)
+					l += ",";
 				l += parts[i];
 			}
 			l += ")";
@@ -153,12 +150,10 @@ void TelnetInterface::runClient(shared_ptr<Console> console) {
 		try {
 			if(!lip.load(l))
 				console->write("** SYNTAX ERROR\n");
-		} catch (lua_exception &e) {
+		} catch(lua_exception &e) {
 			console->write(format("** %s\n", e.what()));
 		}
-
 	}
 }
-
 
 } // namespace chipmachine

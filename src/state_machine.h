@@ -20,8 +20,9 @@ template <class T> class EQCondition : public BaseCondition {
 public:
 	EQCondition(const T &watch, T val) : watch(watch), val(val) {}
 	bool check() const override { return watch == val; }
+
 private:
-	const T& watch;
+	const T &watch;
 	T val;
 };
 
@@ -33,8 +34,9 @@ template <class T> class NEQCondition : public BaseCondition {
 public:
 	NEQCondition(const T &watch, T val) : watch(watch), val(val) {}
 	bool check() const override { return watch != val; }
+
 private:
-	const T& watch;
+	const T &watch;
 	T val;
 };
 
@@ -42,16 +44,18 @@ template <class T> class SharedPtrNotNullCondition : public BaseCondition {
 public:
 	SharedPtrNotNullCondition(const std::shared_ptr<T> &ptr) : ptr(ptr) {}
 	bool check() const override { return ptr != nullptr; }
+
 private:
-	const std::shared_ptr<T>& ptr;
+	const std::shared_ptr<T> &ptr;
 };
 
 template <class T> class SharedPtrNullCondition : public BaseCondition {
 public:
 	SharedPtrNullCondition(const std::shared_ptr<T> &ptr) : ptr(ptr) {}
 	bool check() const override { return ptr == nullptr; }
+
 private:
-	const std::shared_ptr<T>& ptr;
+	const std::shared_ptr<T> &ptr;
 };
 
 std::shared_ptr<BaseCondition> if_true(const bool &watch);
@@ -77,14 +81,13 @@ extern std::shared_ptr<BaseCondition> ALWAYS_TRUE;
 
 struct Action {
 	Action(uint32_t id = 0, uint32_t event = 0) : id(id), event(event) {}
-	//operator uint32_t() { return id; }
+	// operator uint32_t() { return id; }
 	uint32_t id;
 	uint32_t event;
 };
 
 class StateMachine {
 public:
-
 	void put_event(uint32_t event) {
 		auto &amap = actionmap[event];
 		for(const auto &a : amap.actions) {
@@ -103,15 +106,17 @@ public:
 		a.actions.push_back(Mapping(c, action, stop));
 	}
 
-	void add(const char *chars, std::shared_ptr<BaseCondition> c, uint32_t action, bool stop = true) {
-		for(unsigned i=0; i<strlen(chars); i++) {
+	void add(const char *chars, std::shared_ptr<BaseCondition> c, uint32_t action,
+	         bool stop = true) {
+		for(unsigned i = 0; i < strlen(chars); i++) {
 			auto event = chars[i];
 			ActionSet &a = actionmap[event];
 			a.actions.push_back(Mapping(c, action, stop));
 		}
 	}
 
-	void add(std::vector<uint32_t> events, std::shared_ptr<BaseCondition> c, uint32_t action, bool stop = true) {
+	void add(std::vector<uint32_t> events, std::shared_ptr<BaseCondition> c, uint32_t action,
+	         bool stop = true) {
 		for(auto event : events) {
 			ActionSet &a = actionmap[event];
 			a.actions.push_back(Mapping(c, action, stop));
@@ -129,7 +134,7 @@ public:
 		add(events, ALWAYS_TRUE, action, stop);
 	}
 
-	//template <class T> void add(std::vector<uint32_t> events, Condition<T> c, uint32_t action) {
+	// template <class T> void add(std::vector<uint32_t> events, Condition<T> c, uint32_t action) {
 	//}
 
 	Action next_action() {
@@ -142,7 +147,8 @@ public:
 	}
 
 	struct Mapping {
-		Mapping(std::shared_ptr<BaseCondition> condition, uint32_t action, bool stop = true) : condition(condition), action(action), stop(stop) {}
+		Mapping(std::shared_ptr<BaseCondition> condition, uint32_t action, bool stop = true)
+		    : condition(condition), action(action), stop(stop) {}
 		std::shared_ptr<BaseCondition> condition;
 		uint32_t action;
 		bool stop = false;

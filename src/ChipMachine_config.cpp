@@ -10,34 +10,32 @@ namespace chipmachine {
 void ChipMachine::setVariable(const std::string &name, int index, const std::string &val) {
 
 	// The text fields that are configurable lfrom lua
-	static unordered_map<string, TextField*> fields = {
-		{ "main_title", &currentInfoField[0] },
-		{ "main_composer", &currentInfoField[1] },
-		{ "main_format", &currentInfoField[2] },
+	static unordered_map<string, TextField *> fields = {{"main_title", &currentInfoField[0]},
+	                                                    {"main_composer", &currentInfoField[1]},
+	                                                    {"main_format", &currentInfoField[2]},
 
-		{ "next_title", &nextInfoField[0] },
-		{ "next_composer", &nextInfoField[1] },
-		{ "next_format", &nextInfoField[2] },
+	                                                    {"next_title", &nextInfoField[0]},
+	                                                    {"next_composer", &nextInfoField[1]},
+	                                                    {"next_format", &nextInfoField[2]},
 
-		{ "exit_title", &prevInfoField[0] },
-		{ "exit_composer", &prevInfoField[1] },
-		{ "exit_format", &prevInfoField[2] },
+	                                                    {"exit_title", &prevInfoField[0]},
+	                                                    {"exit_composer", &prevInfoField[1]},
+	                                                    {"exit_format", &prevInfoField[2]},
 
-		{ "enter_title", &outsideInfoField[0] },
-		{ "enter_composer", &outsideInfoField[1] },
-		{ "enter_format", &outsideInfoField[2] },
+	                                                    {"enter_title", &outsideInfoField[0]},
+	                                                    {"enter_composer", &outsideInfoField[1]},
+	                                                    {"enter_format", &outsideInfoField[2]},
 
-		{ "length_field", &lengthField },
-		{ "time_field", &timeField },
-		{ "song_field", &songField },
-		{ "next_field", &nextField },
-		{ "xinfo_field", &xinfoField },
-		{ "search_field", &searchField },
-		{ "top_status", &topStatus },
-		{ "result_field", &resultFieldTemplate }
-	};
+	                                                    {"length_field", &lengthField},
+	                                                    {"time_field", &timeField},
+	                                                    {"song_field", &songField},
+	                                                    {"next_field", &nextField},
+	                                                    {"xinfo_field", &xinfoField},
+	                                                    {"search_field", &searchField},
+	                                                    {"top_status", &topStatus},
+	                                                    {"result_field", &resultFieldTemplate}};
 
-	auto path = workDir;//current_exe_path() + ":" + File::getAppDir();
+	auto path = workDir; // current_exe_path() + ":" + File::getAppDir();
 
 	if(fields.count(name) > 0) {
 		auto &f = (*fields[name]);
@@ -54,7 +52,8 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 			f.color = c;
 			if(name == "result_field") {
 				markColor = c;
-				markTween = Tween::make().sine().repeating().from(markColor, hilightColor).seconds(1.0);
+				markTween =
+				    Tween::make().sine().repeating().from(markColor, hilightColor).seconds(1.0);
 				markTween.start();
 			}
 		} else {
@@ -66,10 +65,9 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 			else
 				f.scale = x;
 		}
-	} else
-	if(name == "spectrum") {
+	} else if(name == "spectrum") {
 		if(index <= 2)
-			spectrumPos[index-1] = stol(val);
+			spectrumPos[index - 1] = stol(val);
 		else if(index == 3)
 			spectrumWidth = stol(val);
 		else if(index == 4)
@@ -78,8 +76,7 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 			spectrumColorMain = Color(stoll(val));
 		else
 			spectrumColorSearch = Color(stoll(val));
-	} else
-	if(name == "font") {
+	} else if(name == "font") {
 
 		File fontFile = File::findFile(path, val);
 
@@ -88,36 +85,31 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 			for(auto &f : fields) {
 				f.second->setFont(font);
 			}
-			//listFont = Font(val, 32, 256);// | Font::DISTANCE_MAP);
-			//resultFieldTemplate->setFont(listFont);
+			// listFont = Font(val, 32, 256);// | Font::DISTANCE_MAP);
+			// resultFieldTemplate->setFont(listFont);
 		}
-	} else
-	if(name == "list_font") {
+	} else if(name == "list_font") {
 		File fontFile = File::findFile(path, val);
 
 		if(fontFile.exists()) {
-			listFont = Font(fontFile.getName(), 32, 256);// | Font::DISTANCE_MAP);
+			listFont = Font(fontFile.getName(), 32, 256); // | Font::DISTANCE_MAP);
 			resultFieldTemplate.setFont(listFont);
 		}
-	} else
-	if(name == "favicon") {
-		favPos[index-1] = stol(val);
-	} else
-	if(name == "background") {
+	} else if(name == "favicon") {
+		favPos[index - 1] = stol(val);
+	} else if(name == "background") {
 		bgcolor = stol(val);
-	} else
-	if(name == "stars") {
+	} else if(name == "stars") {
 		starsOn = stol(val) != 0;
-	} else
-	if(name == "top_left") {
-		topLeft[index-1] = stol(val);
-		songList.setArea(grappix::Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x, downRight.y - topLeft.y - 28));
-	} else
-	if(name == "down_right") {
-		downRight[index-1] = stol(val);
-		songList.setArea(grappix::Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x, downRight.y - topLeft.y - 28));
-	} else
-	if(name == "scroll") {
+	} else if(name == "top_left") {
+		topLeft[index - 1] = stol(val);
+		songList.setArea(grappix::Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x,
+		                                    downRight.y - topLeft.y - 28));
+	} else if(name == "down_right") {
+		downRight[index - 1] = stol(val);
+		songList.setArea(grappix::Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x,
+		                                    downRight.y - topLeft.y - 28));
+	} else if(name == "scroll") {
 		switch(index) {
 		case 1:
 			scrollEffect.scrolly = stol(val);
@@ -128,21 +120,17 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 		case 3:
 			scrollEffect.scrollspeed = stol(val);
 			break;
-		case 4:
-			{
-				File fontFile = File::findFile(path, val);
-				if(fontFile.exists())
-					scrollEffect.set("font", fontFile.getName());
-			}
-			break;
+		case 4: {
+			File fontFile = File::findFile(path, val);
+			if(fontFile.exists())
+				scrollEffect.set("font", fontFile.getName());
+		} break;
 		}
-	} else
-	if(name == "hilight_color") {
+	} else if(name == "hilight_color") {
 		hilightColor = Color(stoll(val));
 		markTween = Tween::make().sine().repeating().from(markColor, hilightColor).seconds(1.0);
 		markTween.start();
-	} else
-	if(name == "result_lines") {
+	} else if(name == "result_lines") {
 		numLines = stol(val);
 		songList.setVisible(numLines);
 	}

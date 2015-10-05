@@ -12,29 +12,20 @@ using namespace tween;
 
 namespace chipmachine {
 
-
 void ChipMachine::renderItem(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
 
-	//if(commandMode)
+	// if(commandMode)
 	//	renderCommand(rec, y, index, hilight);
-	//else
-		renderSong(rec, y, index, hilight);
+	// else
+	renderSong(rec, y, index, hilight);
 }
-
 
 void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
 
 	static const map<uint32_t, uint32_t> colors = {
-		{ NOT_SET, 0xffff00ff },
-		{ PLAYLIST, 0xffffff88 },
-		{ CONSOLE, 0xffdd3355 },
-		{ C64, 0xffcc8844 },
-		{ ATARI, 0xffcccc33 },
-		{ MP3, 0xff88ff88 },
-		{ PC, 0xffcccccc },
-		{ AMIGA, 0xff6666cc },
-		{ 255, 0xff00ffff }
-	};
+	    {NOT_SET, 0xffff00ff}, {PLAYLIST, 0xffffff88}, {CONSOLE, 0xffdd3355},
+	    {C64, 0xffcc8844},     {ATARI, 0xffcccc33},    {MP3, 0xff88ff88},
+	    {PC, 0xffcccccc},      {AMIGA, 0xff6666cc},    {255, 0xff00ffff}};
 
 	Color c;
 	string text;
@@ -43,7 +34,7 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 		text = format("<%s>", playlists[index]);
 		c = 0xff6688ff;
 	} else {
-		auto res = iquery->getResult(index-playlists.size());
+		auto res = iquery->getResult(index - playlists.size());
 		auto parts = split(res, "\t");
 		int f = atoi(parts[3].c_str()) & 0xff;
 
@@ -66,25 +57,24 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 			markStartcolor = c;
 			markColor = c;
 			markTween = Tween::make().sine().repeating().from(markColor, hilightColor).seconds(1.0);
-	  		markTween.start();
-	  	}
-	  	c = markColor;
+			markTween.start();
+		}
+		c = markColor;
 	}
 
 	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate.scale);
 }
 
-
-ChipMachine::ChipMachine(const std::string &wd) : workDir(wd), player(wd), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen)  {
+ChipMachine::ChipMachine(const std::string &wd)
+    : workDir(wd), player(wd), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen),
+      scrollEffect(screen) {
 
 #ifdef USE_REMOTELISTS
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
 		string e = error;
 		if(rc == RemoteLists::JSON_INVALID)
 			e = "Server unavailable";
-		screen.run_safely([=]{
-			toast(e, 1);
-		});
+		screen.run_safely([=] { toast(e, 1); });
 	});
 #endif
 
@@ -125,9 +115,9 @@ ChipMachine::ChipMachine(const std::string &wd) : workDir(wd), player(wd), curre
 	volumeTexture = createTexture(volume_icon);
 
 	showVolume = 0;
-	float ww = volume_icon.w*15;
-	float hh = volume_icon.h*10;
-	volPos = { ((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh };
+	float ww = volume_icon.w * 15;
+	float hh = volume_icon.h * 10;
+	volPos = {((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh};
 
 	// SEARCHSCREEN
 
@@ -161,18 +151,26 @@ ChipMachine::ChipMachine(const std::string &wd) : workDir(wd), player(wd), curre
 	oldHeight = screen.height();
 	resizeDelay = 0;
 
-	songList = VerticalList(this, grappix::Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x, downRight.y - topLeft.y - 28), numLines);
-	//playlistField = TextField(listFont, "Favorites", downRight.x - 80, downRight.y - 10, 0.5, 0xff888888);
-	//mainScreen.add(playlistField);
+	songList =
+	    VerticalList(this, grappix::Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x,
+	                                          downRight.y - topLeft.y - 28),
+	                 numLines);
+	// playlistField = TextField(listFont, "Favorites", downRight.x - 80, downRight.y - 10, 0.5,
+	// 0xff888888);
+	// mainScreen.add(playlistField);
 
 	commandField = LineEdit(font, ">", topLeft.x, topLeft.y, 1.0, 0xff888888);
 	searchScreen.add(&commandField);
 	commandField.visible(false);
 
-	scrollEffect.set("scrolltext", "Chipmachine Beta 5 -- Just type to search -- UP/DOWN to select -- ENTER to play, SHIFT+ENTER to enque -- LEFT/RIGHT for subsongs -- F6 for next song -- F5 for pause -- CTRL+1 to 5 for shuffle play -- F8 to clear queue -- ESCAPE to clear search text ----- ");
+	scrollEffect.set("scrolltext", "Chipmachine Beta 5 -- Just type to search -- UP/DOWN to select "
+	                               "-- ENTER to play, SHIFT+ENTER to enque -- LEFT/RIGHT for "
+	                               "subsongs -- F6 for next song -- F5 for pause -- CTRL+1 to 5 "
+	                               "for shuffle play -- F8 to clear queue -- ESCAPE to clear "
+	                               "search text ----- ");
 	starEffect.fadeIn();
 
-	File f { File::getCacheDir() / "login" };
+	File f{File::getCacheDir() / "login"};
 	if(f.exists())
 		userName = f.read();
 }
@@ -189,18 +187,17 @@ void ChipMachine::setScrolltext(const std::string &txt) {
 }
 
 void ChipMachine::initLua() {
-	lua.registerFunction("set_var", [=](string name, uint32_t index, string val) {
-		setVariable(name, index, val);
-	});
+	lua.registerFunction(
+	    "set_var", [=](string name, uint32_t index, string val) { setVariable(name, index, val); });
 }
 
-void ChipMachine::layoutScreen()  {
+void ChipMachine::layoutScreen() {
 
 	LOGD("LAYOUT SCREEN");
 	currentTween.finish();
 	currentTween = Tween();
 
-	File f (workDir / "lua" / "screen.lua");
+	File f(workDir / "lua" / "screen.lua");
 
 	lua.setGlobal("SCREEN_WIDTH", screen.width());
 	lua.setGlobal("SCREEN_HEIGHT", screen.height());
@@ -269,7 +266,6 @@ void ChipMachine::update() {
 
 	updateKeys();
 
-
 	// DEAL WITH MUSICPLAYER STATE
 
 	auto state = player.getState();
@@ -285,7 +281,7 @@ void ChipMachine::update() {
 		currentInfoField[0].pos.x = currentInfoField[1].pos.x;
 
 		if(currentInfo.numtunes > 0)
-			songField.setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
+			songField.setText(format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
 		else
 			songField.setText("[01/01]");
 
@@ -295,30 +291,34 @@ void ChipMachine::update() {
 
 		auto f = [=]() {
 			xinfoField.setText(sub_title);
-			int d = (tw-(downRight.x-topLeft.x-20));
+			int d = (tw - (downRight.x - topLeft.x - 20));
 			if(d > 20)
-				Tween::make().sine().repeating().to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d).seconds((d+200)/200.0f);
+				Tween::make()
+				    .sine()
+				    .repeating()
+				    .to(currentInfoField[0].pos.x, currentInfoField[0].pos.x - d)
+				    .seconds((d + 200) / 200.0f);
 		};
 
 		auto favorites = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
 		auto favsong = find(favorites.begin(), favorites.end(), currentInfo);
 		isFavorite = (favsong != favorites.end());
 
-
 		if(nextInfoField == currentInfoField) {
-			currentTween = Tween::make().
-				from(prevInfoField, currentInfoField).
-				from(currentInfoField, nextInfoField).
-				from(nextInfoField, outsideInfoField).
-				seconds(1.5).onComplete(f);
+			currentTween = Tween::make()
+			                   .from(prevInfoField, currentInfoField)
+			                   .from(currentInfoField, nextInfoField)
+			                   .from(nextInfoField, outsideInfoField)
+			                   .seconds(1.5)
+			                   .onComplete(f);
 		} else {
-			currentTween = Tween::make().
-				from(prevInfoField, currentInfoField).
-				from(currentInfoField, outsideInfoField).
-				seconds(1.5).onComplete(f);
+			currentTween = Tween::make()
+			                   .from(prevInfoField, currentInfoField)
+			                   .from(currentInfoField, outsideInfoField)
+			                   .seconds(1.5)
+			                   .onComplete(f);
 		}
 		currentTween.start();
-
 	}
 
 	if(state == MusicPlayerList::ERROR) {
@@ -329,12 +329,13 @@ void ChipMachine::update() {
 		SongInfo song = player.getInfo();
 		prevInfoField.setInfo(song);
 		LOGD("SONG %s could not be played", song.path);
-		currentTween = Tween::make().
-			from(prevInfoField, nextInfoField).
-			seconds(3.0).onComplete([=]() {
-				if(player.getState() == MusicPlayerList::STOPPED)
-					player.nextSong();
-			});
+		currentTween = Tween::make()
+		                   .from(prevInfoField, nextInfoField)
+		                   .seconds(3.0)
+		                   .onComplete([=]() {
+			                   if(player.getState() == MusicPlayerList::STOPPED)
+				                   player.nextSong();
+			               });
 		currentTween.start();
 	}
 
@@ -371,7 +372,7 @@ void ChipMachine::update() {
 		xinfoField.setText(sub_title);
 		currentInfoField.setInfo(currentInfo);
 		currentTune = tune;
-		songField.setText(format("[%02d/%02d]", currentTune+1, currentInfo.numtunes));
+		songField.setText(format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
 	}
 
 	if(player.playing()) {
@@ -385,12 +386,11 @@ void ChipMachine::update() {
 			Tween::make().to(timeField.color, timeColor).seconds(2.0);
 		}
 
-
 		auto p = player.getPosition();
 		int length = player.getLength();
-		timeField.setText(format("%02d:%02d", p/60, p%60));
+		timeField.setText(format("%02d:%02d", p / 60, p % 60));
 		if(length > 0)
-			lengthField.setText(format("(%02d:%02d)", length/60, length%60));
+			lengthField.setText(format("(%02d:%02d)", length / 60, length % 60));
 		else
 			lengthField.setText("");
 
@@ -401,17 +401,16 @@ void ChipMachine::update() {
 
 	if(!player.getAllowed()) {
 		toast("Not allowed", 1);
-	} else
-	if(player.hasError()) {
+	} else if(player.hasError()) {
 		toast(player.getError(), 1);
 	}
 
 	if(!player.isPaused()) {
 		for(auto &e : eq) {
-			if(e >= 4*4)
-				e -=2*4;
+			if(e >= 4 * 4)
+				e -= 2 * 4;
 			else
-				e = 2*4;
+				e = 2 * 4;
 		}
 	}
 
@@ -420,28 +419,32 @@ void ChipMachine::update() {
 		for(auto i : count_to(player.spectrumSize())) {
 			if(spectrum[i] > 5) {
 				unsigned f = static_cast<uint8_t>(logf(spectrum[i]) * 64);
-				if(f > 255) f = 255;
+				if(f > 255)
+					f = 255;
 				if(f > eq[i])
 					eq[i] = f;
 			}
 		}
 	}
-
 }
 
 void ChipMachine::toast(const std::string &txt, int type) {
 
-	static vector<Color> colors = { 0xffffff, 0xff8888, 0x55aa55 }; // Alpha intentionally left at zero
+	static vector<Color> colors = {0xffffff, 0xff8888,
+	                               0x55aa55}; // Alpha intentionally left at zero
 
 	toastField.setText(txt);
 	int tlen = toastField.getWidth();
 	toastField.pos.x = topLeft.x + ((downRight.x - topLeft.x) - tlen) / 2;
 	toastField.color = colors[type % 3];
 
-	Tween::make().to(toastField.color.alpha, 1.0).seconds(0.25).onComplete([=]() {
-		if(type < 3)
-			Tween::make().to(toastField.color.alpha, 0.0).delay(1.0).seconds(0.25);
-	});
+	Tween::make()
+	    .to(toastField.color.alpha, 1.0)
+	    .seconds(0.25)
+	    .onComplete([=]() {
+		    if(type < 3)
+			    Tween::make().to(toastField.color.alpha, 0.0).delay(1.0).seconds(0.25);
+		});
 }
 
 void ChipMachine::removeToast() {
@@ -475,7 +478,7 @@ void ChipMachine::render(uint32_t delta) {
 		int v = player.getVolume() * 10;
 		v = v * volPos.w / 10;
 		screen.rectangle(volPos.x + v, volPos.y, volPos.w - v, volPos.h, color);
-		screen.text(listFont, std::to_string((int)(v*100)), volPos.x, volPos.y, 1.0, 0xff8888ff);
+		screen.text(listFont, std::to_string((int)(v * 100)), volPos.x, volPos.y, 1.0, 0xff8888ff);
 	}
 
 	musicBars.render(spectrumPos, spectrumColor, eq);
@@ -483,7 +486,6 @@ void ChipMachine::render(uint32_t delta) {
 	if(starsOn)
 		starEffect.render(delta);
 	scrollEffect.render(delta);
-
 
 	if(currentScreen == MAIN_SCREEN) {
 		mainScreen.render(delta);
@@ -494,13 +496,12 @@ void ChipMachine::render(uint32_t delta) {
 		songList.render();
 	}
 
-
 	if(
 #ifdef ENABLE_TELNET
-		WebRPC::inProgress() > 0 || 
+	    WebRPC::inProgress() > 0 ||
 #endif
-		net::WebGetter::inProgress() > 0) {
-		screen.draw(netTexture, 2, 2, 8*3, 5*3, nullptr);
+	    net::WebGetter::inProgress() > 0) {
+		screen.draw(netTexture, 2, 2, 8 * 3, 5 * 3, nullptr);
 	}
 
 	renderSet.render(delta);
@@ -510,6 +511,4 @@ void ChipMachine::render(uint32_t delta) {
 
 	screen.flip();
 }
-
-
 }

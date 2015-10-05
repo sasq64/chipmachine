@@ -17,11 +17,11 @@ public:
 		if(starPos > 1.0) starPos -= 1.0;
 		starProgram.setUniform("alpha", alpha);
 		starProgram.setUniform("scrollpos", starPos += (0.3 / target.width()));
-		target.draw(starTexture, starProgram);
+		target.draw(starTexture, 0, 0, starTexture.width(), starTexture.height()*2, nullptr, starProgram);
 	};
 
 	void resize(int w, int h) override {
-		image::bitmap bm(w, h);
+		image::bitmap bm(w, h/2);
 		bm.clear(0x00000000);
 		for(unsigned y=0; y<bm.height(); y++) {
 			auto x = rand() % bm.width();
@@ -44,7 +44,7 @@ private:
 		varying vec2 UV;
 
 		void main() {
-			float m = floor(mod(gl_FragCoord.y, 3.0) + 1.0);
+			float m = floor(mod(gl_FragCoord.y, 6.0)/2.0 + 1.0);
 			float uvx = mod(UV.x + scrollpos * m, 1.0);
 			gl_FragColor = m  * texture2D(sTexture, vec2(uvx, UV.y));
 		}

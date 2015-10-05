@@ -10,20 +10,21 @@
 
 class RemoteLoader {
 public:
-
 	RemoteLoader();
 
-	void registerSource(const std::string &name, const std::string url, const std::string local_dir);
+	void registerSource(const std::string &name, const std::string url,
+	                    const std::string local_dir);
 
 	bool load(const std::string &path, std::function<void(utils::File)> done_cb);
 
-	bool stream(const std::string &path, std::function<bool(const uint8_t *data, int size)> data_cb);
+	bool stream(const std::string &path,
+	            std::function<bool(const uint8_t *data, int size)> data_cb);
 
 	void preCache(const std::string &path);
 
 	bool inCache(const std::string &path) const;
 
-	static RemoteLoader& getInstance() {
+	static RemoteLoader &getInstance() {
 		static RemoteLoader loader;
 		return loader;
 	}
@@ -35,7 +36,6 @@ public:
 	}
 
 private:
-
 	struct Source {
 		Source() {}
 		Source(const std::string &url, const std::string &ld) : url(url), local_dir(ld) {}

@@ -40,7 +40,7 @@ public:
 
 	int search(const std::string &query, std::vector<std::string> &result);
 
-	static PlaylistDatabase& getInstance() {
+	static PlaylistDatabase &getInstance() {
 		static PlaylistDatabase mdb;
 		return mdb;
 	}
@@ -49,7 +49,6 @@ private:
 	std::vector<Playlist> playlists;
 	sqlite3db::Database db;
 };
-
 }
 
 #endif // PLAYLIST_DATABASE_H

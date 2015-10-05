@@ -10,8 +10,8 @@
 
 class RenderSet {
 public:
-
-	RenderSet(std::shared_ptr<grappix::RenderTarget> target = grappix::screenptr) : target(target) {}
+	RenderSet(std::shared_ptr<grappix::RenderTarget> target = grappix::screenptr)
+	    : target(target) {}
 
 	void add(std::shared_ptr<Renderable> r);
 	void add(Renderable *r);
@@ -24,11 +24,10 @@ public:
 				r->render(delta);
 		}
 	}
-private:
 
+private:
 	std::vector<Pointer<Renderable>> fields;
 	std::shared_ptr<grappix::RenderTarget> target;
-
 };
 
 #endif // RENDER_SET_H

@@ -16,30 +16,32 @@ public:
 	Worker() {
 		inProgress = 0;
 		quit = false;
-		//threadMutex.resize(threadCount);
-		for(int tno=0; tno<threadCount; tno++) {
-			//workStart[tno] = workEnd[tno] = 0;
+		// threadMutex.resize(threadCount);
+		for(int tno = 0; tno < threadCount; tno++) {
+			// workStart[tno] = workEnd[tno] = 0;
 			LOGD("Creating thread %d", tno);
 			threads.emplace_back([=]() mutable {
 				while(!quit) {
-					{ 	std::unique_lock<std::mutex> l(m);
+					{
+						std::unique_lock<std::mutex> l(m);
 						cv.wait(l);
 						inProgress++;
 					}
 					if(sourceVec) {
-						//LOGD("WORK STARTING");
-						for(int i=tno; i<sourceVec->size(); i += threadCount) {
-							const T& item = (*sourceVec)[i];
+						// LOGD("WORK STARTING");
+						for(int i = tno; i < sourceVec->size(); i += threadCount) {
+							const T &item = (*sourceVec)[i];
 							if(filterFunc(item)) {
-								// Dealing with index 'i'. Need to wait until all lower indexes has been dealt with.
-								//while(handled < i)
+								// Dealing with index 'i'. Need to wait until all lower indexes has
+								// been dealt with.
+								// while(handled < i)
 								//	utils::sleepms(0);
 								auto p = counter.fetch_add(1);
 								(*targetVec)[p] = item;
 							}
-							//handled++;
+							// handled++;
 						}
-						//LOGD("WORK DONE");
+						// LOGD("WORK DONE");
 					}
 					inProgress--;
 					done_cv.notify_all();
@@ -98,14 +100,14 @@ private:
 	std::atomic<bool> quit;
 	const std::vector<T> *sourceVec;
 	std::vector<T> *targetVec;
-	std::function<bool(const T&)> filterFunc;
+	std::function<bool(const T &)> filterFunc;
 };
-
 
 class SearchProvider {
 public:
 	// Search for a string, return indexes of hits
-	virtual int search(const std::string &word, std::vector<int> &result, unsigned int searchLimit) = 0;
+	virtual int search(const std::string &word, std::vector<int> &result,
+	                   unsigned int searchLimit) = 0;
 	// Lookup internal string for index
 	virtual std::string getString(int index) const = 0;
 	// Get full data, may require SQL query
@@ -114,10 +116,10 @@ public:
 
 class IncrementalQuery {
 public:
-
 	IncrementalQuery() : provider(nullptr) {}
 
-	IncrementalQuery(SearchProvider *provider) : newRes(false), provider(provider), searchLimit(20000), lastStart(-1), lastSize(-1) {}
+	IncrementalQuery(SearchProvider *provider)
+	    : newRes(false), provider(provider), searchLimit(20000), lastStart(-1), lastSize(-1) {}
 
 	void addLetter(char c);
 	void removeLast();
@@ -136,10 +138,9 @@ public:
 		return r;
 	}
 
-	//std::string getFull(int index) const {
+	// std::string getFull(int index) const {
 	//	return provider->getFullString(finalResult[index]);
 	//}
-
 
 private:
 	void search();
@@ -157,20 +158,18 @@ private:
 	int lastSize;
 };
 
-
 class SearchIndex : public SearchProvider {
 public:
-
 	SearchIndex() {}
 	~SearchIndex() {}
 
 	void reserve(uint32_t sz) { strings.reserve(sz); }
 
-	int search(const std::string &word, std::vector<int> &result, unsigned int searchLimit) override;
+	int search(const std::string &word, std::vector<int> &result,
+	           unsigned int searchLimit) override;
 	std::string getString(int index) const override { return strings[index]; }
 
 	int add(const std::string &str, bool stringonly = false);
-
 
 	void dump(utils::File &f);
 	void load(utils::File &f);
@@ -178,12 +177,9 @@ public:
 	static void simplify(std::string &s);
 	static unsigned int tlcode(const char *s);
 
-	void setFilter(std::function<bool(int)> f) {
-		filter = f;
-	}
+	void setFilter(std::function<bool(int)> f) { filter = f; }
 
 private:
-
 	Worker<int> worker;
 
 	std::function<bool(int)> filter;
@@ -195,11 +191,10 @@ private:
 	static std::vector<uint8_t> to7bitlow;
 
 	// Maps coded 3-letters to a list of indexes
-	//std::unordered_map<uint16_t, std::vector<int>> stringMap;
+	// std::unordered_map<uint16_t, std::vector<int>> stringMap;
 	std::vector<int> stringMap[65536];
 	// The actual strings
 	std::vector<std::string> strings;
-
 };
 
 #endif // SEARCH_INDEX_H

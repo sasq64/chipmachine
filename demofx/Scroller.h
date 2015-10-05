@@ -32,7 +32,7 @@ public:
 	void resize(int w, int h) override {
 		scr = grappix::Texture(w+10, h);
 	}
-	virtual void set(const std::string &what, const std::string &val, float seconds = 0.0) {
+	virtual void set(const std::string &what, const std::string &val, float seconds = 0.0) override {
 		if(what == "font") {
 			font = grappix::Font(val, 24, 512 | grappix::Font::DISTANCE_MAP);
 			//font.set_program(fprogram);

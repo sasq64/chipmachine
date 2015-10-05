@@ -5,5 +5,5 @@ void Renderable::remove() {
 	if(parent)
 		parent->remove(this);
 	parent = nullptr;
-// do_remove = true;
+	// do_remove = true;
 }

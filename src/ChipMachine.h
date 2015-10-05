@@ -39,7 +39,6 @@ namespace chipmachine {
 
 class ChipMachine : public grappix::VerticalList::Renderer {
 public:
-
 	virtual void renderItem(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) override;
 	void renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
 	void renderCommand(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
@@ -61,7 +60,6 @@ public:
 	MusicPlayerList &musicPlayer() { return player; }
 
 private:
-
 	void setVariable(const std::string &name, int index, const std::string &val);
 
 	void showMain();
@@ -85,8 +83,8 @@ private:
 
 	std::unique_ptr<TelnetInterface> telnet;
 
-	utils::vec2i topLeft = { 80, 54 };
-	utils::vec2i downRight = { 636, 520 };
+	utils::vec2i topLeft = {80, 54};
+	utils::vec2i downRight = {636, 520};
 
 	grappix::Font font;
 	grappix::Font listFont;
@@ -107,7 +105,7 @@ private:
 	demofx::Scroller scrollEffect;
 
 	RenderSet mainScreen;
-	//grappix::Font font;
+	// grappix::Font font;
 
 	SongInfoField currentInfoField;
 	SongInfoField nextInfoField;
@@ -133,7 +131,7 @@ private:
 	grappix::Texture eqTexture;
 	grappix::Texture volumeTexture;
 	grappix::Texture extTexture;
-	grappix::Rectangle favPos = { 80, 300, 16*8, 16*6 };
+	grappix::Rectangle favPos = {80, 300, 16 * 8, 16 * 6};
 
 	RenderSet searchScreen;
 
@@ -187,10 +185,7 @@ private:
 	bool indexingDatabase = false;
 
 	MusicBars musicBars;
-
 };
-
 }
-
 
 #endif // CHIP_MACHINE_H

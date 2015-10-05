@@ -6,25 +6,26 @@ using namespace std;
 using namespace utils;
 
 RemoteLoader::RemoteLoader() : webgetter(utils::File::getCacheDir() / "_webfiles") {
-	webgetter.setErrorCallback([](int code, const string &msg) {
-		LOGD("Error %d %s", code, msg);
-	});
+	// webgetter.setErrorCallback([](int code, const string &msg) {
+	//	LOGD("Error %d %s", code, msg);
+	//});
 }
 
-void RemoteLoader::registerSource(const std::string &name, const std::string url, const std::string local_dir) {
+void RemoteLoader::registerSource(const std::string &name, const std::string url,
+                                  const std::string local_dir) {
 	Source s(url, local_dir);
 
-	//LOGD("REGISTER %s", name);
+	// LOGD("REGISTER %s", name);
 
-	//if(s.url[s.url.length()-1] != '/')
+	// if(s.url[s.url.length()-1] != '/')
 	//	s.url += '/';
-	if(s.local_dir[s.local_dir.length()-1] != '/')
+	if(s.local_dir[s.local_dir.length() - 1] != '/')
 		s.local_dir += '/';
 	sources[name] = s;
 }
 
-
-//bool RemoteLoader::load(const std::vector<std::string> &paths, function<void(File f[])> done_cb) {
+// bool RemoteLoader::load(const std::vector<std::string> &paths, function<void(File f[])> done_cb)
+// {
 //	return false;
 //}
 
@@ -45,12 +46,11 @@ bool RemoteLoader::inCache(const std::string &p) const {
 	string url = source.url + path;
 
 	if(url.find("snesmusic.org") != string::npos) {
-		url = url.substr(0, url.length()-4);
+		url = url.substr(0, url.length() - 4);
 	}
 
 	return webgetter.inCache(url);
 }
-
 
 bool RemoteLoader::load(const std::string &p, function<void(File f)> done_cb) {
 
@@ -73,7 +73,7 @@ bool RemoteLoader::load(const std::string &p, function<void(File f)> done_cb) {
 	string url = source.url + path;
 
 	if(url.find("snesmusic.org") != string::npos) {
-		url = url.substr(0, url.length()-4);
+		url = url.substr(0, url.length() - 4);
 	}
 
 	lastSession = webgetter.getFile(url, [=](File f) {
@@ -81,19 +81,17 @@ bool RemoteLoader::load(const std::string &p, function<void(File f)> done_cb) {
 		if(fileName.find("snesmusic.org") != string::npos) {
 			auto newFile = fileName + ".rsn";
 			rename(fileName.c_str(), newFile.c_str());
-			f = File { newFile };
+			f = File{newFile};
 		}
 		done_cb(f);
 	});
 	return true;
 }
 
-void RemoteLoader::preCache(const std::string &path) {
+void RemoteLoader::preCache(const std::string &path) {}
 
-}
-
-
-bool RemoteLoader::stream(const std::string &p, std::function<bool(const uint8_t *data, int size)> data_cb) {
+bool RemoteLoader::stream(const std::string &p,
+                          std::function<bool(const uint8_t *data, int size)> data_cb) {
 
 	Source source;
 	string path = p;
@@ -105,7 +103,7 @@ bool RemoteLoader::stream(const std::string &p, std::function<bool(const uint8_t
 	}
 
 	string local_path = source.local_dir + path;
-	//if(File::exists(local_path)) {
+	// if(File::exists(local_path)) {
 	//	done_cb(File(local_path));
 	//	return true;
 	//}
@@ -115,5 +113,3 @@ bool RemoteLoader::stream(const std::string &p, std::function<bool(const uint8_t
 	lastSession = webgetter.streamData(url, data_cb);
 	return true;
 }
-
-
