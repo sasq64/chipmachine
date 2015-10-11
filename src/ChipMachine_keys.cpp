@@ -55,7 +55,6 @@ void ChipMachine::setupRules() {
 
 	smac.add(Window::F1, if_equals(currentScreen, SEARCH_SCREEN), SHOW_MAIN);
 	smac.add({Window::F2, Window::UP, Window::DOWN, Window::PAGEUP, Window::PAGEDOWN}, SHOW_SEARCH);
-
 	smac.add(Window::F5, PLAY_PAUSE);
 	smac.add("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._0123456789 ",
 	         if_true(playlistEdit), ADD_COMMAND_CHAR);
@@ -63,7 +62,6 @@ void ChipMachine::setupRules() {
 	         if_not_null(currentDialog), ADD_DIALOG_CHAR);
 	smac.add({Window::ENTER, Window::ESCAPE, Window::BACKSPACE}, if_not_null(currentDialog),
 	         ADD_DIALOG_CHAR);
-
 	smac.add({Window::BACKSPACE, Window::LEFT, Window::RIGHT, Window::HOME, Window::END},
 	         if_true(playlistEdit), ADD_COMMAND_CHAR);
 	smac.add("abcdefghijklmnopqrstuvwxyz0123456789 ", ADD_SEARCH_CHAR);
@@ -76,13 +74,9 @@ void ChipMachine::setupRules() {
 	smac.add(Window::ENTER, if_equals(currentScreen, MAIN_SCREEN), NEXT_SONG);
 	smac.add(Window::ENTER, if_equals(currentScreen, SEARCH_SCREEN), PLAY_LIST_SONG);
 	smac.add(Window::ENTER | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_SONG);
-
 	smac.add(Window::F9, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_SONG);
-
 	smac.add(Window::DOWN | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), NEXT_COMPOSER);
-
 	smac.add(Window::F8 | SHIFT, DUMP_FAVORITES);
-
 	smac.add(Window::F7, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_FAVORITE);
 	smac.add(Window::F7, if_equals(currentScreen, MAIN_SCREEN), ADD_CURRENT_FAVORITE);
 	smac.add(Window::F8, CLEAR_SONGS);
@@ -90,22 +84,18 @@ void ChipMachine::setupRules() {
 	smac.add(Window::LEFT, PREV_SUBTUNE);
 	smac.add(Window::RIGHT, NEXT_SUBTUNE);
 	smac.add(Window::F4, LAYOUT_SCREEN);
-
 	smac.add(Window::F4 | ALT, QUIT);
 	smac.add(Window::ESCAPE | SHIFT, QUIT);
-
 	smac.add('r' | CTRL, RANDOM_SHUFFLE);
 	smac.add('f' | CTRL, FORMAT_SHUFFLE);
 	smac.add('c' | CTRL, COMPOSER_SHUFFLE);
 	smac.add('s' | CTRL, RESULT_SHUFFLE);
 	smac.add('o' | CTRL, COLLECTION_SHUFFLE);
-
 	smac.add('1' | CTRL, RANDOM_SHUFFLE);
 	smac.add('2' | CTRL, COLLECTION_SHUFFLE);
 	smac.add('3' | CTRL, FORMAT_SHUFFLE);
 	smac.add('4' | CTRL, COMPOSER_SHUFFLE);
 	smac.add('5' | CTRL, RESULT_SHUFFLE);
-
 	smac.add('-', VOLUME_DOWN);
 	smac.add("=+", VOLUME_UP);
 }

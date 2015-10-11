@@ -42,24 +42,23 @@ parser.add_argument('--target', choices=['native', 'raspberry', 'windows', 'andr
 
 args = parser.parse_args()
 
-print(args.buildsystem)
-
 configs = { 'release' : [ 'release', '-DCMAKE_BUILD_TYPE=Release' ],
             'debug' : [ 'debug', '-DCMAKE_BUILD_TYPE=Debug' ]
           }
 buildsystems = { 'ninja' : [ '-GNinja',  ] }
-
 buildArgs = []
 buildArgs.append(configs[args.config][1])
 buildArgs.append(buildsystems[args.buildsystem][0])
 
-print(buildArgs)
 outputDir = os.path.join(args.output, configs[args.config][0])
 
 try :
 	os.makedirs(outputDir)
 except :
 	pass
+
+if args.actions == 'build' :
+    args.actions = [ 'build' ]
 
 for a in args.actions :
     if a == 'build' :

@@ -8,8 +8,8 @@ add_definitions(-DAPP_NAME=chipmachine)
 #(-DUSE_REMOTELISTS -DENABLE_TELNET)
 
 if(RASPBERRYPI)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv6 -mfpu=vfp -mfloat-abi=hard")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv6 -mfpu=vfp -mfloat-abi=hard")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv6 -mfpu=vfp -mfloat-abi=hard")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv6 -mfpu=vfp -mfloat-abi=hard")
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -funsigned-char")
@@ -25,7 +25,7 @@ set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -DCM_DEBUG")
 #set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
 
-include_directories(${AP1_ROOT}/mods)
+include_directories(${AP1_ROOT}/mods /usr/local/include)
 
 
 set(SOURCE_FILES
@@ -106,7 +106,7 @@ add_subdirectory(${AP1_ROOT}/mods/musicplayer/plugins plugins)
 include_directories(${AP1_ROOT}/mods/grappix ${AP1_ROOT}/mods/musicplayer/plugins)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-include_directories(${AP1_ROOT}/mods/glew/glew-1.11.0/include ${AP1_ROOT}mods/musicplayer/plugins/mp3plugin/mpg123-1.21.0/src/libmpg123)
+#include_directories(${AP1_ROOT}/mods/glew/glew-1.11.0/include ${AP1_ROOT}mods/musicplayer/plugins/mp3plugin/mpg123-1.21.0/src/libmpg123)
 
 if(APPLE)
 	add_executable(chipmachine MACOSX_BUNDLE ${SOURCE_FILES})
