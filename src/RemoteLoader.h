@@ -1,7 +1,7 @@
 #ifndef REMOTE_LOADER_H
 #define REMOTE_LOADER_H
 
-#include <net/webgetter.h>
+#include <webutils/web.h>
 #include <coreutils/file.h>
 
 #include <string>
@@ -45,8 +45,8 @@ private:
 
 	std::unordered_map<std::string, Source> sources;
 
-	net::WebGetter webgetter;
-	std::shared_ptr<net::HttpSession> lastSession;
+	webutils::Web webgetter;
+	std::shared_ptr<webutils::Web::Job> lastSession;
 };
 
 #endif // REMOTE_LOADER_H

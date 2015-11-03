@@ -200,6 +200,10 @@ void ChipMachine::updateKeys() {
 	auto action = smac.next_action();
 	if(action.id != NO_ACTION) {
 
+
+		auto pos = player.getPosition();
+		//int length = player.getLength();
+
 		// LOGD("ACTION %d", action.id);
 		string name;
 		switch((ChipAction)action.id) {
@@ -328,10 +332,16 @@ void ChipMachine::updateKeys() {
 			PlaylistDatabase::getInstance().dumpPlaylist(currentPlaylistName, "playlists");
 			break;
 		case NEXT_SUBTUNE:
+			if(currentInfo.numtunes == 0)
+				player.seek(-1, pos + 10);
+			else
 			if(currentTune < currentInfo.numtunes - 1)
 				player.seek(currentTune + 1);
 			break;
 		case PREV_SUBTUNE:
+			if(currentInfo.numtunes == 0)
+				player.seek(-1, pos - 10);
+			else	
 			if(currentTune > 0)
 				player.seek(currentTune - 1);
 			break;

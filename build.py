@@ -61,6 +61,7 @@ if args.actions == 'build' :
     args.actions = [ 'build' ]
 
 for a in args.actions :
+    a = a.strip()
     if a == 'build' :
         if not os.path.isfile(os.path.join(outputDir, 'CMakeCache.txt')) :
             subprocess.call(['cmake', '-B' + outputDir, '-H.'] + buildArgs)

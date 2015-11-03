@@ -106,11 +106,11 @@ MusicPlayer::~MusicPlayer() {
 void MusicPlayer::seek(int song, int seconds) {
 	LOCK_GUARD(playerMutex);
 	if(player) {
-		if(seconds < 0)
-			pos = 0;
-		else
-			pos = seconds * 44100;
 		if(player->seekTo(song, seconds)) {
+			if(seconds < 0)
+				pos = 0;
+			else
+				pos = seconds * 44100;
 			fifo.clear();
 			// length = player->getMetaInt("length");
 			updatePlayingInfo();

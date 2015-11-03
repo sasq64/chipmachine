@@ -97,5 +97,12 @@ DB = {
 	type = "bitjam",
 	song_list = "http://www.bitfellas.org/podcast/podcast.xml",
 	color = 0xfffff
+},
+{
+	name = "Pouet/Youtube",
+	type = "pouet",
+	source = "",
+	song_list = "data/pouet_youtube.xml",
+	color = 0xfffff
 }
 };

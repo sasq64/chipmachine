@@ -4,6 +4,7 @@
 
 #include <luainterpreter/luainterpreter.h>
 #include <coreutils/utils.h>
+#include <webutils/web.h>
 #include <archive/archive.h>
 #include <xml/xml.h>
 #include <set>
@@ -79,20 +80,39 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 	bool isRKO = (type == "rko");
 	bool isAmiRemix = (type == "amigaremix");
 	bool isScenesat = (type == "scenesat");
+	bool isPouet = (type == "pouet");
 
 	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) "
 	                      "VALUES (?, ?, ?, ?, ?, ?)");
 
+	if(isPouet) {
+		auto doc = xmldoc::fromFile(song_list);
+		for(const auto &i : doc["feed"].all("prod")) {
+			auto title = i["name"].text();
+			auto g = i["group1"];
+			auto group = g.valid() ? g.text() : "";
+			auto youtube = i["youtube"].text();
+
+			LOGD("%s / %s (%s)", title, group, youtube);
+			query.bind(title, "", group, "MP3", youtube, collection_id).step();
+		}		
+	}
+	else
 	if(rss) {
 
 		atomic<bool> done;
 		done = false;
 		string xml;
-
+/*
 		net::WebGetter getter;
 
 		getter.getData(song_list, [&](const vector<uint8_t> &data) {
 			xml = string(begin(data), end(data));
+			done = true;
+		});
+*/
+		webutils::Web::get_url(song_list, [&](const string &data) {
+			xml = data;
 			done = true;
 		});
 

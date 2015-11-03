@@ -1,14 +1,8 @@
 
-## VERSION 1
+## ISSUES
 
 * Deal with no Internet
 * Deal with 404
-* 
-
-
-
-## ISSUES
-
 * UADE SONG END does not go to next?
 * Loop detecton, max play or remember skip position?
 * Limit stream speed

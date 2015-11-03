@@ -11,6 +11,21 @@ using namespace utils;
 
 namespace chipmachine {
 
+
+std::vector<std::string> split_if(const std::string &text, std::function<bool(char)> f) {
+	vector<string> res;
+	int start = 0;
+	for(int i=0; i<text.length(); i++) {
+		if(f(text[i])) {
+			res.push_back(text.substr(start, i-start));
+			start = i;
+		}
+	}
+	if(start < text.length())
+		res.push_back(text.substr(start));
+	return res;
+}
+
 MusicPlayerList::MusicPlayerList(const std::string &workDir)
     : mp(workDir) { //: webgetter(File::getCacheDir() + "_webfiles") {
 	state = STOPPED;
@@ -335,6 +350,30 @@ void MusicPlayerList::playCurrent() {
 	string ext2;
 	if(fmt_2files.count(ext) > 0)
 		ext2 = fmt_2files.at(ext);
+
+	if(startsWith(currentInfo.path, "http://www.youtube.com") ||
+		startsWith(currentInfo.path, "http://youtube.com") ||
+		startsWith(currentInfo.path, "http://youtu.be")) {
+		bool inId = false;
+		auto parts = split_if(currentInfo.path, [&inId](char c) -> bool {
+			const static string ytchars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+			bool found;
+			if(inId) {
+				found = (ytchars.find(c) == string::npos);
+			} else {
+				found =	(ytchars.find(c) != string::npos);
+			}
+			if(found)
+				inId = !inId;
+			return found;
+		});
+		for(int i=1; i<parts.size(); i += 2) {
+			if(parts[i].length() == 11) {
+				currentInfo.path = format("http://localhost:5000/ytmp3/%s.mp3", parts[i]);
+			}
+		}
+		LOGD("Rewrote youtube path to %s", currentInfo.path);
+	}
 
 	RemoteLoader &loader = RemoteLoader::getInstance();
 

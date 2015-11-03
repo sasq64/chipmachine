@@ -60,7 +60,7 @@ set(APONE_MODULES
 	bbsutils
 	fft
 	archive
-#	webutils
+	webutils
 #	json
 	luainterpreter
 	sqlite3
