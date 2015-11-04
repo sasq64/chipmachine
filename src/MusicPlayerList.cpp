@@ -329,9 +329,17 @@ void MusicPlayerList::playCurrent() {
 	state = LOADING;
 
 	LOGD("PLAY PATH:%s", currentInfo.path);
+	string prefix, path;
+	auto parts = split(currentInfo.path, "::", 2);
+	if(parts.size() == 2) {
+		prefix = parts[0];
+		path = parts[1];
+	} else
+		path = currentInfo.path;
 
-	if(startsWith(currentInfo.path, "index::")) {
-		int index = stol(currentInfo.path.substr(7));
+
+	if(prefix == "index") {
+		int index = stol(path);
 		currentInfo = MusicDatabase::getInstance().getSongInfo(index);
 	}
 
@@ -343,7 +351,7 @@ void MusicPlayerList::playCurrent() {
 
 	loadedFile = "";
 
-	auto ext = path_extension(currentInfo.path);
+	auto ext = path_extension(path);
 	makeLower(ext);
 	// LOGD("EXT: %s", ext);
 	files = 1;
@@ -351,11 +359,10 @@ void MusicPlayerList::playCurrent() {
 	if(fmt_2files.count(ext) > 0)
 		ext2 = fmt_2files.at(ext);
 
-	if(startsWith(currentInfo.path, "http://www.youtube.com") ||
-		startsWith(currentInfo.path, "http://youtube.com") ||
-		startsWith(currentInfo.path, "http://youtu.be")) {
+	if(path.find("youtube.com/") != string::npos ||
+		path.find("youtu.be/") != string::npos) {
 		bool inId = false;
-		auto parts = split_if(currentInfo.path, [&inId](char c) -> bool {
+		auto parts = split_if(path, [&inId](char c) -> bool {
 			const static string ytchars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
 			bool found;
 			if(inId) {
@@ -369,9 +376,13 @@ void MusicPlayerList::playCurrent() {
 		});
 		for(int i=1; i<parts.size(); i += 2) {
 			if(parts[i].length() == 11) {
-				currentInfo.path = format("http://localhost:5000/ytmp3/%s.mp3", parts[i]);
+				path = format("http://localhost:5000/ytmp3/%s.mp3", parts[i]);
 			}
 		}
+		if(prefix != "")
+			currentInfo.path = prefix + "::" + path;
+		else
+			currentInfo.path = path;
 		LOGD("Rewrote youtube path to %s", currentInfo.path);
 	}
 

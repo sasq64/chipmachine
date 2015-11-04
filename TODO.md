@@ -10,7 +10,6 @@
 * Common resampler in player, not in plugins
 
 * Repeating tweens sometimes die (title scrolling stops, selection hilight gone)
-* Unpause when starting new song
 * webgetter renaming fails when downloading the same song in parallell.
 * Format colors wrong
 * Parse collection color from db.lua ?
@@ -20,7 +19,16 @@
 * Preload next song (RemoteLoader.assureCached() ?)
 * Indicate error if lua fails
 
+* Pause tween not stopped when new song starts
+
+
 ## TASKS / FEATURES
+
+* Seeking in MP3s
+* Seeking in MP3 streams
+* Shuffle current play queue
+
+* Print more info (KB size, source)
 
 ### Deal with different encodings
 
@@ -29,6 +37,18 @@
 Problem: Some SNG files does not require INS files.
 
 Problem: We want to treat some multi song files as one song with subtunes
+
+### Playlist support
+
+Multiple playlists
+Online playlist
+Smart playlists
+
+Separate Playlist / Playqueue screen with edit capabilities
+
+
+======================================================================================
+
 
 *DO:*
 
