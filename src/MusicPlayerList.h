@@ -19,6 +19,10 @@ namespace chipmachine {
 
 class ChipMachine;
 
+#ifdef _WIN32
+#undef ERROR
+#endif
+
 class MusicPlayerList {
 public:
 	enum State {

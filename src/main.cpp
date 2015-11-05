@@ -13,11 +13,14 @@
 #include <musicplayer/PSFFile.h>
 #include <coreutils/format.h>
 #include <coreutils/var.h>
+
+#ifndef _WIN32
 #include <bbsutils/console.h>
+#define ENABLE_CONSOLE
+#endif
 
 #include <vector>
 
-#define ENABLE_CONSOLE
 
 using namespace std;
 using namespace chipmachine;
@@ -105,6 +108,7 @@ int main(int argc, char *argv[]) {
 			          info.title != "" ? info.title : utils::path_filename(songs[pos - 1].path));
 			while(pl.playing()) {
 				pl.update();
+#ifdef ENABLE_CONSOLE
 				if(c) {
 					auto k = c->getKey(100);
 					if(k != Console::KEY_TIMEOUT) {
@@ -115,6 +119,7 @@ int main(int argc, char *argv[]) {
 						}
 					}
 				}
+#endif
 			}
 		}
 #if 0

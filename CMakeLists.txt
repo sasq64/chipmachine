@@ -57,16 +57,20 @@ set(APONE_MODULES
 	coreutils
 	audioplayer
 	grappix
-	bbsutils
 	fft
 	archive
 	webutils
 #	json
 	luainterpreter
 	sqlite3
-	net
+#	net
 	xml
 )
+
+if(NOT WIN32)
+  set(APONE_MODULES ${APONE_MODULES} bbsutils)
+endif()
+
 add_subdirectory(${AP1_ROOT}/mods ap1mods)
 
 if(APPLE)
@@ -97,7 +101,7 @@ set(MUSICPLAYER_PLUGINS
 	gsfplugin
 )
 
-if(NOT WINDOWS)
+if(NOT WIN32)
 	set(MUSICPLAYER_PLUGINS ${MUSICPLAYER_PLUGINS} uadeplugin)
 endif()
 
