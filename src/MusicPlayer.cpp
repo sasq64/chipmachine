@@ -38,10 +38,10 @@ MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4) {
 			return;
 		}
 
+		lock_guard<mutex> guard(fftMutex);
 		if(fifo.filled() >= size) {
 			fifo.get(ptr, size);
 
-			lock_guard<mutex> guard(fftMutex);
 			pos += size / 2;
 			fft.addAudio(ptr, size);
 		} else

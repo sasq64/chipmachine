@@ -224,9 +224,12 @@ void MusicPlayerList::setPartyMode(bool on, int lockSec, int graceSec) {
 
 void MusicPlayerList::update() {
 
+
 	mp.update();
 
-	LOCK_GUARD(plMutex);
+	//LOCK_GUARD(plMutex);
+
+	RemoteLoader::getInstance().update();
 
 	if(partyMode) {
 		auto p = getPosition();

@@ -607,6 +607,7 @@ void MusicDatabase::initFromLuaAsync(const File &workDir) {
 		std::lock_guard<std::mutex>{dbMutex};
 		if(!initFromLua(workDir)) {
 		}
+		std::lock_guard<std::mutex>{chkMutex};
 		indexing = false;
 	});
 }

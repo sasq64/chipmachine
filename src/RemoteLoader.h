@@ -35,6 +35,10 @@ public:
 		lastSession = nullptr;
 	}
 
+	void update() {
+		webgetter.poll();
+	}
+
 private:
 	struct Source {
 		Source() {}

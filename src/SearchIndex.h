@@ -10,7 +10,7 @@
 #include <coreutils/thread.h>
 
 #include <coreutils/log.h>
-
+/*
 template <typename T> class Worker {
 public:
 	Worker() {
@@ -102,7 +102,7 @@ private:
 	std::vector<T> *targetVec;
 	std::function<bool(const T &)> filterFunc;
 };
-
+*/
 class SearchProvider {
 public:
 	// Search for a string, return indexes of hits
@@ -180,7 +180,7 @@ public:
 	void setFilter(std::function<bool(int)> f) { filter = f; }
 
 private:
-	Worker<int> worker;
+	//Worker<int> worker;
 
 	std::function<bool(int)> filter;
 

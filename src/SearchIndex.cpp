@@ -10,7 +10,7 @@
 using namespace std;
 using namespace utils;
 
-#define USE_THREADS
+//#define USE_THREADS
 
 // BOYER MOORE STUFF
 

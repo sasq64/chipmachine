@@ -127,8 +127,15 @@ public:
 	int getSongs(std::vector<SongInfo> &target, const SongInfo &match, int limit, bool random);
 
 	bool busy() {
-		if(indexing)
+		std::lock_guard<std::mutex>{chkMutex};
+		if(initFuture.valid()) {
+			if(initFuture.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready) {
+				initFuture.get();
+				return false;
+			}
 			return true;
+		}
+
 		if(dbMutex.try_lock()) {
 			dbMutex.unlock();
 			return false;
@@ -172,6 +179,7 @@ private:
 	std::vector<uint32_t> composerTitleStart;
 	std::vector<uint16_t> formats;
 
+	mutable std::mutex chkMutex;
 	mutable std::mutex dbMutex;
 	sqlite3db::Database db;
 
