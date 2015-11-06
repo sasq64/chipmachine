@@ -330,6 +330,7 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 // Lookup the given path in the database
 SongInfo MusicDatabase::lookup(const std::string &p) {
 
+	lock_guard<mutex>{dbMutex};
 	auto path = p;
 
 	auto parts = split(path, "::");
@@ -669,6 +670,7 @@ bool MusicDatabase::initFromLua(const File &workDir) {
 int MusicDatabase::getSongs(std::vector<SongInfo> &target, const SongInfo &match, int limit,
                             bool random) {
 
+	std::lock_guard<std::mutex>{dbMutex};
 	string txt = "SELECT path, game, title, composer, format, collection.id FROM song, collection "
 	             "WHERE song.collection = collection.ROWID";
 

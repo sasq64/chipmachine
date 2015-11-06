@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <future>
+#include <mutex>
 
 namespace chipmachine {
 
@@ -96,19 +97,25 @@ public:
 	           unsigned int searchLimit) override;
 	// Lookup internal string for index
 	std::string getString(int index) const override {
+		std::lock_guard<std::mutex>{dbMutex};
 		return utils::format("%s %s", getTitle(index), getComposer(index));
 	}
 
 	std::string getFullString(int index) const override {
+		std::lock_guard<std::mutex>{dbMutex};
 		return utils::format("%s\t%s\t%d\t%d", getTitle(index), getComposer(index), index,
 		                     formats[index]);
 	}
 	// Get full data, may require SQL query
 	SongInfo getSongInfo(int index) const; // { return getString(index); }
 
-	std::string getTitle(int index) const { return titleIndex.getString(index); }
+	std::string getTitle(int index) const {
+		std::lock_guard<std::mutex>{dbMutex};
+	   	return titleIndex.getString(index);
+	}
 
 	std::string getComposer(int index) const {
+		std::lock_guard<std::mutex>{dbMutex};
 		return composerIndex.getString(titleToComposer[index]);
 	}
 
@@ -165,7 +172,7 @@ private:
 	std::vector<uint32_t> composerTitleStart;
 	std::vector<uint16_t> formats;
 
-	std::mutex dbMutex;
+	mutable std::mutex dbMutex;
 	sqlite3db::Database db;
 
 	uint16_t dbVersion;

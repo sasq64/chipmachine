@@ -226,6 +226,8 @@ void MusicPlayerList::update() {
 
 	mp.update();
 
+	LOCK_GUARD(plMutex);
+
 	if(partyMode) {
 		auto p = getPosition();
 		if(partyLockDown) {
@@ -276,7 +278,6 @@ void MusicPlayerList::update() {
 
 	if(state == FADING) {
 		if(mp.getFadeVolume() <= 0.01) {
-			LOCK_GUARD(plMutex);
 			LOGD("STATE: Music ended");
 			if(playList.size() == 0)
 				state = STOPPED;
@@ -294,7 +295,6 @@ void MusicPlayerList::update() {
 
 	if(state == WAITING && playList.size() > 0) {
 		{
-			LOCK_GUARD(plMutex);
 			state = STARTED;
 			currentInfo = playList.front();
 			playList.pop_front();
