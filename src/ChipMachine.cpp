@@ -500,6 +500,7 @@ void ChipMachine::render(uint32_t delta) {
 #ifdef ENABLE_TELNET
 	    WebRPC::inProgress() > 0 ||
 #endif
+		player.getState() == MusicPlayerList::LOADING ||
 	    webutils::Web::inProgress() > 0) {
 		screen.draw(netTexture, 2, 2, 8 * 3, 5 * 3, nullptr);
 	}

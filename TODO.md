@@ -47,6 +47,28 @@ Smart playlists
 Separate Playlist / Playqueue screen with edit capabilities
 
 
+
+Simple JobSystem
+WebGetter
+
+JOB SYSTEM
+==========
+
+Job dependencies
+Jobs in progress
+Cancel jobs (and job chain)
+
+Job outputs (data, file...)
+Remove files
+
+
+
+
+
+
+
+
+
 ======================================================================================
 
 
