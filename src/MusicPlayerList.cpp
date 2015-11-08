@@ -290,6 +290,13 @@ void MusicPlayerList::update() {
 	}
 
 	if(state == LOADING) {
+		if(ytfuture.valid()) {
+			if(ytfuture.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready) {
+				string id = ytfuture.get();
+				LOGD("Converted %s", id);
+				playFile(loadedFile);
+			}
+		} else
 		if(files == 0) {
 			RemoteLoader::getInstance().cancel();
 			playFile(loadedFile);
@@ -346,6 +353,45 @@ void MusicPlayerList::playCurrent() {
 		currentInfo = MusicDatabase::getInstance().getSongInfo(index);
 	}
 
+	if(path.find("youtube.com/") != string::npos ||
+		path.find("youtu.be/") != string::npos) {
+		bool inId = false;
+		string id;
+		auto parts = split_if(path, [&inId](char c) -> bool {
+			const static string ytchars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
+			bool found;
+			if(inId) {
+				found = (ytchars.find(c) == string::npos);
+			} else {
+				found =	(ytchars.find(c) != string::npos);
+			}
+			if(found)
+				inId = !inId;
+			return found;
+		});
+		for(int i=1; i<parts.size(); i += 2) {
+			if(parts[i].length() == 11) {
+				id = parts[i];
+			}
+		}
+		File ytDir = File::getCacheDir() / "youtube";
+		if(!ytDir.exists())
+			makedir(ytDir);
+		loadedFile = ytDir / (id + ".mp3");
+		if(!File::exists(loadedFile)) {
+			File ytExe = File::getExeDir() / "youtube-dl";
+			string cl = format("youtube-dl -o %s/%s.m4a -x %s --audio-format=mp3",
+				       ytDir.getName(), id, path);
+			LOGD("Async convert youtube\n%s", cl);
+			ytfuture = std::async([=]() -> string {
+				system(cl.c_str());
+				return id;
+			});
+			return;
+		} else
+			currentInfo.path = loadedFile;
+	}
+
 	if(File::exists(currentInfo.path)) {
 		loadedFile = currentInfo.path;
 		files = 0;
@@ -361,33 +407,6 @@ void MusicPlayerList::playCurrent() {
 	string ext2;
 	if(fmt_2files.count(ext) > 0)
 		ext2 = fmt_2files.at(ext);
-
-	if(path.find("youtube.com/") != string::npos ||
-		path.find("youtu.be/") != string::npos) {
-		bool inId = false;
-		auto parts = split_if(path, [&inId](char c) -> bool {
-			const static string ytchars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
-			bool found;
-			if(inId) {
-				found = (ytchars.find(c) == string::npos);
-			} else {
-				found =	(ytchars.find(c) != string::npos);
-			}
-			if(found)
-				inId = !inId;
-			return found;
-		});
-		for(int i=1; i<parts.size(); i += 2) {
-			if(parts[i].length() == 11) {
-				path = format("http://localhost:5000/ytmp3/%s.mp3", parts[i]);
-			}
-		}
-		if(prefix != "")
-			currentInfo.path = prefix + "::" + path;
-		else
-			currentInfo.path = path;
-		LOGD("Rewrote youtube path to %s", currentInfo.path);
-	}
 
 	RemoteLoader &loader = RemoteLoader::getInstance();
 

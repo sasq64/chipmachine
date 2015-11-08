@@ -94,7 +94,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 			auto youtube = i["youtube"].text();
 
 			LOGD("%s / %s (%s)", title, group, youtube);
-			query.bind(title, "", group, "MP3", youtube, collection_id).step();
+			query.bind(title, "", group, "Youtube", youtube, collection_id).step();
 		}		
 	}
 	else

@@ -14,6 +14,7 @@
 #include <coreutils/thread.h>
 #include <cstdint>
 #include <deque>
+#include <future>
 
 namespace chipmachine {
 
@@ -139,6 +140,8 @@ private:
 
 	std::atomic<int> files;
 	std::string loadedFile;
+
+	std::future<std::string> ytfuture;
 
 	// WebGetter webgetter;
 	// RemoteLoader loader;
