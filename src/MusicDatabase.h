@@ -67,6 +67,8 @@ enum Formats {
 
 	OGG,
 
+	YOUTUBE,
+
 	PC,
 
 	ADPLUG,

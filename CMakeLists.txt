@@ -121,6 +121,10 @@ endif()
 #add_executable(modland modland.cpp)
 #target_link_libraries(modland coreutils)
 
+if(WIN32)
+set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -mwindows)
+endif()
+
 target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
 SET_DATA_FILES(data lua)
 

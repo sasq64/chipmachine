@@ -9,6 +9,7 @@
 
 #include <cstddef>
 
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
 class TextField : public Renderable {
 public:
 	TextField() : pos(0, 0), scale(1.0), color(0xffffffff), add(0), text(""), tsize(-1, -1) {

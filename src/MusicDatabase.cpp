@@ -111,13 +111,16 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 			done = true;
 		});
 */
-		webutils::Web::get_url(song_list, [&](const string &data) {
+		webutils::Web web;
+		web.get(song_list, [&](const string &data) {
 			xml = data;
 			done = true;
 		});
 
-		while(!done)
+		while(!done) {
+			web.poll();
 			sleepms(100);
+		}
 
 		auto doc = xmldoc::fromText(xml);
 		for(const auto &i : doc["rss"]["channel"].all("item")) {
@@ -415,7 +418,7 @@ void initFormats() {
 	format_map["c64 event"] = PLAYLIST;
 }
 
-static uint8_t formatToByte(const std::string &fmt) {
+static uint8_t formatToByte(const std::string &fmt, const std::string &path, int coll) {
 
 	static bool init = false;
 	if(!init) {
@@ -429,6 +432,10 @@ static uint8_t formatToByte(const std::string &fmt) {
 
 		l = UNKNOWN_FORMAT;
 
+		if((path.find("youtube.com/") != string::npos) || (path.find("youtu.be/") != string::npos)) {
+			return YOUTUBE;
+		}
+		
 		if(endsWith(f, "tracker"))
 			l = TRACKER;
 		if(startsWith(f, "protracker"))
@@ -555,7 +562,7 @@ void MusicDatabase::generateIndex() {
 
 		tie(title, game, fmt, composer, path, collection) = query.get_tuple();
 
-		uint8_t b = formatToByte(fmt);
+		uint8_t b = formatToByte(fmt, path, collection);
 		formats.push_back(b | (collection << 8));
 
 		if(game != "") {

@@ -162,6 +162,8 @@ private:
 	int graceSeconds = 3;
 	int lockSeconds = 60;
 
+	bool detectSilence = true;
+
 	// RemoteLists &tracker;
 };
 

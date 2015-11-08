@@ -266,7 +266,7 @@ void MusicPlayerList::update() {
 				LOGD("STATE: Song length exceeded");
 				mp.fadeOut(3.0);
 				state = FADING;
-			} else if(mp.getSilence() > 44100 * 6 && pos > 7) {
+			} else if(detectSilence && mp.getSilence() > 44100 * 6 && pos > 7) {
 				LOGD("STATE: Silence detected");
 				mp.fadeOut(0.5);
 				state = FADING;
@@ -379,18 +379,32 @@ void MusicPlayerList::playCurrent() {
 			makedir(ytDir);
 		loadedFile = ytDir / (id + ".mp3");
 		if(!File::exists(loadedFile)) {
-			File ytExe = File::getExeDir() / "youtube-dl";
-			string cl = format("youtube-dl -o %s/%s.m4a -x %s --audio-format=mp3",
+			File ytExe = File::getExeDir() / "ffmpeg/youtube-dl.exe";
+#ifdef _WIN32
+			string cl = format("%s -o %s/%s.m4a -x \"%s\" --audio-format=mp3",
+				       ytExe.getName(), ytDir.getName(), id, path);
+#else
+			string cl = format("youtube-dl -o %s/%s.m4a -x \"%s\" --audio-format=mp3",
 				       ytDir.getName(), id, path);
+#endif			
 			LOGD("Async convert youtube\n%s", cl);
-			ytfuture = std::async([=]() -> string {
-				system(cl.c_str());
+			ytfuture = std::async(std::launch::async, [=]() -> string {
+				LOGD("Running");
+				int rc = system(cl.c_str());
+				LOGD("RES %d", rc);
 				return id;
 			});
 			return;
 		} else
 			currentInfo.path = loadedFile;
 	}
+
+	auto ext = path_extension(path);
+	makeLower(ext);
+
+	detectSilence = true;
+	if(ext == "mp3")
+		detectSilence = false;
 
 	if(File::exists(currentInfo.path)) {
 		loadedFile = currentInfo.path;
@@ -400,8 +414,6 @@ void MusicPlayerList::playCurrent() {
 
 	loadedFile = "";
 
-	auto ext = path_extension(path);
-	makeLower(ext);
 	// LOGD("EXT: %s", ext);
 	files = 1;
 	string ext2;
