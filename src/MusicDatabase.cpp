@@ -143,7 +143,8 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 
 	} else if(File::exists(local_dir) && !isModland) {
 
-		makedir(".rsntemp");
+		makedir(File::getCacheDir() / ".rsntemp");
+
 		function<void(File &)> checkDir;
 		checkDir = [&](File &root) {
 			LOGD("DIR %s", root.getName());

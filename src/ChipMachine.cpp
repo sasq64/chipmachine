@@ -48,7 +48,6 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 			text = format("%s / %s", parts[0], parts[1]);
 
 		auto it = --colors.upper_bound(f);
-		LOGD("%02x => %02x", f, it->first);
 		c = it->second;
 		c = c * 0.75f;
 	}
@@ -165,7 +164,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 	searchScreen.add(&commandField);
 	commandField.visible(false);
 
-	scrollEffect.set("scrolltext", "Chipmachine Beta 5 -- Just type to search -- UP/DOWN to select "
+	scrollEffect.set("scrolltext", "Chipmachine Beta 6 -- Just type to search -- UP/DOWN to select "
 	                               "-- ENTER to play, SHIFT+ENTER to enque -- LEFT/RIGHT for "
 	                               "subsongs -- F6 for next song -- F5 for pause -- CTRL+1 to 5 "
 	                               "for shuffle play -- F8 to clear queue -- ESCAPE to clear "

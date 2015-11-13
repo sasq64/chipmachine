@@ -174,7 +174,8 @@ bool parseSnes(SongInfo &info) {
 
 	info.format = "Super Nintendo";
 
-	auto *a = Archive::open(info.path, ".rsntemp", Archive::TYPE_RAR);
+	File outDir = File::getCacheDir() / ".rsntemp";
+	auto *a = Archive::open(info.path, outDir, Archive::TYPE_RAR);
 	// LOGD("ARCHIVE %p", a);
 	bool done = false;
 	for(auto s : *a) {
@@ -183,7 +184,7 @@ bool parseSnes(SongInfo &info) {
 			continue;
 		if(path_extension(s) == "spc") {
 			a->extract(s);
-			File f{".rsntemp/" + s};
+			File f = outDir / s;
 			f.read(&buffer[0], buffer.size());
 			f.close();
 			if(buffer[0x23] == 0x1a) {

@@ -4,7 +4,7 @@
 -- local_dir : If exists, will be checked first for files before downloading. Also used to create song list
 -- If song_list or or source can not be found, database will not be added
 
-VERSION = 3;
+VERSION = 4;
 
 DB = {
 {
@@ -97,12 +97,12 @@ DB = {
 	type = "bitjam",
 	song_list = "http://www.bitfellas.org/podcast/podcast.xml",
 	color = 0xfffff
-},
-{
-	name = "Pouet/Youtube",
-	type = "pouet",
-	source = "",
-	song_list = "data/pouet_youtube.xml",
-	color = 0xfffff
 }
+--,{
+--	name = "Pouet/Youtube",
+--	type = "pouet",
+--	source = "",
+--	song_list = "data/pouet_youtube.xml",
+--	color = 0xfffff
+--}
 };
