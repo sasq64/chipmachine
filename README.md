@@ -1,21 +1,42 @@
 chipmachine
 ===========
 
-A portable, multi format, demo scene C++ music player 
+## Intro
 
-## Building the main application (Linux/Debian)
+*A demoscene/retro Jukebox/spotify-like  music player*
 
-#### All required packages (hopefully):
+* **Type anything to incrementally search in entire database**
+![ONE](http://apone.org:8080/chipmachine/cs1.png)
 
-	# sudo apt-get install cmake git g++ zlib1g-dev libao-dev libgl1-mesa-dev libasound2-dev libglfw3-dev libcurl4-gnutls-dev libglew-dev 
+* **Hit enter to play directly**
+![TWO](http://apone.org:8080/chipmachine/cs2.png)
 
-#### Building:
+
+## Building
 
 	# git clone https://github.com/sasq64/apone.git
 	# git clone https://github.com/sasq64/chipmachine.git
 	# mkdir build ; cd build
 	# cmake ../chipmachine -DCMAKE_BUILD_TYPE=Release
 	# make -j8
+
+### Linux/Debian
+
+	# sudo apt-get install cmake git g++ zlib1g-dev libao-dev libgl1-mesa-dev libasound2-dev libglfw3-dev libcurl4-gnutls-dev libglew-dev libmpg123-dev
+
+### OSX
+
+	# brew install ...
+
+
+### Windows
+
+* Requires Mingw x64 (Recommend MSYS2)
+
+### Raspberry PI
+
+...
+
 
 ## Using the application
 
@@ -28,18 +49,19 @@ A portable, multi format, demo scene C++ music player
 * *SHIFT-ESC* = Quit
 * *F7* = Toggle Favorite
 
-## Configuring the application
+## Data Sources
 
-* Start with *-f* for fullscreen or *-d* for debug output
-* Checkout `lua/screen.lua` for GUI layout
+* Modland - http://ftp.modland.com/
+* High Voltage SID collection - http://www.hvsc.c64.org/
+* Amiga remix - http://amigaremix.com/
+* RKO - http://remix.kwed.org/
+* Atari ST - http://sndh.atari.org/
+* SNES Music - http://snesmusic.org/
+* Atari SAP - http://asma.atari.org
+* Bitjam Podcasts - http://www.bitfellas.org/podcast/
+* CSDb Demos - http://csdb.dk/
+* Sounds of Scenesat - http://sos.scenesat.com/
 
-## Raspberry PI notes
+## Formats
 
-* Building on the PI takes about 100x longer
-* Database and index are generated on first start which may take some time
-
-## For developers
-
-* Look at the minimal player in `miniplay/` to see how the plugin interface works.
-* Build it with make -f miniplay.mk
-
+Many
