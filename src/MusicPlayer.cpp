@@ -83,7 +83,7 @@ void MusicPlayer::update() {
 				break;
 
 			if(rc < 0) {
-				LOGD("PLAY ENDED %d vs %d", rc, f - 1024);
+				//LOGD("PLAY ENDED %d vs %d", rc, f - 1024);
 				playEnded = true;
 				break;
 			}

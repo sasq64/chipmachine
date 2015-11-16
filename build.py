@@ -3,7 +3,9 @@
 import os.path
 import subprocess
 import argparse
+import platform
 
+osname = platform.system()
 
 def which(program):
     import os
@@ -45,7 +47,11 @@ args = parser.parse_args()
 configs = { 'release' : [ 'release', '-DCMAKE_BUILD_TYPE=Release' ],
             'debug' : [ 'debug', '-DCMAKE_BUILD_TYPE=Debug' ]
           }
-buildsystems = { 'ninja' : [ '-GNinja',  ] }
+buildsystems = { 'make' : ['-GUnix Makefiles'],
+                 'ninja' : [ '-GNinja',  ] 
+               }
+
+buildTool = args.buildsystem;
 buildArgs = []
 buildArgs.append(configs[args.config][1])
 buildArgs.append(buildsystems[args.buildsystem][0])
@@ -63,12 +69,18 @@ if args.actions == 'build' :
 for a in args.actions :
     a = a.strip()
     if a == 'build' :
-        if not os.path.isfile(os.path.join(outputDir, 'CMakeCache.txt')) :
+        if not os.path.isfile(os.path.join(outputDir, 'build.ninja')) :
             subprocess.call(['cmake', '-B' + outputDir, '-H.'] + buildArgs)
-        subprocess.call(['ninja', '-C', outputDir])
+        args = [buildTool, '-C', outputDir]
+        if buildTool == 'make' :
+            args.append('-j8')
+        subprocess.call(args)
     elif a == 'clean' :
-        subprocess.call(['ninja', '-C', outputDir, 'clean'])
+        subprocess.call([buildTool, '-C', outputDir, 'clean'])
     elif a == 'run' :
-        exe = os.path.join(outputDir, 'Chipmachine.app/Contents/MacOS/chipmachine')
+        if osname == 'Darwin' :
+            exe = os.path.join(outputDir, 'Chipmachine.app/Contents/MacOS/chipmachine')
+        else :
+            exe = os.path.join(outputDir, 'chipmachine')
         os.system(exe + ' -d')
 

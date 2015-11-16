@@ -389,9 +389,7 @@ void MusicPlayerList::playCurrent() {
 #endif			
 			LOGD("Async convert youtube\n%s", cl);
 			ytfuture = std::async(std::launch::async, [=]() -> string {
-				LOGD("Running");
 				int rc = system(cl.c_str());
-				LOGD("RES %d", rc);
 				return id;
 			});
 			return;

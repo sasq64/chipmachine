@@ -449,7 +449,8 @@ void ChipMachine::updateKeys() {
 		if(i >= 0) {
 			SongInfo song = MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
 			auto ext = path_extension(song.path);
-			topStatus.setText(format("Format: %s (%s)", song.format, ext));
+			bool isoffline = RemoteLoader::getInstance().isOffline(song.path);
+			topStatus.setText(format("Format: %s (%s)%s", song.format, ext, isoffline ? "*" : ""));
 			// searchField->color = Color(formatColor);
 		} else
 			topStatus.setText("Format: Playlist");

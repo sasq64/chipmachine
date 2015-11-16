@@ -153,8 +153,8 @@ ChipMachine::ChipMachine(const std::string &wd)
 	resizeDelay = 0;
 
 	songList =
-	    VerticalList(this, grappix::Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x,
-	                                          downRight.y - topLeft.y - 28),
+	    VerticalList(this, grappix::Rectangle(topLeft.x, topLeft.y + 30 * searchField.scale, screen.width() - topLeft.x,
+	                                          downRight.y - topLeft.y - searchField.scale * 30),
 	                 numLines);
 	// playlistField = TextField(listFont, "Favorites", downRight.x - 80, downRight.y - 10, 0.5,
 	// 0xff888888);

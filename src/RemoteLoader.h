@@ -24,6 +24,8 @@ public:
 
 	bool inCache(const std::string &path) const;
 
+	bool isOffline(const std::string &p);
+
 	static RemoteLoader &getInstance() {
 		static RemoteLoader loader;
 		return loader;

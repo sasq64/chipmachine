@@ -38,18 +38,24 @@ public:
 	int getWidth() {
 		if(tsize.x == -1)
 			tsize = font.get_size(text, scale);
-			return tsize.x;
-		}
+		return tsize.x;
+	}
 
-		void setFont(const grappix::Font &f) { font = f; }
+	int getHeight() {
+		if(tsize.x == -1)
+			tsize = font.get_size(text, scale);
+		return tsize.y;
+	}
 
-		virtual void render(uint32_t delta) override {
-			if(color.a == 0.0)
-				return;
-			if(tsize.x == -1)
-				tsize = font.get_size(text, scale);
-			target->text(font, text, pos.x, pos.y, color + add, scale);
-		}
+	void setFont(const grappix::Font &f) { font = f; }
+
+	virtual void render(uint32_t delta) override {
+		if(color.a == 0.0)
+			return;
+		if(tsize.x == -1)
+			tsize = font.get_size(text, scale);
+		target->text(font, text, pos.x, pos.y, color + add, scale);
+	}
 
 		struct iterator {
 			iterator(TextField *field, int index) : field(field), index(index) {}
