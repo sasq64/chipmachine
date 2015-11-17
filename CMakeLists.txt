@@ -133,7 +133,6 @@ if(APPLE)
 	set(DIRS "")
 	install(CODE "
 	   file(COPY \"${CMAKE_SOURCE_DIR}/note.png\" DESTINATION Chipmachine.app/Contents/)
-	   file(COPY /Library/Frameworks/SDL.framework DESTINATION Chipmachine.app/Contents/Frameworks/)
 	   file(COPY \"${CMAKE_SOURCE_DIR}/Info.plist\" DESTINATION Chipmachine.app/Contents/)
 	   include(BundleUtilities)
        fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
