@@ -1,6 +1,5 @@
 #include "MusicPlayerList.h"
 
-#include <musicplayer/PSFFile.h>
 #include <coreutils/log.h>
 #include <coreutils/utils.h>
 #include <algorithm>
@@ -353,50 +352,6 @@ void MusicPlayerList::playCurrent() {
 		currentInfo = MusicDatabase::getInstance().getSongInfo(index);
 	}
 
-	if(path.find("youtube.com/") != string::npos ||
-		path.find("youtu.be/") != string::npos) {
-		bool inId = false;
-		string id;
-		auto parts = split_if(path, [&inId](char c) -> bool {
-			const static string ytchars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_";
-			bool found;
-			if(inId) {
-				found = (ytchars.find(c) == string::npos);
-			} else {
-				found =	(ytchars.find(c) != string::npos);
-			}
-			if(found)
-				inId = !inId;
-			return found;
-		});
-		for(int i=1; i<parts.size(); i += 2) {
-			if(parts[i].length() == 11) {
-				id = parts[i];
-			}
-		}
-		File ytDir = File::getCacheDir() / "youtube";
-		if(!ytDir.exists())
-			makedir(ytDir);
-		loadedFile = ytDir / (id + ".mp3");
-		if(!File::exists(loadedFile)) {
-			File ytExe = File::getExeDir() / "ffmpeg/youtube-dl.exe";
-#ifdef _WIN32
-			string cl = format("%s -o %s/%s.m4a -x \"%s\" --audio-format=mp3",
-				       ytExe.getName(), ytDir.getName(), id, path);
-#else
-			string cl = format("youtube-dl -o %s/%s.m4a -x \"%s\" --audio-format=mp3",
-				       ytDir.getName(), id, path);
-#endif			
-			LOGD("Async convert youtube\n%s", cl);
-			ytfuture = std::async(std::launch::async, [=]() -> string {
-				int rc = system(cl.c_str());
-				return id;
-			});
-			return;
-		} else
-			currentInfo.path = loadedFile;
-	}
-
 	auto ext = path_extension(path);
 	makeLower(ext);
 
@@ -414,9 +369,6 @@ void MusicPlayerList::playCurrent() {
 
 	// LOGD("EXT: %s", ext);
 	files = 1;
-	string ext2;
-	if(fmt_2files.count(ext) > 0)
-		ext2 = fmt_2files.at(ext);
 
 	RemoteLoader &loader = RemoteLoader::getInstance();
 
@@ -438,6 +390,9 @@ void MusicPlayerList::playCurrent() {
 		return;
 	}
 
+	string ext2;
+	if(fmt_2files.count(ext) > 0)
+		ext2 = fmt_2files.at(ext);
 	if(ext2 != "") {
 		files++;
 		auto smpl_file =
@@ -454,9 +409,7 @@ void MusicPlayerList::playCurrent() {
 
 	// LOGD("LOADING:%s", currentInfo.path);
 	loader.load(currentInfo.path, [=](File f0) {
-		// LOGD("Got file");
 		if(f0 == File::NO_FILE) {
-			// toast("Could not load file");
 			errors.push_back("Could not load file");
 			state = ERROR;
 			files--;
@@ -465,54 +418,22 @@ void MusicPlayerList::playCurrent() {
 		loadedFile = f0.getName();
 		auto ext = toLower(path_extension(loadedFile));
 		LOGD("Loaded file '%s'", loadedFile);
-		if(ext == "mdx") {
-			vector<uint8_t> header(2048);
-			f0.read(&header[0], 2048);
-			for(int i = 0; i < 2045; i++) {
-				if(header[i] == 0x0d && header[i + 1] == 0xa && header[i + 2] == 0x1a) {
-					if(header[i + 3] != 0) {
-						auto pdxFile = string((char *)&header[i + 3]) + ".pdx";
-						auto target = path_directory(loadedFile) + "/" + pdxFile;
-						LOGD("Checking for pdx %s", target);
-						if(!File::exists(target)) {
-							auto url = path_directory(currentInfo.path) + "/" + pdxFile;
-							files++;
-							RemoteLoader &loader = RemoteLoader::getInstance();
-							loader.load(url, [=](File f) { files--; });
-						}
-					}
-					break;
-				}
-			}
-		}
-		PSFFile f{loadedFile};
-		if(f.valid()) {
-			LOGD("IS PSF");
-			auto lib = f.tags()["_lib"];
-			if(lib != "") {
-				auto lib_target = path_directory(loadedFile) + "/" + lib;
-				makeLower(lib);
-				auto lib_url = path_directory(currentInfo.path) + "/" + lib;
-				LOGD("LIB:%s", lib_target);
-				// if(!File::exists(lib_target)) {
+		auto parentDir = File(path_directory(loadedFile));
+		auto fileList = mp.getSecondaryFiles(f0);
+		for(auto s : fileList) {
+			File target = parentDir / s;
+			if(!target.exists()) {
 				files++;
-				LOGD("Loading library file '%s'", lib_url);
 				RemoteLoader &loader = RemoteLoader::getInstance();
-				loader.load(lib_url, [=](File f) {
-					File targetFile{lib_target};
-					if(f == File::NO_FILE) {
-						errors.push_back("Could not load lib file");
-						state = ERROR;
-					} else if(f != targetFile) {
-						LOGD("Got lib file %s, copying to %s", f.getName(), targetFile.getName());
-						File::copy(f.getName(), lib_target);
-					}
+				auto url = path_directory(currentInfo.path) + "/" + s;
+				loader.load(url, [=](File f) {
+					LOGD("Copying 2ndary file to %s", target.getName());
+					File::copy(f.getName(), target);
 					files--;
-					LOGD("Files now %d", files);
 				});
-				//}
 			}
 		}
+
 		files--;
 	});
 }

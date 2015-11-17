@@ -3,7 +3,6 @@
 
 #include "SongInfo.h"
 
-//#include <musicplayer/common/fifo.h>
 #include <coreutils/fifo.h>
 
 #include <fft/spectrum.h>
@@ -48,6 +47,11 @@ public:
 	uint32_t getLength() { return length; }
 
 	// void addStreamData(uint8_t *ptr, int size);
+
+	// Asks the plugin if the given file requires secondary files.
+	// Can be called several times, normally first with non-existing
+	// file, and later with the loaded file
+	std::vector<std::string> getSecondaryFiles(const std::string &name);
 
 	void pause(bool dopause = true);
 

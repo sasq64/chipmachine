@@ -5,6 +5,7 @@
 #include <coreutils/format.h>
 
 #include <audioplayer/audioplayer.h>
+#include <musicplayer/PSFFile.h>
 
 #include <musicplayer/plugins/plugins.h>
 
@@ -285,6 +286,31 @@ void MusicPlayer::setVolume(float v) {
 
 float MusicPlayer::getVolume() {
 	return volume;
+}
+
+
+vector<string> MusicPlayer::getSecondaryFiles(const string &name) {
+
+	File file { name };
+	if(file.exists()) {
+
+		PSFFile f {name};
+		if(f.valid()) {
+			LOGD("IS PSF");
+			auto lib = f.tags()["_lib"];
+			if(lib != "") {
+				makeLower(lib);
+				return vector<string> { lib };
+			}
+		}
+
+		for(auto &plugin : plugins) {
+			if(plugin->canHandle(name)) {
+				return plugin->getSecondaryFiles(file);
+			}
+		}
+	}
+	return vector<string>();
 }
 
 // PRIVATE
