@@ -84,7 +84,6 @@ void MusicPlayer::update() {
 				break;
 
 			if(rc < 0) {
-				//LOGD("PLAY ENDED %d vs %d", rc, f - 1024);
 				playEnded = true;
 				break;
 			}
@@ -293,15 +292,19 @@ vector<string> MusicPlayer::getSecondaryFiles(const string &name) {
 
 	File file { name };
 	if(file.exists()) {
-
-		PSFFile f {name};
+		PSFFile f{name};
 		if(f.valid()) {
 			LOGD("IS PSF");
-			auto lib = f.tags()["_lib"];
-			if(lib != "") {
-				makeLower(lib);
-				return vector<string> { lib };
+			const string tagNames[] = { "_lib", "_lib2", "_lib3", "_lib4" };
+			vector<string> libFiles;
+			for(int i=0; i<4; i++) {
+				auto lib = f.tags()[tagNames[i]];
+				if(lib != "") {
+					makeLower(lib);
+					libFiles.push_back(lib);
+				}
 			}
+			return libFiles;
 		}
 
 		for(auto &plugin : plugins) {

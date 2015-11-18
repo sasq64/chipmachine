@@ -1,7 +1,7 @@
 #include "ChipMachine.h"
 #include "PlaylistDatabase.h"
 #include "Icons.h"
-
+#include "version.h"
 #include <cctype>
 #include <map>
 
@@ -164,7 +164,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 	searchScreen.add(&commandField);
 	commandField.visible(false);
 
-	scrollEffect.set("scrolltext", "Chipmachine Beta 6 -- Just type to search -- UP/DOWN to select "
+	scrollEffect.set("scrolltext", "Chipmachine " VERSION_STR " -- Just type to search -- UP/DOWN to select "
 	                               "-- ENTER to play, SHIFT+ENTER to enque -- LEFT/RIGHT for "
 	                               "subsongs -- F6 for next song -- F5 for pause -- CTRL+1 to 5 "
 	                               "for shuffle play -- F8 to clear queue -- ESCAPE to clear "

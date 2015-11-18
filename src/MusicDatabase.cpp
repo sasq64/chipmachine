@@ -45,6 +45,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 
 	reindexNeeded = true;
 
+	// Formats to exclude. Currently only used for MODLAND
 	auto ex_copy = exclude;
 	auto parts = split(xformats, ";");
 	for(const auto &p : parts) {

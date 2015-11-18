@@ -11,22 +11,7 @@ using namespace utils;
 namespace chipmachine {
 
 
-std::vector<std::string> split_if(const std::string &text, std::function<bool(char)> f) {
-	vector<string> res;
-	int start = 0;
-	for(int i=0; i<text.length(); i++) {
-		if(f(text[i])) {
-			res.push_back(text.substr(start, i-start));
-			start = i;
-		}
-	}
-	if(start < text.length())
-		res.push_back(text.substr(start));
-	return res;
-}
-
-MusicPlayerList::MusicPlayerList(const std::string &workDir)
-    : mp(workDir) { //: webgetter(File::getCacheDir() + "_webfiles") {
+MusicPlayerList::MusicPlayerList(const std::string &workDir) : mp(workDir) {
 	SET_STATE(STOPPED);
 	wasAllowed = true;
 	permissions = 0xff;
@@ -37,7 +22,6 @@ MusicPlayerList::MusicPlayerList(const std::string &workDir)
 			sleepms(100);
 		}
 	});
-	// playerThread.start();
 }
 
 bool MusicPlayerList::checkPermission(int flags) {
@@ -54,12 +38,6 @@ bool MusicPlayerList::addSong(const SongInfo &si, bool shuffle) {
 		return false;
 	LOCK_GUARD(plMutex);
 
-	// LOGD("Add song %s %s %s %s", si.path, si.title, si.composer, si.format);
-
-	// if(pos >= 0) {
-	// 	if((int)playList.size() >= pos)
-	// 		playList.insert(playList.begin() + pos, si);
-	// } else {
 	if(partyMode || shuffle) {
 		if(partyMode && playList.size() >= 50) {
 			wasAllowed = false;
@@ -70,7 +48,6 @@ bool MusicPlayerList::addSong(const SongInfo &si, bool shuffle) {
 		LOGD("PUSH %s", si.path);
 		playList.push_back(si);
 	}
-	//}
 	return true;
 }
 
@@ -100,7 +77,6 @@ void MusicPlayerList::playSong(const SongInfo &si) {
 }
 
 void MusicPlayerList::updateInfo() {
-	//LOCK_GUARD(plMutex);
 	auto si = mp.getPlayingInfo();
 	if(si.title != "")
 		currentInfo.title = si.title;
@@ -121,8 +97,6 @@ void MusicPlayerList::seek(int song, int seconds) {
 	mp.seek(song, seconds);
 	if(song >= 0)
 		changedSong = true;
-
-	// updateInfo();
 }
 
 uint16_t *MusicPlayerList::getSpectrum() {
@@ -156,59 +130,50 @@ int MusicPlayerList::listSize() {
 /// PRIVATE
 
 bool MusicPlayerList::playFile(const std::string &fileName) {
-	// LOCK_GUARD(plMutex);
-	if(fileName != "") {
+	if(fileName == "")
+		return false;
+	
+	if(path_extension(fileName) == "plist") {
+		playList.clear();
+		File f{fileName};
 
-		if(path_extension(fileName) == "plist") {
-			playList.clear();
-			File f{fileName};
+		auto lines = f.getLines();
 
-			auto lines = f.getLines();
-
-			lines.erase(std::remove_if(lines.begin(), lines.end(),
-			                           [=](const string &l) {
-				                           if(l[0] == ';') {
-					                           return true;
-				                           }
-				                           return false;
-				                       }),
-			            lines.end());
-			/*
-			            if(lines.size() > 10) {
-			                std::random_device rd;
-			                std::shuffle(lines.begin(), lines.end(), rd);
-			            }
-			*/
-			for(const string &s : lines) {
-				playList.push_back(SongInfo(s));
-			}
-			SongInfo &si = playList.front();
-			auto path = si.path;
-			si = MusicDatabase::getInstance().lookup(si.path);
-			if(si.path == "") {
-				LOGD("Could not lookup '%s'", path);
-				errors.push_back("Bad song in playlist");
-				SET_STATE(ERROR);
-				return false;
-			}
-			SET_STATE(WAITING);
-			return true;
+		// Remove lines with comment character
+		lines.erase(std::remove_if(lines.begin(), lines.end(),
+								   [=](const string &l) {
+									   return l[0] == ';';
+								   }),
+					lines.end());
+		for(const string &s : lines) {
+			playList.push_back(SongInfo(s));
 		}
-
-		if(mp.playFile(fileName)) {
-#ifdef USE_REMOTELISTS
-			if(reportSongs)
-				RemoteLists::getInstance().songPlayed(currentInfo.path);
-#endif
-			changedSong = false;
-			updateInfo();
-			LOGD("STATE: Play started");
-			SET_STATE(PLAY_STARTED);
-			return true;
-		} else {
-			errors.push_back("Could not play song");
+		SongInfo &si = playList.front();
+		auto path = si.path;
+		si = MusicDatabase::getInstance().lookup(si.path);
+		if(si.path == "") {
+			LOGD("Could not lookup '%s'", path);
+			errors.push_back("Bad song in playlist");
 			SET_STATE(ERROR);
+			return false;
 		}
+		SET_STATE(WAITING);
+		return true;
+	}
+
+	if(mp.playFile(fileName)) {
+#ifdef USE_REMOTELISTS
+		if(reportSongs)
+			RemoteLists::getInstance().songPlayed(currentInfo.path);
+#endif
+		changedSong = false;
+		updateInfo();
+		LOGD("STATE: Play started");
+		SET_STATE(PLAY_STARTED);
+		return true;
+	} else {
+		errors.push_back("Could not play song");
+		SET_STATE(ERROR);
 	}
 	return false;
 }
@@ -327,13 +292,6 @@ void MusicPlayerList::update() {
 }
 
 void MusicPlayerList::playCurrent() {
-	// Music formats with 2 files
-	static const std::unordered_map<string, string> fmt_2files = {
-	    {"mdat", "smpl"}, // TFMX
-	    {"sng", "ins"},   // Richard Joseph
-	    {"jpn", "smp"},   // Jason Page PREFIX
-	    {"dum", "ins"},   // Rob Hubbard 2
-	};
 
 	SET_STATE(LOADING);
 
@@ -390,13 +348,19 @@ void MusicPlayerList::playCurrent() {
 		return;
 	}
 
+	// Known music formats with 2 files
+	static const std::unordered_map<string, string> fmt_2files = {
+	    {"mdat", "smpl"}, // TFMX
+	    {"sng", "ins"},   // Richard Joseph
+	    {"jpn", "smp"},   // Jason Page PREFIX
+	    {"dum", "ins"},   // Rob Hubbard 2
+	};
 	string ext2;
 	if(fmt_2files.count(ext) > 0)
 		ext2 = fmt_2files.at(ext);
 	if(ext2 != "") {
 		files++;
-		auto smpl_file =
-		    path_directory(currentInfo.path) + "/" + path_basename(currentInfo.path) + "." + ext2;
+		auto smpl_file = currentInfo.path.substr(0, currentInfo.path.find_last_of('.') + 1) + ext2;
 		LOGD("Loading secondary (sample) file '%s'", smpl_file);
 		loader.load(smpl_file, [=](File f) {
 			if(f == File::NO_FILE) {

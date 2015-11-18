@@ -21,7 +21,6 @@
 
 #include <vector>
 
-
 using namespace std;
 using namespace chipmachine;
 using namespace bbs;
@@ -122,63 +121,6 @@ int main(int argc, char *argv[]) {
 #endif
 			}
 		}
-#if 0
-		for(auto &s : songs) {
-			LOGD("Adding '%s'", s.path);
-			mpl.addSong(s);
-		}
-		mpl.nextSong();
-		printf("\n--------------------------\nCHIPMACHINE CONSOLE PLAYER\n--------------------------\n");
-		int currentTune = 0;
-		SongInfo currentInfo;
-		while(true) {
-			if(mpl.getState() == MusicPlayerList::PLAY_STARTED) {
-				currentInfo = mpl.getInfo();
-				currentTune = mpl.getTune();
-				auto l = mpl.getLength();
-				auto fileName = path_filename(currentInfo.path);
-				auto title = currentInfo.title;
-				if(title != "") {
-					if(currentInfo.composer != "")
-						title = currentInfo.composer + " - " + title;
-					title += " (" + fileName + ")";
-				} else title = fileName;
-				print_fmt("%s [%s] [%02d:%02d]\n", title, currentInfo.format, l/60, l%60);
-			}
-#ifdef ENABLE_CONSOLE
-
-			int tune = mpl.getTune();
-			if(currentTune != tune) {
-				currentTune = tune;
-				print_fmt("Subtune: %d\n", currentTune);
-			}
-
-
-			if(c) {
-				auto k = c->getKey(100);
-				if(k != Console::KEY_TIMEOUT) {
-					switch(k) {
-					case ' ':
-						break;
-					case Console::KEY_RIGHT:
-						if(currentTune < currentInfo.numtunes-1)
-							mpl.seek(currentTune+1);
-						break;
-					case Console::KEY_LEFT:
-						if(currentTune > 0)
-							mpl.seek(currentTune-1);
-						break;
-					case Console::KEY_ENTER:
-						mpl.nextSong();
-						break;
-					}
-				}
-			}
-#else
-			sleepms(500);
-#endif
-		}
-#endif
 	}
 
 	if(fullScreen)
@@ -188,11 +130,9 @@ int main(int argc, char *argv[]) {
 
 	static chipmachine::ChipMachine app(workDir);
 
-	grappix::screen.render_loop(
-	    [](uint32_t delta) {
-		    app.update();
-		    app.render(delta);
-		},
-	    20);
+	grappix::screen.render_loop([](uint32_t delta) {
+		app.update();
+		app.render(delta);
+	}, 20);
 	return 0;
 }
