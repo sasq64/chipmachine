@@ -27,7 +27,7 @@ std::vector<std::string> split_if(const std::string &text, std::function<bool(ch
 
 MusicPlayerList::MusicPlayerList(const std::string &workDir)
     : mp(workDir) { //: webgetter(File::getCacheDir() + "_webfiles") {
-	state = STOPPED;
+	SET_STATE(STOPPED);
 	wasAllowed = true;
 	permissions = 0xff;
 	quitThread = false;
@@ -87,7 +87,7 @@ void MusicPlayerList::nextSong() {
 	LOCK_GUARD(plMutex);
 	if(playList.size() > 0) {
 		// mp.stop();
-		state = WAITING;
+		SET_STATE(WAITING);
 	}
 }
 
@@ -96,11 +96,11 @@ void MusicPlayerList::playSong(const SongInfo &si) {
 		return;
 	LOCK_GUARD(plMutex);
 	currentInfo = si;
-	state = PLAY_NOW;
+	SET_STATE(PLAY_NOW);
 }
 
 void MusicPlayerList::updateInfo() {
-	LOCK_GUARD(plMutex);
+	//LOCK_GUARD(plMutex);
 	auto si = mp.getPlayingInfo();
 	if(si.title != "")
 		currentInfo.title = si.title;
@@ -160,7 +160,7 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 	if(fileName != "") {
 
 		if(path_extension(fileName) == "plist") {
-			clearSongs();
+			playList.clear();
 			File f{fileName};
 
 			auto lines = f.getLines();
@@ -180,7 +180,7 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 			            }
 			*/
 			for(const string &s : lines) {
-				addSong(SongInfo(s));
+				playList.push_back(SongInfo(s));
 			}
 			SongInfo &si = playList.front();
 			auto path = si.path;
@@ -188,10 +188,10 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 			if(si.path == "") {
 				LOGD("Could not lookup '%s'", path);
 				errors.push_back("Bad song in playlist");
-				state = ERROR;
+				SET_STATE(ERROR);
 				return false;
 			}
-			state = WAITING;
+			SET_STATE(WAITING);
 			return true;
 		}
 
@@ -203,11 +203,11 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 			changedSong = false;
 			updateInfo();
 			LOGD("STATE: Play started");
-			state = PLAY_STARTED;
+			SET_STATE(PLAY_STARTED);
 			return true;
 		} else {
 			errors.push_back("Could not play song");
-			state = ERROR;
+			SET_STATE(ERROR);
 		}
 	}
 	return false;
@@ -223,10 +223,10 @@ void MusicPlayerList::setPartyMode(bool on, int lockSec, int graceSec) {
 
 void MusicPlayerList::update() {
 
+	LOCK_GUARD(plMutex);
 
 	mp.update();
 
-	//LOCK_GUARD(plMutex);
 
 	RemoteLoader::getInstance().update();
 
@@ -246,7 +246,7 @@ void MusicPlayerList::update() {
 	}
 
 	if(state == PLAY_NOW) {
-		state = STARTED;
+		SET_STATE(STARTED);
 		// LOGD("##### PLAY NOW: %s (%s)", currentInfo.path, currentInfo.title);
 		playCurrent();
 	}
@@ -258,17 +258,17 @@ void MusicPlayerList::update() {
 		if(!changedSong && playList.size() > 0) {
 			if(!mp.playing()) {
 				if(playList.size() == 0)
-					state = STOPPED;
+					SET_STATE(STOPPED);
 				else
-					state = WAITING;
+					SET_STATE(WAITING);
 			} else if((length > 0 && pos > length) && pos > 7) {
 				LOGD("STATE: Song length exceeded");
 				mp.fadeOut(3.0);
-				state = FADING;
+				SET_STATE(FADING);
 			} else if(detectSilence && mp.getSilence() > 44100 * 6 && pos > 7) {
 				LOGD("STATE: Silence detected");
 				mp.fadeOut(0.5);
-				state = FADING;
+				SET_STATE(FADING);
 			}
 		} else if(partyLockDown) {
 			if((length > 0 && pos > length) || mp.getSilence() > 44100 * 6) {
@@ -282,9 +282,9 @@ void MusicPlayerList::update() {
 		if(mp.getFadeVolume() <= 0.01) {
 			LOGD("STATE: Music ended");
 			if(playList.size() == 0)
-				state = STOPPED;
+				SET_STATE(STOPPED);
 			else
-				state = WAITING;
+				SET_STATE(WAITING);
 		}
 	}
 
@@ -304,7 +304,7 @@ void MusicPlayerList::update() {
 
 	if(state == WAITING && playList.size() > 0) {
 		{
-			state = STARTED;
+			SET_STATE(STARTED);
 			currentInfo = playList.front();
 			playList.pop_front();
 
@@ -335,7 +335,7 @@ void MusicPlayerList::playCurrent() {
 	    {"dum", "ins"},   // Rob Hubbard 2
 	};
 
-	state = LOADING;
+	SET_STATE(LOADING);
 
 	LOGD("PLAY PATH:%s", currentInfo.path);
 	string prefix, path;
@@ -381,7 +381,7 @@ void MusicPlayerList::playCurrent() {
 		if(streamer) {
 
 			files = 0;
-			state = PLAY_STARTED;
+			SET_STATE(PLAY_STARTED);
 			loader.stream(currentInfo.path, [=](const uint8_t *ptr, int size) -> bool {
 				streamer->put(ptr, size);
 				return true;
@@ -401,7 +401,7 @@ void MusicPlayerList::playCurrent() {
 		loader.load(smpl_file, [=](File f) {
 			if(f == File::NO_FILE) {
 				errors.push_back("Could not load secondary file");
-				state = ERROR;
+				SET_STATE(ERROR);
 			};
 			files--;
 		});
@@ -411,7 +411,7 @@ void MusicPlayerList::playCurrent() {
 	loader.load(currentInfo.path, [=](File f0) {
 		if(f0 == File::NO_FILE) {
 			errors.push_back("Could not load file");
-			state = ERROR;
+			SET_STATE(ERROR);
 			files--;
 			return;
 		}

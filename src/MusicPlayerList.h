@@ -16,6 +16,8 @@
 #include <deque>
 #include <future>
 
+#define SET_STATE(x) (LOGD("STATE: " #x), state = x)
+
 namespace chipmachine {
 
 class ChipMachine;
@@ -73,9 +75,10 @@ public:
 	std::string getMeta(const std::string &what) { return mp.getMeta(what); }
 
 	State getState() {
+		//LOCK_GUARD(plMutex);
 		State rc = state;
 		if(rc == PLAY_STARTED)
-			state = PLAYING;
+			SET_STATE(PLAYING);
 		return rc;
 	}
 
@@ -116,7 +119,7 @@ public:
 	float getVolume() { return mp.getVolume(); }
 
 	void stop() {
-		state = STOPPED;
+		SET_STATE(STOPPED);
 		mp.stop();
 	}
 
