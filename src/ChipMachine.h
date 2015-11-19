@@ -185,6 +185,7 @@ private:
 	bool indexingDatabase = false;
 
 	MusicBars musicBars;
+	MusicPlayerList::State playerState;
 };
 }
 

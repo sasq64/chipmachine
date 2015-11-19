@@ -326,8 +326,8 @@ shared_ptr<ChipPlayer> MusicPlayer::fromFile(const string &fileName) {
 		if(plugin->canHandle(name)) {
 			LOGD("Playing with %s\n", plugin->name());
 			player = shared_ptr<ChipPlayer>(plugin->fromFile(fileName));
-			if(!player)
-				continue;
+			//if(!player)
+			//	continue;
 			break;
 		}
 	}

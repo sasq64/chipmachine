@@ -269,9 +269,9 @@ void ChipMachine::update() {
 
 	// DEAL WITH MUSICPLAYER STATE
 
-	auto state = player.getState();
+	playerState = player.getState();
 
-	if(state == MusicPlayerList::PLAY_STARTED) {
+	if(playerState == MusicPlayerList::PLAY_STARTED) {
 		LOGD("MUSIC STARTING");
 		currentInfo = player.getInfo();
 		LOGD("Prev song %s, new song %s", currentInfoField.getInfo().title, currentInfo.title);
@@ -322,7 +322,7 @@ void ChipMachine::update() {
 		currentTween.start();
 	}
 
-	if(state == MusicPlayerList::ERROR) {
+	if(playerState == MusicPlayerList::ERROR) {
 		player.stop();
 		currentTween.finish();
 		currentInfoField[0].pos.x = currentInfoField[1].pos.x;
@@ -334,13 +334,13 @@ void ChipMachine::update() {
 		                   .from(prevInfoField, nextInfoField)
 		                   .seconds(3.0)
 		                   .onComplete([=]() {
-			                   if(player.getState() == MusicPlayerList::STOPPED)
+			                   if(playerState == MusicPlayerList::STOPPED)
 				                   player.nextSong();
 			               });
 		currentTween.start();
 	}
 
-	if(state == MusicPlayerList::PLAYING || state == MusicPlayerList::STOPPED) {
+	if(playerState == MusicPlayerList::PLAYING || playerState == MusicPlayerList::STOPPED) {
 		auto psz = player.listSize();
 		if(psz > 0) {
 			auto info = player.getInfo(1);
@@ -501,7 +501,7 @@ void ChipMachine::render(uint32_t delta) {
 #ifdef ENABLE_TELNET
 	    WebRPC::inProgress() > 0 ||
 #endif
-		player.getState() == MusicPlayerList::LOADING ||
+		playerState == MusicPlayerList::LOADING ||
 	    webutils::Web::inProgress() > 0) {
 		screen.draw(netTexture, 2, 2, 8 * 3, 5 * 3, nullptr);
 	}
