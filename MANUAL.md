@@ -5,7 +5,6 @@
 Chipmachine is a fullscreen, graphical music player for various (retro) formats.
 It uses instant incremental search to locate songs in it's song database -- meaning
 you don't need to download or add music files yourself.
-Initially, it searches the *Modland* colletion and downloads songs from *ftp.modland.com*.
 
 ## QUICKSTART
 
@@ -26,14 +25,6 @@ Initially, it searches the *Modland* colletion and downloads songs from *ftp.mod
 * **F6** = Next song
 * **F8** = Clear play queue
 
-## ADDING NEW SONG COLLECTIONS
-
-Song collections are configured in `lua/db.lua`. The High Voltage Sid Collection is
-preconfigured, just unpack the `C64Music` directory into the chipmachine directory and
-start chipmachine to index it. At this point you may also want to add *exlude_formats* to
-the Modland section, to exclude all SIDS from there and avoid duplicate songs in the
-database.
-
 ## CHIPMACHINE FILES
 
 Chipmachine reads and write several files in it's directory that can be good to know about.
@@ -45,12 +36,13 @@ Chipmachine reads and write several files in it's directory that can be good to 
 * `data/` - This directory contains several files that Chipmachine requires to run, like
   BIOS files for music emulators, and song information data like `songlengths.dat` and
 `STIL.txt`.
-* `_files/` - This is a local cache of files fetched from the Internet. If this directory
-  becomes too large you can clear all o rsome of the files in it.
-* `lua/init.lua` - This is a settings file that defines the layout of the screen. You can
+* `_webfiles/` - This is a local cache of files fetched from the Internet. If this directory
+  becomes too large you can clear all or some of the files in it.
+* `lua/screen.lua` - This is a settings file that defines the layout of the screen. You can
   try playing around with it.  It is automatically reloaded if changed while chipmachine
 is running.
 * `lua/db.lua` - This file defines the music sources for the database.
 
 If you make changes to `db.lua` you probably want to delete both `music.db` and
-`index.dat` 
+`index.dat`, or increase the version number.
+

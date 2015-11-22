@@ -348,7 +348,6 @@ void MusicPlayerList::playCurrent() {
 		return;
 	}
 
-	LOGD("PATH: %s", currentInfo.path);
 	bool isStarTrekker = (currentInfo.path.find("Startrekker") != string::npos);
 
 	// Known music formats with 2 files
@@ -357,7 +356,7 @@ void MusicPlayerList::playCurrent() {
 	    {"sng", "ins"},   // Richard Joseph
 	    {"jpn", "smp"},   // Jason Page PREFIX
 	    {"dum", "ins"},   // Rob Hubbard 2
-		{"adsc", "adsc.as"}    // Audio Sculpture
+	    {"adsc", "adsc.as"}    // Audio Sculpture
 	};
 	string ext2;
 	if(fmt_2files.count(ext) > 0)
