@@ -28,21 +28,29 @@ Initially, it searches the *Modland* colletion and downloads songs from *ftp.mod
 
 ## ADDING NEW SONG COLLECTIONS
 
-Song collections are configured in `lua/db.lua`. The High Voltage Sid Collection is preconfigured, just unpack the `C64Music` directory into the chipmachine directory and start chipmachine to index it. At this point you may also want to add *exlude_formats* to the Modland section, to exclude all SIDS from there and avoid duplicate songs in the database.
+Song collections are configured in `lua/db.lua`. The High Voltage Sid Collection is
+preconfigured, just unpack the `C64Music` directory into the chipmachine directory and
+start chipmachine to index it. At this point you may also want to add *exlude_formats* to
+the Modland section, to exclude all SIDS from there and avoid duplicate songs in the
+database.
 
 ## CHIPMACHINE FILES
 
 Chipmachine reads and write several files in it's directory that can be good to know about.
 
-* `music.db` - This is the sqlite3 database with all the songs. It is generated from the configured sources
-if it does not exist.
-* `index.dat` - This is the index used for incremental search. It is calculated on startup if it does not exist.
-* `data/` - This directory contains several files that Chipmachine requires to run, like BIOS files for music emulators,
-and song information data like `songlengths.dat` and `STIL.txt`.
-* `_files/` - This is a local cache of files fetched from the Internet. If this directory becomes too large you
-can clear all o rsome of the files in it.
-* `lua/init.lua` - This is a settings file that defines the layout of the screen. You can try playing around with it.
-It is automatically reloaded if changed while chipmachine is running.
+* `music.db` - This is the sqlite3 database with all the songs. It is generated from the
+  configured sources if it does not exist.
+* `index.dat` - This is the index used for incremental search. It is calculated on startup
+  if it does not exist.
+* `data/` - This directory contains several files that Chipmachine requires to run, like
+  BIOS files for music emulators, and song information data like `songlengths.dat` and
+`STIL.txt`.
+* `_files/` - This is a local cache of files fetched from the Internet. If this directory
+  becomes too large you can clear all o rsome of the files in it.
+* `lua/init.lua` - This is a settings file that defines the layout of the screen. You can
+  try playing around with it.  It is automatically reloaded if changed while chipmachine
+is running.
 * `lua/db.lua` - This file defines the music sources for the database.
 
-If you make changes to `db.lua` you probably want to delete both `music.db` and `index.dat` 
+If you make changes to `db.lua` you probably want to delete both `music.db` and
+`index.dat` 

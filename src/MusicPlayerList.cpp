@@ -348,6 +348,11 @@ void MusicPlayerList::playCurrent() {
 		return;
 	}
 
+	LOGD("PATH: %s", currentInfo.path);
+	if(currentInfo.path.find("Picatune") != string::npos)
+		return false;
+	bool isStarTrekker = (currentInfo.path.find("Startrekker") != string::npos);
+
 	// Known music formats with 2 files
 	static const std::unordered_map<string, string> fmt_2files = {
 	    {"mdat", "smpl"}, // TFMX
@@ -358,6 +363,8 @@ void MusicPlayerList::playCurrent() {
 	string ext2;
 	if(fmt_2files.count(ext) > 0)
 		ext2 = fmt_2files.at(ext);
+	if(isStarTrekker)
+		ext2 = "mod.nt";
 	if(ext2 != "") {
 		files++;
 		auto smpl_file = currentInfo.path.substr(0, currentInfo.path.find_last_of('.') + 1) + ext2;
