@@ -224,7 +224,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 
 bool MusicDatabase::parseModlandPath(SongInfo &song) {
 
-	static const std::set<std::string> secondary = {"smpl", "sam", "ins", "smp", "pdx", "nt"};
+	static const std::set<std::string> secondary = {"smpl", "sam", "ins", "smp", "pdx", "nt", "as"};
 
 	static const unordered_set<string> hasSubFormats = {"Ad Lib", "Video Game Music"};
 

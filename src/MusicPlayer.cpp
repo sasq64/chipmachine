@@ -322,8 +322,6 @@ shared_ptr<ChipPlayer> MusicPlayer::fromFile(const string &fileName) {
 	shared_ptr<ChipPlayer> player;
 	string name = fileName;
 	utils::makeLower(name);
-	if(fileName.find("Startrekker") != string::npos)
-		name = name + ".custom";
 
 	for(auto &plugin : plugins) {
 		if(plugin->canHandle(name)) {
