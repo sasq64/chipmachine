@@ -17,7 +17,7 @@ chipmachine
 ### Linux/Debian
 
 ```
-$ sudo apt-get install cmake git g++ zlib1g-dev libao-dev libgl1-mesa-dev libasound2-dev libglfw3-dev libcurl4-gnutls-dev libglew-dev libmpg123-dev
+$ sudo apt-get install cmake git g++ zlib1g-dev libao-dev libgl1-mesa-dev libasound2-dev libglfw3-dev libcurl4-gnutls-dev libglew-dev libmpg123-dev ninja-build
 ```
 
 ### Mac OSX
@@ -26,7 +26,7 @@ $ sudo apt-get install cmake git g++ zlib1g-dev libao-dev libgl1-mesa-dev libaso
 * Download, build and install _libmpg123_ (http://sourceforge.net/projects/mpg123/files/)
 
 ```
-$ brew install git cmake ninja freetype glew glfw3 sdl
+$ brew install git cmake ninja freetype glew glfw3 
 ```
 
 ### Windows
@@ -39,7 +39,7 @@ $ pacman -S mingw32/mingw-w64-i686-cmake msys/git mingw32/mingw-w64-i686-gcc min
 
 ### Raspberry PI
 
-...
+* Very similar to Debian above
 
 ## Building
 
