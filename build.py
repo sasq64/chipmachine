@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import os.path
 import subprocess
@@ -82,5 +82,6 @@ for a in args.actions :
             exe = os.path.join(outputDir, 'Chipmachine.app/Contents/MacOS/chipmachine')
         else :
             exe = os.path.join(outputDir, 'chipmachine')
+        print exe
         os.system(exe + ' -d')
 
