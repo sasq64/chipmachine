@@ -879,6 +879,7 @@
 2609	http://amigaremix.com/listen/2609/Anonymous_-_Arabian_Nights_Arabia_loop_-_Remastered.mp3	Arabian Nights: Arabia (loop) - Remastered	Anonymous
 2610	http://amigaremix.com/listen/2610/Sharrukin_-_Rollerball_-_Remix.mp3	Rollerball - Remix	Sharrukin
 2612	http://amigaremix.com/listen/2612/Badliz_-_Turrican_3_IntroBadliz_Remix.mp3	Turrican 3 Intro(Badliz Remix)	Badliz
+2613	http://amigaremix.com/listen/2613/Isacco_Garcia_Peveri_-_Hymn_To_Aurora.mp3	Hymn To Aurora	Isacco Garcia Peveri
 2614	http://amigaremix.com/listen/2614/Isacco_Garcia_Peveri_-_Sly_Spy_amiga_intro.mp3	Sly Spy (amiga intro)	Isacco Garcia Peveri
 2615	http://amigaremix.com/listen/2615/Isacco_Garcia_Peveri_-_Dylan_Dog_-_The_Murderers.mp3	Dylan Dog - The Murderers	Isacco Garcia Peveri
 2616	http://amigaremix.com/listen/2616/Isacco_Garcia_Peveri_-_Elvira___Demon_Blue_High_Scores_short_remix.mp3	Elvira / Demon Blue (High Scores) short remix	Isacco Garcia Peveri
@@ -1098,3 +1099,65 @@
 2881	http://amigaremix.com/listen/2881/willux_-_Lazer_Squad.mp3	Lazer Squad	willux
 2882	http://amigaremix.com/listen/2882/daXX_-_Enigma_-_A_Final_Hyperbase_Remix.mp3	Enigma - A Final Hyperbase Remix	daXX
 2883	http://amigaremix.com/listen/2883/daXX_-_Dynablaster_Remix.mp3	Dynablaster Remix	daXX
+2884	http://amigaremix.com/listen/2884/daXX_-_Sensible_Soccer.mp3	Sensible Soccer	daXX
+2885	http://amigaremix.com/listen/2885/Rapture_-_Captain_Planet_and_the_Planeteers_-_Linka.mp3	Captain Planet and the Planeteers - Linka	Rapture
+2886	http://amigaremix.com/listen/2886/Instant_Remedy_-_Woodys_World_-_Title.mp3	Woody's World - Title	Instant Remedy
+2887	http://amigaremix.com/listen/2887/Synth_Bard_-_Pools_of_Darkness_-_March_of_Darkness_Mix.mp3	Pools of Darkness - March of Darkness Mix	Synth Bard
+2888	http://amigaremix.com/listen/2888/Mano_-_Wing_Commander_-_Intro.mp3	Wing Commander - Intro	Mano
+2889	http://amigaremix.com/listen/2889/Andrew_Fly_-_Out_Run_1986_-_Magical_Sound_Shower.mp3	Out Run 1986 - Magical Sound Shower	Andrew Fly
+2890	http://amigaremix.com/listen/2890/Johan_Andersson_-_Superfrog_Magic_Woods_Theme.mp3	Superfrog (Magic Woods Theme)	Johan Andersson
+2893	http://amigaremix.com/listen/2893/DrFuture_-_Turrican_-_Techno_Dungeon.mp3	Turrican - Techno Dungeon	Dr.Future
+2894	http://amigaremix.com/listen/2894/laki_-_Shadow_of_the_Beast_-_Death_Scene.mp3	Shadow of the Beast - Death Scene	laki
+2895	http://amigaremix.com/listen/2895/Andrea_Milana_-_STATIX_-_Against_Time.mp3	STATIX - Against Time	Andrea Milana
+2896	http://amigaremix.com/listen/2896/Andrea_Milana_-_Shadow_of_the_Beast_III_Original_RMX_vrs.mp3	Shadow of the Beast III (Original RMX vrs)	Andrea Milana
+2897	http://amigaremix.com/listen/2897/SynthesizerPlayer_-_Shadow_of_the_Beast.mp3	Shadow of the Beast	SynthesizerPlayer
+2898	http://amigaremix.com/listen/2898/magic_-_Xenon2_2010_Remix.mp3	Xenon2 2010 Remix	magic
+2899	http://amigaremix.com/listen/2899/daXX_-_BubbaNStix_Part_2_Remix.mp3	Bubba'N'Stix Part 2 Remix	daXX
+2900	http://amigaremix.com/listen/2900/Synth_Bard_-_Treasures_of_the_Savage_Frontier.mp3	Treasures of the Savage Frontier	Synth Bard
+2901	http://amigaremix.com/listen/2901/Isacco_Garcia_Peveri_-_Weird_Dreams_2015_dark_mix.mp3	Weird Dreams (2015 dark mix)	Isacco Garcia Peveri
+2902	http://amigaremix.com/listen/2902/Dimitris_-_Apidya_-_Meadows_Edge_1-3.mp3	Apidya - Meadows Edge 1-3	Dimitris
+2903	http://amigaremix.com/listen/2903/Isacco_Garcia_Peveri_-_The_Town_With_No_Name_country_mix.mp3	The Town With No Name (country mix)	Isacco Garcia Peveri
+2904	http://amigaremix.com/listen/2904/Dremix_-_Clairvoyance_by_Absolute_-_Just_A_Dream.mp3	Clairvoyance by Absolute! - Just A Dream	Dremix
+2905	http://amigaremix.com/listen/2905/Slaygon_-_Flashback_Holocube.mp3	Flashback Holocube	Slaygon
+2906	http://amigaremix.com/listen/2906/EXON_-_Lemmings_Medley_Remix.mp3	Lemmings Medley Remix	EXON
+2907	http://amigaremix.com/listen/2907/Phenix80_-_Chambers_of_Shaolin_-_Trapped_in_China.mp3	Chambers of Shaolin - Trapped in China	Phenix80
+2908	http://amigaremix.com/listen/2908/Phenix80_-_Battle_Squadron_title_screen.mp3	Battle Squadron title screen	Phenix80
+2909	http://amigaremix.com/listen/2909/Rapture_-_Galactic_The_Xmas_Edition_-_Ingame.mp3	Galactic: The Xmas Edition - Ingame	Rapture
+2910	http://amigaremix.com/listen/2910/EXON_-_Lotus_III_Theme_.mp3	Lotus III Theme 	EXON
+2911	http://amigaremix.com/listen/2911/TITAN_-_Agony_-_Loading_Sea_Trip_Hop_Mix.mp3	Agony - Loading Sea (Trip Hop Mix)	TITAN
+2912	http://amigaremix.com/listen/2912/EXON_-_Bubble_Bobble_-_Theme_Remix.mp3	Bubble Bobble - Theme Remix	EXON
+2913	http://amigaremix.com/listen/2913/Mano_-_Turrican_Medley_1-3_Main_Theme.mp3	Turrican Medley (1-3 Main Theme)	Mano
+2914	http://amigaremix.com/listen/2914/TITAN_-_Shadow_of_the_Beast_3_-_Intro_Jungle_Mix.mp3	Shadow of the Beast 3 - Intro (Jungle Mix)	TITAN
+2915	http://amigaremix.com/listen/2915/Isacco_Garcia_Peveri_-_Defender_Of_The_Crown_title.mp3	Defender Of The Crown (title)	Isacco Garcia Peveri
+2916	http://amigaremix.com/listen/2916/TITAN_-_Agony_-_Loading_Forest_TITAN_Deep_Blue_Mix.mp3	Agony - Loading Forest (TITAN Deep Blue Mix)	TITAN
+2917	http://amigaremix.com/listen/2917/Isacco_Garcia_Peveri_-_MegaLoMania_title.mp3	MegaLoMania title	Isacco Garcia Peveri
+2918	http://amigaremix.com/listen/2918/Martin_Dodd_-_Total_Eclipse_Main_Theme_Remix.mp3	Total Eclipse (Main Theme Remix)	Martin Dodd
+2919	http://amigaremix.com/listen/2919/Spiral_-_Einstein_2d6_-_Wings_of_Victory_Spacetrip_Mix.mp3	Einstein 2d6 - Wings of Victory (Spacetrip Mix)	Spiral
+2920	http://amigaremix.com/listen/2920/cube_-_Lethal_Xcess_-_Ruins_of_Methallycha.mp3	Lethal Xcess - Ruins of Methallycha	cube
+2921	http://amigaremix.com/listen/2921/X-Ceed_-_Hyperbased_2015.mp3	Hyperbased 2015	X-Ceed
+2922	http://amigaremix.com/listen/2922/CoLD_SToRAGE_-_Kid_Gloves__Castle__The_Toe-tappers_Up-Mix.mp3	Kid Gloves [ Castle ] The Toe-tapper's Up-Mix	CoLD SToRAGE
+2923	http://amigaremix.com/listen/2923/CoLD_SToRAGE_-_Risky_Woods_-_El_Pueblo_Cover_Version.mp3	Risky Woods - "El Pueblo" Cover Version	CoLD SToRAGE
+2924	http://amigaremix.com/listen/2924/CoLD_SToRAGE_-_Super_Twintris_Those_3_Tunes_Up-Mix.mp3	Super Twintris "Those 3" Tunes Up-Mix	CoLD SToRAGE
+2925	http://amigaremix.com/listen/2925/CoLD_SToRAGE_-_Cream_of_the_Earth_vs_Romeo_Knight.mp3	Cream of the Earth (vs. Romeo Knight)	CoLD SToRAGE
+2926	http://amigaremix.com/listen/2926/Rapture_-_Harlequin_-_TVee_Wonderland_ingame_tune_5.mp3	Harlequin - TVee Wonderland (ingame tune 5)	Rapture
+2927	http://amigaremix.com/listen/2927/edd_jedi_-_Jesus_On_Es_Jedi_On_Es_Mix_1.mp3	Jesus On E's (Jedi On E's Mix 1)	edd_jedi
+2928	http://amigaremix.com/listen/2928/edd_jedi_-_Jesus_On_Es_Jedi_On_Es_Mix_2.mp3	Jesus On E's (Jedi On E's Mix 2)	edd_jedi
+2929	http://amigaremix.com/listen/2929/edd_jedi_-_Jesus_On_Es_Jedi_On_Es_Mix_3.mp3	Jesus On E's (Jedi On E's Mix 3)	edd_jedi
+2930	http://amigaremix.com/listen/2930/Virgill_-_Physical_Presence_-_Chiptune_RMX.mp3	Physical Presence - Chiptune RMX	Virgill
+2931	http://amigaremix.com/listen/2931/CZ_Tunes_-_Test_Drive_II_Remix.mp3	Test Drive II Remix	CZ Tunes
+2932	http://amigaremix.com/listen/2932/Patrulek_-_Deluxe_Galaga_v24.mp3	Deluxe Galaga v2.4	Patrulek
+2933	http://amigaremix.com/listen/2933/timeagent_-_I7s_Purple_Haze_Hei_gonna_90s_Mix.mp3	I7's Purple Haze (Hei gonna 90s Mix)	timeagent
+2934	http://amigaremix.com/listen/2934/daXX_-_Lotus_III_-_Miami_Ice_daXX_Remix.mp3	Lotus III - Miami Ice (daXX Remix)	daXX
+2935	http://amigaremix.com/listen/2935/daXX_-_Mega-Lo-Mania_Orchestra_Medley.mp3	Mega-Lo-Mania Orchestra Medley	daXX
+2936	http://amigaremix.com/listen/2936/DrFuture_-_Hard_n_Heavy_Amiga_FM_Fever.mp3	Hard 'n' Heavy (Amiga FM Fever)	Dr.Future
+2937	http://amigaremix.com/listen/2937/Bobby_Zeal_-_Captain_Planet_Intro.mp3	Captain Planet Intro	Bobby Zeal
+2938	http://amigaremix.com/listen/2938/Allister_Brimble_-_Virocop_Funny_Old_Game.mp3	Virocop: Funny Old Game	Allister Brimble
+2940	http://amigaremix.com/listen/2940/hyperunknown_-_Lizardkings_Flying_World_Remix.mp3	Lizardking's Flying World Remix	hyperunknown
+2941	http://amigaremix.com/listen/2941/Nerious_-_Kid_Chaos_-_The_Ruined_City_Level_5-3.mp3	Kid Chaos - The Ruined City (Level 5-3)	Nerious
+2942	http://amigaremix.com/listen/2942/Andrea_Baroni_-_Project-X_-_Thesmophoria_acoustic.mp3	Project-X - Thesmophoria (acoustic)	Andrea Baroni
+2943	http://amigaremix.com/listen/2943/Mano_-_Gods_Into_the_Wonderful.mp3	Gods (Into the Wonderful)	Mano
+2944	http://amigaremix.com/listen/2944/synchaoz_-_Lotus_III.mp3	Lotus III	synchaoz
+2945	http://amigaremix.com/listen/2945/synchaoz_-_Hired_Guns_Medley_Remake.mp3	Hired Guns Medley Remake	synchaoz
+2947	http://amigaremix.com/listen/2947/Isacco_Garcia_Peveri_-_ULTIMA_VI_-_Forest_Level.mp3	ULTIMA VI - Forest Level	Isacco Garcia Peveri
+2948	http://amigaremix.com/listen/2948/Mutetus_-_Turbo_Imploder_40.mp3	Turbo Imploder 4.0	Mutetus
+2949	http://amigaremix.com/listen/2949/Kime89_-_Super_Twintris_Tune_3_-_QUAD_Mix.mp3	Super Twintris (Tune 3 - QUAD! Mix)	Kime89

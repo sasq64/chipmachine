@@ -46,7 +46,7 @@ static const std::string eqShaderF = R"(
 		// int(h) is the eq slot to read
 		float h = 24.0 * (gl_FragCoord.x - specx) / specw;
 
-		float f = fract(h);
+		// float f = fract(h);
 
 		// Linear interpolation between slots
 		// float y = mix(slots[int(h)], slots[int(h)+1], f);
@@ -71,7 +71,7 @@ static const std::string eqShaderF = R"(
 		// MODIFY UV HERE
 		//vec4 color = texture2D(sTexture, UV);
 		// MODIFY COLOR HERE
-		gl_FragColor = rgb;
+		gl_FragColor = vec4(rgb.xyz, c.a);
 	}
 )";
 
