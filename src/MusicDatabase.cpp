@@ -1,5 +1,4 @@
 #include "MusicDatabase.h"
-#include "SongFileIdentifier.h"
 #include "RemoteLoader.h"
 
 #include <luainterpreter/luainterpreter.h>
@@ -14,15 +13,6 @@ using namespace std;
 using namespace utils;
 
 namespace chipmachine {
-
-//#ifdef RASPBERRYPI
-// static std::unordered_set<std::string> exclude = {
-//	"Gameboy Sound Format", "Dreamcast Sound Format", "Saturn Sound Format"
-//};
-//#else
-static std::unordered_set<std::string> exclude = {
-    "SPUx"}; //"Gameboy Sound Format", "Saturn Sound Format" };
-//#endif
 
 void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<string, string> &vars) {
 
@@ -46,22 +36,13 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 	reindexNeeded = true;
 
 	// Formats to exclude. Currently only used for MODLAND
-	auto ex_copy = exclude;
 	auto parts = split(xformats, ";");
-	for(const auto &p : parts) {
-		if(p.length())
-			ex_copy.insert(p);
-	}
+	set<string> exclude(parts.begin(), parts.end());
 
 	if(local_dir != "" && !endsWith(local_dir, "/"))
 		local_dir += "/";
 
 	print_fmt("Creating '%s' database\n", name);
-
-	bool rss = (type == "bitjam");
-	if(rss) {
-		source = "http://malus.exotica.org.uk/pub/";
-	}
 
 	db.exec("BEGIN TRANSACTION");
 	db.exec("INSERT INTO collection (name, id, url, localdir, description) VALUES (?, ?, ?, ?, ?)",
@@ -71,7 +52,11 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 	LOGD("Workdir:%s", workDir);
 	File listFile;
 	bool writeListFile = false;
-	// File listFile = File::findFile(workDir, song_list);
+	webutils::Web web{ File::getCacheDir() / "_webfiles" };
+	
+	if(startsWith(song_list, "http://")) {
+		listFile = web.getFileBlocking(song_list);
+	} else
 	if(song_list != "") {
 		listFile = File(workDir, song_list);
 		writeListFile = listFile.exists();
@@ -82,12 +67,14 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 	bool isAmiRemix = (type == "amigaremix");
 	bool isScenesat = (type == "scenesat");
 	bool isPouet = (type == "pouet");
+	bool rss = (type == "bitjam");
+	bool isCsdb = (type == "csdb");
 
 	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection) "
 	                      "VALUES (?, ?, ?, ?, ?, ?)");
 
 	if(isPouet) {
-		auto doc = xmldoc::fromFile(song_list);
+		auto doc = xmldoc::fromFile(listFile);
 		for(const auto &i : doc["feed"].all("prod")) {
 			auto title = i["name"].text();
 			auto g = i["group1"];
@@ -98,32 +85,40 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 			query.bind(title, "", group, "Youtube", youtube, collection_id).step();
 		}		
 	}
-	else
-	if(rss) {
+	else if(isCsdb) {
 
-		atomic<bool> done;
-		done = false;
-		string xml;
-/*
-		net::WebGetter getter;
+		File csdbDir = File::getCacheDir() / "playlists";
+		utils::makedirs(csdbDir);
 
-		getter.getData(song_list, [&](const vector<uint8_t> &data) {
-			xml = string(begin(data), end(data));
-			done = true;
-		});
-*/
-		webutils::Web web;
-		web.get(song_list, [&](const string &data) {
-			xml = data;
-			done = true;
-		});
+		string pref = "csdb::";
 
-		while(!done) {
-			web.poll();
-			sleepms(100);
+		auto doc = xmldoc::fromFile(listFile);
+		for(const auto &i : doc["ReleasesWithHVSC"].all("Release")) {
+			auto name = i["Name"].text();
+			auto type = i["ReleaseType"].text();
+			auto rating = i["CSDbRating"];
+			float rt = 0;
+			if(rating.valid())
+				rt = stof(rating.text());
+			LOGD("Found %s (%s %d)", name, type, rt);
+			auto g = i["ReleaseBy/Group"];
+			auto group = g.valid() ? g.text() : "";
+			if((endsWith(type, "Music Collection") || endsWith(type, "Diskmag") ||
+				   	endsWith(type, "Demo")) && rt > 0) {
+
+				File plist = csdbDir / format("r%s.plist", i["ID"].text());
+				plist.writeln(format(";%s\t%s", name, group));
+				for(const auto &s : i["Sids"].all("HVSCPath")) {
+					plist.writeln(pref + s.text().substr(1));
+				}
+				plist.close();
+				query.bind(name, "", group, "C64 Demo", plist.getName(), collection_id).step();
+			}
 		}
+	}
+	else if(rss) {
 
-		auto doc = xmldoc::fromText(xml);
+		auto doc = xmldoc::fromFile(listFile);
 		for(const auto &i : doc["rss"]["channel"].all("item")) {
 			auto title = i["title"].text();
 			auto enclosure = i["enclosure"].attr("url");
@@ -142,48 +137,6 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 			query.bind(title, "", composer, "MP3", enclosure, collection_id).step();
 		}
 
-	} else if(File::exists(local_dir) && !isModland) {
-
-		makedir(File::getCacheDir() / ".rsntemp");
-
-		function<void(File &)> checkDir;
-		checkDir = [&](File &root) {
-			LOGD("DIR %s", root.getName());
-			for(auto &rf : root.listFiles()) {
-				if(rf.isDir()) {
-					checkDir(rf);
-				} else {
-					auto name = rf.getName();
-					SongInfo songInfo(name);
-					if(identify_song(songInfo)) {
-
-						auto pos = name.find(local_dir);
-						if(pos != string::npos) {
-							name = name.substr(pos + local_dir.length());
-						}
-
-						query.bind(songInfo.title, songInfo.game, songInfo.composer,
-						           songInfo.format, name, collection_id)
-						    .step();
-						if(writeListFile)
-							listFile.writeln(format("%s\t%s\t%s\t%s\t%s", songInfo.title,
-							                        songInfo.game, songInfo.composer,
-							                        songInfo.format, name));
-					}
-				}
-			}
-		};
-
-		if(local_dir[0] != '/')
-			local_dir = workDir + "/" + local_dir;
-		File root{local_dir};
-
-		LOGD("Checking local dir '%s'", root.getName());
-
-		checkDir(root);
-
-		listFile.close();
-
 	} else if(listFile.exists()) {
 
 		for(const auto &s : listFile.getLines()) {
@@ -197,7 +150,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 					song = SongInfo(parts[1]);
 					if(!parseModlandPath(song))
 						continue;
-					if(ex_copy.count(song.format) > 0)
+					if(exclude.count(song.format) > 0)
 						continue;
 				} else if(isRKO) {
 					parts[3] = htmldecode(parts[3]);
@@ -225,7 +178,6 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 bool MusicDatabase::parseModlandPath(SongInfo &song) {
 
 	static const std::set<std::string> secondary = {"smpl", "sam", "ins", "smp", "pdx", "nt", "as"};
-
 	static const unordered_set<string> hasSubFormats = {"Ad Lib", "Video Game Music"};
 
 	string ext = path_extension(song.path);
