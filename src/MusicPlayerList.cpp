@@ -220,6 +220,11 @@ void MusicPlayerList::update() {
 
 		auto pos = mp.getPosition();
 		auto length = mp.getLength();
+
+		if(cueSheet) {
+			cueTitle = cueSheet->getTitle(pos);
+		}
+
 		if(!changedSong && playList.size() > 0) {
 			if(!mp.playing()) {
 				if(playList.size() == 0)
@@ -317,6 +322,8 @@ void MusicPlayerList::playCurrent() {
 	if(ext == "mp3")
 		detectSilence = false;
 
+	cueSheet = nullptr;
+
 	if(File::exists(currentInfo.path)) {
 		loadedFile = currentInfo.path;
 		files = 0;
@@ -324,21 +331,23 @@ void MusicPlayerList::playCurrent() {
 	}
 
 	loadedFile = "";
-
-	// LOGD("EXT: %s", ext);
-	files = 1;
-
+	files = 0;
 	RemoteLoader &loader = RemoteLoader::getInstance();
-
 	loader.cancel();
+
+	if(prefix == "bitjam") {
+		auto cueName = currentInfo.path.substr(0, currentInfo.path.find_last_of('.')) + ".cue";
+		loader.load(cueName, [=](File cuefile) {
+			if(cuefile)
+				cueSheet = make_shared<CueSheet>(cuefile);
+		});
+	}
 
 	if(ext == "mp3" || toLower(currentInfo.format) == "mp3") {
 
 		shared_ptr<Streamer> streamer = mp.streamFile("dummy.mp3");
 
 		if(streamer) {
-
-			files = 0;
 			SET_STATE(PLAY_STARTED);
 			loader.stream(currentInfo.path, [=](const uint8_t *ptr, int size) -> bool {
 				streamer->put(ptr, size);
@@ -352,11 +361,11 @@ void MusicPlayerList::playCurrent() {
 
 	// Known music formats with 2 files
 	static const std::unordered_map<string, string> fmt_2files = {
-	    {"mdat", "smpl"}, // TFMX
-	    {"sng", "ins"},   // Richard Joseph
-	    {"jpn", "smp"},   // Jason Page PREFIX
-	    {"dum", "ins"},   // Rob Hubbard 2
-	    {"adsc", "adsc.as"}    // Audio Sculpture
+	    {"mdat", "smpl"},   // TFMX
+	    {"sng", "ins"},     // Richard Joseph
+	    {"jpn", "smp"},     // Jason Page PREFIX
+	    {"dum", "ins"},     // Rob Hubbard 2
+	    {"adsc", "adsc.as"} // Audio Sculpture
 	};
 	string ext2;
 	if(fmt_2files.count(ext) > 0)
@@ -377,6 +386,7 @@ void MusicPlayerList::playCurrent() {
 	}
 
 	// LOGD("LOADING:%s", currentInfo.path);
+	files++;
 	loader.load(currentInfo.path, [=](File f0) {
 		if(f0 == File::NO_FILE) {
 			errors.push_back("Could not load file");
