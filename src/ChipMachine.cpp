@@ -10,6 +10,21 @@ using namespace utils;
 using namespace grappix;
 using namespace tween;
 
+std::string compressWhitespace(std::string &&m) {
+	// Turn linefeeds into spaces
+	replace(m.begin(), m.end(), '\n', ' ');
+	// Turn space sequences into single spaces
+	auto last = unique(m.begin(), m.end(), [](const char &a, const char &b) -> bool {
+		return (a == ' ' && b == ' ');
+	});
+	m.resize(last - m.begin());
+	return m;
+}
+
+std::string compressWhitespace(const std::string &text) {
+	return compressWhitespace(std::string(text));
+}
+
 namespace chipmachine {
 
 void ChipMachine::renderItem(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
@@ -248,20 +263,6 @@ void ChipMachine::update() {
 		LOGD("Clicked at %d %d\n", click.x, click.y);
 	}
 
-	static string msg;
-	auto m = player.getMeta("message");
-	if(m != msg) {
-		msg = m;
-		// Turn linefeeds into spaces
-		replace(m.begin(), m.end(), '\n', ' ');
-		// Turn space sequences into single spaces
-		auto last = unique(m.begin(), m.end(), [](const char &a, const char &b) -> bool {
-			return (a == ' ' && b == ' ');
-		});
-		m.resize(last - m.begin());
-		scrollEffect.set("scrolltext", m);
-	}
-
 	if(currentDialog && currentDialog->getParent() == nullptr)
 		currentDialog = nullptr;
 
@@ -275,6 +276,17 @@ void ChipMachine::update() {
 		LOGD("MUSIC STARTING");
 		currentInfo = player.getInfo();
 		LOGD("Prev song %s, new song %s", currentInfoField.getInfo().title, currentInfo.title);
+		string m;
+		if(currentInfo.metadata != "") {
+			m = compressWhitespace(currentInfo.metadata);
+		} else {
+			 m = compressWhitespace(player.getMeta("message"));
+		}
+		if(m != "" && scrollText != m) {
+			scrollEffect.set("scrolltext", m);
+			scrollText = m;
+		}
+
 		prevInfoField.setInfo(currentInfoField.getInfo());
 		currentInfoField.setInfo(currentInfo);
 		currentTune = currentInfo.starttune;
@@ -374,6 +386,11 @@ void ChipMachine::update() {
 		currentInfoField.setInfo(currentInfo);
 		currentTune = tune;
 		songField.setText(format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
+		auto m = compressWhitespace(player.getMeta("message"));
+		if(m != "" && scrollText != m) {
+			scrollEffect.set("scrolltext", m);
+			scrollText = m;
+		}
 	}
 
 	if(player.playing()) {

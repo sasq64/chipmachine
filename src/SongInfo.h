@@ -6,8 +6,8 @@
 struct SongInfo {
 	SongInfo(const std::string &path = "", const std::string &game = "",
 	         const std::string &title = "", const std::string &composer = "",
-	         const std::string &format = "")
-	    : path(path), game(game), title(title), composer(composer), format(format) {}
+	         const std::string &format = "", const std::string &metadata = "")
+	    : path(path), game(game), title(title), composer(composer), format(format), metadata(metadata) {}
 
 	bool operator==(const SongInfo &other) { return path == other.path; }
 
@@ -16,6 +16,7 @@ struct SongInfo {
 	std::string title;
 	std::string composer;
 	std::string format;
+	std::string metadata;
 	int numtunes = 0;
 	int starttune = 0;
 };

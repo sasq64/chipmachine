@@ -40,13 +40,12 @@ set(SOURCE_FILES
 #	src/RemoteLists.cpp
 	src/RemoteLoader.cpp
 	src/SearchIndex.cpp
-#	src/SongFileIdentifier.cpp
+	src/SongFileIdentifier.cpp
 #	src/TelnetInterface.cpp
 	src/renderable.cpp
 	src/renderset.cpp
 	src/state_machine.cpp
 	src/main.cpp
-#	src/tinyxml2.cpp
 )
 
 #if(RASPBERRY)
