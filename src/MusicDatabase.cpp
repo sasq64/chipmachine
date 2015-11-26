@@ -22,6 +22,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 	auto source = vars["source"];
 	auto local_dir = vars["local_dir"];
 	auto song_list = vars["song_list"];
+	auto remote_list = vars["remote_list"];
 	auto description = vars["description"];
 	auto xformats = vars["exclude_formats"];
 
@@ -55,6 +56,9 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 	bool writeListFile = false;
 	webutils::Web web{ File::getCacheDir() / "_webfiles" };
 	
+	if(song_list == "")
+		song_list = remote_list;
+
 	if(startsWith(song_list, "http://")) {
 		listFile = web.getFileBlocking(song_list);
 	} else
@@ -103,7 +107,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 			float rt = 0;
 			if(rating.valid())
 				rt = stof(rating.text());
-			LOGD("Found %s (%s %d)", name, type, rt);
+			//LOGD("Found %s (%s %d)", name, type, rt);
 			auto g = i["ReleaseBy/Group"];
 			auto group = g.valid() ? g.text() : "";
 			if((endsWith(type, "Music Collection") || endsWith(type, "Diskmag") ||

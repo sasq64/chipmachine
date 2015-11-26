@@ -366,8 +366,13 @@ void MusicPlayerList::playCurrent() {
 	RemoteLoader &loader = RemoteLoader::getInstance();
 	loader.cancel();
 
-	if(prefix == "bitjam") {
-		auto cueName = currentInfo.path.substr(0, currentInfo.path.find_last_of('.')) + ".cue";
+	string cueName = "";
+	if(prefix == "bitjam")
+		cueName = currentInfo.path.substr(0, currentInfo.path.find_last_of('.')) + ".cue";
+	else if(prefix == "demovibes")
+		cueName = toLower(currentInfo.path.substr(0, currentInfo.path.find_last_of('.')) + ".cue");
+ 
+	if(cueName != "") {
 		loader.load(cueName, [=](File cuefile) {
 			if(cuefile)
 				cueSheet = make_shared<CueSheet>(cuefile);

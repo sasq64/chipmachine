@@ -41,10 +41,8 @@ DB = {
 	-- source = "http://www.prg.dtu.dk/HVSC/C64Music/",
 	-- source = "http://hvsc.etv.cx/C64Music/",
 	source = "http://www.sannic.nl/hvsc/HVSC63/C64Music/",
-	-- 	song_list = "data/hvsc.txt",
-	song_list = "http://raw.githubusercontent.com/sasq64/cmds/master/hvsc.txt",
-	stil_file = "http://raw.githubusercontent.com/sasq64/cmds/master/STIL.txt",
-	length_file = "http://raw.githubusercontent.com/sasq64/cmds/master/Songlengths.txt",
+	song_list = "data/hvsc.txt",
+	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/hvsc.txt",
 	local_dir = "/opt/Music/C64Music",
 	color = 0xfffff
  },
@@ -53,8 +51,8 @@ DB = {
 	type = "rsn",
 	source = "http://snesmusic.org/v2/download.php?spcNow=",
 	make_source = snes,
-	--song_list = "data/rsn.txt",
-	song_list = "http://raw.githubusercontent.com/sasq64/cmds/master/rsn.txt",
+	song_list = "data/rsn.txt",
+	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/rsn.txt",
 	local_dir = "/opt/Music/spcsets",
 	color = 0xfffff
 },
@@ -62,8 +60,8 @@ DB = {
 	name = "sndh",
 	type = "sndh",
 	source = "http://sndh.atari.org/sndh/sndh_lf/",
-	-- song_list = "data/sndh.txt",
-	song_list = "http://raw.githubusercontent.com/sasq64/cmds/master/sndh.txt",
+	song_list = "data/sndh.txt",
+	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/sndh.txt",
 	local_dir = "/opt/Music/sndh_lf",
 	color = 0xfffff
 },
@@ -71,8 +69,8 @@ DB = {
 	name = "asma",
 	type = "asma",
 	source = "http://asma.atari.org/asma/",
-	-- song_list = "data/asma.txt",
-	song_list = "http://raw.githubusercontent.com/sasq64/cmds/master/asma.txt",
+	song_list = "data/asma.txt",
+	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/asma.txt",
 	local_dir = "/opt/Music/asma",
 	color = 0xfffff
 },
@@ -80,8 +78,8 @@ DB = {
 	name = "remix.kwed.org",
 	type = "rko",
 	source = "http://remix.kwed.org/download.php/",
-	-- song_list = "data/rko.txt",
-	song_list = "http://raw.githubusercontent.com/sasq64/cmds/master/rko.txt",
+	song_list = "data/rko.txt",
+	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/rko.txt",
 	local_dir = "/opt/Music/rko",
 	color = 0xfffff
 },
@@ -89,8 +87,8 @@ DB = {
 	name = "amigaremix",
 	type = "amigaremix",
 	source = "http://amigaremix.com/listen/",
-	-- song_list = "data/amiremix.txt",
-	song_list = "http://raw.githubusercontent.com/sasq64/cmds/master/amiremix.txt",
+	song_list = "data/amiremix.txt",
+	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/amiremix.txt",
 	local_dir = "/opt/Music/amiremix",
 	color = 0xfffff
 },
@@ -106,7 +104,21 @@ DB = {
 	name = "Bitjam",
 	type = "bitjam",
 	source = "http://malus.exotica.org.uk/pub/",
-	song_list = "http://www.bitfellas.org/podcast/podcast.xml",
+	remote_list = "http://www.bitfellas.org/podcast/podcast.xml",
+	color = 0xfffff
+},
+{
+	name = "Demovibes",
+	type = "demovibes",
+	source = "http://www.demovibes.org/downloads/",
+	song_list = "data/demovibes.txt",
+	color = 0xfffff
+},
+{
+	name = "Amigavibes",
+	type = "amigavibes",
+	source = "http://www.amigavibes.org/index.php/download/category/2-podcast-musicaux?download=",
+	song_list = "data/amigavibes.txt",
 	color = 0xfffff
 }
 --,{

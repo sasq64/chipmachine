@@ -51,20 +51,21 @@ public:
 			}
 			if(start < line.length())
 				parts.push_back(line.substr(start));
-
-			const auto &cmd = parts[0];
-			LOGD("[%s]", parts);
-			if(cmd == "TRACK")
-				tracks.emplace_back();
-			if(tracks.size() > 0) {
-				auto &track = tracks.back();
-				if (cmd == "TITLE")
-					track.title = parts[1];
-				else if (cmd == "PERFORMER")
-					track.performer = parts[1];
-				else if (cmd == "INDEX") {
-					auto iparts = utils::split(parts[2], ":");
-					track.index = stol(iparts[0]) * 60 + stol(iparts[1]);
+			if(parts.size() > 0) {
+				const auto &cmd = parts[0];
+				LOGD("[%s]", parts);
+				if(cmd == "TRACK")
+					tracks.emplace_back();
+				if(tracks.size() > 0) {
+					auto &track = tracks.back();
+					if (cmd == "TITLE")
+						track.title = parts[1];
+					else if (cmd == "PERFORMER")
+						track.performer = parts[1];
+					else if (cmd == "INDEX") {
+						auto iparts = utils::split(parts[2], ":");
+						track.index = stol(iparts[0]) * 60 + stol(iparts[1]);
+					}
 				}
 			}
 		
