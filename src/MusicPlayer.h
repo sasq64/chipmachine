@@ -23,11 +23,11 @@ class ChipPlayer;
 
 class Streamer {
 public:
-	Streamer(std::mutex &m, std::shared_ptr<ChipPlayer> pl) : playerMutex(m), player(pl) {}
+	Streamer(std::shared_ptr<std::mutex> m, std::shared_ptr<ChipPlayer> pl) : playerMutex(m), player(pl) {}
 	void put(const uint8_t *ptr, int size);
 
 private:
-	std::mutex &playerMutex;
+	std::shared_ptr<std::mutex> playerMutex;
 	std::shared_ptr<ChipPlayer> player;
 };
 
@@ -40,7 +40,7 @@ public:
 	std::shared_ptr<Streamer> streamFile(const std::string &fileName);
 	bool playing() { return !playEnded && player != nullptr; }
 	void stop() {
-		LOCK_GUARD(playerMutex);
+		LOCK_GUARD(*playerMutex);
 		player = nullptr;
 	}
 	uint32_t getPosition() { return pos / 44100; };
@@ -99,8 +99,11 @@ private:
 	std::vector<std::shared_ptr<ChipPlugin>> plugins;
 	bool paused = false;
 	std::array<uint16_t, SpectrumAnalyzer::eq_slots> spectrum;
-	// std::string toPlay;
-	std::mutex playerMutex;
+
+	// Should be held whenever accessing the current ChipPlayer
+	std::shared_ptr<std::mutex> playerMutex;
+
+	// Should be held when accessing FFT data
 	std::mutex fftMutex;
 	std::mutex infoMutex;
 	std::shared_ptr<ChipPlayer> player;

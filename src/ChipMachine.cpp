@@ -179,6 +179,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 	searchScreen.add(&commandField);
 	commandField.visible(false);
 
+	scrollText = "INITIAL_TEXT";
 	scrollEffect.set("scrolltext", "Chipmachine " VERSION_STR " -- Just type to search -- UP/DOWN to select "
 	                               "-- ENTER to play, SHIFT+ENTER to enque -- LEFT/RIGHT for "
 	                               "subsongs -- F6 for next song -- F5 for pause -- CTRL+1 to 5 "
@@ -282,7 +283,7 @@ void ChipMachine::update() {
 		} else {
 			 m = compressWhitespace(player.getMeta("message"));
 		}
-		if(m != "" && scrollText != m) {
+		if(scrollText != m) {
 			scrollEffect.set("scrolltext", m);
 			scrollText = m;
 		}
@@ -415,6 +416,18 @@ void ChipMachine::update() {
 		auto sub_title = player.getMeta("sub_title");
 		if(sub_title != xinfoField.getText())
 			xinfoField.setText(sub_title);
+
+		if(scrollText == "") {
+			auto m = player.getMeta("message");
+			if(m != "") {
+				m = compressWhitespace(m);
+				if(scrollText != m) {
+					scrollEffect.set("scrolltext", m);
+					scrollText = m;
+				}
+			}
+		}
+
 	}
 
 	if(!player.getAllowed()) {
