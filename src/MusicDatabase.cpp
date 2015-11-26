@@ -196,11 +196,24 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 				SongInfo song;
 
 				if(isModland) {
-					song = SongInfo(parts[1]);
-					if(!parseModlandPath(song))
+					thisSong = SongInfo(parts[1]);
+					if(!parseModlandPath(thisSong))
 						continue;
 					if(exclude.count(song.format) > 0)
 						continue;
+					if(thisSong.game != "" && thisSong.game == lastSong.game && thisSong.composer == lastSong.composer) {
+						if(!startsWith(lastSong.path, "MULTI:")) {
+							lastSong.path = string("MULTI:") + lastSong.path;
+							lastSong.title = "";
+						}
+						lastSong.path = lastSong.path + "\t" + thisSong.path;
+						continue;
+					} else {
+						song = lastSong;
+						lastSong = thisSong;
+						if(song.path == "")
+							continue;
+					}
 				} else if(isRKO) {
 					parts[3] = htmldecode(parts[3]);
 					parts[4] = htmldecode(parts[4]);

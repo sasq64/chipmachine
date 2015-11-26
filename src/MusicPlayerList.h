@@ -61,7 +61,11 @@ public:
 
 	bool playing() { return mp.playing(); }
 
-	int getTune() { return mp.getTune(); }
+	int getTune() {
+		if(multiSongs.size())
+			return multiSongNo;
+		return mp.getTune(); 
+	}
 
 	void pause(bool dopause = true) {
 		if(!(permissions & CAN_PAUSE))
@@ -175,6 +179,9 @@ private:
 	std::shared_ptr<CueSheet> cueSheet;
 	std::string cueTitle;
 
+	int multiSongNo;
+	std::vector<std::string> multiSongs;
+	bool changedMulti = false;
 	// RemoteLists &tracker;
 };
 

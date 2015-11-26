@@ -87,13 +87,24 @@ void MusicPlayerList::updateInfo() {
 		currentInfo.format = si.format;
 	// if(si.length > 0)
 	//	currentInfo.length = si.length;
-	currentInfo.numtunes = si.numtunes;
-	currentInfo.starttune = si.starttune;
+	if(!multiSongs.size()) {
+		currentInfo.numtunes = si.numtunes;
+		currentInfo.starttune = si.starttune;
+	}
 }
 
 void MusicPlayerList::seek(int song, int seconds) {
 	if(!checkPermission(CAN_SEEK))
 		return;
+	if(multiSongs.size()) {
+		currentInfo.path = multiSongs[song];
+		changedMulti = true;
+		LOGD("CHANGED MULTI");
+		playCurrent();
+		//changedSong = true;
+		multiSongNo = song;
+		return;
+	}
 	mp.seek(song, seconds);
 	if(song >= 0)
 		changedSong = true;
@@ -167,9 +178,15 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 			RemoteLists::getInstance().songPlayed(currentInfo.path);
 #endif
 		changedSong = false;
-		updateInfo();
-		LOGD("STATE: Play started");
-		SET_STATE(PLAY_STARTED);
+		LOGD("CHANGED MULTI:%s", changedMulti ? "YES" : "NO");
+		if(!changedMulti) {
+			updateInfo();
+			LOGD("STATE: Play started");
+			SET_STATE(PLAY_STARTED);
+		} else
+			SET_STATE(PLAYING);
+
+		changedMulti = false;
 		return true;
 	} else {
 		errors.push_back("Could not play song");
@@ -213,6 +230,7 @@ void MusicPlayerList::update() {
 	if(state == PLAY_NOW) {
 		SET_STATE(STARTED);
 		// LOGD("##### PLAY NOW: %s (%s)", currentInfo.path, currentInfo.title);
+		multiSongs.clear();
 		playCurrent();
 	}
 
@@ -291,7 +309,7 @@ void MusicPlayerList::update() {
 			partyLockDown = true;
 			setPermissions(CAN_PAUSE | CAN_ADD_SONG | PARTYMODE);
 		}
-
+		multiSongs.clear();
 		playCurrent();
 	}
 }
@@ -309,6 +327,18 @@ void MusicPlayerList::playCurrent() {
 	} else
 		path = currentInfo.path;
 
+	if(startsWith(path, "MULTI:")) {
+		multiSongs = split(path.substr(6), "\t");
+		if(prefix != "") {
+			for(string &m : multiSongs) {
+				m = prefix + "::" + m;
+			}
+		}
+		multiSongNo = 0;
+		currentInfo.path = multiSongs[0];
+		currentInfo.numtunes = multiSongs.size();
+		playCurrent();
+	}
 
 	if(prefix == "index") {
 		int index = stol(path);
@@ -323,6 +353,7 @@ void MusicPlayerList::playCurrent() {
 		detectSilence = false;
 
 	cueSheet = nullptr;
+	cueTitle = "";
 
 	if(File::exists(currentInfo.path)) {
 		loadedFile = currentInfo.path;
