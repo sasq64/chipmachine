@@ -49,6 +49,10 @@ $ pacman -S mingw32/mingw-w64-i686-cmake msys/git mingw32/mingw-w64-i686-gcc min
 	# cmake ../chipmachine -GNinja -DCMAKE_BUILD_TYPE=Release
 	# ninja
 
+## Download binaries
+
+* http://apone.org:8080/chipmachine/
+
 ## Using the application
 
 * Type words separated by spaces for incremental search
