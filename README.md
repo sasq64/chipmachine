@@ -1,6 +1,8 @@
 chipmachine
 ===========
 
+[![ZenHub] (https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png)] (https://zenhub.io)
+
 ## Intro
 
 *A demoscene/retro Jukebox/spotify-like  music player*
