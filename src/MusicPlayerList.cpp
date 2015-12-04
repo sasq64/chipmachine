@@ -338,6 +338,7 @@ void MusicPlayerList::playCurrent() {
 		currentInfo.path = multiSongs[0];
 		currentInfo.numtunes = multiSongs.size();
 		playCurrent();
+		return;
 	}
 
 	if(prefix == "index") {
