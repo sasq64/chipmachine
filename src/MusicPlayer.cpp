@@ -25,7 +25,6 @@ void Streamer::put(const uint8_t *ptr, int size) {
 
 MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4) {
 
-	playerMutex = make_shared<mutex>();
 
 	AudioPlayer::set_volume(80);
 	volume = 0.8;
@@ -62,10 +61,12 @@ void MusicPlayer::update() {
 	if(!paused && player) {
 
 		{
-			LOCK_GUARD(*playerMutex);
-			sub_title = player->getMeta("sub_title");
-			length = player->getMetaInt("length");
-			message = player->getMeta("message");
+			auto p = player.aquire();
+			if(p) {
+				sub_title = p->getMeta("sub_title");
+				length = p->getMetaInt("length");
+				message = p->getMeta("message");
+			}
 		}
 		silentFrames = fifo.getSilence();
 
@@ -76,11 +77,7 @@ void MusicPlayer::update() {
 			if(f < 4096)
 				break;
 
-			int rc;
-			{
-				LOCK_GUARD(*playerMutex);
-				rc = player->getSamples(tempBuf, f - 1024);
-			}
+			int rc = player->getSamples(tempBuf, f - 1024);
 
 			if(rc == 0)
 				break;
@@ -106,15 +103,16 @@ MusicPlayer::~MusicPlayer() {
 }
 
 void MusicPlayer::seek(int song, int seconds) {
-	LOCK_GUARD(*playerMutex);
-	if(player) {
-		if(player->seekTo(song, seconds)) {
+	auto ptr = player.aquire();
+	if(ptr) {
+		if(ptr->seekTo(song, seconds)) {
 			if(seconds < 0)
 				pos = 0;
 			else
 				pos = seconds * 44100;
 			fifo.clear();
 			// length = player->getMetaInt("length");
+			ptr.unlock();
 			updatePlayingInfo();
 			currentTune = song;
 		}
@@ -131,7 +129,7 @@ void MusicPlayer::fadeOut(float secs) {
 	fadeOutPos = pos + fadeLength;
 }
 
-std::shared_ptr<Streamer> MusicPlayer::streamFile(const string &fileName) {
+SafePointer<ChipPlayer> MusicPlayer::streamFile(const string &fileName) {
 	dontPlay = true;
 	silentFrames = 0;
 
@@ -142,9 +140,9 @@ std::shared_ptr<Streamer> MusicPlayer::streamFile(const string &fileName) {
 
 	string name = fileName;
 
-	LOCK_GUARD(*playerMutex);
+	//LOCK_GUARD(*playerMutex);
 	player = nullptr;
-	player = fromStream(fileName);
+	player = make_safepointer(fromStream(fileName));
 
 	dontPlay = false;
 	playEnded = false;
@@ -160,7 +158,8 @@ std::shared_ptr<Streamer> MusicPlayer::streamFile(const string &fileName) {
 		length = 0;
 		sub_title = "";
 		currentTune = playingInfo.starttune;
-		return make_shared<Streamer>(playerMutex, player);
+		//return make_shared<Streamer>(playerMutex, player);
+		return player;
 	}
 	return nullptr;
 }
@@ -187,15 +186,14 @@ bool MusicPlayer::playFile(const string &fileName) {
 				break;
 			}
 		} catch(archive_exception &ae) {
-			LOCK_GUARD(*playerMutex);
 			player = nullptr;
 			return false;
 		}
 	}
 
-	LOCK_GUARD(*playerMutex);
+	//LOCK_GUARD(*playerMutex);
 	player = nullptr;
-	player = fromFile(name);
+	player = make_safepointer(fromFile(name));
 
 	dontPlay = false;
 	playEnded = false;
@@ -215,10 +213,11 @@ bool MusicPlayer::playFile(const string &fileName) {
 
 void MusicPlayer::updatePlayingInfo() {
 	SongInfo si;
-	if(player) {
+	auto ptr = player.aquire();
+	if(ptr) {
 
-		auto game = player->getMeta("game");
-		si.title = player->getMeta("title");
+		auto game = ptr->getMeta("game");
+		si.title = ptr->getMeta("title");
 		if(game != "") {
 			if(si.title != "") {
 				si.title = format("%s (%s)", game, si.title);
@@ -226,14 +225,14 @@ void MusicPlayer::updatePlayingInfo() {
 				si.title = game;
 		}
 
-		si.composer = player->getMeta("composer");
-		si.format = player->getMeta("format");
-		si.numtunes = player->getMetaInt("songs");
-		si.starttune = player->getMetaInt("startSong");
+		si.composer = ptr->getMeta("composer");
+		si.format = ptr->getMeta("format");
+		si.numtunes = ptr->getMetaInt("songs");
+		si.starttune = ptr->getMetaInt("startSong");
 
-		length = player->getMetaInt("length");
-		message = player->getMeta("message");
-		sub_title = player->getMeta("sub_title");
+		length = ptr->getMetaInt("length");
+		message = ptr->getMeta("message");
+		sub_title = ptr->getMeta("sub_title");
 	}
 	{
 		LOCK_GUARD(infoMutex);
@@ -258,9 +257,9 @@ string MusicPlayer::getMeta(const string &what) {
 		return sub_title;
 	}
 
-	LOCK_GUARD(*playerMutex);
-	if(player)
-		return player->getMeta(what);
+	auto p = player.aquire();
+	if(p.get())
+		return p->getMeta(what);
 	else
 		return "";
 }
