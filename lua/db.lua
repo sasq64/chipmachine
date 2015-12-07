@@ -120,6 +120,21 @@ DB = {
 	source = "http://www.amigavibes.org/index.php/download/category/2-podcast-musicaux?download=",
 	song_list = "data/amigavibes.txt",
 	color = 0xfffff
+},
+{
+	name = "Radio",
+	type = "radio",
+	source = "",
+	song_list = "data/radio.txt",
+	color = 0xfffff
+},
+{
+	name = "Bitar till Kaffet",
+	type = "podcast",
+	source = "",
+	remote_list = "http://www.bitartillkaffet.se/?feed=podcast",
+	extra_list = "data/bitar.txt",
+	color = 0xfffff
 }
 --,{
 --	name = "Pouet/Youtube",

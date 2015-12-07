@@ -29,8 +29,8 @@ bool parseSid(SongInfo &info) {
 	File f{info.path};
 	info.format = "Commodore 64";
 	f.read(&buffer[0], buffer.size());
-	info.title = get_string(&buffer[0x16], 0x20);
-	info.composer = get_string(&buffer[0x36], 0x20);
+	info.title = utf8_encode(get_string(&buffer[0x16], 0x20));
+	info.composer = utf8_encode(get_string(&buffer[0x36], 0x20));
 	// auto copyright = string((const char*)&buffer[0x56], 0x20);
 	f.close();
 	return true;

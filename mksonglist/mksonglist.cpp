@@ -23,6 +23,8 @@ void makeList(const string &local_dir, const string &list_file) {
 				SongInfo songInfo(name);
 				if(identify_song(songInfo)) {
 
+					LOGD("TITLE %s", songInfo.title);
+
 					auto pos = name.find(local_dir);
 					if(pos != string::npos) {
 						name = name.substr(pos + local_dir.length());
