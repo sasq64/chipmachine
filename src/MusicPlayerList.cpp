@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <unordered_map>
 
+#include <musicplayer/chipplayer.h>
+
 using namespace std;
 using namespace utils;
 
@@ -143,8 +145,40 @@ int MusicPlayerList::listSize() {
 bool MusicPlayerList::playFile(const std::string &fileName) {
 	if(fileName == "")
 		return false;
-	
-	if(path_extension(fileName) == "plist") {
+	auto ext = toLower(path_extension(fileName));
+	if(ext == "pls" || currentInfo.format == "PLS") {
+		File f{fileName};
+
+		auto lines = f.getLines();
+		vector<string> result;
+		for (auto &l : lines) {
+			if(startsWith(l, "File1="))
+				result.push_back(l.substr(6));
+		}
+		currentInfo.path = result[0];
+		currentInfo.format = "MP3";
+		playCurrent();
+		return false;
+
+	} else
+	if(ext == "m3u" || currentInfo.format == "M3U") {
+		File f{fileName};
+
+		auto lines = f.getLines();
+
+		// Remove lines with comment character
+		lines.erase(std::remove_if(lines.begin(), lines.end(),
+								   [=](const string &l) {
+									   return l == "" || l[0] == '#';
+								   }),
+					lines.end());
+		currentInfo.path = lines[0];
+		currentInfo.format = "MP3";
+		playCurrent();
+		return false;
+
+	} else
+	if(ext == "plist") {
 		playList.clear();
 		File f{fileName};
 
@@ -380,14 +414,17 @@ void MusicPlayerList::playCurrent() {
 		});
 	}
 
-	if(ext == "mp3" || toLower(currentInfo.format) == "mp3") {
+	if(currentInfo.format != "M3U" && (ext == "mp3" || toLower(currentInfo.format) == "mp3")) {
 
-		shared_ptr<Streamer> streamer = mp.streamFile("dummy.mp3");
+		auto streamer = mp.streamFile("dummy.mp3");
 
 		if(streamer) {
 			SET_STATE(PLAY_STARTED);
-			loader.stream(currentInfo.path, [=](const uint8_t *ptr, int size) -> bool {
-				streamer->put(ptr, size);
+			loader.stream(currentInfo.path, [=](int what, const uint8_t *ptr, int n) -> bool {
+				if(what == RemoteLoader::PARAMETER)
+					streamer->setParameter((char*)ptr, n);
+				else
+					streamer->putStream(ptr, n);
 				return true;
 			});
 		}
