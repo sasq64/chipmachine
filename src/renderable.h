@@ -12,12 +12,12 @@ class RenderSet;
 
 class Renderable {
 public:
-	Renderable() : target(grappix::screenptr) {}
+	Renderable() {}
 
-	virtual void render(uint32_t delta) = 0;
+	virtual void render(std::shared_ptr<grappix::RenderTarget>, uint32_t delta) = 0;
 	virtual void visible(bool b) { is_visible = b; }
 	virtual bool visible() { return is_visible; }
-	virtual void setTarget(std::shared_ptr<grappix::RenderTarget> target) { this->target = target; }
+	//virtual void setTarget(std::shared_ptr<grappix::RenderTarget> target) { this->target = target; }
 
 	void setParent(RenderSet *p) { parent = p; }
 
@@ -27,7 +27,7 @@ public:
 
 	bool is_visible = true;
 	RenderSet *parent;
-	std::shared_ptr<grappix::RenderTarget> target;
+	//std::shared_ptr<grappix::RenderTarget> target;
 };
 
 #endif // RENDERABLE_H

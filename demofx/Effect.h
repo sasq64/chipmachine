@@ -8,7 +8,7 @@
 
 namespace demofx {
 
-class Effect : public Renderable {
+class Effect {
 public:
 
 	//Effect() : Renderable(grappix::screenptr) {}

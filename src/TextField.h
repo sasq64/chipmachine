@@ -49,7 +49,7 @@ public:
 
 	void setFont(const grappix::Font &f) { font = f; }
 
-	virtual void render(uint32_t delta) override {
+	virtual void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
 		if(color.a == 0.0)
 			return;
 		if(tsize.x == -1)

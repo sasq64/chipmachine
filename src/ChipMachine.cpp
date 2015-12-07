@@ -133,7 +133,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 	showVolume = 0;
 	float ww = volume_icon.w * 15;
 	float hh = volume_icon.h * 10;
-	volPos = {((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh};
+	volPos = { ((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh };
 
 	// SEARCHSCREEN
 
@@ -274,7 +274,7 @@ void ChipMachine::update() {
 	playerState = player.getState();
 
 	if(playerState == MusicPlayerList::PLAY_STARTED) {
-		LOGD("MUSIC STARTING");
+		LOGD("MUSIC STARTING %s", currentInfo.title);
 		currentInfo = player.getInfo();
 		LOGD("Prev song %s, new song %s", currentInfoField.getInfo().title, currentInfo.title);
 		string m;
@@ -509,7 +509,7 @@ void ChipMachine::render(uint32_t delta) {
 		int v = player.getVolume() * 10;
 		v = v * volPos.w / 10;
 		screen.rectangle(volPos.x + v, volPos.y, volPos.w - v, volPos.h, color);
-		screen.text(listFont, std::to_string((int)(v * 100)), volPos.x, volPos.y, 1.0, 0xff8888ff);
+		//screen.text(listFont, std::to_string((int)(v * 100)), volPos.x, volPos.y, 10.0, 0xff8888ff);
 	}
 
 	musicBars.render(spectrumPos, spectrumColor, eq);
@@ -519,12 +519,12 @@ void ChipMachine::render(uint32_t delta) {
 	scrollEffect.render(delta);
 
 	if(currentScreen == MAIN_SCREEN) {
-		mainScreen.render(delta);
+		mainScreen.render(screenptr, delta);
 		if(isFavorite)
 			screen.draw(favTexture, favPos.x, favPos.y, favPos.w, favPos.h, nullptr);
 	} else {
-		searchScreen.render(delta);
-		songList.render();
+		searchScreen.render(screenptr, delta);
+		songList.render(screenptr);
 	}
 
 	if(
@@ -536,7 +536,7 @@ void ChipMachine::render(uint32_t delta) {
 		screen.draw(netTexture, 2, 2, 8 * 3, 5 * 3, nullptr);
 	}
 
-	renderSet.render(delta);
+	renderSet.render(screenptr, delta);
 
 	font.update_cache();
 	listFont.update_cache();

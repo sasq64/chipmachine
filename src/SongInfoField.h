@@ -44,9 +44,9 @@ struct SongInfoField : public Renderable {
 
 	bool operator==(const SongInfoField &other) const { return other.path == path; }
 
-	virtual void render(uint32_t delta) override {
+	virtual void render(std::shared_ptr<grappix::RenderTarget> target,  uint32_t delta) override {
 		for(const auto &f : fields)
-			f->render(delta);
+			f->render(target,  delta);
 	}
 
 	std::vector<std::shared_ptr<TextField>> fields;

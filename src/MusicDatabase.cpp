@@ -72,7 +72,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 	bool isAmiRemix = (type == "amigaremix");
 	bool isScenesat = (type == "scenesat");
 	bool isPouet = (type == "pouet");
-	bool rss = (type == "bitjam");
+	bool rss = (type == "bitjam" || type == "podcast");
 	bool isCsdb = (type == "csdb");
 
 	auto query = db.query("INSERT INTO song (title, game, composer, format, path, collection, metadata) "
@@ -124,7 +124,6 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 		}
 	}
 	else if(rss) {
-
 		auto doc = xmldoc::fromFile(listFile);
 		for(const auto &i : doc["rss"]["channel"].all("item")) {
 			auto title = i["title"].text();
@@ -203,7 +202,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 					thisSong = SongInfo(parts[1]);
 					if(!parseModlandPath(thisSong))
 						continue;
-					if(exclude.count(song.format) > 0)
+					if(exclude.count(thisSong.format) > 0)
 						continue;
 					if(thisSong.game != "" && thisSong.game == lastSong.game && thisSong.composer == lastSong.composer) {
 						if(!startsWith(lastSong.path, "MULTI:")) {
@@ -703,7 +702,7 @@ bool MusicDatabase::initFromLua(const File &workDir) {
 int MusicDatabase::getSongs(std::vector<SongInfo> &target, const SongInfo &match, int limit,
                             bool random) {
 
-	std::lock_guard<std::mutex>{dbMutex};
+	lock_guard<mutex>{ dbMutex };
 	string txt = "SELECT path, game, title, composer, format, collection.id FROM song, collection "
 	             "WHERE song.collection = collection.ROWID";
 
