@@ -65,6 +65,9 @@ enum Formats {
 
 	MP3,
 
+	M3U,
+	PLS,
+
 	OGG,
 
 	YOUTUBE,
@@ -89,7 +92,7 @@ public:
 		db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, localdir STRING, "
 		        "description STRING, id UNIQUE, version INTEGER)");
 		db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, "
-		        "format STRING, path STRING, collection INTEGER)");
+		        "format STRING, path STRING, collection INTEGER, metadata STRING)");
 	}
 
 	bool initFromLua(const utils::File &workDir);

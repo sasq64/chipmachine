@@ -1,0 +1,40 @@
+Podcast #1 - First Step		AmigaVibes	MP3	1:podcast-1-first-step
+Podcast #2 - Second Floor		AmigaVibes	MP3	2:podcast-2-second-floor
+Podcast #3 - The Three Wise-Man		AmigaVibes	MP3	3:podcast-3-the-three-wise-man
+Podcast #4 - The fantastic four		AmigaVibes	MP3	4:podcast-4-the-fantastic-four
+Podcast #5 - Gorin_no_Sho		AmigaVibes	MP3	5:podcast-5-gorin-no-sho
+Podcast #6 - Into the Shad		AmigaVibes	MP3	6:podcast-6-into-the-shad
+Podcast #7 - Seven Seas		AmigaVibes	MP3	7:podcast-7-seven-seas
+Podcast #8 - Eight bells		AmigaVibes	MP3	8:podcast-8-eight-bell
+Podcast #9 - Nine Chambers of Shaolin		AmigaVibes	MP3	9:podcast-9-nine-chambers-of-shaolin
+Podcast #10 - The Ten Commandments		AmigaVibes	MP3	10:podcast-10-the-ten-commandments
+Podcast #10bis - Incunable 2k10		AmigaVibes	MP3	11:podcast-10bis-incunable-2k10
+Podcast #11 B - Summer Camp		AmigaVibes	MP3	12:podcast-11-summer-camp
+Podcast #11 C - Odyssey		AmigaVibes	MP3	13:podcast-11-c-odyssey
+Podcast #11 - The Force		AmigaVibes	MP3	14:podcast-11-la-force
+Podcast #12 - The Twelves Signs		AmigaVibes	MP3	15:podcast-12-the-twelves-signs
+Podcast #12 B - AC-RGC-2K9-2K11		AmigaVibes	MP3	16:podcast-12-b-ac-rgc-2k9-2k11
+Podcast #13 - The Thirtheen Selenim		AmigaVibes	MP3	17:podcast-13-the-thirtheen-selenim
+Podcast #14 - The Return of the Fourteen Samurai		AmigaVibes	MP3	18:podcast-14-the-return-of-the-fourteen-samurai
+Podcast #15 - Dark Helmet		AmigaVibes	MP3	19:podcast-15-dark-helmet
+Podcast #16 - 64 humanity		AmigaVibes	MP3	20:podcast-16-64-humanity
+Podcast #15 B - Fifteen - Akira		AmigaVibes	MP3	21:podcast-15-b-quinze-akira
+Podcast #16 B - Zen Nihon Scene Renmei - Edo Dome Fest		AmigaVibes	MP3	22:podcast-16-b-edo-dome-fest
+Podcast #17 - Sen no Sen		AmigaVibes	MP3	23:podcast-17-sen-no-sen
+Podcast #18 - Go no Sen		AmigaVibes	MP3	24:podcast-18-go-no-sen
+Podcast #19 - Sen Chip		AmigaVibes	MP3	25:podcast-19-sen-no-chip
+Podcast #20 - DemoJS Pride		AmigaVibes	MP3	27:podcast-20-demojs-pride
+Podcast #21 - DemoJS live by Moonove		AmigaVibes	MP3	28:podcast-21-demojs-live-by-moonove
+Podcast #22 - Gerp 2013		AmigaVibes	MP3	29:podcast-22-gerp2013
+Podcast #23 - Function 2K13		AmigaVibes	MP3	30:podcast-23-function2k13
+Podcast #24 - Alchemy-Special-Strider		AmigaVibes	MP3	31:podcast-24-alchimie-special-strider
+Podcast #25 - Alchemy-Special-DemoJS2K13		AmigaVibes	MP3	32:podcast-25-alchimie-demojs2k13
+Podcast #26 - Special AmigaVibes - Alchimie2K13		AmigaVibes	MP3	33:podcast-26-alchimie2k13
+Podcast #27 - X-Copy Party		AmigaVibes	MP3	34:podcast-27-x-copy-party
+Podcast #28 - Edo Demo Fest Shin-den Shin		AmigaVibes	MP3	35:podcast28-edf-shindenshin
+Podcast #29 - Assembly - The Listening		AmigaVibes	MP3	36:podcast29-assembly-thelistening
+Podcast #30 - Assembly - Dance Dance		AmigaVibes	MP3	37:podcast30-assembly-dancedance
+Podcast #31 - Demodays 4ever		AmigaVibes	MP3	38:podcast31-demodays4ever
+Podcast #32 - Assembly 2K15 - Listening compo		AmigaVibes	MP3	39:podcast32-assembly-2k15-listening
+Podcast #33 - Assembly 2K15 - Fast than Light		AmigaVibes	MP3	40:podcast33-assembly-2k15-fastthanlight
+Podcast #34 - DemoJS 2K14 - The Other Days - Live		AmigaVibes	MP3	41:podcast34-tod-livesession

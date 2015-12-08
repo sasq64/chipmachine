@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <unordered_map>
 
+#include <musicplayer/chipplayer.h>
+
 using namespace std;
 using namespace utils;
 
@@ -87,13 +89,24 @@ void MusicPlayerList::updateInfo() {
 		currentInfo.format = si.format;
 	// if(si.length > 0)
 	//	currentInfo.length = si.length;
-	currentInfo.numtunes = si.numtunes;
-	currentInfo.starttune = si.starttune;
+	if(!multiSongs.size()) {
+		currentInfo.numtunes = si.numtunes;
+		currentInfo.starttune = si.starttune;
+	}
 }
 
 void MusicPlayerList::seek(int song, int seconds) {
 	if(!checkPermission(CAN_SEEK))
 		return;
+	if(multiSongs.size()) {
+		currentInfo.path = multiSongs[song];
+		changedMulti = true;
+		LOGD("CHANGED MULTI");
+		playCurrent();
+		//changedSong = true;
+		multiSongNo = song;
+		return;
+	}
 	mp.seek(song, seconds);
 	if(song >= 0)
 		changedSong = true;
@@ -132,8 +145,40 @@ int MusicPlayerList::listSize() {
 bool MusicPlayerList::playFile(const std::string &fileName) {
 	if(fileName == "")
 		return false;
-	
-	if(path_extension(fileName) == "plist") {
+	auto ext = toLower(path_extension(fileName));
+	if(ext == "pls" || currentInfo.format == "PLS") {
+		File f{fileName};
+
+		auto lines = f.getLines();
+		vector<string> result;
+		for (auto &l : lines) {
+			if(startsWith(l, "File1="))
+				result.push_back(l.substr(6));
+		}
+		currentInfo.path = result[0];
+		currentInfo.format = "MP3";
+		playCurrent();
+		return false;
+
+	} else
+	if(ext == "m3u" || currentInfo.format == "M3U") {
+		File f{fileName};
+
+		auto lines = f.getLines();
+
+		// Remove lines with comment character
+		lines.erase(std::remove_if(lines.begin(), lines.end(),
+								   [=](const string &l) {
+									   return l == "" || l[0] == '#';
+								   }),
+					lines.end());
+		currentInfo.path = lines[0];
+		currentInfo.format = "MP3";
+		playCurrent();
+		return false;
+
+	} else
+	if(ext == "plist") {
 		playList.clear();
 		File f{fileName};
 
@@ -167,9 +212,15 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 			RemoteLists::getInstance().songPlayed(currentInfo.path);
 #endif
 		changedSong = false;
-		updateInfo();
-		LOGD("STATE: Play started");
-		SET_STATE(PLAY_STARTED);
+		LOGD("CHANGED MULTI:%s", changedMulti ? "YES" : "NO");
+		if(!changedMulti) {
+			updateInfo();
+			LOGD("STATE: Play started");
+			SET_STATE(PLAY_STARTED);
+		} else
+			SET_STATE(PLAYING);
+
+		changedMulti = false;
 		return true;
 	} else {
 		errors.push_back("Could not play song");
@@ -213,6 +264,7 @@ void MusicPlayerList::update() {
 	if(state == PLAY_NOW) {
 		SET_STATE(STARTED);
 		// LOGD("##### PLAY NOW: %s (%s)", currentInfo.path, currentInfo.title);
+		multiSongs.clear();
 		playCurrent();
 	}
 
@@ -220,6 +272,11 @@ void MusicPlayerList::update() {
 
 		auto pos = mp.getPosition();
 		auto length = mp.getLength();
+
+		if(cueSheet) {
+			cueTitle = cueSheet->getTitle(pos);
+		}
+
 		if(!changedSong && playList.size() > 0) {
 			if(!mp.playing()) {
 				if(playList.size() == 0)
@@ -286,7 +343,7 @@ void MusicPlayerList::update() {
 			partyLockDown = true;
 			setPermissions(CAN_PAUSE | CAN_ADD_SONG | PARTYMODE);
 		}
-
+		multiSongs.clear();
 		playCurrent();
 	}
 }
@@ -304,6 +361,19 @@ void MusicPlayerList::playCurrent() {
 	} else
 		path = currentInfo.path;
 
+	if(startsWith(path, "MULTI:")) {
+		multiSongs = split(path.substr(6), "\t");
+		if(prefix != "") {
+			for(string &m : multiSongs) {
+				m = prefix + "::" + m;
+			}
+		}
+		multiSongNo = 0;
+		currentInfo.path = multiSongs[0];
+		currentInfo.numtunes = multiSongs.size();
+		playCurrent();
+		return;
+	}
 
 	if(prefix == "index") {
 		int index = stol(path);
@@ -317,6 +387,9 @@ void MusicPlayerList::playCurrent() {
 	if(ext == "mp3")
 		detectSilence = false;
 
+	cueSheet = nullptr;
+	cueTitle = "";
+
 	if(File::exists(currentInfo.path)) {
 		loadedFile = currentInfo.path;
 		files = 0;
@@ -324,24 +397,34 @@ void MusicPlayerList::playCurrent() {
 	}
 
 	loadedFile = "";
-
-	// LOGD("EXT: %s", ext);
-	files = 1;
-
+	files = 0;
 	RemoteLoader &loader = RemoteLoader::getInstance();
-
 	loader.cancel();
 
-	if(ext == "mp3" || toLower(currentInfo.format) == "mp3") {
+	string cueName = "";
+	if(prefix == "bitjam")
+		cueName = currentInfo.path.substr(0, currentInfo.path.find_last_of('.')) + ".cue";
+	else if(prefix == "demovibes")
+		cueName = toLower(currentInfo.path.substr(0, currentInfo.path.find_last_of('.')) + ".cue");
+ 
+	if(cueName != "") {
+		loader.load(cueName, [=](File cuefile) {
+			if(cuefile)
+				cueSheet = make_shared<CueSheet>(cuefile);
+		});
+	}
 
-		shared_ptr<Streamer> streamer = mp.streamFile("dummy.mp3");
+	if(currentInfo.format != "M3U" && (ext == "mp3" || toLower(currentInfo.format) == "mp3")) {
+
+		auto streamer = mp.streamFile("dummy.mp3");
 
 		if(streamer) {
-
-			files = 0;
 			SET_STATE(PLAY_STARTED);
-			loader.stream(currentInfo.path, [=](const uint8_t *ptr, int size) -> bool {
-				streamer->put(ptr, size);
+			loader.stream(currentInfo.path, [=](int what, const uint8_t *ptr, int n) -> bool {
+				if(what == RemoteLoader::PARAMETER)
+					streamer->setParameter((char*)ptr, n);
+				else
+					streamer->putStream(ptr, n);
 				return true;
 			});
 		}
@@ -352,11 +435,11 @@ void MusicPlayerList::playCurrent() {
 
 	// Known music formats with 2 files
 	static const std::unordered_map<string, string> fmt_2files = {
-	    {"mdat", "smpl"}, // TFMX
-	    {"sng", "ins"},   // Richard Joseph
-	    {"jpn", "smp"},   // Jason Page PREFIX
-	    {"dum", "ins"},   // Rob Hubbard 2
-	    {"adsc", "adsc.as"}    // Audio Sculpture
+	    {"mdat", "smpl"},   // TFMX
+	    {"sng", "ins"},     // Richard Joseph
+	    {"jpn", "smp"},     // Jason Page PREFIX
+	    {"dum", "ins"},     // Rob Hubbard 2
+	    {"adsc", "adsc.as"} // Audio Sculpture
 	};
 	string ext2;
 	if(fmt_2files.count(ext) > 0)
@@ -377,6 +460,7 @@ void MusicPlayerList::playCurrent() {
 	}
 
 	// LOGD("LOADING:%s", currentInfo.path);
+	files++;
 	loader.load(currentInfo.path, [=](File f0) {
 		if(f0 == File::NO_FILE) {
 			errors.push_back("Could not load file");

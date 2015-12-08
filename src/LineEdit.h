@@ -41,8 +41,8 @@ public:
 
 	void setPrompt(const std::string &p) { prompt = p; }
 
-	virtual void render(uint32_t delta) override {
-		TextField::render(delta);
+	virtual void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
+		TextField::render(target, delta);
 		getWidth();
 		// LOGD("REC %s %d %d", text, tsize.x, tsize.y);
 		target->rectangle(pos.x + tsize.x + 2, pos.y + 2, 10, tsize.y - 4, cursorColor);

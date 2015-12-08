@@ -8,7 +8,6 @@ public:
 	Dialog(std::shared_ptr<grappix::RenderTarget> target, const grappix::Font &font,
 	       const std::string &text, float scale = 1.0F)
 	    : font(font), textField(font, text), lineEdit(font) {
-		setTarget(target);
 		auto size = font.get_size(text, scale);
 		bounds.w = size.x + 20;
 		bounds.h = size.y * 3;
@@ -36,16 +35,10 @@ public:
 		}
 	}
 
-	virtual void setTarget(std::shared_ptr<grappix::RenderTarget> target) override {
-		textField.setTarget(target);
-		lineEdit.setTarget(target);
-		this->target = target;
-	}
-
-	virtual void render(uint32_t delta) override {
+	virtual void render(std::shared_ptr<grappix::RenderTarget> target,  uint32_t delta) override {
 		target->rectangle(bounds, 0x80ffffff);
-		textField.render(delta);
-		lineEdit.render(delta);
+		textField.render(target, delta);
+		lineEdit.render(target, delta);
 	}
 
 	std::function<void(const std::string &)> onOk;

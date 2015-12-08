@@ -186,6 +186,7 @@ private:
 
 	MusicBars musicBars;
 	MusicPlayerList::State playerState;
+	std::string scrollText;
 };
 }
 

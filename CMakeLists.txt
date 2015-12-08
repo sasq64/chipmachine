@@ -46,7 +46,6 @@ set(SOURCE_FILES
 	src/renderset.cpp
 	src/state_machine.cpp
 	src/main.cpp
-#	src/tinyxml2.cpp
 )
 
 #if(RASPBERRY)
@@ -75,9 +74,9 @@ add_subdirectory(${AP1_ROOT}/mods ap1mods)
 
 if(APPLE)
 	set(DATA_TARGET ${CMAKE_CURRENT_BINARY_DIR}/Chipmachine.app/Contents/Resources/)
-	set(UADECORE_TARGET "${DATA_TARGET}data/uade/")
-else()
-	set(UADECORE_TARGET "${CMAKE_CURRENT_BINARY_DIR}/data/uade/")
+	#set(UADECORE_TARGET "${DATA_TARGET}data/uade/")
+	#else()
+	#set(UADECORE_TARGET "${CMAKE_CURRENT_BINARY_DIR}/data/uade/")
 endif()
 
 set(MUSICPLAYER_PLUGINS
@@ -114,6 +113,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 if(APPLE)
 	add_executable(chipmachine MACOSX_BUNDLE ${SOURCE_FILES})
+	add_custom_command(TARGET chipmachine POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:chipmachine> ${CMAKE_CURRENT_BINARY_DIR})
 else()
 	add_executable(chipmachine ${SOURCE_FILES})
 endif()
@@ -126,12 +127,14 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -mwindows)
 endif()
 
 target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
-SET_DATA_FILES(data lua)
+#SET_DATA_FILES(data lua)
 
 if(APPLE)
 	set(APPS ${CMAKE_CURRENT_BINARY_DIR}/Chipmachine.app)
 	set(DIRS "")
 	install(CODE "
+	   file(COPY \"${CMAKE_SOURCE_DIR}/lua\" DESTINATION Chipmachine.app/Contents/Resources/)
+	   file(COPY \"${CMAKE_SOURCE_DIR}/data\" DESTINATION Chipmachine.app/Contents/Resources/)
 	   file(COPY \"${CMAKE_SOURCE_DIR}/note.png\" DESTINATION Chipmachine.app/Contents/)
 	   file(COPY \"${CMAKE_SOURCE_DIR}/Info.plist\" DESTINATION Chipmachine.app/Contents/)
 	   include(BundleUtilities)

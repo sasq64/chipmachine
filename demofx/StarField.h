@@ -21,14 +21,16 @@ public:
 	};
 
 	void resize(int w, int h) override {
-		image::bitmap bm(w, h/2);
-		bm.clear(0x00000000);
-		for(unsigned y=0; y<bm.height(); y++) {
-			auto x = rand() % bm.width();
-			bm[y*bm.width()+x] = bm[y*bm.width()+x + 1] = 0x66666666;
-			bm[y*bm.width()+x + 2] = 0x44444444;
+		if(w > 8 && h > 8) {
+			image::bitmap bm(w, h/2);
+			bm.clear(0x00000000);
+			for(unsigned y=0; y<bm.height(); y++) {
+				auto x = rand() % bm.width();
+				bm[y*bm.width()+x] = bm[y*bm.width()+x + 1] = 0x66666666;
+				bm[y*bm.width()+x + 2] = 0x44444444;
+			}
+			starTexture = grappix::Texture(bm);
 		}
-		starTexture = grappix::Texture(bm);
 	};
 
 private:

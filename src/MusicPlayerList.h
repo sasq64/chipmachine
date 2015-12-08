@@ -8,7 +8,7 @@
 #endif
 #include "RemoteLoader.h"
 #include "MusicDatabase.h"
-
+#include "CueSheet.h"
 //#include <webutils/webgetter.h>
 
 #include <coreutils/thread.h>
@@ -61,7 +61,11 @@ public:
 
 	bool playing() { return mp.playing(); }
 
-	int getTune() { return mp.getTune(); }
+	int getTune() {
+		if(multiSongs.size())
+			return multiSongNo;
+		return mp.getTune(); 
+	}
 
 	void pause(bool dopause = true) {
 		if(!(permissions & CAN_PAUSE))
@@ -72,7 +76,12 @@ public:
 
 	void seek(int song, int seconds = -1);
 
-	std::string getMeta(const std::string &what) { return mp.getMeta(what); }
+	std::string getMeta(const std::string &what) { 
+		if(what == "sub_title" && cueTitle != "")
+			return cueTitle;
+		return mp.getMeta(what);
+	}
+
 
 	State getState() {
 		//LOCK_GUARD(plMutex);
@@ -167,6 +176,12 @@ private:
 
 	bool detectSilence = true;
 
+	std::shared_ptr<CueSheet> cueSheet;
+	std::string cueTitle;
+
+	int multiSongNo;
+	std::vector<std::string> multiSongs;
+	bool changedMulti = false;
 	// RemoteLists &tracker;
 };
 

@@ -1,0 +1,12 @@
+Scenesat		Shoutcast	M3U	http://www.scenesat.com/listen/normal/mid.m3u
+SLAY Radio		Shoutcast	M3U	https://www.slayradio.org/tune_in.php/128kbps/slayradio.128.m3u
+Nectarine		Shoutcast	M3U	http://pmaster.no:9000/necta.m3u
+VGM Radio		Shoutcast	M3U	https://vgmradio.com/vgmradio.m3u
+NoLife-Radio		Shoutcast	M3U	http://nolife-radio.com/radio/NoLife-radio.m3u
+Rainwave		Shoutcast	M3U	http://chiptune.rainwave.cc/tune_in/4.mp3
+ChipBit		Shoutcast	M3U	http://stream.chipbit.net:8000/autodj.m3u
+The Sid Station		Shoutcast	PLS	http://eu2.reliastream.com:2199/tunein/jotayl00.pls
+Radio Parallax		Shoutcast	PLS	http://www.radio-paralax.de/listen.pls
+CGM UKScene Radio		Shoutcast	PLS	http://www.lmp.d2g.com:8003/listen.pls
+Retro PC Game Music Streaming Radio		Shoutcast	PLS	http://gyusyabu.ddo.jp:8000/listen.pls
+

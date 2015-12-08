@@ -10,6 +10,21 @@ using namespace utils;
 using namespace grappix;
 using namespace tween;
 
+std::string compressWhitespace(std::string &&m) {
+	// Turn linefeeds into spaces
+	replace(m.begin(), m.end(), '\n', ' ');
+	// Turn space sequences into single spaces
+	auto last = unique(m.begin(), m.end(), [](const char &a, const char &b) -> bool {
+		return (a == ' ' && b == ' ');
+	});
+	m.resize(last - m.begin());
+	return m;
+}
+
+std::string compressWhitespace(const std::string &text) {
+	return compressWhitespace(std::string(text));
+}
+
 namespace chipmachine {
 
 void ChipMachine::renderItem(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
@@ -25,7 +40,7 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 	static const map<uint32_t, uint32_t> colors = {
 	    {NOT_SET, 0xffff00ff}, {PLAYLIST, 0xffffff88}, {CONSOLE, 0xffdd3355},
 	    {C64, 0xffcc8844},     {ATARI, 0xffcccc33},    {MP3, 0xff88ff88},
-		{YOUTUBE, 0xffff0000},
+		{M3U, 0xffaaddaa},     {YOUTUBE, 0xffff0000},
 	    {PC, 0xffcccccc},      {AMIGA, 0xff6666cc},    {255, 0xff00ffff}};
 
 	Color c;
@@ -118,7 +133,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 	showVolume = 0;
 	float ww = volume_icon.w * 15;
 	float hh = volume_icon.h * 10;
-	volPos = {((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh};
+	volPos = { ((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh };
 
 	// SEARCHSCREEN
 
@@ -164,6 +179,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 	searchScreen.add(&commandField);
 	commandField.visible(false);
 
+	scrollText = "INITIAL_TEXT";
 	scrollEffect.set("scrolltext", "Chipmachine " VERSION_STR " -- Just type to search -- UP/DOWN to select "
 	                               "-- ENTER to play, SHIFT+ENTER to enque -- LEFT/RIGHT for "
 	                               "subsongs -- F6 for next song -- F5 for pause -- CTRL+1 to 5 "
@@ -248,20 +264,6 @@ void ChipMachine::update() {
 		LOGD("Clicked at %d %d\n", click.x, click.y);
 	}
 
-	static string msg;
-	auto m = player.getMeta("message");
-	if(m != msg) {
-		msg = m;
-		// Turn linefeeds into spaces
-		replace(m.begin(), m.end(), '\n', ' ');
-		// Turn space sequences into single spaces
-		auto last = unique(m.begin(), m.end(), [](const char &a, const char &b) -> bool {
-			return (a == ' ' && b == ' ');
-		});
-		m.resize(last - m.begin());
-		scrollEffect.set("scrolltext", m);
-	}
-
 	if(currentDialog && currentDialog->getParent() == nullptr)
 		currentDialog = nullptr;
 
@@ -272,9 +274,20 @@ void ChipMachine::update() {
 	playerState = player.getState();
 
 	if(playerState == MusicPlayerList::PLAY_STARTED) {
-		LOGD("MUSIC STARTING");
+		LOGD("MUSIC STARTING %s", currentInfo.title);
 		currentInfo = player.getInfo();
 		LOGD("Prev song %s, new song %s", currentInfoField.getInfo().title, currentInfo.title);
+		string m;
+		if(currentInfo.metadata != "") {
+			m = compressWhitespace(currentInfo.metadata);
+		} else {
+			 m = compressWhitespace(player.getMeta("message"));
+		}
+		if(scrollText != m) {
+			scrollEffect.set("scrolltext", m);
+			scrollText = m;
+		}
+
 		prevInfoField.setInfo(currentInfoField.getInfo());
 		currentInfoField.setInfo(currentInfo);
 		currentTune = currentInfo.starttune;
@@ -374,6 +387,11 @@ void ChipMachine::update() {
 		currentInfoField.setInfo(currentInfo);
 		currentTune = tune;
 		songField.setText(format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
+		auto m = compressWhitespace(player.getMeta("message"));
+		if(m != "" && scrollText != m) {
+			scrollEffect.set("scrolltext", m);
+			scrollText = m;
+		}
 	}
 
 	if(player.playing()) {
@@ -398,6 +416,18 @@ void ChipMachine::update() {
 		auto sub_title = player.getMeta("sub_title");
 		if(sub_title != xinfoField.getText())
 			xinfoField.setText(sub_title);
+
+		if(scrollText == "") {
+			auto m = player.getMeta("message");
+			if(m != "") {
+				m = compressWhitespace(m);
+				if(scrollText != m) {
+					scrollEffect.set("scrolltext", m);
+					scrollText = m;
+				}
+			}
+		}
+
 	}
 
 	if(!player.getAllowed()) {
@@ -479,7 +509,7 @@ void ChipMachine::render(uint32_t delta) {
 		int v = player.getVolume() * 10;
 		v = v * volPos.w / 10;
 		screen.rectangle(volPos.x + v, volPos.y, volPos.w - v, volPos.h, color);
-		screen.text(listFont, std::to_string((int)(v * 100)), volPos.x, volPos.y, 1.0, 0xff8888ff);
+		//screen.text(listFont, std::to_string((int)(v * 100)), volPos.x, volPos.y, 10.0, 0xff8888ff);
 	}
 
 	musicBars.render(spectrumPos, spectrumColor, eq);
@@ -489,12 +519,12 @@ void ChipMachine::render(uint32_t delta) {
 	scrollEffect.render(delta);
 
 	if(currentScreen == MAIN_SCREEN) {
-		mainScreen.render(delta);
+		mainScreen.render(screenptr, delta);
 		if(isFavorite)
 			screen.draw(favTexture, favPos.x, favPos.y, favPos.w, favPos.h, nullptr);
 	} else {
-		searchScreen.render(delta);
-		songList.render();
+		searchScreen.render(screenptr, delta);
+		songList.render(screenptr);
 	}
 
 	if(
@@ -506,7 +536,7 @@ void ChipMachine::render(uint32_t delta) {
 		screen.draw(netTexture, 2, 2, 8 * 3, 5 * 3, nullptr);
 	}
 
-	renderSet.render(delta);
+	renderSet.render(screenptr, delta);
 
 	font.update_cache();
 	listFont.update_cache();

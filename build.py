@@ -78,10 +78,7 @@ for a in args.actions :
     elif a == 'clean' :
         subprocess.call([buildTool, '-C', outputDir, 'clean'])
     elif a == 'run' :
-        if osname == 'Darwin' :
-            exe = os.path.join(outputDir, 'Chipmachine.app/Contents/MacOS/chipmachine')
-        else :
-            exe = os.path.join(outputDir, 'chipmachine')
+        exe = os.path.join(outputDir, 'chipmachine')
         print exe
         os.system(exe + ' -d')
 
