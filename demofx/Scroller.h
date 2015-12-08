@@ -30,7 +30,8 @@ public:
 	}
 
 	void resize(int w, int h) override {
-		scr = grappix::Texture(w+10, h);
+		if(w > 8 && h > 8)
+			scr = grappix::Texture(w+10, h);
 	}
 	virtual void set(const std::string &what, const std::string &val, float seconds = 0.0) override {
 		if(what == "font") {

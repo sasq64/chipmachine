@@ -132,8 +132,15 @@ DB = {
 	name = "Bitar till Kaffet",
 	type = "podcast",
 	source = "",
+	song_list = "data/bitar.xml",
 	remote_list = "http://www.bitartillkaffet.se/?feed=podcast",
-	extra_list = "data/bitar.txt",
+	color = 0xfffff
+},
+{
+	name = "Bitar till Kaffet OLD",
+	type = "bitar",
+	source = "http://www.bitartillkaffet.se/media/",
+	song_list = "data/bitar.txt",
 	color = 0xfffff
 }
 --,{

@@ -129,16 +129,21 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 			auto title = i["title"].text();
 			auto enclosure = i["enclosure"].attr("url");
 
-			auto description = i["description"].text();
-			description = htmldecode(description, true);
+			string description = "";
+			auto d = i["itunes:summary"];
+			if(d.valid())
+				description = d.text();
+			else
+				description = i["description"].text();
+			//description = htmldecode(description, true);
 
 			metadata = description.c_str();
 
 			string composer = "";
 
-			auto d = i["dc:creator"];
-			if(d.valid())
-				composer = d.text();
+			auto c = i["dc:creator"];
+			if(c.valid())
+				composer = c.text();
 			if(composer == "") {
 				auto dash = title.rfind(" - ");
 				if(dash != string::npos) {
