@@ -53,7 +53,7 @@ public:
 				parts.push_back(line.substr(start));
 			if(parts.size() > 0) {
 				const auto &cmd = parts[0];
-				LOGD("[%s]", parts);
+				//LOGD("[%s]", parts);
 				if(cmd == "TRACK")
 					tracks.emplace_back();
 				if(tracks.size() > 0) {

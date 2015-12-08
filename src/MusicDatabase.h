@@ -65,6 +65,9 @@ enum Formats {
 
 	MP3,
 
+	M3U,
+	PLS,
+
 	OGG,
 
 	YOUTUBE,

@@ -40,7 +40,7 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 	static const map<uint32_t, uint32_t> colors = {
 	    {NOT_SET, 0xffff00ff}, {PLAYLIST, 0xffffff88}, {CONSOLE, 0xffdd3355},
 	    {C64, 0xffcc8844},     {ATARI, 0xffcccc33},    {MP3, 0xff88ff88},
-		{YOUTUBE, 0xffff0000},
+		{M3U, 0xffaaddaa},     {YOUTUBE, 0xffff0000},
 	    {PC, 0xffcccccc},      {AMIGA, 0xff6666cc},    {255, 0xff00ffff}};
 
 	Color c;

@@ -38,6 +38,7 @@ public:
 			//font.set_program(fprogram);
 		} else {
 			scrollText = val;
+			LOGD("SCROLL: %s", scrollText);
 			xpos = target.width() + 100;
 			scrollLen = font.get_width(val, scrollsize);
 		}

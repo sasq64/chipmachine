@@ -130,14 +130,21 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 			auto enclosure = i["enclosure"].attr("url");
 
 			auto description = i["description"].text();
+			description = htmldecode(description, true);
+
 			metadata = description.c_str();
 
 			string composer = "";
 
-			auto dash = title.rfind(" - ");
-			if(dash != string::npos) {
-				composer = title.substr(dash + 2);
-				title = title.substr(0, dash);
+			auto d = i["dc:creator"];
+			if(d.valid())
+				composer = d.text();
+			if(composer == "") {
+				auto dash = title.rfind(" - ");
+				if(dash != string::npos) {
+					composer = title.substr(dash + 2);
+					title = title.substr(0, dash);
+				}
 			}
 
 			auto pos = enclosure.find("file=");
@@ -440,6 +447,8 @@ void initFormats() {
 	format_map["playlist"] = PLAYLIST;
 	format_map["c64 demo"] = PLAYLIST;
 	format_map["c64 event"] = PLAYLIST;
+	format_map["pls"] = PLS;
+	format_map["m3u"] = M3U;
 }
 
 static uint8_t formatToByte(const std::string &fmt, const std::string &path, int coll) {
