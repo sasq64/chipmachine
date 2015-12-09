@@ -15,6 +15,14 @@ using namespace utils;
 
 namespace chipmachine {
 
+void MusicDatabase::createTables() {
+	db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, localdir STRING, "
+	        "description STRING, id UNIQUE, version INTEGER)");
+	db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, "
+	        "format STRING, path STRING, collection INTEGER, metadata STRING)");
+}
+
+
 void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<string, string> &vars) {
 
 	auto type = vars["type"];
@@ -700,8 +708,9 @@ bool MusicDatabase::initFromLua(const File &workDir) {
 	dbVersion = lua.getGlobal<int>("VERSION");
 	LOGD("DBVERSION %d INDEXVERSION %d", dbVersion, indexVersion);
 	if(dbVersion != indexVersion) {
-		db.exec("DELETE FROM collection");
-		db.exec("DELETE FROM song");
+		db.exec("DROP TABLE collection");
+		db.exec("DROP TABLE song");
+		createTables();
 		reindexNeeded = true;
 	}
 

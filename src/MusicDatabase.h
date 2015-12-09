@@ -89,10 +89,7 @@ enum Formats {
 class MusicDatabase : public SearchProvider {
 public:
 	MusicDatabase() : db(utils::File::getCacheDir() / "music.db"), reindexNeeded(false) {
-		db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, localdir STRING, "
-		        "description STRING, id UNIQUE, version INTEGER)");
-		db.exec("CREATE TABLE IF NOT EXISTS song (title STRING, game STRING, composer STRING, "
-		        "format STRING, path STRING, collection INTEGER, metadata STRING)");
+		createTables();
 	}
 
 	bool initFromLua(const utils::File &workDir);
@@ -173,6 +170,8 @@ private:
 	bool parseModlandPath(SongInfo &song);
 	void writeIndex(utils::File &f);
 	void readIndex(utils::File &f);
+
+	void createTables();
 
 	bool reindexNeeded;
 
