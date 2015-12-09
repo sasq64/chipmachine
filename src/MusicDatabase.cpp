@@ -108,8 +108,15 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 			if(rating.valid())
 				rt = stof(rating.text());
 			//LOGD("Found %s (%s %d)", name, type, rt);
-			auto g = i["ReleaseBy/Group"];
-			auto group = g.valid() ? g.text() : "";
+			string group = "";
+			auto rb = i["ReleasedBy"];
+			if(rb.valid()) {
+				for(const auto &g : rb.all("Group")) {
+					auto gn = g["Group"].text();
+					if(group != "") group += "+";
+					group += gn;
+				}
+			}
 			if((endsWith(type, "Music Collection") || endsWith(type, "Diskmag") ||
 				   	endsWith(type, "Demo")) && rt > 0) {
 

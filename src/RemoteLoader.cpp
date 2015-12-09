@@ -14,8 +14,8 @@ RemoteLoader::RemoteLoader() : webgetter(utils::File::getCacheDir() / "_webfiles
 void RemoteLoader::registerSource(const std::string &name, const std::string url,
                                   const std::string local_dir) {
 	Source s(url, local_dir);
-	if(s.local_dir[s.local_dir.length() - 1] != '/')
-		s.local_dir += '/';
+	if(s.local_dir != "" && !endsWith(s.local_dir, "/"))
+		s.local_dir += "/";
 	sources[name] = s;
 }
 
