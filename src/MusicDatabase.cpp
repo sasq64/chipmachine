@@ -109,7 +109,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 
 		auto doc = xmldoc::fromFile(listFile);
 		for(const auto &i : doc["ReleasesWithHVSC"].all("Release")) {
-			auto name = htmldecode(i["Name"].text());
+			auto name = htmldecode(utf8_encode(i["Name"].text()));
 			auto type = i["ReleaseType"].text();
 			auto rating = i["CSDbRating"];
 			float rt = 0;
@@ -120,7 +120,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, unordered_map<strin
 			auto rb = i["ReleasedBy"];
 			if(rb.valid()) {
 				for(const auto &g : rb.all("Group")) {
-					auto gn = g["Group"].text();
+					auto gn = utf8_encode(g["Group"].text());
 					if(group != "") group += "+";
 					group += gn;
 				}
