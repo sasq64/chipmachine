@@ -189,9 +189,6 @@ private:
 
 	std::shared_ptr<IncrementalQuery> iquery;
 
-	grappix::VerticalList songList;
-
-	std::vector<std::string> playlists;
 
 	bool haveSearchChars;
 

@@ -1,5 +1,4 @@
 #include "ChipMachine.h"
-#include "PlaylistDatabase.h"
 #include "Icons.h"
 #include "version.h"
 #include <cctype>
@@ -38,26 +37,21 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 	Color c;
 	string text;
 
-	if(index < playlists.size()) {
-		text = format("<%s>", playlists[index]);
-		c = 0xff6688ff;
-	} else {
-		auto res = iquery->getResult(index - playlists.size());
-		auto parts = split(res, "\t");
-		int f = atoi(parts[3].c_str()) & 0xff;
+	auto res = iquery->getResult(index);
+	auto parts = split(res, "\t");
+	int f = atoi(parts[3].c_str()) & 0xff;
 
-		if(f == PLAYLIST) {
-			if(parts[1] == "")
-				text = format("<%s>", parts[0]);
-			else
-				text = format("<%s / %s>", parts[0], parts[1]);
-		} else
-			text = format("%s / %s", parts[0], parts[1]);
+	if(f == PLAYLIST) {
+		if(parts[1] == "")
+			text = format("<%s>", parts[0]);
+		else
+			text = format("<%s / %s>", parts[0], parts[1]);
+	} else
+		text = format("%s / %s", parts[0], parts[1]);
 
-		auto it = --colors.upper_bound(f);
-		c = it->second;
-		c = c * 0.75f;
-	}
+	auto it = --colors.upper_bound(f);
+	c = it->second;
+	c = c * 0.75f;
 
 	if(hilight) {
 		static uint32_t markStartcolor = 0;
@@ -85,8 +79,6 @@ ChipMachine::ChipMachine(const std::string &wd)
 		screen.run_safely([=] { toast(e, 1); });
 	});
 #endif
-
-	PlaylistDatabase::getInstance();
 
 	File ff = File::findFile(workDir, "data/Bello.otf");
 	scrollEffect.set("font", ff.getName());

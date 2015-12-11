@@ -340,10 +340,21 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 		title_query = p[0];
 		composer_query = p[1];
 	}
+	
+	if(query == "") {
+		for(int i=0; i<playLists.size(); i++) {
+			result.push_back(0x10000000 + i);	
+		}
+		return result.size();
+	}
 
 	// titleIndex.setFilter([&](int index) {
 	//	return ((formats[index] & 0xff) != C64);
 	//});
+	for(int i=0; i<playLists.size(); i++) {
+		if(toLower(playLists[i].name).find(query) != string::npos)
+			result.push_back(0x10000000 + i);	
+	}
 
 	titleIndex.search(title_query, result, searchLimit);
 
@@ -419,6 +430,12 @@ SongInfo MusicDatabase::lookup(const std::string &p) {
 }
 
 SongInfo MusicDatabase::getSongInfo(int id) const {
+
+	if(id >= 0x10000000) {
+		string p = playLists[id - 0x10000000].name;
+		File path = File::getConfigDir() / "playlists" / p;
+		return SongInfo("playlist::" + path.getName(), "", p, "", "Local playlist");
+	}
 
 	id++;
 
@@ -674,9 +691,19 @@ void MusicDatabase::initFromLuaAsync(const File &workDir) {
 
 bool MusicDatabase::initFromLua(const File &workDir) {
 
+	File playlistDir{ File::getConfigDir() / "playlists" };
+	bool favFound = false;
+	for(auto f : playlistDir.listFiles()) {
+		playLists.emplace_back(f);
+		if(playLists.back().name == "Favorites")
+			favFound = true;
+	}
+	if(!favFound)
+		playLists.emplace_back(playlistDir / "Favorites");
+
 	reindexNeeded = false;
 
-	File fi{File::getCacheDir() / "index.dat"};
+	File fi{ File::getCacheDir() / "index.dat"};
 
 	indexVersion = 0;
 	if(fi.exists()) {

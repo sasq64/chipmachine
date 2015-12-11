@@ -133,6 +133,7 @@ public:
 	}
 
 private:
+	bool handlePlaylist(const std::string &fileName);
 	void playCurrent();
 	bool playFile(const std::string &fileName);
 

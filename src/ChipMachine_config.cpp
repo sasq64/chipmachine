@@ -94,7 +94,9 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 		if(fontFile.exists()) {
 			listFont = Font(fontFile.getName(), 32, 256); // | Font::DISTANCE_MAP);
 			resultFieldTemplate.setFont(listFont);
-		}
+		} else
+			throw file_not_found_exception();
+
 	} else if(name == "favicon") {
 		favPos[index - 1] = stol(val);
 	} else if(name == "background") {

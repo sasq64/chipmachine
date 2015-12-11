@@ -137,6 +137,7 @@ void IncrementalQuery::removeLast() {
 			lastStart = -1;
 			newRes = true;
 			finalResult.clear();
+			search();
 		}
 	}
 }
@@ -151,6 +152,7 @@ void IncrementalQuery::setString(const std::string &s) {
 
 void IncrementalQuery::clear() {
 	query.resize(0);
+	search();
 }
 
 const string IncrementalQuery::getString() {
@@ -319,9 +321,10 @@ unsigned int SearchIndex::tlcode(const char *s) {
 
 int SearchIndex::search(const string &q, vector<int> &result, unsigned int searchLimit) {
 
-	result.resize(0);
+	//result.resize(0);
 	// if(q.size() < 3)
 	//	return 0;
+	int startSize = result.size();
 
 	bool q3 = (q.size() <= 3);
 
@@ -355,7 +358,10 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 		}
 	} else {
 		if(q3) {
-			result = tv;
+			if(startSize == 0)
+				result = tv;
+			else
+				result.insert(result.end(), tv.begin(), tv.end());
 		} else {
 			LOGD("## SLOW: First word filtering");
 
@@ -378,7 +384,7 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 #endif
 		}
 	}
-	return result.size();
+	return result.size() - startSize;
 }
 
 void SearchIndex::dump(utils::File &f) {

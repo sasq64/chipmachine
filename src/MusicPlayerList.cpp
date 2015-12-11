@@ -142,6 +142,35 @@ int MusicPlayerList::listSize() {
 
 /// PRIVATE
 
+bool MusicPlayerList::handlePlaylist(const string &fileName) {
+
+	playList.clear();
+	File f{fileName};
+
+	auto lines = f.getLines();
+
+	// Remove lines with comment character
+	lines.erase(std::remove_if(lines.begin(), lines.end(),
+							   [=](const string &l) {
+								   return l[0] == ';';
+							   }),
+				lines.end());
+	for(const string &s : lines) {
+		playList.push_back(SongInfo(s));
+	}
+	SongInfo &si = playList.front();
+	auto path = si.path;
+	si = MusicDatabase::getInstance().lookup(si.path);
+	if(si.path == "") {
+		LOGD("Could not lookup '%s'", path);
+		errors.push_back("Bad song in playlist");
+		SET_STATE(ERROR);
+		return false;
+	}
+	SET_STATE(WAITING);
+	return true;
+}
+
 bool MusicPlayerList::playFile(const std::string &fileName) {
 	if(fileName == "")
 		return false;
@@ -179,30 +208,7 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 
 	} else
 	if(ext == "plist") {
-		playList.clear();
-		File f{fileName};
-
-		auto lines = f.getLines();
-
-		// Remove lines with comment character
-		lines.erase(std::remove_if(lines.begin(), lines.end(),
-								   [=](const string &l) {
-									   return l[0] == ';';
-								   }),
-					lines.end());
-		for(const string &s : lines) {
-			playList.push_back(SongInfo(s));
-		}
-		SongInfo &si = playList.front();
-		auto path = si.path;
-		si = MusicDatabase::getInstance().lookup(si.path);
-		if(si.path == "") {
-			LOGD("Could not lookup '%s'", path);
-			errors.push_back("Bad song in playlist");
-			SET_STATE(ERROR);
-			return false;
-		}
-		SET_STATE(WAITING);
+		handlePlaylist(fileName);
 		return true;
 	}
 
@@ -360,6 +366,11 @@ void MusicPlayerList::playCurrent() {
 		path = parts[1];
 	} else
 		path = currentInfo.path;
+
+	if(prefix == "playlist") {
+		handlePlaylist(path);
+		return;
+	}
 
 	if(startsWith(path, "MULTI:")) {
 		multiSongs = split(path.substr(6), "\t");

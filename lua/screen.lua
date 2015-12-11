@@ -104,9 +104,9 @@ Settings.search_field = { X0, Y0, 1.0, SEARCH_COLOR }
 Settings.top_status = { X0, Y0, 1.0, FORMAT_COLOR }
 
 LSCALE = 0.8
-
+LINE_HEIGHT = 1.0
 Settings.result_field = { X0, Y0+30, LSCALE, RESULT_COLOR }
-Settings.result_lines = (Y1-Y0)/(30*LSCALE)
+Settings.result_lines = (Y1-Y0)/(30*LSCALE*LINE_HEIGHT)
 
 Settings.font = "data/Neutra.otf"
 Settings.list_font = "data/Neutra.otf"

@@ -1,5 +1,4 @@
 #include "ChipMachine.h"
-#include "PlaylistDatabase.h"
 
 using namespace std;
 using namespace utils;
@@ -112,16 +111,8 @@ void ChipMachine::showScreen(int screen) {
 	}
 }
 
-void ChipMachine::showSearch() {
-	if(currentScreen != SEARCH_SCREEN) {
-		currentScreen = SEARCH_SCREEN;
-		Tween::make().to(spectrumColor, spectrumColorSearch).seconds(0.5);
-		Tween::make().to(scrollEffect.alpha, 0.0).seconds(0.5);
-	}
-}
-
 SongInfo ChipMachine::getSelectedSong() {
-	int i = songList.selected() - playlists.size();
+	int i = songList.selected();
 	if(i < 0)
 		return SongInfo();
 	return MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
@@ -206,6 +197,8 @@ void ChipMachine::updateKeys() {
 		smac.put_event(event);
 	}
 
+	auto &pdb = MusicDatabase::getInstance();
+
 	auto action = smac.next_action();
 	if(action.id != NO_ACTION) {
 
@@ -216,7 +209,7 @@ void ChipMachine::updateKeys() {
 		// LOGD("ACTION %d", action.id);
 		string name;
 		switch((ChipAction)action.id) {
-		case EDIT_PLAYLIST:
+		/*  case EDIT_PLAYLIST:
 			if(songList.selected() < (int)playlists.size())
 				editPlaylistName = playlists[songList.selected()];
 			else
@@ -239,7 +232,7 @@ void ChipMachine::updateKeys() {
 			commandField.visible(false);
 			playlistEdit = false;
 			playlistField.setText(currentPlaylistName);
-			break;
+			break;*/
 		case ADD_COMMAND_CHAR:
 			commandField.on_key(action.event);
 			break;
@@ -262,7 +255,7 @@ void ChipMachine::updateKeys() {
 				songList.select(songList.selected() + 1);
 			break;
 		case PLAY_LIST_SONG:
-			if(songList.selected() < (int)playlists.size()) {
+			/*  if(songList.selected() < (int)playlists.size()) {
 				auto name = playlists[songList.selected()];
 				PlaylistDatabase::getInstance().getPlaylist(name, [=](const Playlist &pl) {
 					player.clearSongs();
@@ -279,7 +272,7 @@ void ChipMachine::updateKeys() {
 			string composer;
 			int index = songList.selected();
 			while(index < songList.size()) {
-				auto res = iquery->getResult(index - playlists.size());
+				auto res = iquery->getResult(index);
 				auto parts = split(res, "\t");
 				if(composer == "")
 					composer = parts[1];
@@ -451,21 +444,17 @@ void ChipMachine::updateKeys() {
 		// searchField->color = searchColor;
 		searchField.visible(true);
 		topStatus.visible(false);
-		playlists.clear();
-		PlaylistDatabase::getInstance().search(iquery->getString(), playlists);
-		songList.setTotal(iquery->numHits() + playlists.size());
+		//PlaylistDatabase::getInstance().search(iquery->getString(), playlists);
+		songList.setTotal(iquery->numHits());
 	}
 
 	if(songList.selected() != last_selection && iquery->numHits() > 0) {
-		int i = songList.selected() - playlists.size();
-		if(i >= 0) {
-			SongInfo song = MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
-			auto ext = path_extension(song.path);
-			bool isoffline = RemoteLoader::getInstance().isOffline(song.path);
-			topStatus.setText(format("Format: %s (%s)%s", song.format, ext, isoffline ? "*" : ""));
-			// searchField->color = Color(formatColor);
-		} else
-			topStatus.setText("Format: Playlist");
+		int i = songList.selected();
+		SongInfo song = MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
+		auto ext = path_extension(song.path);
+		bool isoffline = RemoteLoader::getInstance().isOffline(song.path);
+		topStatus.setText(format("Format: %s (%s)%s", song.format, ext, isoffline ? "*" : ""));
+		// searchField->color = Color(formatColor);
 		searchField.visible(false);
 		topStatus.visible(true);
 	}

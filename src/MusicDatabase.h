@@ -105,19 +105,27 @@ public:
 
 	std::string getFullString(int index) const override {
 		std::lock_guard<std::mutex>{dbMutex};
-		return utils::format("%s\t%s\t%d\t%d", getTitle(index), getComposer(index), index,
-		                     formats[index]);
+		int f;
+		if(index >= 0x10000000)
+			f = PLAYLIST;
+		else
+			f = formats[index];
+		return utils::format("%s\t%s\t%d\t%d", getTitle(index), getComposer(index), index, f);
 	}
 	// Get full data, may require SQL query
 	SongInfo getSongInfo(int index) const; // { return getString(index); }
-
+ 
 	std::string getTitle(int index) const {
 		std::lock_guard<std::mutex>{dbMutex};
+		if(index >= 0x10000000)
+			return playLists[index - 0x10000000].name;
 	   	return titleIndex.getString(index);
 	}
 
 	std::string getComposer(int index) const {
 		std::lock_guard<std::mutex>{dbMutex};
+		if(index >= 0x10000000)
+			return "";
 		return composerIndex.getString(titleToComposer[index]);
 	}
 
@@ -150,6 +158,55 @@ public:
 	static MusicDatabase &getInstance() {
 		static MusicDatabase mdb;
 		return mdb;
+	}
+
+	struct Playlist {
+		Playlist(utils::File f) : fileName(f.getName()) {
+			if(f.exists()) {
+				for(const auto &l : f.getLines()) {
+					songs.emplace_back(l);
+				}
+			}
+			name = f.getFileName();
+		}
+		std::string name;
+		std::string fileName;
+		std::vector<SongInfo> songs;
+		void save() {
+			utils::File f { fileName };
+			for(const auto &s : songs) {
+				f.writeln(s.path);
+			}
+		}
+	};
+
+	void addToPlaylist(const std::string &plist, const SongInfo &song) {
+		for(auto &pl : playLists) {
+			if(pl.name == plist) {
+				pl.songs.push_back(song);
+				pl.save();
+				break;
+			}
+		}
+	}
+
+	void removeFromPlaylist(const std::string &plist, const SongInfo &song) {
+		for(auto &pl : playLists) {
+			if(pl.name == plist) {
+				pl.songs.push_back(song);
+				pl.save();
+				break;
+			}
+		}
+	}
+
+	std::vector<SongInfo>& getPlaylist(const std::string &plist) {
+		static std::vector<SongInfo> empty;
+		for(auto &pl : playLists) {
+			if(pl.name == plist)
+				return pl.songs;
+		}
+		return empty;
 	}
 
 private:
@@ -192,6 +249,9 @@ private:
 
 	std::future<void> initFuture;
 	std::atomic<bool> indexing;
+
+	std::vector<Playlist> playLists;
+
 };
 }
 

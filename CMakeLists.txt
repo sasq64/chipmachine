@@ -36,7 +36,6 @@ set(SOURCE_FILES
 	src/MusicDatabase.cpp
 	src/MusicPlayer.cpp
 	src/MusicPlayerList.cpp
-	src/PlaylistDatabase.cpp
 #	src/RemoteLists.cpp
 	src/RemoteLoader.cpp
 	src/SearchIndex.cpp
