@@ -1,7 +1,7 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
-#include "renderable.h"
+#include <grappix/gui/renderable.h>
 
 class Dialog : public Renderable {
 public:

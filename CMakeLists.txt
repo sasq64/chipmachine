@@ -42,8 +42,6 @@ set(SOURCE_FILES
 	src/SearchIndex.cpp
 	src/SongFileIdentifier.cpp
 #	src/TelnetInterface.cpp
-	src/renderable.cpp
-	src/renderset.cpp
 	src/state_machine.cpp
 	src/main.cpp
 )

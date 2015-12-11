@@ -1,7 +1,7 @@
 #ifndef TEXT_FIELD_H
 #define TEXT_FIELD_H
 
-#include "renderable.h"
+#include <grappix/gui/renderable.h>
 
 #include <memory>
 #include <coreutils/vec.h>

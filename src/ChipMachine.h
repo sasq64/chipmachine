@@ -12,7 +12,7 @@
 #endif
 
 #include "state_machine.h"
-#include "renderset.h"
+#include <grappix/gui/renderset.h>
 
 #include "LineEdit.h"
 #include "Dialog.h"
@@ -37,9 +37,32 @@
 
 namespace chipmachine {
 
-class ChipMachine : public grappix::VerticalList::Renderer {
+class Icon : public Renderable {
 public:
-	virtual void renderItem(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) override;
+	Icon() {};
+
+	Icon(grappix::Texture *tx, float x, float y, float w, float h) : texture(tx), x(x), y(y), w(w), h(h) {}
+
+	Icon(const image::bitmap &bm, float x, float y, float w, float h) : x(x), y(y), w(w), h(h) {	
+		texture = new grappix::Texture(bm);
+		glBindTexture(GL_TEXTURE_2D, texture->id());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	}
+
+	void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
+		target->draw(*texture, x, y, w, h, nullptr);
+	}
+private:
+	grappix::Texture *texture;
+	float x, y, w, h;
+};
+
+class ChipMachine {
+public:
+
+	using Color = grappix::Color;
+
 	void renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
 	void renderCommand(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
 
@@ -62,8 +85,7 @@ public:
 private:
 	void setVariable(const std::string &name, int index, const std::string &val);
 
-	void showMain();
-	void showSearch();
+	void showScreen(int screen);
 	SongInfo getSelectedSong();
 
 	void setupRules();
@@ -73,11 +95,9 @@ private:
 
 	MusicPlayerList player;
 
-	RenderSet renderSet;
-	TextField toastField;
-
 	const int MAIN_SCREEN = 0;
 	const int SEARCH_SCREEN = 1;
+	const int COMMAND_SCREEN = 2;
 
 	int currentScreen = MAIN_SCREEN;
 
@@ -104,8 +124,13 @@ private:
 	demofx::StarField starEffect;
 	demofx::Scroller scrollEffect;
 
+	// OVERLAY AND ITS RENDERABLES
+
+	RenderSet overlay;
+	TextField toastField;
+
+	// MAINSCREEN AND ITS RENDERABLES
 	RenderSet mainScreen;
-	// grappix::Font font;
 
 	SongInfoField currentInfoField;
 	SongInfoField nextInfoField;
@@ -119,6 +144,23 @@ private:
 	TextField xinfoField;
 	TextField playlistField;
 
+	// SEARCHSCREEN AND ITS RENDERABLES
+	RenderSet searchScreen;
+
+	LineEdit searchField;
+	TextField topStatus;
+	grappix::VerticalList songList;
+
+	// COMMANDSCREEN AND ITS RENDERABLES
+
+	RenderSet commandScreen;
+	LineEdit commandField;
+	grappix::VerticalList commandList;
+
+	//
+
+	TextField resultFieldTemplate;
+
 	string currentNextPath;
 	SongInfo currentInfo;
 	int currentTune = 0;
@@ -126,33 +168,24 @@ private:
 	tween::Tween currentTween;
 	bool lockDown = false;
 	bool isFavorite = false;
-	grappix::Texture favTexture;
-	grappix::Texture netTexture;
-	grappix::Texture eqTexture;
-	grappix::Texture volumeTexture;
-	grappix::Texture extTexture;
+	
+	Icon favIcon;
+	Icon netIcon;
+	Icon volumeIcon;
+	
 	grappix::Rectangle favPos = {80, 300, 16 * 8, 16 * 6};
-
-	RenderSet searchScreen;
-
-	LineEdit searchField;
-	LineEdit commandField;
-	TextField topStatus;
-
-	TextField resultFieldTemplate;
-
 	grappix::Rectangle volPos;
 
 	int numLines = 20;
 
 	tween::Tween markTween;
 
-	grappix::Color timeColor;
-	grappix::Color spectrumColor = 0xffffffff;
-	grappix::Color spectrumColorMain = 0xff00aaee;
-	grappix::Color spectrumColorSearch = 0xff111155;
-	grappix::Color markColor = 0xff00ff00;
-	grappix::Color hilightColor = 0xffffffff;
+	Color timeColor;
+	Color spectrumColor = 0xffffffff;
+	Color spectrumColorMain = 0xff00aaee;
+	Color spectrumColorSearch = 0xff111155;
+	Color markColor = 0xff00ff00;
+	Color hilightColor = 0xffffffff;
 
 	std::shared_ptr<IncrementalQuery> iquery;
 

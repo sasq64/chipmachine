@@ -27,14 +27,6 @@ std::string compressWhitespace(const std::string &text) {
 
 namespace chipmachine {
 
-void ChipMachine::renderItem(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
-
-	// if(commandMode)
-	//	renderCommand(rec, y, index, hilight);
-	// else
-	renderSong(rec, y, index, hilight);
-}
-
 void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
 
 	static const map<uint32_t, uint32_t> colors = {
@@ -117,24 +109,6 @@ ChipMachine::ChipMachine(const std::string &wd)
 	mainScreen.add(&lengthField);
 	mainScreen.add(&songField);
 
-	auto createTexture = [](const Icon &icon) -> Texture {
-		auto bm = image::bitmap(icon.w, icon.h, &icon.data[0]);
-		Texture t(bm);
-		glBindTexture(GL_TEXTURE_2D, t.id());
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		return t;
-	};
-
-	favTexture = createTexture(heart_icon);
-	netTexture = createTexture(net_icon);
-	volumeTexture = createTexture(volume_icon);
-
-	showVolume = 0;
-	float ww = volume_icon.w * 15;
-	float hh = volume_icon.h * 10;
-	volPos = { ((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh };
-
 	// SEARCHSCREEN
 
 	iquery = MusicDatabase::getInstance().createQuery();
@@ -150,11 +124,25 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 	initLua();
 	layoutScreen();
+	
+	favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
+	mainScreen.add(&favIcon);
+	favIcon.visible(false);
+
+	netIcon = Icon(net_icon, 2, 2, 8 * 3, 5 * 3);
+	mainScreen.add(&netIcon);
+	netIcon.visible(false);
+
+	float ww = volume_icon.width() * 15;
+	float hh = volume_icon.height() * 10;
+	volPos = { ((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh };
+	volumeIcon = Icon(volume_icon, volPos.x, volPos.y, volPos.w, volPos.h); 
+	showVolume = 0;
 
 	musicBars.setup(spectrumWidth, spectrumHeight, 24);
 
 	toastField = TextField(font, "", topLeft.x, downRight.y - 134, 2.0, 0x00ffffff);
-	renderSet.add(&toastField);
+	overlay.add(&toastField);
 
 	LOGD("WORKDIR %s", workDir.getName());
 	MusicDatabase::getInstance().initFromLuaAsync(this->workDir);
@@ -167,17 +155,26 @@ ChipMachine::ChipMachine(const std::string &wd)
 	oldHeight = screen.height();
 	resizeDelay = 0;
 
-	songList =
-	    VerticalList(this, grappix::Rectangle(topLeft.x, topLeft.y + 30 * searchField.scale, screen.width() - topLeft.x,
-	                                          downRight.y - topLeft.y - searchField.scale * 30),
-	                 numLines);
+	auto listrec = grappix::Rectangle(topLeft.x, topLeft.y + 30 * searchField.scale, screen.width() - topLeft.x,
+	                                  downRight.y - topLeft.y - searchField.scale * 30);
+	songList = VerticalList(listrec, numLines, [=](grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
+		renderSong(rec, y, index, hilight);
+	});
+	searchScreen.add(&songList);
+
+	commandList = VerticalList(listrec, numLines, [=](grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
+		grappix::screen.text(listFont, "XMD", rec.x, rec.y, 0xff00ff00, resultFieldTemplate.scale);
+	});
+
+	commandList.setTotal(100);
+
 	// playlistField = TextField(listFont, "Favorites", downRight.x - 80, downRight.y - 10, 0.5,
 	// 0xff888888);
 	// mainScreen.add(playlistField);
 
-	commandField = LineEdit(font, ">", topLeft.x, topLeft.y, 1.0, 0xff888888);
-	searchScreen.add(&commandField);
-	commandField.visible(false);
+	commandField = LineEdit(font, "", topLeft.x, topLeft.y, 1.0, 0xff888888);
+	commandScreen.add(&commandField);
+	commandScreen.add(&commandList);
 
 	scrollText = "INITIAL_TEXT";
 	scrollEffect.set("scrolltext", "Chipmachine " VERSION_STR " -- Just type to search -- UP/DOWN to select "
@@ -314,9 +311,10 @@ void ChipMachine::update() {
 				    .seconds((d + 200) / 200.0f);
 		};
 
-		auto favorites = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
-		auto favsong = find(favorites.begin(), favorites.end(), currentInfo);
+		auto favorites = MusicDatabase::getInstance().getPlaylist(currentPlaylistName);
+		auto favsong = find(favorites.begin(), favorites.end(), currentInfo.path);
 		isFavorite = (favsong != favorites.end());
+		favIcon.visible(isFavorite);
 
 		if(nextInfoField == currentInfoField) {
 			currentTween = Tween::make()
@@ -457,6 +455,14 @@ void ChipMachine::update() {
 			}
 		}
 	}
+	bool busy = (
+#ifdef ENABLE_TELNET
+	    WebRPC::inProgress() > 0 ||
+#endif
+		playerState == MusicPlayerList::LOADING ||
+	    webutils::Web::inProgress() > 0);
+
+	netIcon.visible(busy);
 }
 
 void ChipMachine::toast(const std::string &txt, int type) {
@@ -505,7 +511,7 @@ void ChipMachine::render(uint32_t delta) {
 		static Color color = 0xff000000;
 		showVolume--;
 
-		screen.draw(volumeTexture, volPos.x, volPos.y, volPos.w, volPos.h, nullptr);
+		volumeIcon.render(screenptr, 0);
 		int v = player.getVolume() * 10;
 		v = v * volPos.w / 10;
 		screen.rectangle(volPos.x + v, volPos.y, volPos.w - v, volPos.h, color);
@@ -520,23 +526,13 @@ void ChipMachine::render(uint32_t delta) {
 
 	if(currentScreen == MAIN_SCREEN) {
 		mainScreen.render(screenptr, delta);
-		if(isFavorite)
-			screen.draw(favTexture, favPos.x, favPos.y, favPos.w, favPos.h, nullptr);
-	} else {
+	} else if(currentScreen == SEARCH_SCREEN) {
 		searchScreen.render(screenptr, delta);
-		songList.render(screenptr);
+	} else {
+		commandScreen.render(screenptr, delta);
 	}
 
-	if(
-#ifdef ENABLE_TELNET
-	    WebRPC::inProgress() > 0 ||
-#endif
-		playerState == MusicPlayerList::LOADING ||
-	    webutils::Web::inProgress() > 0) {
-		screen.draw(netTexture, 2, 2, 8 * 3, 5 * 3, nullptr);
-	}
-
-	renderSet.render(screenptr, delta);
+	overlay.render(screenptr, delta);
 
 	font.update_cache();
 	listFont.update_cache();

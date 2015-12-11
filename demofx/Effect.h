@@ -1,7 +1,7 @@
 #ifndef EFFECT_H
 #define EFFECT_H
 
-#include "../src/renderable.h"
+#include <grappix/gui/renderable.h>
 
 #include <tween/tween.h>
 #include <grappix/grappix.h>

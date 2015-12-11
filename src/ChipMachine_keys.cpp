@@ -15,6 +15,7 @@ enum ChipAction {
 	PLAY_PAUSE,
 	SHOW_MAIN,
 	SHOW_SEARCH,
+	SHOW_COMMAND,
 	ADD_SEARCH_CHAR,
 	DEL_SEARCH_CHAR,
 	CLEAR_SEARCH,
@@ -53,20 +54,21 @@ void ChipMachine::setupRules() {
 
 	using namespace statemachine;
 
-	smac.add(Window::F1, if_equals(currentScreen, SEARCH_SCREEN), SHOW_MAIN);
+	smac.add(Window::F1, SHOW_MAIN);
 	smac.add({Window::F2, Window::UP, Window::DOWN, Window::PAGEUP, Window::PAGEDOWN}, SHOW_SEARCH);
 	smac.add(Window::F5, PLAY_PAUSE);
 	smac.add("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._0123456789 ",
-	         if_true(playlistEdit), ADD_COMMAND_CHAR);
+	         if_equals(currentScreen, COMMAND_SCREEN), ADD_COMMAND_CHAR);
 	smac.add("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._0123456789 ",
 	         if_not_null(currentDialog), ADD_DIALOG_CHAR);
 	smac.add({Window::ENTER, Window::ESCAPE, Window::BACKSPACE}, if_not_null(currentDialog),
 	         ADD_DIALOG_CHAR);
 	smac.add({Window::BACKSPACE, Window::LEFT, Window::RIGHT, Window::HOME, Window::END},
-	         if_true(playlistEdit), ADD_COMMAND_CHAR);
+	         if_equals(currentScreen, COMMAND_SCREEN), ADD_COMMAND_CHAR);
 	smac.add("abcdefghijklmnopqrstuvwxyz0123456789 ", ADD_SEARCH_CHAR);
 	smac.add(Window::BACKSPACE, DEL_SEARCH_CHAR);
 	smac.add(Window::ESCAPE, if_true(playlistEdit), CANCEL_COMMAND);
+	smac.add({Window::TAB, Window::F3}, SHOW_COMMAND);
 	smac.add(Window::ESCAPE, if_false(haveSearchChars), SHOW_MAIN);
 	smac.add(Window::ESCAPE, if_true(haveSearchChars), CLEAR_SEARCH);
 	smac.add(Window::F6, NEXT_SONG);
@@ -100,11 +102,12 @@ void ChipMachine::setupRules() {
 	smac.add("=+", VOLUME_UP);
 }
 
-void ChipMachine::showMain() {
-	hasMoved = true;
-	if(currentScreen != MAIN_SCREEN) {
-		currentScreen = MAIN_SCREEN;
-		Tween::make().to(spectrumColor, spectrumColorMain).seconds(0.5);
+void ChipMachine::showScreen(int screen) {
+	if(currentScreen != screen) {
+		hasMoved = (screen != SEARCH_SCREEN);
+		currentScreen = screen;
+		grappix::Color &c = (screen == MAIN_SCREEN ? spectrumColorMain : spectrumColorSearch);
+		Tween::make().to(spectrumColor, c).seconds(0.5);
 		Tween::make().to(scrollEffect.alpha, 1.0).seconds(0.5);
 	}
 }
@@ -146,7 +149,7 @@ void ChipMachine::shuffleSongs(bool format, bool composer, bool collection, int 
 		if(!endsWith(s.path, ".plist"))
 			player.addSong(s);
 	}
-	showMain();
+	showScreen(MAIN_SCREEN);
 	player.nextSong();
 }
 
@@ -163,6 +166,12 @@ void ChipMachine::updateKeys() {
 		return;
 
 	uint32_t event = key;
+
+	VerticalList *currentList = nullptr;
+	if(currentScreen == SEARCH_SCREEN)
+		currentList = &songList;
+	else if(currentScreen == MAIN_SCREEN)
+		currentList = &commandList;
 
 	if(key != Window::NO_KEY) {
 		bool ascii = (event >= 'A' && event <= 'Z');
@@ -188,8 +197,8 @@ void ChipMachine::updateKeys() {
 		if(screen.key_pressed(Window::ALT_LEFT) || screen.key_pressed(Window::ALT_RIGHT))
 			event |= ALT;
 
-		if((event & (CTRL | SHIFT)) == 0 && currentScreen == SEARCH_SCREEN)
-			songList.onKey(key);
+		if((event & (CTRL | SHIFT)) == 0 && currentList)
+			currentList->onKey(key);
 
 		if(event == (Window::RIGHT | SHIFT))
 			event = Window::LEFT;
@@ -262,9 +271,9 @@ void ChipMachine::updateKeys() {
 					}
 					player.nextSong();
 				});
-			} else
+			} else */
 				player.playSong(getSelectedSong());
-			showMain();
+			showScreen(MAIN_SCREEN);
 			break;
 		case NEXT_COMPOSER: {
 			string composer;
@@ -282,18 +291,21 @@ void ChipMachine::updateKeys() {
 
 		} break;
 		case NEXT_SONG:
-			showMain();
+			showScreen(MAIN_SCREEN);
 			player.nextSong();
 			break;
 		case SHOW_MAIN:
-			showMain();
+			showScreen(MAIN_SCREEN);
+			break;
+		case SHOW_COMMAND:
+			showScreen(COMMAND_SCREEN);
 			break;
 		case SHOW_SEARCH:
 			if(currentScreen == MAIN_SCREEN) {
-				showSearch();
+				showScreen(SEARCH_SCREEN);
 				songList.onKey(key);
 			} else {
-				showSearch();
+				showScreen(SEARCH_SCREEN);
 			}
 			searchUpdated = true;
 			break;
@@ -302,13 +314,13 @@ void ChipMachine::updateKeys() {
 			if(hasMoved && action.event != ' ')
 				iquery->clear();
 			hasMoved = false;
-			showSearch();
+			showScreen(SEARCH_SCREEN);
 			iquery->addLetter(tolower(action.event));
 			searchUpdated = true;
 			break;
 		case DEL_SEARCH_CHAR:
 			hasMoved = false;
-			showSearch();
+			showScreen(SEARCH_SCREEN);
 			iquery->removeLast();
 			searchUpdated = true;
 			break;
@@ -318,19 +330,19 @@ void ChipMachine::updateKeys() {
 			break;
 		case ADD_CURRENT_FAVORITE:
 			if(isFavorite) {
-				PlaylistDatabase::getInstance().removeFromPlaylist(currentPlaylistName,
-				                                                   currentInfo);
+				pdb.removeFromPlaylist(currentPlaylistName, currentInfo);
 			} else {
-				PlaylistDatabase::getInstance().addToPlaylist(currentPlaylistName, currentInfo);
+				pdb.addToPlaylist(currentPlaylistName, currentInfo);
 			}
 			isFavorite = !isFavorite;
+			favIcon.visible(isFavorite);
 			break;
 		case ADD_LIST_FAVORITE:
-			PlaylistDatabase::getInstance().addToPlaylist(currentPlaylistName, getSelectedSong());
+			pdb.addToPlaylist(currentPlaylistName, getSelectedSong());
 			break;
-		case DUMP_FAVORITES:
-			PlaylistDatabase::getInstance().dumpPlaylist(currentPlaylistName, "playlists");
-			break;
+		//case DUMP_FAVORITES:
+		//	pdb.dumpPlaylist(currentPlaylistName, "playlists");
+		//	break;
 		case NEXT_SUBTUNE:
 			if(currentInfo.numtunes == 0)
 				player.seek(-1, pos + 10);
@@ -424,7 +436,7 @@ void ChipMachine::updateKeys() {
 				song.path = "index::" + parts[2];
 				player.addSong(song, true);
 			}
-			showMain();
+			showScreen(MAIN_SCREEN);
 			player.nextSong();
 			break;
 		case NO_ACTION:
