@@ -132,13 +132,6 @@ void ChipMachine::shuffleSongs(bool format, bool composer, bool collection, int 
 
 	LOGD("SHUFFLE %s / %s", match.composer, match.format);
 
-	if(match.title == "")
-		match.title = currentInfo.title;
-	if(match.format == "")
-		match.format = currentInfo.format;
-	if(match.composer == "")
-		match.composer = currentInfo.composer;
-
 	if(!format)
 		match.format = "";
 	if(!composer)
