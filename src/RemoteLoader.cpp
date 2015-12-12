@@ -124,7 +124,9 @@ std::shared_ptr<webutils::Web::Job> RemoteLoader::stream(const std::string &p,
 				int mi = stol(s);
 				data_cb(PARAMETER, (uint8_t*)"icy-interval", mi);
 			}
-			data_cb(PARAMETER, (uint8_t*)"size", job.contentLength());
+			LOGD("CONTENT LENGTH %d", job.contentLength());
+			if(job.contentLength() > 0)
+				data_cb(PARAMETER, (uint8_t*)"size", job.contentLength());
 			headers = true;
 		}
 		if(data == nullptr)

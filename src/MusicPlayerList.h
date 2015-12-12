@@ -55,6 +55,7 @@ public:
 	uint16_t *getSpectrum();
 	int spectrumSize();
 	SongInfo getInfo(int index = 0);
+	SongInfo getDBInfo();
 	int getLength();
 	int getPosition();
 	int listSize();
@@ -132,6 +133,10 @@ public:
 		mp.stop();
 	}
 
+	bool wasFromQueue() {
+		return playedNext;
+	}
+
 private:
 	void playCurrent();
 	bool playFile(const std::string &fileName);
@@ -160,6 +165,7 @@ private:
 
 	std::atomic<State> state; // = STOPPED;
 	SongInfo currentInfo;
+	SongInfo dbInfo;
 
 	std::thread playerThread;
 
@@ -183,6 +189,7 @@ private:
 	std::vector<std::string> multiSongs;
 	bool changedMulti = false;
 	// RemoteLists &tracker;
+	bool playedNext;
 };
 
 } // namespace chipmachine

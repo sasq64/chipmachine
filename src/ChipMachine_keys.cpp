@@ -128,9 +128,16 @@ void ChipMachine::shuffleSongs(bool format, bool composer, bool collection, int 
 	vector<SongInfo> target;
 	SongInfo match = (currentScreen == SEARCH_SCREEN)
 	                     ? getSelectedSong()
-	                     : MusicDatabase::getInstance().lookup(currentInfo.path);
+	                     : dbInfo;
 
-	LOGD("SHUFFLE %s", match.path);
+	LOGD("SHUFFLE %s / %s", match.composer, match.format);
+
+	if(match.title == "")
+		match.title = currentInfo.title;
+	if(match.format == "")
+		match.format = currentInfo.format;
+	if(match.composer == "")
+		match.composer = currentInfo.composer;
 
 	if(!format)
 		match.format = "";
@@ -319,9 +326,9 @@ void ChipMachine::updateKeys() {
 		case ADD_CURRENT_FAVORITE:
 			if(isFavorite) {
 				PlaylistDatabase::getInstance().removeFromPlaylist(currentPlaylistName,
-				                                                   currentInfo);
+				                                                   dbInfo);
 			} else {
-				PlaylistDatabase::getInstance().addToPlaylist(currentPlaylistName, currentInfo);
+				PlaylistDatabase::getInstance().addToPlaylist(currentPlaylistName, dbInfo);
 			}
 			isFavorite = !isFavorite;
 			break;

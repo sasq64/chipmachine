@@ -47,7 +47,7 @@ bool MusicPlayerList::addSong(const SongInfo &si, bool shuffle) {
 		}
 		playList.insert(playList.begin() + (rand() % (playList.size() + 1)), si);
 	} else {
-		LOGD("PUSH %s", si.path);
+		LOGD("PUSH %s/%s (%s)", si.title, si.composer, si.path);
 		playList.push_back(si);
 	}
 	return true;
@@ -74,7 +74,7 @@ void MusicPlayerList::playSong(const SongInfo &si) {
 	if(!checkPermission(CAN_SWITCH_SONG))
 		return;
 	LOCK_GUARD(plMutex);
-	currentInfo = si;
+	dbInfo = currentInfo = si;
 	SET_STATE(PLAY_NOW);
 }
 
@@ -126,6 +126,11 @@ SongInfo MusicPlayerList::getInfo(int index) {
 		return currentInfo;
 	else
 		return playList[index - 1];
+}
+
+SongInfo MusicPlayerList::getDBInfo() {
+	LOCK_GUARD(plMutex);
+	return dbInfo;
 }
 
 int MusicPlayerList::getLength() {
@@ -265,6 +270,7 @@ void MusicPlayerList::update() {
 		SET_STATE(STARTED);
 		// LOGD("##### PLAY NOW: %s (%s)", currentInfo.path, currentInfo.title);
 		multiSongs.clear();
+		playedNext = false;
 		playCurrent();
 	}
 
@@ -325,19 +331,19 @@ void MusicPlayerList::update() {
 	}
 
 	if(state == WAITING && playList.size() > 0) {
-		{
-			SET_STATE(STARTED);
-			currentInfo = playList.front();
-			playList.pop_front();
+		SET_STATE(STARTED);
+		dbInfo = currentInfo = playList.front();
+		playList.pop_front();
 
-			if(playList.size() > 0) {
-				// Update info for next song from
-				SongInfo &si = playList.front();
-				si = MusicDatabase::getInstance().lookup(si.path);
-			}
+		playedNext = true;
 
-			// pos = 0;
+		if(playList.size() > 0) {
+			// Update info for next song from
+			SongInfo &si = playList.front();
+			si = MusicDatabase::getInstance().lookup(si.path);
 		}
+
+		// pos = 0;
 		LOGD("Next song from queue : %s", currentInfo.path);
 		if(partyMode) {
 			partyLockDown = true;
@@ -377,7 +383,7 @@ void MusicPlayerList::playCurrent() {
 
 	if(prefix == "index") {
 		int index = stol(path);
-		currentInfo = MusicDatabase::getInstance().getSongInfo(index);
+		dbInfo = currentInfo = MusicDatabase::getInstance().getSongInfo(index);
 	}
 
 	auto ext = path_extension(path);
@@ -451,7 +457,7 @@ void MusicPlayerList::playCurrent() {
 		auto smpl_file = currentInfo.path.substr(0, currentInfo.path.find_last_of('.') + 1) + ext2;
 		LOGD("Loading secondary (sample) file '%s'", smpl_file);
 		loader.load(smpl_file, [=](File f) {
-			if(f == File::NO_FILE) {
+			if(!f) {
 				errors.push_back("Could not load secondary file");
 				SET_STATE(ERROR);
 			};
@@ -462,7 +468,7 @@ void MusicPlayerList::playCurrent() {
 	// LOGD("LOADING:%s", currentInfo.path);
 	files++;
 	loader.load(currentInfo.path, [=](File f0) {
-		if(f0 == File::NO_FILE) {
+		if(!f0) {
 			errors.push_back("Could not load file");
 			SET_STATE(ERROR);
 			files--;
@@ -480,8 +486,13 @@ void MusicPlayerList::playCurrent() {
 				RemoteLoader &loader = RemoteLoader::getInstance();
 				auto url = path_directory(currentInfo.path) + "/" + s;
 				loader.load(url, [=](File f) {
-					LOGD("Copying 2ndary file to %s", target.getName());
-					File::copy(f.getName(), target);
+					if(!f) {
+						errors.push_back("Could not load file");
+						SET_STATE(ERROR);
+					} else {
+						LOGD("Copying secondary file to %s", target.getName());
+						File::copy(f.getName(), target);
+					}
 					files--;
 				});
 			}
