@@ -80,11 +80,10 @@ void MusicPlayerList::playSong(const SongInfo &si) {
 
 void MusicPlayerList::updateInfo() {
 	auto si = mp.getPlayingInfo();
-	if(si.title != "")
+	/* if(si.title != "")
 		currentInfo.title = si.title;
-	LOGD("UPDATE title %s", si.title);
 	if(si.composer != "")
-		currentInfo.composer = si.composer;
+		currentInfo.composer = si.composer; */
 	if(si.format != "")
 		currentInfo.format = si.format;
 	// if(si.length > 0)
