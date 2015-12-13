@@ -4,13 +4,13 @@
 -- local_dir : If exists, will be checked first for files before downloading.
 -- If song_list or or source can not be found, database will not be added
 
-VERSION = 7;
+VERSION = 8;
 
 DB = {
 {
-	name = "Amiga Playlists",
-	type = "amipl",
-	local_dir = "data/playlists/amiga",
+	name = "Playlists",
+	type = "pl",
+	local_dir = "data/playlists",
 	color = 0xfffff
 },
 {
@@ -18,12 +18,6 @@ DB = {
 	type = "csdb",
 	local_dir = "",
 	song_list = "data/csdb.xml",
-	color = 0xfffff
-},
-{
-	name = "Sounds of Scenesat",
-	type = "scensatpl",
-	local_dir = "data/playlists/scenesat",
 	color = 0xfffff
 },
 {
