@@ -37,7 +37,8 @@ public:
 		PLAY_STARTED,
 		PLAYING,
 		FADING,
-		PLAY_NOW
+		PLAY_NOW,
+		PLAY_MULTI
 	};
 
 	MusicPlayerList(const std::string &workDir);

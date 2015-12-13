@@ -304,7 +304,7 @@ void ChipMachine::update() {
 
 		auto sub_title = player.getMeta("sub_title");
 
-		int tw = font.get_width(currentInfo.title, currentInfoField[0].scale);
+		int tw = currentInfoField.getWidth(0);
 
 		auto f = [=]() {
 			xinfoField.setText(sub_title);

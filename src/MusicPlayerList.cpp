@@ -98,11 +98,8 @@ void MusicPlayerList::seek(int song, int seconds) {
 	if(!checkPermission(CAN_SEEK))
 		return;
 	if(multiSongs.size()) {
-		currentInfo.path = multiSongs[song];
-		changedMulti = true;
 		LOGD("CHANGED MULTI");
-		playCurrent();
-		//changedSong = true;
+		state = PLAY_MULTI;
 		multiSongNo = song;
 		return;
 	}
@@ -146,7 +143,8 @@ int MusicPlayerList::listSize() {
 
 /// PRIVATE
 
-bool MusicPlayerList::playFile(const std::string &fileName) {
+bool MusicPlayerList::playFile(const std::string &fn) {
+	auto fileName = fn;
 	if(fileName == "")
 		return false;
 	auto ext = toLower(path_extension(fileName));
@@ -209,6 +207,14 @@ bool MusicPlayerList::playFile(const std::string &fileName) {
 		SET_STATE(WAITING);
 		return true;
 	}
+	else
+	if(ext == "jb") {
+		// Jason Brooke fix
+		string newName = fileName.substr(0, fileName.find_last_of('.')) + ".jcb";
+		if(!File::exists(newName))
+			File::copy(fileName, newName);
+		fileName = newName;
+	}
 
 	if(mp.playFile(fileName)) {
 #ifdef USE_REMOTELISTS
@@ -270,6 +276,13 @@ void MusicPlayerList::update() {
 		// LOGD("##### PLAY NOW: %s (%s)", currentInfo.path, currentInfo.title);
 		multiSongs.clear();
 		playedNext = false;
+		playCurrent();
+	}
+
+	if(state == PLAY_MULTI) {
+		SET_STATE(STARTED);
+		currentInfo.path = multiSongs[multiSongNo];
+		changedMulti = true;
 		playCurrent();
 	}
 

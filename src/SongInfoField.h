@@ -37,6 +37,10 @@ struct SongInfoField : public Renderable {
 		fields[2]->setText(info.format);
 	}
 
+	int getWidth(int no) {
+		return fields[no]->getWidth();
+	}
+
 	SongInfoField& operator=(const SongInfoField &other) {
 		for(int i=0; i<3; i++)
 			fields[i]->setText(other.fields[i]->getText());
