@@ -122,9 +122,9 @@ void ChipMachine::shuffleSongs(bool format, bool composer, bool collection, int 
 	vector<SongInfo> target;
 	SongInfo match = (currentScreen == SEARCH_SCREEN)
 	                     ? getSelectedSong()
-	                     : MusicDatabase::getInstance().lookup(currentInfo.path);
+	                     : dbInfo;
 
-	LOGD("SHUFFLE %s", match.path);
+	LOGD("SHUFFLE %s / %s", match.composer, match.format);
 
 	if(!format)
 		match.format = "";
@@ -323,9 +323,9 @@ void ChipMachine::updateKeys() {
 			break;
 		case ADD_CURRENT_FAVORITE:
 			if(isFavorite) {
-				pdb.removeFromPlaylist(currentPlaylistName, currentInfo);
+				pdb.removeFromPlaylist(currentPlaylistName, dbInfo);
 			} else {
-				pdb.addToPlaylist(currentPlaylistName, currentInfo);
+				pdb.addToPlaylist(currentPlaylistName, dbInfo);
 			}
 			isFavorite = !isFavorite;
 			favIcon.visible(isFavorite);

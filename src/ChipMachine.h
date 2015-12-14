@@ -163,6 +163,7 @@ private:
 
 	string currentNextPath;
 	SongInfo currentInfo;
+	SongInfo dbInfo;
 	int currentTune = 0;
 
 	tween::Tween currentTween;

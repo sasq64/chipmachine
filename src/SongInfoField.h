@@ -21,28 +21,32 @@ struct SongInfoField : public Renderable {
 		fields[2] = std::make_shared<TextField>(font, "", x, y + 100 * sc, sc * 0.4, color);
 	}
 
-	// SongInfoField(TextScreen &ps, int x, int y, float sc = 1.0, uint32_t color = 0xffffffff) :
-	// fields { ps.addField("", x, y, sc, color), ps.addField("", x, y+30*sc, sc*0.6, color),
-	// ps.addField("", x, y+50*sc, sc*0.4, color) } {}
-
 	void setInfo(const SongInfo &info) {
 		LOGD("Set info '%s' '%s' '%s'", info.title, info.composer, info.format);
-		fields[0]->setText(info.title);
+		auto t = info.title;
+		if(info.game != "" && info.title == "")
+			t = info.game;
+		else
+			t = info.title; 
+			
+		if(t == "")
+			t = utils::path_filename(utils::urldecode(info.path, ""));
+
+		fields[0]->setText(t);
 		fields[1]->setText(info.composer);
 		fields[2]->setText(info.format);
-		path = info.path;
 	}
 
-	SongInfo getInfo() {
-		SongInfo si;
-		si.title = fields[0]->getText();
-		si.composer = fields[1]->getText();
-		si.format = fields[2]->getText();
-		si.path = path;
-		return si;
+	int getWidth(int no) {
+		return fields[no]->getWidth();
 	}
 
-	bool operator==(const SongInfoField &other) const { return other.path == path; }
+	SongInfoField& operator=(const SongInfoField &other) {
+		for(int i=0; i<3; i++)
+			fields[i]->setText(other.fields[i]->getText());
+		return *this;
+	}
+
 
 	virtual void render(std::shared_ptr<grappix::RenderTarget> target,  uint32_t delta) override {
 		for(const auto &f : fields)
@@ -74,8 +78,6 @@ struct SongInfoField : public Renderable {
 	iterator end() { return iterator(fields, 3); }
 
 	TextField &operator[](int i) { return *fields[i]; }
-	// int size() const { return 3; }
-	std::string path;
 };
 
 #endif // SONG_INFO_FIELD_H

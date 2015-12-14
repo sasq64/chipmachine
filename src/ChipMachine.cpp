@@ -265,7 +265,7 @@ void ChipMachine::update() {
 	if(playerState == MusicPlayerList::PLAY_STARTED) {
 		LOGD("MUSIC STARTING %s", currentInfo.title);
 		currentInfo = player.getInfo();
-		LOGD("Prev song %s, new song %s", currentInfoField.getInfo().title, currentInfo.title);
+		dbInfo = player.getDBInfo();
 		string m;
 		if(currentInfo.metadata != "") {
 			m = compressWhitespace(currentInfo.metadata);
@@ -277,11 +277,14 @@ void ChipMachine::update() {
 			scrollText = m;
 		}
 
-		prevInfoField.setInfo(currentInfoField.getInfo());
-		currentInfoField.setInfo(currentInfo);
-		currentTune = currentInfo.starttune;
+		// Make sure any previous tween is complete
 		currentTween.finish();
 		currentInfoField[0].pos.x = currentInfoField[1].pos.x;
+		prevInfoField = currentInfoField;
+
+		// Update current info, rely on tween to make sure it will fade in
+		currentInfoField.setInfo(currentInfo);
+		currentTune = currentInfo.starttune;
 
 		if(currentInfo.numtunes > 0)
 			songField.setText(format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
@@ -290,7 +293,7 @@ void ChipMachine::update() {
 
 		auto sub_title = player.getMeta("sub_title");
 
-		int tw = font.get_width(currentInfo.title, currentInfoField[0].scale);
+		int tw = currentInfoField.getWidth(0);
 
 		auto f = [=]() {
 			xinfoField.setText(sub_title);
@@ -308,7 +311,9 @@ void ChipMachine::update() {
 		isFavorite = (favsong != favorites.end());
 		favIcon.visible(isFavorite);
 
-		if(nextInfoField == currentInfoField) {
+		// Start tweening
+
+		if(player.wasFromQueue()) {
 			currentTween = Tween::make()
 			                   .from(prevInfoField, currentInfoField)
 			                   .from(currentInfoField, nextInfoField)
@@ -350,9 +355,6 @@ void ChipMachine::update() {
 			if(info.path != "")
 				RemoteLoader::getInstance().preCache(info.path);
 			if(info.path != currentNextPath) {
-				if(info.title == "") {
-					info.title = path_filename(urldecode(info.path, ""));
-				}
 
 				if(psz == 1)
 					nextField.setText("Next");

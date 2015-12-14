@@ -413,19 +413,18 @@ SongInfo MusicDatabase::lookup(const std::string &p) {
 		LOGD("INDEX %s %s", parts[0], path);
 	}
 
-	auto q = db.query<string, string, string, string, string, string>(
-	    "SELECT title, game, composer, format, collection.id, metadata FROM song, collection WHERE "
-	    "song.path=? AND song.collection = collection.ROWID",
-	    path);
+	auto q = db.query<string, string, string, string, string, string, string>(
+	    "SELECT path, title, game, composer, format, collection.id, metadata FROM song, collection "
+	    "WHERE song.collection = collection.ROWID AND song.path = ?", path);
 
 	SongInfo song;
-	song.path = p;
 	if(q.step()) {
 		string coll;
-		tie(song.title, song.game, song.composer, song.format, coll, song.metadata) = q.get_tuple();
-		LOGD("Found %s from %s", song.title, path);
-		song.path = coll + "::" + path;
+		tie(song.path, song.title, song.game, song.composer, song.format, coll, song.metadata) = q.get_tuple();
+		song.path = coll + "::" + song.path;
+		LOGD("LOOKUP '%s' became '%s'", path, song.path);
 	}
+
 	return song;
 }
 
@@ -440,17 +439,15 @@ SongInfo MusicDatabase::getSongInfo(int id) const {
 	id++;
 
 	auto q = db.query<string, string, string, string, string, string, string>(
-	    "SELECT title, game, composer, format, song.path, collection.id, metadata FROM song, collection "
-	    "WHERE song.ROWID = ? AND song.collection = collection.ROWID",
-	    id);
+	    "SELECT title, game, composer, format, song.path, collection.id, metadata "
+	    "FROM song, collection "
+	    "WHERE song.ROWID = ? AND song.collection = collection.ROWID", id);
 	if(q.step()) {
 		SongInfo song;
 		string collection;
 		tie(song.title, song.game, song.composer, song.format, song.path, collection, song.metadata) =
 		    q.get_tuple();
 		song.path = collection + "::" + song.path;
-		if(song.game != "")
-			song.title = utils::format("%s [%s]", song.game, song.title);
 		return song;
 	}
 	throw not_found_exception();
