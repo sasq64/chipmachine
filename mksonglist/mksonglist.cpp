@@ -1,4 +1,4 @@
-#include "SongFileIdentifier.h"
+#include "../src/SongFileIdentifier.h"
 
 #include <coreutils/utils.h>
 #include <coreutils/file.h>

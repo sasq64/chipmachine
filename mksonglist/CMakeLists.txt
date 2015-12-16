@@ -9,7 +9,7 @@ include_directories(${AP1_ROOT}/mods /usr/local/include)
 
 set(SOURCE_FILES
 	mksonglist.cpp
-	SongFileIdentifier.cpp
+	../src/SongFileIdentifier.cpp
 )
 
 set(APONE_MODULES

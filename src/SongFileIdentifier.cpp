@@ -24,18 +24,6 @@ static string get_string(uint8_t *ptr, int size) {
 	return string((const char *)ptr, end - ptr);
 }
 
-bool parseSid(SongInfo &info) {
-	static vector<uint8_t> buffer(0xd8);
-	File f{info.path};
-	info.format = "Commodore 64";
-	f.read(&buffer[0], buffer.size());
-	info.title = utf8_encode(get_string(&buffer[0x16], 0x20));
-	info.composer = utf8_encode(get_string(&buffer[0x36], 0x20));
-	// auto copyright = string((const char*)&buffer[0x56], 0x20);
-	f.close();
-	return true;
-}
-
 vector<string> getLines(const std::string &text) {
 
 	vector<string> lines;
@@ -67,6 +55,18 @@ vector<string> getLines(const std::string &text) {
 		lines.push_back(tmp);
 
 	return lines;
+}
+
+bool parseSid(SongInfo &info) {
+	static vector<uint8_t> buffer(0xd8);
+	File f{info.path};
+	info.format = "Commodore 64";
+	f.read(&buffer[0], buffer.size());
+	info.title = utf8_encode(get_string(&buffer[0x16], 0x20));
+	info.composer = utf8_encode(get_string(&buffer[0x36], 0x20));
+	// auto copyright = string((const char*)&buffer[0x56], 0x20);
+	f.close();
+	return true;
 }
 
 bool parseSap(SongInfo &info) {
@@ -282,11 +282,32 @@ bool parsePList(SongInfo &info) {
 	return true;
 }
 
+bool parseNsfe(SongInfo &song) {
+	File f{song.path};
+	if(f.readString(4) != "NSFE")
+		return false;
+	while(!f.eof()) {
+		auto size = f.read<uint32_t>();
+		auto tag = f.readString(4);
+		auto next = f.tell() + size;
+
+		if(tag == "auth") {
+			song.game = f.readString();
+			song.composer = f.readString();
+			return true;
+		}
+		f.seek(next);
+	}
+	return false;
+}
+
 bool identify_song(SongInfo &info, string ext) {
 
 	if(ext == "")
 		ext = path_extension(info.path);
 
+	if(ext == "nsfe")
+		return parseNsfe(info);
 	if(ext == "plist")
 		return parsePList(info);
 	if(ext == "rsn")
