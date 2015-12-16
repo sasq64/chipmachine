@@ -204,7 +204,7 @@ void IncrementalQuery::search() {
 		// First word has changed
 		//  - If something was just added, we can filter our firstResult more
 		//  - Otherwise do a new search
-		if(words[0].size() > 4 && words[0].find(oldWords[0]) == 0) {
+		if(words[0].size() > 4 && oldWords.size() > 0 && words[0].find(oldWords[0]) == 0) {
 			// Erase things that don't match from existing result
 			LOGD("## FAST: Filter prevous result");
 			firstResult.erase(std::remove_if(firstResult.begin(), firstResult.end(),

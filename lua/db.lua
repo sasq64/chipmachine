@@ -9,20 +9,20 @@ VERSION = 8;
 DB = {
 {
 	name = "Playlists",
-	type = "pl",
+	id =  "pl",
 	local_dir = "data/playlists",
 	color = 0xfffff
 },
 {
 	name = "CSDb",
-	type = "csdb",
+	id =  "csdb",
 	local_dir = "",
 	song_list = "data/csdb.xml",
 	color = 0xfffff
 },
 {
 	name = "Modland",
-	type = "modland",
+	id =  "modland",
 	source = "http://ftp.modland.com/pub/modules/",
 	song_list = "data/allmods.txt",
 	local_dir = "/opt/Music/MODLAND",
@@ -31,7 +31,7 @@ DB = {
 },
 {
 	name = "HVSC",
-	type = "hvsc",
+	id =  "hvsc",
 	-- source = "http://www.prg.dtu.dk/HVSC/C64Music/",
 	-- source = "http://hvsc.etv.cx/C64Music/",
 	source = "http://www.sannic.nl/hvsc/HVSC63/C64Music/",
@@ -42,7 +42,7 @@ DB = {
  },
  {
 	name = "snesmusic.org",
-	type = "rsn",
+	id =  "rsn",
 	source = "http://snesmusic.org/v2/download.php?spcNow=",
 	make_source = snes,
 	song_list = "data/rsn.txt",
@@ -52,7 +52,7 @@ DB = {
 },
 {
 	name = "sndh",
-	type = "sndh",
+	id =  "sndh",
 	source = "http://sndh.atari.org/sndh/sndh_lf/",
 	song_list = "data/sndh.txt",
 	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/sndh.txt",
@@ -61,7 +61,7 @@ DB = {
 },
 {
 	name = "asma",
-	type = "asma",
+	id =  "asma",
 	source = "http://asma.atari.org/asma/",
 	song_list = "data/asma.txt",
 	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/asma.txt",
@@ -70,60 +70,68 @@ DB = {
 },
 {
 	name = "remix.kwed.org",
-	type = "rko",
+	id =  "rko",
 	source = "http://remix.kwed.org/download.php/",
 	song_list = "data/rko.txt",
+	utf8 = "no",
+	song_template = "path sidname sidsong title composer rating",
+	format = "MP3",
 	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/rko.txt",
 	local_dir = "/opt/Music/rko",
 	color = 0xfffff
 },
 {
 	name = "amigaremix",
-	type = "amigaremix",
+	id =  "amigaremix",
 	source = "http://amigaremix.com/listen/",
 	song_list = "data/amiremix.txt",
+	song_template = "no path title composer",
+	format = "MP3",
 	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/amiremix.txt",
 	local_dir = "/opt/Music/amiremix",
 	color = 0xfffff
 },
 {
 	name = "scenesat",
-	type = "scenesat",
+	id =  "scenesat",
 	source = "http://sos.scenesat.com/play/",
 	song_list = "data/scenesat.txt",
+	song_template = "composer game title format path",
 	local_dir = "/opt/Music/scenesat",
 	color = 0xfffff
 },
 {
 	name = "Bitjam",
-	type = "bitjam",
+	id =  "bitjam",
+	type = "podcast",
 	source = "http://malus.exotica.org.uk/pub/",
 	remote_list = "http://www.bitfellas.org/podcast/podcast.xml",
 	color = 0xfffff
 },
 {
 	name = "Demovibes",
-	type = "demovibes",
+	id =  "demovibes",
 	source = "http://www.demovibes.org/downloads/",
 	song_list = "data/demovibes.txt",
 	color = 0xfffff
 },
 {
 	name = "Amigavibes",
-	type = "amigavibes",
+	id =  "amigavibes",
 	source = "http://www.amigavibes.org/index.php/download/category/2-podcast-musicaux?download=",
 	song_list = "data/amigavibes.txt",
 	color = 0xfffff
 },
 {
 	name = "Radio",
-	type = "radio",
+	id =  "radio",
 	source = "",
 	song_list = "data/radio.txt",
 	color = 0xfffff
 },
 {
 	name = "Bitar till Kaffet",
+	id = "bitar",
 	type = "podcast",
 	source = "",
 	song_list = "data/bitar.xml",
@@ -131,8 +139,8 @@ DB = {
 	color = 0xfffff
 },
 {
-	name = "Bitar till Kaffet OLD",
-	type = "bitar",
+	name = "Bitar till Kaffet",
+	id =  "bitar2",
 	source = "http://www.bitartillkaffet.se/media/",
 	song_list = "data/bitar.txt",
 	color = 0xfffff

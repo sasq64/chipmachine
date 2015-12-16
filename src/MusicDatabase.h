@@ -88,6 +88,9 @@ enum Formats {
 
 class MusicDatabase : public SearchProvider {
 public:
+
+	using Variables = std::unordered_map<std::string, std::string>;
+
 	MusicDatabase() : db(utils::File::getCacheDir() / "music.db"), reindexNeeded(false) {
 		createTables();
 	}
@@ -106,25 +109,25 @@ public:
 	std::string getFullString(int index) const override {
 		std::lock_guard<std::mutex>{dbMutex};
 		int f;
-		if(index >= 0x10000000)
+		if(index >= PLAYLIST_INDEX)
 			f = PLAYLIST;
 		else
 			f = formats[index];
 		return utils::format("%s\t%s\t%d\t%d", getTitle(index), getComposer(index), index, f);
 	}
 	// Get full data, may require SQL query
-	SongInfo getSongInfo(int index) const; // { return getString(index); }
+	SongInfo getSongInfo(int index) const;
  
 	std::string getTitle(int index) const {
 		std::lock_guard<std::mutex>{dbMutex};
-		if(index >= 0x10000000)
-			return playLists[index - 0x10000000].name;
+		if(index >= PLAYLIST_INDEX)
+			return playLists[index - PLAYLIST_INDEX].name;
 	   	return titleIndex.getString(index);
 	}
 
 	std::string getComposer(int index) const {
 		std::lock_guard<std::mutex>{dbMutex};
-		if(index >= 0x10000000)
+		if(index >= PLAYLIST_INDEX)
 			return "";
 		return composerIndex.getString(titleToComposer[index]);
 	}
@@ -180,38 +183,13 @@ public:
 		}
 	};
 
-	void addToPlaylist(const std::string &plist, const SongInfo &song) {
-		for(auto &pl : playLists) {
-			if(pl.name == plist) {
-				pl.songs.push_back(song);
-				pl.save();
-				break;
-			}
-		}
-	}
-
-	void removeFromPlaylist(const std::string &plist, const SongInfo &song) {
-		for(auto &pl : playLists) {
-			if(pl.name == plist) {
-				pl.songs.push_back(song);
-				pl.save();
-				break;
-			}
-		}
-	}
-
-	std::vector<SongInfo>& getPlaylist(const std::string &plist) {
-		static std::vector<SongInfo> empty;
-		for(auto &pl : playLists) {
-			if(pl.name == plist)
-				return pl.songs;
-		}
-		return empty;
-	}
+	void addToPlaylist(const std::string &plist, const SongInfo &song);
+	void removeFromPlaylist(const std::string &plist, const SongInfo &song);
+	std::vector<SongInfo>& getPlaylist(const std::string &plist);
 
 private:
 	void initDatabase(const std::string &workDir,
-	                  std::unordered_map<std::string, std::string> &vars);
+	                  Variables &vars);
 	void generateIndex();
 
 	struct Collection {
@@ -224,12 +202,22 @@ private:
 		std::string local_dir;
 	};
 
-	bool parseModlandPath(SongInfo &song);
+
+
+	typedef bool (MusicDatabase::*MemFun)(Variables&, const std::string&, std::function<void(const SongInfo&)>);
+	
+	bool parseCsdb(Variables &vars, const std::string &listFile, std::function<void(const SongInfo&)> callback);
+	bool parsePouet(Variables &vars, const std::string &listFile, std::function<void(const SongInfo&)> callback);
+	bool parseRss(Variables &vars, const std::string &listFile, std::function<void(const SongInfo&)> callback);
+	bool parseModland(Variables &vars, const std::string &listFile, std::function<void(const SongInfo&)> callback); 
+	bool parseStandard(Variables &vars, const std::string &listFile, std::function<void(const SongInfo&)> callback);
+
 	void writeIndex(utils::File &f);
 	void readIndex(utils::File &f);
 
 	void createTables();
 
+	static constexpr int PLAYLIST_INDEX = 0x10000000;
 	bool reindexNeeded;
 
 	SearchIndex composerIndex;
