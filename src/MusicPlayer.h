@@ -24,15 +24,13 @@ class ChipPlayer;
 template <typename T> class SafePointer {
 public:
 	struct LockHolder {
-		LockHolder(T* ptr, std::unique_lock<std::mutex> &&g) : ptr(ptr), guard(std::move(g)) {}
+		LockHolder(T *ptr, std::unique_lock<std::mutex> &&g) : ptr(ptr), guard(std::move(g)) {}
 
 		LockHolder(LockHolder &&l) : guard(std::move(l.guard)), ptr(std::move(l.ptr)) {}
 
-		T* operator->() const {
-			return ptr;
-		}
+		T *operator->() const { return ptr; }
 
-		T* get() const { return ptr; }
+		T *get() const { return ptr; }
 
 		explicit operator bool() { return ptr != nullptr; }
 
@@ -46,12 +44,12 @@ public:
 		std::unique_lock<std::mutex> guard(*m);
 		return LockHolder(ptr.get(), std::move(guard));
 	}
-	
+
 	LockHolder aquire() const {
 		std::unique_lock<std::mutex> guard(*m);
 		return LockHolder(ptr.get(), std::move(guard));
 	}
-	
+
 	SafePointer() : m(std::make_shared<std::mutex>()) {}
 	SafePointer(std::shared_ptr<T> ptr) : ptr(ptr), m(std::make_shared<std::mutex>()) {}
 	SafePointer(T *ptr) : ptr(std::shared_ptr<T>(ptr)), m(std::make_shared<std::mutex>()) {}
@@ -87,7 +85,6 @@ public:
 		return ptr.get() != t;
 	}
 
-
 	explicit operator bool() const {
 		std::unique_lock<std::mutex> guard(*m);
 		return ptr.get() != nullptr;
@@ -104,7 +101,8 @@ template <typename T> SafePointer<T> make_safepointer(std::shared_ptr<T> ptr) {
 
 class Streamer {
 public:
-	Streamer(std::shared_ptr<std::mutex> m, std::shared_ptr<ChipPlayer> pl) : playerMutex(m), player(pl) {}
+	Streamer(std::shared_ptr<std::mutex> m, std::shared_ptr<ChipPlayer> pl)
+	    : playerMutex(m), player(pl) {}
 	void put(const uint8_t *ptr, int size);
 
 private:
@@ -120,9 +118,7 @@ public:
 	bool playFile(const std::string &fileName);
 	SafePointer<ChipPlayer> streamFile(const std::string &fileName);
 	bool playing() { return !playEnded && player != nullptr; }
-	void stop() {
-		player = nullptr;
-	}
+	void stop() { player = nullptr; }
 	uint32_t getPosition() { return pos / 44100; };
 	uint32_t getLength() { return length; }
 

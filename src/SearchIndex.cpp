@@ -194,9 +194,9 @@ void IncrementalQuery::search() {
 	// Words : IRON LORD -> 3L= "IRO"
 
 	// Remove empty strings
-	words.erase(
-	    remove_if(words.begin(), words.end(), [&](const string &a) { return a.size() == 0; }),
-	    words.end());
+	words.erase(remove_if(words.begin(), words.end(), [&](const string &a) {
+		            return a.size() == 0;
+		        }), words.end());
 	LOGD("words: [%s]", words);
 
 	if(oldWords.size() == 0 || oldWords[0] != words[0]) {
@@ -265,7 +265,7 @@ void IncrementalQuery::search() {
 		}
 		if(found)
 			finalResult.push_back(index); // format("%s\t%s\t%d", sdb->getTitle(index),
-			                              // sdb->getComposer(index), index));
+		                                  // sdb->getComposer(index), index));
 	}
 }
 
@@ -321,7 +321,7 @@ unsigned int SearchIndex::tlcode(const char *s) {
 
 int SearchIndex::search(const string &q, vector<int> &result, unsigned int searchLimit) {
 
-	//result.resize(0);
+	// result.resize(0);
 	// if(q.size() < 3)
 	//	return 0;
 	int startSize = result.size();

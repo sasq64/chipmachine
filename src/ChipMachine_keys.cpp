@@ -120,9 +120,7 @@ SongInfo ChipMachine::getSelectedSong() {
 
 void ChipMachine::shuffleSongs(bool format, bool composer, bool collection, int limit) {
 	vector<SongInfo> target;
-	SongInfo match = (currentScreen == SEARCH_SCREEN)
-	                     ? getSelectedSong()
-	                     : dbInfo;
+	SongInfo match = (currentScreen == SEARCH_SCREEN) ? getSelectedSong() : dbInfo;
 
 	LOGD("SHUFFLE %s / %s", match.composer, match.format);
 
@@ -202,37 +200,36 @@ void ChipMachine::updateKeys() {
 	auto action = smac.next_action();
 	if(action.id != NO_ACTION) {
 
-
 		auto pos = player.getPosition();
-		//int length = player.getLength();
+		// int length = player.getLength();
 
 		// LOGD("ACTION %d", action.id);
 		string name;
 		switch((ChipAction)action.id) {
 		/*  case EDIT_PLAYLIST:
-			if(songList.selected() < (int)playlists.size())
-				editPlaylistName = playlists[songList.selected()];
-			else
-				editPlaylistName = "";
-			commandField.setText(editPlaylistName);
-			playlistEdit = true;
-			commandField.visible(true);
-			searchField.visible(false);
-			topStatus.visible(false);
-			break;
+		    if(songList.selected() < (int)playlists.size())
+		        editPlaylistName = playlists[songList.selected()];
+		    else
+		        editPlaylistName = "";
+		    commandField.setText(editPlaylistName);
+		    playlistEdit = true;
+		    commandField.visible(true);
+		    searchField.visible(false);
+		    topStatus.visible(false);
+		    break;
 		case SELECT_PLAYLIST:
-			currentPlaylistName = commandField.getText();
-			LOGD("OLDNAME %s NEWNAME %s", editPlaylistName, currentPlaylistName);
-			if(editPlaylistName == "")
-				PlaylistDatabase::getInstance().createPlaylist(currentPlaylistName);
-			else if(editPlaylistName != currentPlaylistName)
-				PlaylistDatabase::getInstance().renamePlaylist(editPlaylistName,
-				                                               currentPlaylistName);
+		    currentPlaylistName = commandField.getText();
+		    LOGD("OLDNAME %s NEWNAME %s", editPlaylistName, currentPlaylistName);
+		    if(editPlaylistName == "")
+		        PlaylistDatabase::getInstance().createPlaylist(currentPlaylistName);
+		    else if(editPlaylistName != currentPlaylistName)
+		        PlaylistDatabase::getInstance().renamePlaylist(editPlaylistName,
+		                                                       currentPlaylistName);
 
-			commandField.visible(false);
-			playlistEdit = false;
-			playlistField.setText(currentPlaylistName);
-			break;*/
+		    commandField.visible(false);
+		    playlistEdit = false;
+		    playlistField.setText(currentPlaylistName);
+		    break;*/
 		case ADD_COMMAND_CHAR:
 			commandField.on_key(action.event);
 			break;
@@ -256,16 +253,16 @@ void ChipMachine::updateKeys() {
 			break;
 		case PLAY_LIST_SONG:
 			/*  if(songList.selected() < (int)playlists.size()) {
-				auto name = playlists[songList.selected()];
-				PlaylistDatabase::getInstance().getPlaylist(name, [=](const Playlist &pl) {
-					player.clearSongs();
-					for(const auto &song : pl.songs) {
-						player.addSong(song);
-					}
-					player.nextSong();
-				});
+			    auto name = playlists[songList.selected()];
+			    PlaylistDatabase::getInstance().getPlaylist(name, [=](const Playlist &pl) {
+			        player.clearSongs();
+			        for(const auto &song : pl.songs) {
+			            player.addSong(song);
+			        }
+			        player.nextSong();
+			    });
 			} else */
-				player.playSong(getSelectedSong());
+			player.playSong(getSelectedSong());
 			showScreen(MAIN_SCREEN);
 			break;
 		case NEXT_COMPOSER: {
@@ -333,21 +330,19 @@ void ChipMachine::updateKeys() {
 		case ADD_LIST_FAVORITE:
 			pdb.addToPlaylist(currentPlaylistName, getSelectedSong());
 			break;
-		//case DUMP_FAVORITES:
+		// case DUMP_FAVORITES:
 		//	pdb.dumpPlaylist(currentPlaylistName, "playlists");
 		//	break;
 		case NEXT_SUBTUNE:
 			if(currentInfo.numtunes == 0)
 				player.seek(-1, pos + 10);
-			else
-			if(currentTune < currentInfo.numtunes - 1)
+			else if(currentTune < currentInfo.numtunes - 1)
 				player.seek(currentTune + 1);
 			break;
 		case PREV_SUBTUNE:
 			if(currentInfo.numtunes == 0)
 				player.seek(-1, pos - 10);
-			else	
-			if(currentTune > 0)
+			else if(currentTune > 0)
 				player.seek(currentTune - 1);
 			break;
 		case CLEAR_SONGS:
@@ -444,7 +439,7 @@ void ChipMachine::updateKeys() {
 		// searchField->color = searchColor;
 		searchField.visible(true);
 		topStatus.visible(false);
-		//PlaylistDatabase::getInstance().search(iquery->getString(), playlists);
+		// PlaylistDatabase::getInstance().search(iquery->getString(), playlists);
 		songList.setTotal(iquery->numHits());
 	}
 

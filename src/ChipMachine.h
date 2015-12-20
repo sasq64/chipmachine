@@ -39,11 +39,12 @@ namespace chipmachine {
 
 class Icon : public Renderable {
 public:
-	Icon() {};
+	Icon(){};
 
-	Icon(grappix::Texture *tx, float x, float y, float w, float h) : texture(tx), x(x), y(y), w(w), h(h) {}
+	Icon(grappix::Texture *tx, float x, float y, float w, float h)
+	    : texture(tx), x(x), y(y), w(w), h(h) {}
 
-	Icon(const image::bitmap &bm, float x, float y, float w, float h) : x(x), y(y), w(w), h(h) {	
+	Icon(const image::bitmap &bm, float x, float y, float w, float h) : x(x), y(y), w(w), h(h) {
 		texture = new grappix::Texture(bm);
 		glBindTexture(GL_TEXTURE_2D, texture->id());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -53,6 +54,7 @@ public:
 	void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
 		target->draw(*texture, x, y, w, h, nullptr);
 	}
+
 private:
 	grappix::Texture *texture;
 	float x, y, w, h;
@@ -60,7 +62,6 @@ private:
 
 class ChipMachine {
 public:
-
 	using Color = grappix::Color;
 
 	void renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
@@ -169,11 +170,11 @@ private:
 	tween::Tween currentTween;
 	bool lockDown = false;
 	bool isFavorite = false;
-	
+
 	Icon favIcon;
 	Icon netIcon;
 	Icon volumeIcon;
-	
+
 	grappix::Rectangle favPos = {80, 300, 16 * 8, 16 * 6};
 	grappix::Rectangle volPos;
 
@@ -189,7 +190,6 @@ private:
 	Color hilightColor = 0xffffffff;
 
 	std::shared_ptr<IncrementalQuery> iquery;
-
 
 	bool haveSearchChars;
 

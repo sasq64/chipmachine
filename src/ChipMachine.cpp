@@ -13,9 +13,8 @@ std::string compressWhitespace(std::string &&m) {
 	// Turn linefeeds into spaces
 	replace(m.begin(), m.end(), '\n', ' ');
 	// Turn space sequences into single spaces
-	auto last = unique(m.begin(), m.end(), [](const char &a, const char &b) -> bool {
-		return (a == ' ' && b == ' ');
-	});
+	auto last = unique(m.begin(), m.end(),
+	                   [](const char &a, const char &b) -> bool { return (a == ' ' && b == ' '); });
 	m.resize(last - m.begin());
 	return m;
 }
@@ -29,9 +28,8 @@ namespace chipmachine {
 void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
 
 	static const map<uint32_t, uint32_t> colors = {
-	    {NOT_SET, 0xffff00ff}, {PLAYLIST, 0xffffff88}, {CONSOLE, 0xffdd3355},
-	    {C64, 0xffcc8844},     {ATARI, 0xffcccc33},    {MP3, 0xff88ff88},
-		{M3U, 0xffaaddaa},     {YOUTUBE, 0xffff0000},
+	    {NOT_SET, 0xffff00ff}, {PLAYLIST, 0xffffff88}, {CONSOLE, 0xffdd3355}, {C64, 0xffcc8844},
+	    {ATARI, 0xffcccc33},   {MP3, 0xff88ff88},      {M3U, 0xffaaddaa},     {YOUTUBE, 0xffff0000},
 	    {PC, 0xffcccccc},      {AMIGA, 0xff6666cc},    {255, 0xff00ffff}};
 
 	Color c;
@@ -116,7 +114,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 	initLua();
 	layoutScreen();
-	
+
 	favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
 	mainScreen.add(&favIcon);
 	favIcon.visible(false);
@@ -127,8 +125,8 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 	float ww = volume_icon.width() * 15;
 	float hh = volume_icon.height() * 10;
-	volPos = { ((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh };
-	volumeIcon = Icon(volume_icon, volPos.x, volPos.y, volPos.w, volPos.h); 
+	volPos = {((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh};
+	volumeIcon = Icon(volume_icon, volPos.x, volPos.y, volPos.w, volPos.h);
 	showVolume = 0;
 
 	musicBars.setup(spectrumWidth, spectrumHeight, 24);
@@ -147,14 +145,16 @@ ChipMachine::ChipMachine(const std::string &wd)
 	oldHeight = screen.height();
 	resizeDelay = 0;
 
-	auto listrec = grappix::Rectangle(topLeft.x, topLeft.y + 30 * searchField.scale, screen.width() - topLeft.x,
+	auto listrec = grappix::Rectangle(topLeft.x, topLeft.y + 30 * searchField.scale,
+	                                  screen.width() - topLeft.x,
 	                                  downRight.y - topLeft.y - searchField.scale * 30);
-	songList = VerticalList(listrec, numLines, [=](grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
-		renderSong(rec, y, index, hilight);
-	});
+	songList =
+	    VerticalList(listrec, numLines, [=](grappix::Rectangle &rec, int y, uint32_t index,
+	                                        bool hilight) { renderSong(rec, y, index, hilight); });
 	searchScreen.add(&songList);
 
-	commandList = VerticalList(listrec, numLines, [=](grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
+	commandList = VerticalList(listrec, numLines, [=](grappix::Rectangle &rec, int y,
+	                                                  uint32_t index, bool hilight) {
 		grappix::screen.text(listFont, "XMD", rec.x, rec.y, 0xff00ff00, resultFieldTemplate.scale);
 	});
 
@@ -169,11 +169,12 @@ ChipMachine::ChipMachine(const std::string &wd)
 	commandScreen.add(&commandList);
 
 	scrollText = "INITIAL_TEXT";
-	scrollEffect.set("scrolltext", "Chipmachine " VERSION_STR " -- Just type to search -- UP/DOWN to select "
-	                               "-- ENTER to play, SHIFT+ENTER to enque -- LEFT/RIGHT for "
-	                               "subsongs -- F6 for next song -- F5 for pause -- CTRL+1 to 5 "
-	                               "for shuffle play -- F8 to clear queue -- ESCAPE to clear "
-	                               "search text ----- ");
+	scrollEffect.set("scrolltext",
+	                 "Chipmachine " VERSION_STR " -- Just type to search -- UP/DOWN to select "
+	                 "-- ENTER to play, SHIFT+ENTER to enque -- LEFT/RIGHT for "
+	                 "subsongs -- F6 for next song -- F5 for pause -- CTRL+1 to 5 "
+	                 "for shuffle play -- F8 to clear queue -- ESCAPE to clear "
+	                 "search text ----- ");
 	starEffect.fadeIn();
 
 	File f{File::getCacheDir() / "login"};
@@ -270,7 +271,7 @@ void ChipMachine::update() {
 		if(currentInfo.metadata != "") {
 			m = compressWhitespace(currentInfo.metadata);
 		} else {
-			 m = compressWhitespace(player.getMeta("message"));
+			m = compressWhitespace(player.getMeta("message"));
 		}
 		if(scrollText != m) {
 			scrollEffect.set("scrolltext", m);
@@ -419,7 +420,6 @@ void ChipMachine::update() {
 				}
 			}
 		}
-
 	}
 
 	if(!player.getAllowed()) {
@@ -453,8 +453,7 @@ void ChipMachine::update() {
 #ifdef ENABLE_TELNET
 	    WebRPC::inProgress() > 0 ||
 #endif
-		playerState == MusicPlayerList::LOADING ||
-	    webutils::Web::inProgress() > 0);
+	    playerState == MusicPlayerList::LOADING || webutils::Web::inProgress() > 0);
 
 	netIcon.visible(busy);
 }
@@ -509,7 +508,8 @@ void ChipMachine::render(uint32_t delta) {
 		int v = player.getVolume() * 10;
 		v = v * volPos.w / 10;
 		screen.rectangle(volPos.x + v, volPos.y, volPos.w - v, volPos.h, color);
-		//screen.text(listFont, std::to_string((int)(v * 100)), volPos.x, volPos.y, 10.0, 0xff8888ff);
+		// screen.text(listFont, std::to_string((int)(v * 100)), volPos.x, volPos.y, 10.0,
+		// 0xff8888ff);
 	}
 
 	musicBars.render(spectrumPos, spectrumColor, eq);

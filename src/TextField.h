@@ -57,18 +57,18 @@ public:
 		target->text(font, text, pos.x, pos.y, color + add, scale);
 	}
 
-		struct iterator {
-			iterator(TextField *field, int index) : field(field), index(index) {}
-			iterator(const iterator &rhs) : field(rhs.field), index(rhs.index) {}
+	struct iterator {
+		iterator(TextField *field, int index) : field(field), index(index) {}
+		iterator(const iterator &rhs) : field(rhs.field), index(rhs.index) {}
 
-			bool operator!=(const iterator &other) const { return index != other.index; }
+		bool operator!=(const iterator &other) const { return index != other.index; }
 
-			float &operator*() { return field->color[index]; }
+		float &operator*() { return field->color[index]; }
 
-			const iterator &operator++() {
-				++index;
-				return *this;
-			}
+		const iterator &operator++() {
+			++index;
+			return *this;
+		}
 
 		TextField *field;
 		int index;

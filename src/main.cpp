@@ -71,13 +71,11 @@ int main(int argc, char *argv[]) {
 
 	string path = File::makePath({
 #ifdef __APPLE__
-		(File::getExeDir() / ".." / "Resources").resolve(), 
+	    (File::getExeDir() / ".." / "Resources").resolve(),
 #else
-		File::getExeDir(),
+	    File::getExeDir(),
 #endif
-		(File::getExeDir() / ".." / "..").resolve(),
-		File::getAppDir()
-	});
+	    (File::getExeDir() / ".." / "..").resolve(), File::getAppDir()});
 	LOGD("PATH:%s", path);
 	string workDir = File::findFile(path, "data").getDirectory();
 

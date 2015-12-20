@@ -88,7 +88,6 @@ enum Formats {
 
 class MusicDatabase : public SearchProvider {
 public:
-
 	using Variables = std::unordered_map<std::string, std::string>;
 
 	MusicDatabase() : db(utils::File::getCacheDir() / "music.db"), reindexNeeded(false) {
@@ -117,12 +116,12 @@ public:
 	}
 	// Get full data, may require SQL query
 	SongInfo getSongInfo(int index) const;
- 
+
 	std::string getTitle(int index) const {
 		std::lock_guard<std::mutex>{dbMutex};
 		if(index >= PLAYLIST_INDEX)
 			return playLists[index - PLAYLIST_INDEX].name;
-	   	return titleIndex.getString(index);
+		return titleIndex.getString(index);
 	}
 
 	std::string getComposer(int index) const {
@@ -176,7 +175,7 @@ public:
 		std::string fileName;
 		std::vector<SongInfo> songs;
 		void save() {
-			utils::File f { fileName };
+			utils::File f{fileName};
 			for(const auto &s : songs) {
 				f.writeln(s.path);
 			}
@@ -185,11 +184,10 @@ public:
 
 	void addToPlaylist(const std::string &plist, const SongInfo &song);
 	void removeFromPlaylist(const std::string &plist, const SongInfo &song);
-	std::vector<SongInfo>& getPlaylist(const std::string &plist);
+	std::vector<SongInfo> &getPlaylist(const std::string &plist);
 
 private:
-	void initDatabase(const std::string &workDir,
-	                  Variables &vars);
+	void initDatabase(const std::string &workDir, Variables &vars);
 	void generateIndex();
 
 	struct Collection {
@@ -202,15 +200,19 @@ private:
 		std::string local_dir;
 	};
 
+	typedef bool (MusicDatabase::*MemFun)(Variables &, const std::string &,
+	                                      std::function<void(const SongInfo &)>);
 
-
-	typedef bool (MusicDatabase::*MemFun)(Variables&, const std::string&, std::function<void(const SongInfo&)>);
-	
-	bool parseCsdb(Variables &vars, const std::string &listFile, std::function<void(const SongInfo&)> callback);
-	bool parsePouet(Variables &vars, const std::string &listFile, std::function<void(const SongInfo&)> callback);
-	bool parseRss(Variables &vars, const std::string &listFile, std::function<void(const SongInfo&)> callback);
-	bool parseModland(Variables &vars, const std::string &listFile, std::function<void(const SongInfo&)> callback); 
-	bool parseStandard(Variables &vars, const std::string &listFile, std::function<void(const SongInfo&)> callback);
+	bool parseCsdb(Variables &vars, const std::string &listFile,
+	               std::function<void(const SongInfo &)> callback);
+	bool parsePouet(Variables &vars, const std::string &listFile,
+	                std::function<void(const SongInfo &)> callback);
+	bool parseRss(Variables &vars, const std::string &listFile,
+	              std::function<void(const SongInfo &)> callback);
+	bool parseModland(Variables &vars, const std::string &listFile,
+	                  std::function<void(const SongInfo &)> callback);
+	bool parseStandard(Variables &vars, const std::string &listFile,
+	                   std::function<void(const SongInfo &)> callback);
 
 	void writeIndex(utils::File &f);
 	void readIndex(utils::File &f);
@@ -239,7 +241,6 @@ private:
 	std::atomic<bool> indexing;
 
 	std::vector<Playlist> playLists;
-
 };
 }
 

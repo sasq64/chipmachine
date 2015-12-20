@@ -1,7 +1,6 @@
 
 #include "ChipInterface.h"
 
-
 int main(int argc, char **argv) {
 	using namespace chipmachine;
 	using std::string;
@@ -9,13 +8,11 @@ int main(int argc, char **argv) {
 
 	string path = File::makePath({
 #ifdef __APPLE__
-		(File::getExeDir() / ".." / "Resources").resolve(), 
+	    (File::getExeDir() / ".." / "Resources").resolve(),
 #else
-		File::getExeDir(),
+	    File::getExeDir(),
 #endif
-		(File::getExeDir() / ".." / "..").resolve(),
-		File::getAppDir()
-	});
+	    (File::getExeDir() / ".." / "..").resolve(), File::getAppDir()});
 	string workDir = File::findFile(path, "data").getDirectory();
 
 	LOGD("PATH:%s", workDir);
@@ -36,5 +33,4 @@ int main(int argc, char **argv) {
 		utils::sleepms(100);
 
 	return 0;
-
 };

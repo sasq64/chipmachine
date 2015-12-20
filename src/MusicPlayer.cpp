@@ -25,7 +25,6 @@ void Streamer::put(const uint8_t *ptr, int size) {
 
 MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4) {
 
-
 	AudioPlayer::set_volume(80);
 	volume = 0.8;
 
@@ -140,7 +139,7 @@ SafePointer<ChipPlayer> MusicPlayer::streamFile(const string &fileName) {
 
 	string name = fileName;
 
-	//LOCK_GUARD(*playerMutex);
+	// LOCK_GUARD(*playerMutex);
 	player = nullptr;
 	player = make_safepointer(fromStream(fileName));
 
@@ -158,7 +157,7 @@ SafePointer<ChipPlayer> MusicPlayer::streamFile(const string &fileName) {
 		length = 0;
 		sub_title = "";
 		currentTune = playingInfo.starttune;
-		//return make_shared<Streamer>(playerMutex, player);
+		// return make_shared<Streamer>(playerMutex, player);
 		return player;
 	}
 	return nullptr;
@@ -191,7 +190,7 @@ bool MusicPlayer::playFile(const string &fileName) {
 		}
 	}
 
-	//LOCK_GUARD(*playerMutex);
+	// LOCK_GUARD(*playerMutex);
 	player = nullptr;
 	player = make_safepointer(fromFile(name));
 
@@ -286,17 +285,16 @@ float MusicPlayer::getVolume() {
 	return volume;
 }
 
-
 vector<string> MusicPlayer::getSecondaryFiles(const string &name) {
 
-	File file { name };
+	File file{name};
 	if(file.exists()) {
 		PSFFile f{name};
 		if(f.valid()) {
 			LOGD("IS PSF");
-			const string tagNames[] = { "_lib", "_lib2", "_lib3", "_lib4" };
+			const string tagNames[] = {"_lib", "_lib2", "_lib3", "_lib4"};
 			vector<string> libFiles;
-			for(int i=0; i<4; i++) {
+			for(int i = 0; i < 4; i++) {
 				auto lib = f.tags()[tagNames[i]];
 				if(lib != "") {
 					makeLower(lib);

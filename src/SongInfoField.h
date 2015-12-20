@@ -27,8 +27,8 @@ struct SongInfoField : public Renderable {
 		if(info.game != "" && info.title == "")
 			t = info.game;
 		else
-			t = info.title; 
-			
+			t = info.title;
+
 		if(t == "")
 			t = utils::path_filename(utils::urldecode(info.path, ""));
 
@@ -37,20 +37,17 @@ struct SongInfoField : public Renderable {
 		fields[2]->setText(info.format);
 	}
 
-	int getWidth(int no) {
-		return fields[no]->getWidth();
-	}
+	int getWidth(int no) { return fields[no]->getWidth(); }
 
-	SongInfoField& operator=(const SongInfoField &other) {
-		for(int i=0; i<3; i++)
+	SongInfoField &operator=(const SongInfoField &other) {
+		for(int i = 0; i < 3; i++)
 			fields[i]->setText(other.fields[i]->getText());
 		return *this;
 	}
 
-
-	virtual void render(std::shared_ptr<grappix::RenderTarget> target,  uint32_t delta) override {
+	virtual void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
 		for(const auto &f : fields)
-			f->render(target,  delta);
+			f->render(target, delta);
 	}
 
 	std::vector<std::shared_ptr<TextField>> fields;

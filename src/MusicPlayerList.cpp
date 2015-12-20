@@ -12,7 +12,6 @@ using namespace utils;
 
 namespace chipmachine {
 
-
 MusicPlayerList::MusicPlayerList(const std::string &workDir) : mp(workDir) {
 	SET_STATE(STOPPED);
 	wasAllowed = true;
@@ -81,9 +80,9 @@ void MusicPlayerList::playSong(const SongInfo &si) {
 void MusicPlayerList::updateInfo() {
 	auto si = mp.getPlayingInfo();
 	/* if(si.title != "")
-		currentInfo.title = si.title;
+	    currentInfo.title = si.title;
 	if(si.composer != "")
-		currentInfo.composer = si.composer; */
+	    currentInfo.composer = si.composer; */
 	if(si.format != "")
 		currentInfo.format = si.format;
 	// if(si.length > 0)
@@ -151,11 +150,9 @@ bool MusicPlayerList::handlePlaylist(const string &fileName) {
 	auto lines = f.getLines();
 
 	// Remove lines with comment character
-	lines.erase(std::remove_if(lines.begin(), lines.end(),
-							   [=](const string &l) {
-								   return l[0] == ';';
-							   }),
-				lines.end());
+	lines.erase(std::remove_if(lines.begin(), lines.end(), [=](const string &l) {
+		            return l[0] == ';';
+		        }), lines.end());
 	for(const string &s : lines) {
 		playList.push_back(SongInfo(s));
 	}
@@ -182,7 +179,7 @@ bool MusicPlayerList::playFile(const std::string &fn) {
 
 		auto lines = f.getLines();
 		vector<string> result;
-		for (auto &l : lines) {
+		for(auto &l : lines) {
 			if(startsWith(l, "File1="))
 				result.push_back(l.substr(6));
 		}
@@ -191,30 +188,24 @@ bool MusicPlayerList::playFile(const std::string &fn) {
 		playCurrent();
 		return false;
 
-	} else
-	if(ext == "m3u" || currentInfo.format == "M3U") {
+	} else if(ext == "m3u" || currentInfo.format == "M3U") {
 		File f{fileName};
 
 		auto lines = f.getLines();
 
 		// Remove lines with comment character
-		lines.erase(std::remove_if(lines.begin(), lines.end(),
-								   [=](const string &l) {
-									   return l == "" || l[0] == '#';
-								   }),
-					lines.end());
+		lines.erase(std::remove_if(lines.begin(), lines.end(), [=](const string &l) {
+			            return l == "" || l[0] == '#';
+			        }), lines.end());
 		currentInfo.path = lines[0];
 		currentInfo.format = "MP3";
 		playCurrent();
 		return false;
 
-	} else
-	if(ext == "plist") {
+	} else if(ext == "plist") {
 		handlePlaylist(fileName);
 		return true;
-	}
-	else
-	if(ext == "jb") {
+	} else if(ext == "jb") {
 		// Jason Brooke fix
 		string newName = fileName.substr(0, fileName.find_last_of('.')) + ".jcb";
 		if(!File::exists(newName))
@@ -258,7 +249,6 @@ void MusicPlayerList::update() {
 	LOCK_GUARD(plMutex);
 
 	mp.update();
-
 
 	RemoteLoader::getInstance().update();
 
@@ -341,8 +331,7 @@ void MusicPlayerList::update() {
 				LOGD("Converted %s", id);
 				playFile(loadedFile);
 			}
-		} else
-		if(files == 0) {
+		} else if(files == 0) {
 			RemoteLoader::getInstance().cancel();
 			playFile(loadedFile);
 		}
@@ -435,7 +424,7 @@ void MusicPlayerList::playCurrent() {
 		cueName = currentInfo.path.substr(0, currentInfo.path.find_last_of('.')) + ".cue";
 	else if(prefix == "demovibes")
 		cueName = toLower(currentInfo.path.substr(0, currentInfo.path.find_last_of('.')) + ".cue");
- 
+
 	if(cueName != "") {
 		loader.load(cueName, [=](File cuefile) {
 			if(cuefile)
@@ -451,7 +440,7 @@ void MusicPlayerList::playCurrent() {
 			SET_STATE(PLAY_STARTED);
 			loader.stream(currentInfo.path, [=](int what, const uint8_t *ptr, int n) -> bool {
 				if(what == RemoteLoader::PARAMETER)
-					streamer->setParameter((char*)ptr, n);
+					streamer->setParameter((char *)ptr, n);
 				else
 					streamer->putStream(ptr, n);
 				return true;

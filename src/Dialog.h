@@ -35,7 +35,7 @@ public:
 		}
 	}
 
-	virtual void render(std::shared_ptr<grappix::RenderTarget> target,  uint32_t delta) override {
+	virtual void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
 		target->rectangle(bounds, 0x80ffffff);
 		textField.render(target, delta);
 		lineEdit.render(target, delta);

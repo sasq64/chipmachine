@@ -10,7 +10,6 @@
 
 class RemoteLoader {
 public:
-
 	RemoteLoader();
 
 	void registerSource(const std::string &name, const std::string url,
@@ -18,8 +17,9 @@ public:
 
 	bool load(const std::string &path, std::function<void(utils::File)> done_cb);
 
-	std::shared_ptr<webutils::Web::Job> stream(const std::string &path,
-	            std::function<bool(int what, const uint8_t *data, int size)> data_cb);
+	std::shared_ptr<webutils::Web::Job>
+	stream(const std::string &path,
+	       std::function<bool(int what, const uint8_t *data, int size)> data_cb);
 
 	void preCache(const std::string &path);
 
@@ -38,9 +38,7 @@ public:
 		lastSession = nullptr;
 	}
 
-	void update() {
-		webgetter.poll();
-	}
+	void update() { webgetter.poll(); }
 
 	static constexpr int DATA = 0;
 	static constexpr int PARAMETER = 1;

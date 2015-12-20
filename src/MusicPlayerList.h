@@ -66,7 +66,7 @@ public:
 	int getTune() {
 		if(multiSongs.size())
 			return multiSongNo;
-		return mp.getTune(); 
+		return mp.getTune();
 	}
 
 	void pause(bool dopause = true) {
@@ -78,15 +78,14 @@ public:
 
 	void seek(int song, int seconds = -1);
 
-	std::string getMeta(const std::string &what) { 
+	std::string getMeta(const std::string &what) {
 		if(what == "sub_title" && cueTitle != "")
 			return cueTitle;
 		return mp.getMeta(what);
 	}
 
-
 	State getState() {
-		//LOCK_GUARD(plMutex);
+		// LOCK_GUARD(plMutex);
 		State rc = state;
 		if(rc == PLAY_STARTED)
 			SET_STATE(PLAYING);
@@ -134,9 +133,7 @@ public:
 		mp.stop();
 	}
 
-	bool wasFromQueue() {
-		return playedNext;
-	}
+	bool wasFromQueue() { return playedNext; }
 
 private:
 	bool handlePlaylist(const std::string &fileName);

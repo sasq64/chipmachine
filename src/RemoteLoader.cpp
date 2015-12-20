@@ -97,8 +97,9 @@ bool RemoteLoader::load(const std::string &p, function<void(File f)> done_cb) {
 
 void RemoteLoader::preCache(const std::string &path) {}
 
-std::shared_ptr<webutils::Web::Job> RemoteLoader::stream(const std::string &p,
-                          std::function<bool(int what, const uint8_t *data, int size)> data_cb) {
+std::shared_ptr<webutils::Web::Job>
+RemoteLoader::stream(const std::string &p,
+                     std::function<bool(int what, const uint8_t *data, int size)> data_cb) {
 
 	Source source;
 	string path = p;
@@ -117,21 +118,22 @@ std::shared_ptr<webutils::Web::Job> RemoteLoader::stream(const std::string &p,
 
 	string url = source.url + path;
 	bool headers = false;
-	lastSession = webgetter.streamData(url, [=](webutils::Web::Job &job, uint8_t *data, int size) mutable -> bool {
-		if(!headers) {
-			string s = job.getHeader("icy-metaint");
-			if(s != "") {
-				int mi = stol(s);
-				data_cb(PARAMETER, (uint8_t*)"icy-interval", mi);
-			}
-			LOGD("CONTENT LENGTH %d", job.contentLength());
-			if(job.contentLength() > 0)
-				data_cb(PARAMETER, (uint8_t*)"size", job.contentLength());
-			headers = true;
-		}
-		if(data == nullptr)
-			return data_cb(END, nullptr, size);
-		return data_cb(DATA, data, size);
-	});
+	lastSession = webgetter.streamData(
+	    url, [=](webutils::Web::Job &job, uint8_t *data, int size) mutable -> bool {
+		    if(!headers) {
+			    string s = job.getHeader("icy-metaint");
+			    if(s != "") {
+				    int mi = stol(s);
+				    data_cb(PARAMETER, (uint8_t *)"icy-interval", mi);
+			    }
+			    LOGD("CONTENT LENGTH %d", job.contentLength());
+			    if(job.contentLength() > 0)
+				    data_cb(PARAMETER, (uint8_t *)"size", job.contentLength());
+			    headers = true;
+		    }
+		    if(data == nullptr)
+			    return data_cb(END, nullptr, size);
+		    return data_cb(DATA, data, size);
+		});
 	return lastSession;
 }
