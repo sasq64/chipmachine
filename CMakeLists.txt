@@ -45,6 +45,17 @@ set(SOURCE_FILES
 	src/main.cpp
 )
 
+set(TEXTMODE_FILES
+	src/MusicDatabase.cpp
+	src/MusicPlayer.cpp
+	src/MusicPlayerList.cpp
+	src/RemoteLoader.cpp
+	src/SearchIndex.cpp
+	src/SongFileIdentifier.cpp
+	src/state_machine.cpp
+	src/textmain.cpp
+)
+
 #if(RASPBERRY)
 #	set(SOURCE_FILES ${SOURCE_FILES} src/PiTFT.cpp)
 #endif()
@@ -116,6 +127,8 @@ else()
 	add_executable(chipmachine ${SOURCE_FILES})
 endif()
 
+add_executable(cm ${PLUGIN_EXTRA_FILES} ${TEXTMODE_FILES})
+
 #add_executable(modland modland.cpp)
 #target_link_libraries(modland coreutils)
 
@@ -124,6 +137,9 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -mwindows)
 endif()
 
 target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
+
+target_link_libraries(cm ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
+
 #SET_DATA_FILES(data lua)
 
 if(APPLE)
