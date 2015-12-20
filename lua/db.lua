@@ -144,10 +144,56 @@ DB = {
 	source = "http://www.bitartillkaffet.se/media/",
 	song_list = "data/bitar.txt",
 	color = 0xfffff
-}
+},
+{
+	name = "This Week in Chiptune",
+	id = "weekchip",
+	type =  "podcast",
+	source = "",
+	composer = "Dj CUTMAN",
+	song_list = "http://thisweekinchiptune.libsyn.com/rss",
+	color = 0xfffff
+},
+{
+	name = "Gamewave Podcast",
+	id = "gamewave",
+	type =  "podcast",
+	source = "",
+	song_list = "http://gamewave.yays.co/rss.xml",
+	color = 0xfffff
+},
+{
+	name = "Syntax Error",
+	id =  "syntax",
+	source = "http://se-ksd-01.files.syntaxerror.nu/mp3/",
+	song_list = "data/syntax.txt",
+	song_template = "path title",
+	format = "MP3",
+	composer = "Syntax Error",
+	local_dir = "/opt/Music/scenesat",
+	color = 0xfffff
+},
+{
+	name = "NSFE",
+	id = "nsfe",
+	source = "",
+	song_list = "data/nsfe.txt",
+	local_dir = "/opt/M/nsfe",
+	color = 0xfffff
+},
+{
+	name = "C64 Take-away",
+	id = "takeaway",
+	type =  "podcast",
+	source = "",
+	song_list = "data/c64takeaway.xml",
+	color = 0xfffff
+},
+
+
 --,{
 --	name = "Pouet/Youtube",
---	type = "pouet",
+--	id =  "pouet",
 --	source = "",
 --	song_list = "data/pouet_youtube.xml",
 --	color = 0xfffff

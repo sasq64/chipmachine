@@ -397,10 +397,10 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 		composer_query = p[1];
 	}
 
-	// For empty query, return all playlists	
+	// For empty query, return all playlists
 	if(query == "") {
 		for(int i=0; i<playLists.size(); i++) {
-			result.push_back(PLAYLIST_INDEX + i);	
+			result.push_back(PLAYLIST_INDEX + i);
 		}
 		return result.size();
 	}
@@ -412,7 +412,7 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 	// Push back all matching playlists
 	for(int i=0; i<playLists.size(); i++) {
 		if(toLower(playLists[i].name).find(query) != string::npos)
-			result.push_back(PLAYLIST_INDEX + i);	
+			result.push_back(PLAYLIST_INDEX + i);
 	}
 
 	titleIndex.search(title_query, result, searchLimit);
