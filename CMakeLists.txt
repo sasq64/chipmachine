@@ -72,6 +72,7 @@ set(APONE_MODULES
 	sqlite3
 #	net
 	xml
+	bbsutils
 )
 
 set(TEXT_MODULES
@@ -88,10 +89,6 @@ set(TEXT_MODULES
 	xml
 	bbsutils
 )
-
-if(NOT WIN32)
-  set(APONE_MODULES ${APONE_MODULES} bbsutils)
-endif()
 
 add_subdirectory(${AP1_ROOT}/mods ap1mods)
 

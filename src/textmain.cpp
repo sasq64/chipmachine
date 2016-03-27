@@ -182,12 +182,11 @@ int main(int argc, char **argv) {
 	
 	logging::setLevel(logging::ERROR);
 	//logging::setOutputFile("output.log");
-	
+#ifndef WIN32	
 	auto console = std::shared_ptr<bbs::Console>(bbs::Console::createLocalConsole());
-	
 	//runConsole(console, ci);
 	std::thread conThread(runConsole, console, std::ref(ci));
-	
+#endif	
 	auto telnet = std::make_shared<bbs::TelnetServer>(12345);
 	telnet->setOnConnect([&](bbs::TelnetServer::Session &session) {
 		try {
