@@ -123,10 +123,7 @@ set(MUSICPLAYER_PLUGINS
 	gsfplugin
 )
 
-
-#if(NOT WIN32)
-	set(MUSICPLAYER_PLUGINS ${MUSICPLAYER_PLUGINS} uadeplugin)
-#endif()
+set(MUSICPLAYER_PLUGINS ${MUSICPLAYER_PLUGINS} uadeplugin)
 
 add_subdirectory(${AP1_ROOT}/mods/musicplayer/plugins plugins)
 

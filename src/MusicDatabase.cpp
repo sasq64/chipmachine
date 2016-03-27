@@ -294,11 +294,12 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 
 	reindexNeeded = true;
 
-	if(local_dir != "" && !endsWith(local_dir, "/"))
-		local_dir += "/";
-
-	if(local_dir[0] != '/')
-		local_dir = workDir + "/" + local_dir;
+    if(local_dir != "") {
+        if(endsWith(local_dir, "/"))
+            local_dir += "/";
+        if(local_dir[0] != '/')
+            local_dir = workDir + "/" + local_dir;
+    }
 
 	print_fmt("Creating '%s' database\n", name);
 
