@@ -5,6 +5,7 @@
 // 	backward::SignalHandling sh;
 // }
 // #endif
+//#define ENABLE_TELNET
 
 #include "ChipMachine.h"
 #include "MusicPlayer.h"
@@ -75,7 +76,12 @@ int main(int argc, char *argv[]) {
 #else
 	    File::getExeDir(),
 #endif
-	    (File::getExeDir() / ".." / "..").resolve(), File::getAppDir()});
+	    (File::getExeDir() / ".." / "chipmachine").resolve(),
+	    (File::getExeDir() / ".." / ".." / "chipmachine").resolve(),
+	    (File::getExeDir() / "..").resolve(),
+	    (File::getExeDir() / ".." / "..").resolve(),
+	    File::getAppDir()
+	});
 	LOGD("PATH:%s", path);
 	string workDir = File::findFile(path, "data").getDirectory();
 

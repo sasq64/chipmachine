@@ -15,51 +15,72 @@ namespace chipmachine {
 
 class ChipInterface {
 public:
-	ChipInterface(const std::string &wd) : workDir(wd), player(wd) {}
-
-	int init() {
-
+	ChipInterface(const std::string &wd) : workDir(wd), player(wd) {
 		MusicDatabase::getInstance().initFromLua(this->workDir);
-		iquery = MusicDatabase::getInstance().createQuery();
-		return 0;
+	}
+	
+	std::shared_ptr<IncrementalQuery> createQuery() {
+		std::lock_guard<std::mutex> lg(m);
+		return MusicDatabase::getInstance().createQuery();
 	}
 
-	int search(const std::string &text) {
-		iquery->setString(text);
-		return 0;
-	}
-
-	const std::vector<std::string> &getResult(int start, int len) {
-		return iquery->getResult(start, len);
-	}
-
-	SongInfo getSongInfo(int i) { return mdb.getSongInfo(i); }
+	SongInfo getSongInfo(int i) { return MusicDatabase::getInstance().getSongInfo(i); }
 
 	int play(const SongInfo &song) {
 		player.playSong(song);
 		return 0;
 	}
 
-	int numHits() { return iquery->numHits(); }
-
-	void addSong(const SongInfo &song);
-	void nextSong();
+	void addSong(const SongInfo &song) {
+		player.addSong(song);
+	}
+	void nextSong() {
+		player.nextSong();
+	}
 	void clearSongs();
+	
+	void setTune(int t) {
+		player.seek(t);
+	}
+	
+	bool playing() { return player.playing(); }
+	void pause(bool p) { return player.pause(p); }
 
 	void update() {
-		// player.update();
+		playerState = player.getState();
+		if(playerState == MusicPlayerList::PLAY_STARTED) {
+			info = player.getInfo();
+			for(auto &cb : meta_callbacks)
+				(*cb)(info);
+		}
+	}
+	
+	using MetaCallback = std::function<void(const SongInfo&)>;
+	using MetaHolder = std::shared_ptr<std::function<void(std::nullptr_t)>>;
+	
+	MetaHolder onMeta(const MetaCallback &callback) {
+		std::lock_guard<std::mutex> lg(m);
+		meta_callbacks.push_back(std::shared_ptr<MetaCallback>(new MetaCallback(callback)));
+		auto mc = meta_callbacks.back();
+		(*mc)(info);
+		return MetaHolder(nullptr, [=](std::nullptr_t) {
+			std::lock_guard<std::mutex> lg(m);
+			meta_callbacks.erase(std::remove(meta_callbacks.begin(), meta_callbacks.end(), mc));
+		});
 	}
 
-	void onMeta(std::function<void(const SongInfo &)> callback);
+	int seconds() {
+		return player.getPosition();
+	}
 
 private:
 	utils::File workDir;
-
-	std::shared_ptr<IncrementalQuery> iquery;
+	std::mutex m;
 	MusicDatabase mdb;
+	SongInfo info;
 	MusicPlayerList player;
 	MusicPlayerList::State playerState;
-
+	std::vector<std::shared_ptr<MetaCallback>> meta_callbacks;
 	void setupRules();
 	void updateKeys();
 };

@@ -74,6 +74,21 @@ set(APONE_MODULES
 	xml
 )
 
+set(TEXT_MODULES
+	coreutils
+	audioplayer
+	#grappix
+	fft
+	archive
+	webutils
+#	json
+	luainterpreter
+	sqlite3
+#	net
+	xml
+	bbsutils
+)
+
 if(NOT WIN32)
   set(APONE_MODULES ${APONE_MODULES} bbsutils)
 endif()
@@ -108,6 +123,7 @@ set(MUSICPLAYER_PLUGINS
 	gsfplugin
 )
 
+
 #if(NOT WIN32)
 	set(MUSICPLAYER_PLUGINS ${MUSICPLAYER_PLUGINS} uadeplugin)
 #endif()
@@ -138,7 +154,7 @@ endif()
 
 target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
 
-target_link_libraries(cm ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
+target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS})
 
 #SET_DATA_FILES(data lua)
 
