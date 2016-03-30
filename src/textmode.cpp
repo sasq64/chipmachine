@@ -91,7 +91,10 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface &ci) {
 		} else		
 		if(k == Console::KEY_F2) {
 			ci.addSong(getSelectedSong());
-			listView.putKey(Console::KEY_DOWN);
+			if(listView.putKey(Console::KEY_DOWN)) {
+				listView.refresh();
+				doFlush = true;
+			}
 		} else
 		if(k == Console::KEY_ENTER) {
             if(iquery->numHits() > 0) {

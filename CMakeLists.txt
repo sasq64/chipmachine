@@ -33,6 +33,7 @@ set(SOURCE_FILES
 	src/MusicBars.cpp
 	src/ChipMachine_config.cpp
 	src/ChipMachine_keys.cpp
+	src/ChipMachine_commands.cpp
 	src/MusicDatabase.cpp
 	src/MusicPlayer.cpp
 	src/MusicPlayerList.cpp

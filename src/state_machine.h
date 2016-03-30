@@ -81,7 +81,6 @@ extern std::shared_ptr<BaseCondition> ALWAYS_TRUE;
 
 struct Action {
 	Action(uint32_t id = 0, uint32_t event = 0) : id(id), event(event) {}
-	// operator uint32_t() { return id; }
 	uint32_t id;
 	uint32_t event;
 };
@@ -115,6 +114,9 @@ public:
 		}
 	}
 
+	// Each event (uint32_t) maps to several mappings.
+	// Each mapping is a condition and an action.
+	// The first mapping with a true condtition will fire
 	void add(std::vector<uint32_t> events, std::shared_ptr<BaseCondition> c, uint32_t action,
 	         bool stop = true) {
 		for(auto event : events) {
@@ -145,6 +147,8 @@ public:
 		}
 		return Action();
 	}
+	
+	int actionsLeft() { return actions.size(); }
 
 	struct Mapping {
 		Mapping(std::shared_ptr<BaseCondition> condition, uint32_t action, bool stop = true)

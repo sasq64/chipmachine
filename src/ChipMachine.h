@@ -88,8 +88,39 @@ private:
 	SongInfo getSelectedSong();
 
 	void setupRules();
+	void setupCommands();
 	void updateKeys();
 
+	void addKey(std::vector<uint32_t> events, const std::string &cmd) {
+		for(int i=0; i<commands.size(); i++) {
+			if(commands[i].name == cmd) {
+				smac.add(events, i);
+			}
+		}
+	}
+	template <typename T> void addKey(T&& key, const std::string &cmd) {
+		for(int i=0; i<commands.size(); i++) {
+			if(commands[i].name == cmd) {
+				smac.add(std::forward<T>(key), i);
+			}
+		}
+	}
+	
+	void addKey(std::vector<uint32_t> events, std::shared_ptr<statemachine::BaseCondition> cond, const std::string &cmd) {
+		for(int i=0; i<commands.size(); i++) {
+			if(commands[i].name == cmd) {
+				smac.add(events, cond, i);
+			}
+		}
+	}
+	template <typename T> void addKey(T&& key, std::shared_ptr<statemachine::BaseCondition> cond, const std::string &cmd) {
+		for(int i=0; i<commands.size(); i++) {
+			if(commands[i].name == cmd) {
+				smac.add(key, cond, i);
+			}
+		}
+	}
+		 	
 	utils::File workDir;
 
 	MusicPlayerList player;
@@ -98,6 +129,7 @@ private:
 	const int SEARCH_SCREEN = 1;
 	const int COMMAND_SCREEN = 2;
 
+	int lastScreen = MAIN_SCREEN;
 	int currentScreen = MAIN_SCREEN;
 
 	std::unique_ptr<TelnetInterface> telnet;
@@ -216,6 +248,17 @@ private:
 	MusicBars musicBars;
 	MusicPlayerList::State playerState;
 	std::string scrollText;
+	
+	struct Command {
+		Command(const std::string &name, const std::function<void()> fn) : name(name), fn(fn) {}
+		std::string name;
+		std::function<void()> fn;
+	};
+	
+	std::vector<Command> commands;
+	
+	int lastKey = 0;
+	bool searchUpdated = false;	
 };
 }
 

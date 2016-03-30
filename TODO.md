@@ -1,4 +1,24 @@
 
+## 1.3 TODO
+
+### TEXT MODE
+
+* Gray bg
+* Next song on add
+* Print next song
+* Print length
+* Sync colors
+* Indicate favorite, mark favorite
+* Show meta data
+
+### NORMAL MODE
+
+* Clipboard support
+* (Drag & Drop support)
+* (Command mode)
+
+
+
 ## ISSUES
 
 * Deal with no Internet
