@@ -16,7 +16,7 @@ struct SongInfo {
 	std::string game;
 	std::string title;
 	std::string composer;
-	std::string format;
+    std::string format;
 	std::string metadata;
 	int numtunes = 0;
 	int starttune = 0;

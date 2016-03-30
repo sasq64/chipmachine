@@ -10,7 +10,7 @@ namespace chipmachine {
 
 void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface &ci) {
 	using namespace bbs;
-	int bgColor = Console::LIGHT_BLUE;
+    int bgColor = Console::DARK_GREY;
 	
 	auto iquery = ci.createQuery();
 	
@@ -27,7 +27,7 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface &ci) {
 	console->moveCursor(0,2);
 	console->setColor(Console::WHITE, Console::BLACK);
 	TextListView listView(*console, height - 6, width);
-	SongInfo info;
+    SongInfo info{};
 	
 	auto holder = ci.onMeta([&](const SongInfo &si) {
 		info = si;
@@ -94,9 +94,11 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface &ci) {
 			listView.putKey(Console::KEY_DOWN);
 		} else
 		if(k == Console::KEY_ENTER) {
-			ci.play(getSelectedSong());
-			currentTune = 0;
-			olds = -1;
+            if(iquery->numHits() > 0) {
+                ci.play(getSelectedSong());
+                currentTune = 0;
+                olds = -1;
+            }
 		} else if(k == Console::KEY_RIGHT) {
 			if(currentTune < info.numtunes - 1)
 				ci.setTune(++currentTune);

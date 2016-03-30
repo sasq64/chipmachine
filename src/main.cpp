@@ -71,11 +71,11 @@ int main(int argc, char *argv[]) {
 	bool fullScreen = false;
 	bool telnetServer = false;
 #ifdef TEXTMODE_ONLY
-	bool textMode = true;
+    bool textMode = true;
 #else
 	bool textMode = false;
 #endif
-	
+
 	auto args = docopt::docopt(USAGE, { argv + 1, argv + argc }, true, "Chipmachine 1.3");
                                                   
 #ifndef TEXTMODE_ONLY                       
@@ -89,14 +89,14 @@ int main(int argc, char *argv[]) {
 	if(args["-d"].asBool()) {
 		fullScreen = false;
 		logging::setLevel(logging::DEBUG);
-	}
+    }
 	telnetServer = args["--telnet"].asBool();
 	
 	if(args["<files>"]) {
 		const auto &sl = args["<files>"].asStringList();
 		std::copy(sl.begin(), sl.end(), std::back_inserter(songs));
 	}
-	
+
 	string path = File::makePath({                                 
 #ifdef __APPLE__
 	    (File::getExeDir() / ".." / "Resources").resolve(),

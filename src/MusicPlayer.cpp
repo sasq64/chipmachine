@@ -53,13 +53,11 @@ MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4) {
 // Make sure the fifo is filled
 void MusicPlayer::update() {
 
-	static int16_t *tempBuf = nullptr;
-	if(!tempBuf)
-		tempBuf = new int16_t[fifo.size()];
+    static vector<int16_t> tempBuf(fifo.size());
 
 	if(!paused && player) {
 
-		{
+        {
 			auto p = player.aquire();
 			if(p) {
 				sub_title = p->getMeta("sub_title");
@@ -76,7 +74,7 @@ void MusicPlayer::update() {
 			if(f < 4096)
 				break;
 
-			int rc = player->getSamples(tempBuf, f - 1024);
+            int rc = player->getSamples(&tempBuf[0], f - 1024);
 
 			if(rc == 0)
 				break;
@@ -89,8 +87,8 @@ void MusicPlayer::update() {
 				fifo.setVolume((fadeOutPos - pos) / (float)fadeLength);
 			}
 
-			fifo.put(tempBuf, rc);
-			if(fifo.filled() >= fifo.size() / 2) {
+            fifo.put(&tempBuf[0], rc);
+            if(fifo.filled() >= fifo.size() / 2) {
 				break;
 			}
 		}

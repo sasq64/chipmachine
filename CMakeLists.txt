@@ -58,7 +58,7 @@ set(TEXTMODE_FILES
 	src/main.cpp
 )
 
-add_custom_target(include_files SOURCES src/version.h src/TextField.h src/TextListView.h src/CueSheet.h 
+add_custom_target(chipmachine.include_files SOURCES src/version.h src/TextField.h src/TextListView.h src/CueSheet.h
 	src/Dialog.h src/LineEdit.h src/Icons.h src/SongInfo.h src/SongInfoField.h src/ChipInterface.h)
 
 set(APONE_MODULES
