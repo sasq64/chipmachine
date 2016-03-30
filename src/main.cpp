@@ -7,25 +7,55 @@
 // #endif
 //#define ENABLE_TELNET
 
-#include "ChipMachine.h"
 #include "MusicPlayer.h"
-
+#include "ChipInterface.h"
+#ifndef TEXTMODE_ONLY
+#include "ChipMachine.h"
 #include <grappix/grappix.h>
+#endif
 #include <musicplayer/PSFFile.h>
 #include <coreutils/format.h>
 #include <coreutils/var.h>
+#include <bbsutils/telnetserver.h>
+#include <bbsutils/ansiconsole.h>
+#include <bbsutils/petsciiconsole.h>
 
 #ifndef _WIN32
 #include <bbsutils/console.h>
 #define ENABLE_CONSOLE
 #endif
 
+#include "../docopt/docopt.h"
 #include <vector>
 
 using namespace std;
 using namespace chipmachine;
 using namespace bbs;
 using namespace utils;
+
+namespace chipmachine {
+	void runConsole(shared_ptr<Console> console, ChipInterface &ci);
+}
+
+static const char USAGE[] =
+R"(chipmachine.
+	Usage:
+      chipmachine [options]
+      chipmachine [-d] <files>...
+
+    Options:
+      -d                Debug output)"
+#ifndef TEXTMODE_ONLY
+R"(
+      -f, --fullscreen    Run in Fullscreen
+      --width <width>     Width of window
+      --height <height>   Height of window
+      -X, --textmode      Run in textmode)"
+#endif
+R"(
+      -T, --telnet      Start telnet server
+      -p <port>         Telnet server port (default 12345)
+)";
 
 int main(int argc, char *argv[]) {
 
@@ -39,38 +69,35 @@ int main(int argc, char *argv[]) {
 	int w = 960;
 	int h = 540;
 	bool fullScreen = false;
-	bool server = false;
-
-	for(int i = 1; i < argc; i++) {
-		if(argv[i][0] == '-') {
-			switch(argv[i][1]) {
-			case 'd':
-				fullScreen = false;
-				logging::setLevel(logging::DEBUG);
-				break;
-			case 'w':
-				fullScreen = false;
-				break;
-			case 'f':
-				fullScreen = true;
-				break;
-			case 's':
-				server = true;
-			case 't':
-				w = 720;
-				h = 576;
-				break;
-			case 'h':
-				w = 1280;
-				h = 720;
-				break;
-			}
-		} else {
-			songs.emplace_back(argv[i]);
-		}
+	bool telnetServer = false;
+#ifdef TEXTMODE_ONLY
+	bool textMode = true;
+#else
+	bool textMode = false;
+#endif
+	
+	auto args = docopt::docopt(USAGE, { argv + 1, argv + argc }, true, "Chipmachine 1.3");
+                                                  
+#ifndef TEXTMODE_ONLY                       
+	if(args["--width"])
+		w = args["--width"].asLong();
+	if(args["--height"])
+		h = args["--height"].asLong();
+	fullScreen = args["--fullscreen"].asBool();
+	textMode = args["--textmode"].asBool();
+#endif
+	if(args["-d"].asBool()) {
+		fullScreen = false;
+		logging::setLevel(logging::DEBUG);
 	}
-
-	string path = File::makePath({
+	telnetServer = args["--telnet"].asBool();
+	
+	if(args["<files>"]) {
+		const auto &sl = args["<files>"].asStringList();
+		std::copy(sl.begin(), sl.end(), std::back_inserter(songs));
+	}
+	
+	string path = File::makePath({                                 
 #ifdef __APPLE__
 	    (File::getExeDir() / ".." / "Resources").resolve(),
 #else
@@ -91,17 +118,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	LOGD("WorkDir:%s", workDir);
-
-	if(server) {
-		MusicPlayerList player(workDir);
-		MusicDatabase::getInstance().initFromLua(workDir);
-#ifdef ENABLE_TELNET
-		TelnetInterface telnet(player);
-		telnet.start();
-#endif
-		while(true)
-			sleepms(500);
-	}
 
 	if(songs.size() > 0) {
 		int pos = 0;
@@ -132,8 +148,44 @@ int main(int argc, char *argv[]) {
 #endif
 			}
 		}
+		return 0;
 	}
-
+		
+	if(textMode || telnetServer) {
+		ChipInterface ci(workDir);
+		if(textMode) {
+			logging::setLevel(logging::ERROR);
+			auto console = std::shared_ptr<bbs::Console>(bbs::Console::createLocalConsole());
+			runConsole(console, ci);
+			if(telnetServer)
+				std::thread conThread(runConsole, console, std::ref(ci));
+			else
+				runConsole(console, ci);
+		}
+		if(telnetServer) {
+			auto telnet = std::make_shared<bbs::TelnetServer>(12345);
+			telnet->setOnConnect([&](bbs::TelnetServer::Session &session) {
+				try {
+					std::shared_ptr<bbs::Console> console;
+					session.echo(false);
+					auto termType = session.getTermType();
+					LOGD("New telnet connection, TERMTYPE '%s'", termType);
+		
+					if(termType.length() > 0) {
+						console = std::make_shared<bbs::AnsiConsole>(session);
+					} else {
+						console = std::make_shared<bbs::PetsciiConsole>(session);
+					}
+					runConsole(console, ci);
+				} catch(bbs::TelnetServer::disconnect_excpetion &e) {
+					LOGD("Got disconnect");
+				}
+			});
+			telnet->run();
+		}
+		return 0;
+	}
+#ifndef TEXTMODE_ONLY
 	if(fullScreen)
 		grappix::screen.open(true);
 	else
@@ -145,5 +197,6 @@ int main(int argc, char *argv[]) {
 		app.update();
 		app.render(delta);
 	}, 20);
+#endif
 	return 0;
 }

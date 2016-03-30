@@ -24,8 +24,8 @@ enum ChipAction {
 	ADD_LIST_FAVORITE,
 	ADD_CURRENT_FAVORITE,
 	CLEAR_SONGS,
-	SELECT_PLAYLIST,
-	EDIT_PLAYLIST,
+	//SELECT_PLAYLIST,
+	//EDIT_PLAYLIST,
 	ADD_COMMAND_CHAR,
 	ADD_DIALOG_CHAR,
 	CANCEL_COMMAND,
@@ -36,7 +36,7 @@ enum ChipAction {
 	VOLUME_DOWN,
 	QUIT,
 	LOGIN,
-	DUMP_FAVORITES,
+	//DUMP_FAVORITES,
 	RANDOM_SHUFFLE,
 	FORMAT_SHUFFLE,
 	COLLECTION_SHUFFLE,
@@ -71,13 +71,13 @@ void ChipMachine::setupRules() {
 	smac.add(Window::ESCAPE, if_false(haveSearchChars), SHOW_MAIN);
 	smac.add(Window::ESCAPE, if_true(haveSearchChars), CLEAR_SEARCH);
 	smac.add(Window::F6, NEXT_SONG);
-	smac.add(Window::ENTER, if_true(playlistEdit), SELECT_PLAYLIST);
+	//smac.add(Window::ENTER, if_true(playlistEdit), SELECT_PLAYLIST);
 	smac.add(Window::ENTER, if_equals(currentScreen, MAIN_SCREEN), NEXT_SONG);
 	smac.add(Window::ENTER, if_equals(currentScreen, SEARCH_SCREEN), PLAY_LIST_SONG);
 	smac.add(Window::ENTER | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_SONG);
 	smac.add(Window::F9, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_SONG);
 	smac.add(Window::DOWN | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), NEXT_COMPOSER);
-	smac.add(Window::F8 | SHIFT, DUMP_FAVORITES);
+	//smac.add(Window::F8 | SHIFT, DUMP_FAVORITES);
 	smac.add(Window::F7, if_equals(currentScreen, SEARCH_SCREEN), ADD_LIST_FAVORITE);
 	smac.add(Window::F7, if_equals(currentScreen, MAIN_SCREEN), ADD_CURRENT_FAVORITE);
 	smac.add(Window::F8, CLEAR_SONGS);
@@ -159,7 +159,7 @@ void ChipMachine::updateKeys() {
 	VerticalList *currentList = nullptr;
 	if(currentScreen == SEARCH_SCREEN)
 		currentList = &songList;
-	else if(currentScreen == MAIN_SCREEN)
+	else if(currentScreen == COMMAND_SCREEN)
 		currentList = &commandList;
 
 	if(key != Window::NO_KEY) {

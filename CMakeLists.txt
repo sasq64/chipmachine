@@ -42,6 +42,7 @@ set(SOURCE_FILES
 	src/SongFileIdentifier.cpp
 #	src/TelnetInterface.cpp
 	src/state_machine.cpp
+	src/textmode.cpp
 	src/main.cpp
 )
 
@@ -53,12 +54,12 @@ set(TEXTMODE_FILES
 	src/SearchIndex.cpp
 	src/SongFileIdentifier.cpp
 	src/state_machine.cpp
-	src/textmain.cpp
+	src/textmode.cpp
+	src/main.cpp
 )
 
-#if(RASPBERRY)
-#	set(SOURCE_FILES ${SOURCE_FILES} src/PiTFT.cpp)
-#endif()
+add_custom_target(include_files SOURCES src/version.h src/TextField.h src/TextListView.h src/CueSheet.h 
+	src/Dialog.h src/LineEdit.h src/Icons.h src/SongInfo.h src/SongInfoField.h src/ChipInterface.h)
 
 set(APONE_MODULES
 	coreutils
@@ -74,30 +75,18 @@ set(APONE_MODULES
 	xml
 	bbsutils
 )
-
 set(TEXT_MODULES
 	coreutils
 	audioplayer
-	#grappix
 	fft
 	archive
 	webutils
-#	json
 	luainterpreter
 	sqlite3
-#	net
 	xml
 	bbsutils
 )
-
 add_subdirectory(${AP1_ROOT}/mods ap1mods)
-
-if(APPLE)
-	set(DATA_TARGET ${CMAKE_CURRENT_BINARY_DIR}/Chipmachine.app/Contents/Resources/)
-	#set(UADECORE_TARGET "${DATA_TARGET}data/uade/")
-	#else()
-	#set(UADECORE_TARGET "${CMAKE_CURRENT_BINARY_DIR}/data/uade/")
-endif()
 
 set(MUSICPLAYER_PLUGINS
 	openmptplugin
@@ -118,16 +107,19 @@ set(MUSICPLAYER_PLUGINS
 	s98plugin
 	aoplugin
 	gsfplugin
+	uadeplugin
 )
-
-set(MUSICPLAYER_PLUGINS ${MUSICPLAYER_PLUGINS} uadeplugin)
-
 add_subdirectory(${AP1_ROOT}/mods/musicplayer/plugins plugins)
 
 include_directories(${AP1_ROOT}/mods/grappix ${AP1_ROOT}/mods/musicplayer/plugins)
 
+add_subdirectory(docopt)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-#include_directories(${AP1_ROOT}/mods/glew/glew-1.11.0/include ${AP1_ROOT}mods/musicplayer/plugins/mp3plugin/mpg123-1.21.0/src/libmpg123)
+
+if(WIN32)
+    set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -mwindows)
+endif()
 
 if(APPLE)
 	add_executable(chipmachine MACOSX_BUNDLE ${SOURCE_FILES})
@@ -139,18 +131,10 @@ endif()
 
 add_executable(cm ${PLUGIN_EXTRA_FILES} ${TEXTMODE_FILES})
 
-#add_executable(modland modland.cpp)
-#target_link_libraries(modland coreutils)
+target_compile_definitions(cm PUBLIC TEXTMODE_ONLY)
 
-if(WIN32)
-set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -mwindows)
-endif()
-
-target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
-
-target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS})
-
-#SET_DATA_FILES(data lua)
+target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} docopt_s)
+target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS} docopt_s)
 
 if(APPLE)
 	set(APPS ${CMAKE_CURRENT_BINARY_DIR}/Chipmachine.app)

@@ -17,8 +17,6 @@
 #include "LineEdit.h"
 #include "Dialog.h"
 
-#include "PiTFT.h"
-
 #include "MusicBars.h"
 
 #include "../demofx/StarField.h"
@@ -39,7 +37,7 @@ namespace chipmachine {
 
 class Icon : public Renderable {
 public:
-	Icon(){};
+	Icon() {}
 
 	Icon(grappix::Texture *tx, float x, float y, float w, float h)
 	    : texture(tx), x(x), y(y), w(w), h(h) {}

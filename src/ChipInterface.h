@@ -10,7 +10,7 @@
 #include <vector>
 #include <string>
 #include <functional>
-#include <algorithm>>
+#include <algorithm>
 
 namespace chipmachine {
 
@@ -61,7 +61,7 @@ public:
 	
 	MetaHolder onMeta(const MetaCallback &callback) {
 		std::lock_guard<std::mutex> lg(m);
-		meta_callbacks.push_back(std::shared_ptr<MetaCallback>(new MetaCallback(callback)));
+		meta_callbacks.push_back(std::make_shared<MetaCallback>(callback));
 		auto mc = meta_callbacks.back();
 		(*mc)(info);
 		return MetaHolder(nullptr, [=](std::nullptr_t) {
