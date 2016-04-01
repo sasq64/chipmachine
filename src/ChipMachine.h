@@ -99,11 +99,9 @@ private:
 		}
 	}
 	template <typename T> void addKey(T&& key, const std::string &cmd) {
-		for(int i=0; i<commands.size(); i++) {
-			if(commands[i].name == cmd) {
-				smac.add(std::forward<T>(key), i);
-			}
-		}
+		auto it = std::find(commands.begin(), commands.end(), cmd);
+		if(it != commands.end()) 
+			smac.add(std::forward<T>(key), std::distance(commands.begin(), it));
 	}
 	
 	void addKey(std::vector<uint32_t> events, std::shared_ptr<statemachine::BaseCondition> cond, const std::string &cmd) {
@@ -119,6 +117,13 @@ private:
 				smac.add(key, cond, i);
 			}
 		}
+	}
+	
+	void clearCommand() {
+		matchingCommands.resize(commands.size());
+		int i=0;
+		for(auto &c : commands)
+			matchingCommands[i++] = c.name;
 	}
 		 	
 	utils::File workDir;
@@ -253,9 +258,14 @@ private:
 		Command(const std::string &name, const std::function<void()> fn) : name(name), fn(fn) {}
 		std::string name;
 		std::function<void()> fn;
+		int shortcut = -1;
+		bool operator==(const std::string &n) {
+			return n == name;
+		}
 	};
 	
 	std::vector<Command> commands;
+	std::vector<std::string> matchingCommands;
 	
 	int lastKey = 0;
 	bool searchUpdated = false;	

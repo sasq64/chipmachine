@@ -1,6 +1,8 @@
 #ifndef STATE_MACHINE_H
 #define STATE_MACHINE_H
 
+#include <coreutils/log.h>
+
 #include <memory>
 #include <deque>
 #include <unordered_map>
@@ -87,19 +89,21 @@ struct Action {
 
 class StateMachine {
 public:
-	void put_event(uint32_t event) {
+	bool put_event(uint32_t event) {
+		bool found = false;
 		auto &amap = actionmap[event];
 		for(const auto &a : amap.actions) {
 			if(a.condition->check()) {
+				found = true;
 				actions.emplace_back(a.action, event);
 				if(a.stop)
 					break;
 			}
 		}
+		return found;
 	}
 
 	// If event e occurs and current state matches sm, perform action a
-
 	void add(uint32_t event, std::shared_ptr<BaseCondition> c, uint32_t action, bool stop = true) {
 		ActionSet &a = actionmap[event];
 		a.actions.push_back(Mapping(c, action, stop));

@@ -44,7 +44,7 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface &ci) {
 		static const std::map<uint32_t, int> colors = {
 			{NOT_SET, Console::PURPLE}, {PLAYLIST, Console::GREY},    {CONSOLE, Console::RED},    {C64, Console::BROWN},
 			{ATARI, Console::YELLOW},   {MP3, Console::GREEN},        {M3U, Console::LIGHT_GREEN}, {YOUTUBE, 0xffff0000},
-			{PC, Console::LIGHT_GREY},  {AMIGA, Console::LIGHT_BLUE}, {255, Console::ORANGE}};
+			{PC, Console::CYAN},  {AMIGA, Console::LIGHT_BLUE}, {255, Console::ORANGE}};
 
 		int color = 0;
 		auto parts = utils::split(iquery->getResult(index), "\t");
@@ -90,10 +90,12 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface &ci) {
 			ci.nextSong();
 		} else		
 		if(k == Console::KEY_F2) {
-			ci.addSong(getSelectedSong());
-			if(listView.putKey(Console::KEY_DOWN)) {
-				listView.refresh();
-				doFlush = true;
+            if(iquery->numHits() > 0) {
+				ci.addSong(getSelectedSong());
+				if(listView.putKey(Console::KEY_DOWN)) {
+					listView.refresh();
+					doFlush = true;
+				}
 			}
 		} else
 		if(k == Console::KEY_ENTER) {

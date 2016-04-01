@@ -1,7 +1,6 @@
 #include "ChipMachine.h"
 #include "Icons.h"
 
-
 #include "version.h"
 #include <cctype>
 #include <map>
@@ -158,15 +157,16 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 	commandList = VerticalList(listrec, numLines, [=](grappix::Rectangle &rec, int y,
 	                                                  uint32_t index, bool hilight) {
-		if(index < commands.size()) {
-			auto cmdName =  commands[index].name;
+		if(index < matchingCommands.size()) {
+			auto cmdName = matchingCommands[index];
 			uint32_t c = 0xaa00cc00;
 			if(hilight) {
 				static uint32_t markStartcolor = 0;
 				if(markStartcolor != c) {
 					markStartcolor = c;
 					markColor = c;
-					markTween = Tween::make().sine().repeating().from(markColor, hilightColor).seconds(1.0);
+					markTween =
+					    Tween::make().sine().repeating().from(markColor, hilightColor).seconds(1.0);
 					markTween.start();
 				}
 				c = markColor;
@@ -175,10 +175,9 @@ ChipMachine::ChipMachine(const std::string &wd)
 		}
 	});
 
-	commandList.setTotal(100);
+	commandList.setTotal(commands.size());
+	clearCommand();
 	
-	
-
 	// playlistField = TextField(listFont, "Favorites", downRight.x - 80, downRight.y - 10, 0.5,
 	// 0xff888888);
 	// mainScreen.add(playlistField);
@@ -335,7 +334,7 @@ void ChipMachine::update() {
 
 		if(player.wasFromQueue()) {
 			currentTween = Tween::make()
-			                   .from(prevInfoField, currentInfoField)
+			                   .from(prevInfoField, currentInfoField)			                  
 			                   .from(currentInfoField, nextInfoField)
 			                   .from(nextInfoField, outsideInfoField)
 			                   .seconds(1.5)

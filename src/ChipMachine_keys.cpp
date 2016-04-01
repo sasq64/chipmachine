@@ -7,14 +7,6 @@ using namespace tween;
 
 namespace chipmachine {
 
-enum ChipAction {
-	NO_ACTION = 0x1000,
-	ADD_SEARCH_CHAR,
-	DEL_SEARCH_CHAR,
-	ADD_COMMAND_CHAR,
-	ADD_DIALOG_CHAR,
-};
-
 static const uint32_t SHIFT = 0x10000;
 static const uint32_t CTRL = 0x20000;
 static const uint32_t ALT = 0x40000;
@@ -22,38 +14,26 @@ static const uint32_t ALT = 0x40000;
 void ChipMachine::setupRules() {
 
 	using namespace statemachine;
-	
+
 	addKey(Window::F1, "show_main");
-	addKey({Window::F2, Window::UP, Window::DOWN, Window::PAGEUP, Window::PAGEDOWN}, if_equals(currentScreen, MAIN_SCREEN), "show_search");
+	addKey({Window::UP, Window::DOWN, Window::PAGEUP, Window::PAGEDOWN},
+	       if_equals(currentScreen, MAIN_SCREEN), "show_search");
+	addKey(Window::F2, "show_search");
 	addKey(Window::F5, "play_pause");
 	addKey(Window::ENTER, if_equals(currentScreen, COMMAND_SCREEN), "execute_selected_command");
-	addKey({Window::TAB, Window::F3}, "show_command");
-
-	smac.add("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._0123456789 ",
-	         if_equals(currentScreen, COMMAND_SCREEN), ADD_COMMAND_CHAR);
-	smac.add("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._0123456789 ",
-	         if_not_null(currentDialog), ADD_DIALOG_CHAR);
-	smac.add({Window::ENTER, Window::ESCAPE, Window::BACKSPACE}, if_not_null(currentDialog),
-	         ADD_DIALOG_CHAR);
-	smac.add({Window::BACKSPACE, Window::LEFT, Window::RIGHT, Window::HOME, Window::END},
-	         if_equals(currentScreen, COMMAND_SCREEN), ADD_COMMAND_CHAR);
-	smac.add("abcdefghijklmnopqrstuvwxyz0123456789 ", ADD_SEARCH_CHAR);
-	smac.add(Window::BACKSPACE, DEL_SEARCH_CHAR);
+	addKey(Window::F3, "show_command");
 	
 	addKey(Window::ESCAPE, if_false(haveSearchChars), "show_main");
 	addKey(Window::ESCAPE, if_true(haveSearchChars), "clear_search");
 	addKey(Window::F6, "next_song");
-	//addKey(Window::ENTER, if_true(playlistEdit), SELECT_PLAYLIST);
 	addKey(Window::ENTER, if_equals(currentScreen, MAIN_SCREEN), "next_song");
 	addKey(Window::ENTER, if_equals(currentScreen, SEARCH_SCREEN), "play_list_song");
 	addKey(Window::ENTER | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), "add_list_song");
 	addKey(Window::F9, if_equals(currentScreen, SEARCH_SCREEN), "add_list_song");
 	addKey(Window::DOWN | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), "next_composer");
-	//addKey(Window::F8 | SHIFT, DUMP_FAVORITES);
 	addKey(Window::F7, if_equals(currentScreen, SEARCH_SCREEN), "add_list_favorite");
 	addKey(Window::F7, if_equals(currentScreen, MAIN_SCREEN), "add_current_favorite");
 	addKey(Window::F8, "clear_songs");
-	// addKey(Window::F9, SEND_PLAYLIST);
 	addKey(Window::LEFT, "prev_subtune");
 	addKey(Window::RIGHT, "next_subtune");
 	addKey(Window::F4, "layout_screen");
@@ -71,6 +51,7 @@ void ChipMachine::setupRules() {
 	addKey('5' | CTRL, "result_shuffle");
 	addKey('-', "volume_down");
 	addKey("=+", "volume_up");
+	addKey(Window::TAB, "toggle_command");
 }
 
 void ChipMachine::showScreen(int screen) {
@@ -164,52 +145,52 @@ void ChipMachine::updateKeys() {
 		if(event == (Window::RIGHT | SHIFT))
 			event = Window::LEFT;
 
-		smac.put_event(event);
-	}
-
-	lastKey = key;
-	if(smac.actionsLeft() > 0) {
-		auto action = smac.next_action();
-		if(action.id < NO_ACTION) {
-			LOGD("ACTION %d", action.id);
-			commands[action.id].fn();
-		} else {	
-			LOGD("ACTION %x", action.id);
-			string name;
-			switch((ChipAction)action.id) {
-			case ADD_COMMAND_CHAR:
-				commandField.on_key(action.event);
-				break;
-			case ADD_DIALOG_CHAR:
-				currentDialog->on_key(action.event);
-				break;
-			case ADD_SEARCH_CHAR:
-				// LOGD("%d %02x", currentScreen, action.event);
-				if(hasMoved && action.event != ' ')
-					iquery->clear();
-				hasMoved = false;
-				showScreen(SEARCH_SCREEN);
-				iquery->addLetter(tolower(action.event));
-				searchUpdated = true;
-				break;
-			case DEL_SEARCH_CHAR:
-				hasMoved = false;
-				showScreen(SEARCH_SCREEN);
-				iquery->removeLast();
-				searchUpdated = true;
-				break;
-			case NO_ACTION:
-				break;
+		lastKey = key;
+		
+		
+		if(!smac.put_event(event)) {
+			if((key >= ' ' && key <= 'z') || key == Window::LEFT || key == Window::RIGHT ||
+			   key == Window::BACKSPACE || key == Window::ESCAPE || key == Window::ENTER) {
+				if(currentDialog != nullptr) {
+					currentDialog->on_key(event);
+				} else if(currentScreen == COMMAND_SCREEN) {
+					commandField.on_key(event);
+					auto ctext = commandField.getText();
+					if(ctext == "")
+						clearCommand();
+					else {
+						matchingCommands.resize(commands.size());
+						int j = 0;
+						for(int i=0; i<commands.size(); i++) {
+							if(toLower(commands[i].name).find(ctext) != string::npos)
+								matchingCommands[j++] = commands[i].name;
+						}
+						matchingCommands.resize(j);
+					}
+				} else {
+					currentScreen = SEARCH_SCREEN;
+					if(hasMoved && event != ' ' && event != Window::BACKSPACE)
+						iquery->clear();
+					hasMoved = false;
+					showScreen(SEARCH_SCREEN);
+					if(event == Window::BACKSPACE)
+						iquery->removeLast();
+					else
+						iquery->addLetter(tolower(event));
+					searchUpdated = true;
+				}
 			}
 		}
+		while(smac.actionsLeft() > 0) {
+			auto action = smac.next_action();
+			LOGD("ACTION %d", action.id);
+			commands[action.id].fn();
+		}
 	}
-
 	if(searchUpdated) {
 		searchField.setText(iquery->getString());
-		// searchField->color = searchColor;
 		searchField.visible(true);
 		topStatus.visible(false);
-		// PlaylistDatabase::getInstance().search(iquery->getString(), playlists);
 		songList.setTotal(iquery->numHits());
 		searchUpdated = false;
 	}
@@ -220,7 +201,6 @@ void ChipMachine::updateKeys() {
 		auto ext = path_extension(song.path);
 		bool isoffline = RemoteLoader::getInstance().isOffline(song.path);
 		topStatus.setText(format("Format: %s (%s)%s", song.format, ext, isoffline ? "*" : ""));
-		// searchField->color = Color(formatColor);
 		searchField.visible(false);
 		topStatus.visible(true);
 	}

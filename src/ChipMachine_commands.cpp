@@ -8,11 +8,10 @@ using namespace tween;
 namespace chipmachine {
 
 void ChipMachine::setupCommands() {
-	
-	commands.emplace_back("show_main", [=]() { 
-		showScreen(MAIN_SCREEN);
-	});
-	commands.emplace_back("show_search", [=]() { 
+
+	commands.emplace_back("show_main", [=]() { showScreen(MAIN_SCREEN); });
+
+	commands.emplace_back("show_search", [=]() {
 		if(currentScreen != SEARCH_SCREEN) {
 			showScreen(SEARCH_SCREEN);
 			songList.onKey((grappix::Window::key)lastKey);
@@ -21,29 +20,37 @@ void ChipMachine::setupCommands() {
 		}
 		searchUpdated = true;
 	});
-	commands.emplace_back("show_command", [=]() { 
+
+	commands.emplace_back("show_command", [=]() {
 		if(currentScreen != COMMAND_SCREEN)
 			lastScreen = currentScreen;
 		showScreen(COMMAND_SCREEN);
 	});
+
+	commands.emplace_back("toggle_command", [=]() {
+		if(currentScreen != COMMAND_SCREEN) {
+			lastScreen = currentScreen;
+			showScreen(COMMAND_SCREEN);
+		} else
+			showScreen(lastScreen);
+	});
 	
-	commands.emplace_back("play_pause", [=]() { 
+	commands.emplace_back("play_pause", [=]() {
 		player.pause(!player.isPaused());
 		if(player.isPaused()) {
 			Tween::make().sine().repeating().to(timeField.add, 1.0).seconds(0.5);
 		} else
 			Tween::make().to(timeField.add, 0.0).seconds(0.5);
 	});
-	
-	commands.emplace_back("add_list_song", [=]() { 
+
+	commands.emplace_back("add_list_song", [=]() {
 		if(player.addSong(getSelectedSong()))
 			songList.select(songList.selected() + 1);
 	});
-		
-	commands.emplace_back("weird_command", [=]() { 
-	});
-	
-	commands.emplace_back("add_current_favorite", [=]() { 
+
+	commands.emplace_back("weird_command", [=]() {});
+
+	commands.emplace_back("add_current_favorite", [=]() {
 		if(isFavorite) {
 			MusicDatabase::getInstance().removeFromPlaylist(currentPlaylistName, dbInfo);
 		} else {
@@ -52,15 +59,17 @@ void ChipMachine::setupCommands() {
 		isFavorite = !isFavorite;
 		favIcon.visible(isFavorite);
 	});
-	
-	commands.emplace_back("add_list_favorite", [=]() { 
+
+	commands.emplace_back("add_list_favorite", [=]() {
 		MusicDatabase::getInstance().addToPlaylist(currentPlaylistName, getSelectedSong());
 	});
-	commands.emplace_back("play_list_song", [=]() { 
+
+	commands.emplace_back("play_list_song", [=]() {
 		player.playSong(getSelectedSong());
 		showScreen(MAIN_SCREEN);
 	});
-	commands.emplace_back("next_composer", [=]() { 
+
+	commands.emplace_back("next_composer", [=]() {
 		string composer;
 		int index = songList.selected();
 		while(index < songList.size()) {
@@ -74,70 +83,80 @@ void ChipMachine::setupCommands() {
 		}
 		songList.select(index);
 	});
-	commands.emplace_back("next_song", [=]() { 
+
+	commands.emplace_back("next_song", [=]() {
 		showScreen(MAIN_SCREEN);
 		player.nextSong();
 	});
-	
-	commands.emplace_back("clear_search", [=]() { 
+
+	commands.emplace_back("clear_search", [=]() {
 		iquery->clear();
 		searchUpdated = true;
 	});
-	
-	commands.emplace_back("execute_selected_command", [=]() { 
+
+	commands.emplace_back("execute_selected_command", [=]() {
 		int i = commandList.selected();
 		commandList.select(-1);
 		showScreen(lastScreen);
-		commands[i].fn();
+		auto it = std::find(commands.begin(), commands.end(), matchingCommands[i]);
+		if(it != commands.end())
+			it->fn();
 	});
-	
-	commands.emplace_back("next_subtune", [=]() { 
+
+	commands.emplace_back("next_subtune", [=]() {
 		if(currentInfo.numtunes == 0)
 			player.seek(-1, player.getPosition() + 10);
 		else if(currentTune < currentInfo.numtunes - 1)
 			player.seek(currentTune + 1);
 	});
-	commands.emplace_back("prev_subtune", [=]() { 
+
+	commands.emplace_back("prev_subtune", [=]() {
 		if(currentInfo.numtunes == 0)
 			player.seek(-1, player.getPosition() - 10);
 		else if(currentTune > 0)
 			player.seek(currentTune - 1);
 	});
-	commands.emplace_back("clear_songs", [=]() { 
+
+	commands.emplace_back("clear_songs", [=]() {
 		player.clearSongs();
 		toast("Playlist cleared", 2);
 	});
-	commands.emplace_back("volume_up", [=]() { 
+
+	commands.emplace_back("volume_up", [=]() {
 		player.setVolume(player.getVolume() + 0.1);
 		showVolume = 30;
 	});
-	commands.emplace_back("volume_down", [=]() { 
+
+	commands.emplace_back("volume_down", [=]() {
 		player.setVolume(player.getVolume() - 0.1);
 		showVolume = 30;
 	});
-	commands.emplace_back("layout_screen", [=]() { 
-		layoutScreen();
-	});
-	commands.emplace_back("quit", [=]() { 
-		screen.close();
-	});
-	commands.emplace_back("random_shuffle", [=]() { 
+
+	commands.emplace_back("layout_screen", [=]() { layoutScreen(); });
+
+	commands.emplace_back("quit", [=]() { screen.close(); });
+
+	commands.emplace_back("random_shuffle", [=]() {
 		toast("Random shuffle!", 2);
 		shuffleSongs(false, false, false, 100);
 	});
-	commands.emplace_back("composer_shuffle", [=]() { 
+
+	commands.emplace_back("composer_shuffle", [=]() {
 		toast("Composer shuffle!", 2);
 		shuffleSongs(false, true, false, 1000);
 	});
-	commands.emplace_back("format_shuffle", [=]() { 
+
+	commands.emplace_back("format_shuffle", [=]() {
 		toast("Format shuffle!", 2);
 		shuffleSongs(true, false, false, 100);
 	});
-	commands.emplace_back("collection_shuffle", [=]() { 
+
+	commands.emplace_back("collection_shuffle", [=]() {
 		toast("Collection shuffle!", 2);
 		shuffleSongs(false, false, true, 100);
 	});
-	commands.emplace_back("result_shuffle", [=]() { 
+
+	commands.emplace_back("result_shuffle", [=]() {
 		toast("Result shuffle!", 2);
 		player.clearSongs();
 		for(int i = 0; i < iquery->numHits(); i++) {
@@ -158,56 +177,53 @@ void ChipMachine::setupCommands() {
 		showScreen(MAIN_SCREEN);
 		player.nextSong();
 	});
-			/*  case EDIT_PLAYLIST:
-				if(songList.selected() < (int)playlists.size())
-					editPlaylistName = playlists[songList.selected()];
-				else
-					editPlaylistName = "";
-				commandField.setText(editPlaylistName);
-				playlistEdit = true;
-				commandField.visible(true);
-				searchField.visible(false);
-				topStatus.visible(false);
-				break;
-			case SELECT_PLAYLIST:
-				currentPlaylistName = commandField.getText();
-				LOGD("OLDNAME %s NEWNAME %s", editPlaylistName, currentPlaylistName);
-				if(editPlaylistName == "")
-					PlaylistDatabase::getInstance().createPlaylist(currentPlaylistName);
-				else if(editPlaylistName != currentPlaylistName)
-					PlaylistDatabase::getInstance().renamePlaylist(editPlaylistName,
-																   currentPlaylistName);
-	
-				commandField.visible(false);
-				playlistEdit = false;
-				playlistField.setText(currentPlaylistName);
-				break;*/
-	#ifdef USE_REMOTELISTS
-				if(userName == "") {
-					currentDialog = make_shared<Dialog>(screenptr, font, "Login with handle:");
-					currentDialog->on_ok([=](const string &text) {
-						RemoteLists::getInstance().login(text, [=](int rc) {
-							userName = text;
-							if(rc)
-								toast("Login successful", 2);
-							File f{File::getCacheDir() + "login"};
-							f.write(userName);
-							f.close();
-							auto plist =
-								PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
-							RemoteLists::getInstance().sendList(plist.songs, plist.name,
-																[=]() { toast("Uploaded", 2); });
-						});
-	
-					});
-					renderSet.add(currentDialog);
-				} else {
-					auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
-					RemoteLists::getInstance().sendList(plist.songs, plist.name,
-														[=]() { toast("Uploaded", 2); });
-				}
-	#endif
+/*  case EDIT_PLAYLIST:
+    if(songList.selected() < (int)playlists.size())
+        editPlaylistName = playlists[songList.selected()];
+    else
+        editPlaylistName = "";
+    commandField.setText(editPlaylistName);
+    playlistEdit = true;
+    commandField.visible(true);
+    searchField.visible(false);
+    topStatus.visible(false);
+    break;
+case SELECT_PLAYLIST:
+    currentPlaylistName = commandField.getText();
+    LOGD("OLDNAME %s NEWNAME %s", editPlaylistName, currentPlaylistName);
+    if(editPlaylistName == "")
+        PlaylistDatabase::getInstance().createPlaylist(currentPlaylistName);
+    else if(editPlaylistName != currentPlaylistName)
+        PlaylistDatabase::getInstance().renamePlaylist(editPlaylistName,
+                                                       currentPlaylistName);
 
+    commandField.visible(false);
+    playlistEdit = false;
+    playlistField.setText(currentPlaylistName);
+    break;*/
+#ifdef USE_REMOTELISTS
+	if(userName == "") {
+		currentDialog = make_shared<Dialog>(screenptr, font, "Login with handle:");
+		currentDialog->on_ok([=](const string &text) {
+			RemoteLists::getInstance().login(text, [=](int rc) {
+				userName = text;
+				if(rc)
+					toast("Login successful", 2);
+				File f{File::getCacheDir() + "login"};
+				f.write(userName);
+				f.close();
+				auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
+				RemoteLists::getInstance().sendList(plist.songs, plist.name,
+				                                    [=]() { toast("Uploaded", 2); });
+			});
+
+		});
+		renderSet.add(currentDialog);
+	} else {
+		auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
+		RemoteLists::getInstance().sendList(plist.songs, plist.name,
+		                                    [=]() { toast("Uploaded", 2); });
+	}
+#endif
 }
-
 }

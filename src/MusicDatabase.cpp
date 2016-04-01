@@ -36,9 +36,7 @@ bool MusicDatabase::parseCsdb(Variables &vars, const std::string &listFile,
 		auto name = htmldecode(utf8_encode(i["Name"].text()));
 		auto type = i["ReleaseType"].text();
 		auto rating = i["CSDbRating"];
-		float rt = 0;
-		if(rating.valid())
-			rt = stof(rating.text());
+		float rt = rating.valid() ? stof(rating.text()) : 0.f;
 		// LOGD("Found %s (%s %d)", name, type, rt);
 		string group = "";
 		auto rb = i["ReleasedBy"];
@@ -51,8 +49,7 @@ bool MusicDatabase::parseCsdb(Variables &vars, const std::string &listFile,
 			}
 		}
 		if((endsWith(type, "Music Collection") || endsWith(type, "Diskmag") ||
-		    endsWith(type, "Demo")) &&
-		   rt > 0) {
+		    endsWith(type, "Demo")) && rt > 0) {
 
 			File plist = csdbDir / format("r%s.plist", i["ID"].text());
 			plist.writeln(format(";%s\t%s", name, group));
@@ -276,6 +273,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 
 	auto id = vars["id"];
 	auto type = vars["type"];
+	if(type == "") type = id;
 	auto name = vars["name"];
 	auto source = vars["source"];
 	auto local_dir = vars["local_dir"];
@@ -334,9 +332,6 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 		    {"modland", &MusicDatabase::parseModland},   {"podcast", &MusicDatabase::parseRss},
 		    {"standard", &MusicDatabase::parseStandard},
 		};
-
-		if(type == "")
-			type = id;
 
 		auto parser = parsers[type];
 		if(!parser)
