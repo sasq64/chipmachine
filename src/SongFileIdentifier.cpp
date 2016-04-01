@@ -301,10 +301,58 @@ bool parseNsfe(SongInfo &song) {
 	return false;
 }
 
+static void fixName(std::string &name) {
+	bool capNext = true;
+	for(int i=0; i<name.size(); i++) {
+		auto &c = name[i];
+		if(capNext) {
+			c = toupper(c);
+			capNext = (c == 'I' && name[i+1] == 'i');
+		}
+		if(c == '_') {
+			capNext = true;
+			c = ' ';
+		}
+	}
+}
+
 bool identify_song(SongInfo &info, string ext) {
 
 	if(ext == "")
 		ext = path_extension(info.path);
+
+	if(ext == "prg") {
+
+		auto parts = split(info.metadata, "/");
+		LOGD("PARTS %s", parts);
+		int l = parts.size();
+		auto title = path_basename(parts[l-1]);
+		fixName(title);
+		string composer = "Unknown";
+		if(parts[0] == "musicians") {
+			composer = parts[1];
+			auto cp = split(composer, "_");
+			auto cpl = cp.size();
+			if(cpl > 1 && cp[0] != "the" && cp[0] != "billy" && cp[0] != "legion") {
+				auto t = cp[0];
+				cp[0] = cp[cpl-1];
+				cp[cpl-1] = t;
+			}
+			for(auto &cpp : cp) {
+				cpp[0] = toupper(cpp[0]);
+			}
+
+			composer = join(cp, " ");
+		}
+
+		info.format = "TED";
+		info.title = title;
+		info.composer = composer;
+
+		return true;
+
+	}
+
 
 	if(ext == "nsfe")
 		return parseNsfe(info);

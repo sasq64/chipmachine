@@ -21,16 +21,18 @@ void makeList(const string &local_dir, const string &list_file) {
 			} else {
 				auto name = rf.getName();
 				SongInfo songInfo(name);
+
+				auto pos = name.find(local_dir);
+				if(pos != string::npos) {
+					name = name.substr(pos + local_dir.length());
+					if(name[0] == '/')
+						name = name.substr(1);
+				}
+				songInfo.metadata = name;
 				if(identify_song(songInfo)) {
 
 					LOGD("TITLE %s", songInfo.title);
 
-					auto pos = name.find(local_dir);
-					if(pos != string::npos) {
-						name = name.substr(pos + local_dir.length());
-						if(name[0] == '/')
-							name = name.substr(1);
-					}
 					listFile.writeln(format("%s\t%s\t%s\t%s\t%s", songInfo.title,
 											songInfo.game, songInfo.composer,
 											songInfo.format, name));

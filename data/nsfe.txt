@@ -1,0 +1,413 @@
+	1943: The Battle of Midway	<?>		1943.nsfe
+	8 Eyes	Kenzou Kumei		8 Eyes.nsfe
+	A Boy and his Blob	Alex Demeo, Mark van Hecke, ...		A Boy and His Blob.nsfe
+	A Nightmare on Elm Street	David Wise		A Nightmare on Elm Street.nsfe
+	Abadox	Kyouhei Sada		Abadox.nsfe
+	Addams Family: Pugsley's Scavenger Hunt	<?>		Addams Family Pugsley's Scavenger Hunt.nsfe
+	Adventure Island 2	Okkun Medaka		Adventure Island 2.nsfe
+	Adventure Island	<?>		Adventure Island.nsfe
+	Adventures In The Magic Kingdom	Yoko Shimomura		Adventures In The Magic Kingdom.nsfe
+	The Adventures of Bayou Billy	Kyouhei Sada, Hidenori Maezawa, Atsushi Fujio, Shinkon Ogura		Adventures of Bayou Billy.nsfe
+	Adventures of Dino Riki	<?>		Adventures of Dino Riki.nsfe
+	Adventures of Lolo 2			Adventures of Lolo 2.nsfe
+	Adventures of Lolo 3			Adventures of Lolo 3.nsfe
+	Adventures of Lolo	<?>		Adventures of Lolo.nsfe
+	Air Fortress	Escaper Kanagushi		Air Fortress.nsfe
+	Akumajou Densetsu	Yoshinori Sasaki,Jun Funahashi,Y.Morimoto		Akumajou Densetsu.nsfe
+	Aladdin (Unlicensed)	<?>		Aladdin (Unlicensed).nsfe
+	Aladdin	<?>		Aladdin.nsfe
+	Alien 3	Jeroen Tel		Alien 3.nsfe
+	Anticipation	David Wise		Anticipation (1988)(Rare).nsfe
+	Argus No Senshi	<?>		Argos No Senshi.nsfe
+	Artificial Intelligence Bomb	Naruto		Artificial Intelligence Bomb.nsfe
+	Almana no Kiseki	<?>		Arumana no Kiseki (FDS).nsfe
+	Asterix	Alberto Gonzalez		Asterix.nsfe
+	Astyanax	<?>		Astyanax.nsfe
+	Bard's Tale - Tales of the Unknown	G. Takahashi		bards tale j.nsfe
+	Batman: Return of the Joker	Naoki Kodaka, Hara Nobuyuki, Shinichi Seya		Batman Return of the Joker.nsfe
+	Batman	Nobuyuki Kun & Kodaka San		Batman.nsfe
+	Battletoads & Double Dragon	David Wise		Battletoads & Double Dragon.nsfe
+	Battletoads	David Wise		Battletoads.nsfe
+	Big Nose the Caveman	<?>		Big Nose the Caveman.nsfe
+	Bionic Commando	"Gondamin"		BionicCommando.nsfe
+	Blades of Steel	<?>		Blades of Steel.nsfe
+	Blaster Master	Naoki Kodaka & Marumo		Blaster Master.nsfe
+	Bram Stoker's Dracula	Jeroen Tel		Bram Stoker's Dracula.nsfe
+	Bubble Bobble 2	< ? >		Bubble Bobble 2.nsfe
+	Bubble Bobble	Tadashi Kimijima		Bubble Bobble.nsfe
+	Bucky O'Hare	T. Sumiyama		Bucky O' Hare.nsfe
+	Burger Time	<?>		Burger Time.nsfe
+	California Games	<?>		California Games.nsfe
+	Castlevania 2:Simon's Quest	Kenichi Matsubara or S. Terishima		Castlevania 2.nsfe
+	Castlevania 3:Dracula's Curse	Y.Sasaki,J.Funamashi,and Y.Morimoto		Castlevania 3.nsfe
+	Castlevania	Club Kukeiha		Castlevania.nsfe
+	Chip 'N Dale Rescue Rangers	<?>		Chip 'N Dale Rescue Rangers.nsfe
+	Chip & Dale Rescue Rangers 2	<?>		Chip n' Dale Rescue Rangers 2.nsfe
+	Choujin Sentai Jetman	Hiroyuki Iwatsukitaru		Choujin Sentai Jetman.nsfe
+	Choujinrou Senki Warwolf	S. Sakai, T. Miura, Y. Takahama		Choujinrou Senki Warwolf.nsfe
+	Clash at Demonhead	<?>		Clash at Demonhead.nsfe
+	Cocoron	Y.Yokoyama, T.Tateishi		Cocoron.nsfe
+	Commando	Tama and Saka		Commando.nsfe
+	Conquest of the Crystal Palace	Tomohisa, Iwatan		Conquest of the Crystal Palace.nsfe
+	Contra (Japan)	H. Maezawa & K. Sada		Contra (Japan).nsfe
+	Contra Force	Matsubara, Manno, Tomita & Funahasi Chuma		Contra Force.nsfe
+	Contra	H. Maezawa, K. Sada, & Club Kukeiha		Contra.nsfe
+	Crash 'n the Boys: Street Challenge	Kazuo Sawa, Michiya Hirasawa		Crash 'n the Boys - Street Challenge.nsfe
+	Crisis Force	K.Matsubara, Y.Manno, J.Chuuma		Crisis Force.nsfe
+	Crystalis	Yoko.O		Crystalis.nsfe
+	Darkwing Duck	Junko Tamitani		Darkwing Duck.nsfe
+	Deadly Towers			Deadly Towers.nsfe
+	Deja Vu	<?>		Deja Vu.nsfe
+	Demon Sword			Demon Sword.nsfe
+	Dick Tracy	George Sanger		Dick Tracy.nsfe
+	Yume KohJoh Doki Doki Panic	Koji Kondo		DokiDokiPanic.nsfe
+	Donkey Kong Country 4 (Pirate)	Hummer Cheng		Donkey Kong Country 4.nsfe
+	Donkey Kong(FDS)	<?>		Donkey Kong FDS.nsfe
+	Donkey Kong	<?>		Donkey Kong.nsfe
+	Double Dragon	<?>		Double Dragon 1.nsfe
+	Double Dragon II: The Revenge	K.Yamane,M.Hirasawa		Double Dragon 2.nsfe
+	Double Dragon III: The Sacred Stones	Inoue & Nozaki & Hirarin & Kame		Double Dragon 3.nsfe
+	Dr. Mario	Hirokazu Tanaka		Dr. Mario.nsfe
+	Dracula II (FDS)	Kenichi Matsubara or S.Terishima		Dracula II (FDS).nsfe
+	Dragon Fighter	Ukkari Yamanishi		Dragon Fighter.nsfe
+	Dragon Quest IV	Kouichi Sugiyama		Dragon Quest 4.nsfe
+	Dragon Quest	Kouichi Sugiyama		Dragon Quest.nsfe
+	Dragon Warrior 2	Kouichi Sugiyama		Dragon Warrior 2.nsfe
+	Dragon Warrior	Kouichi Sugiyama		Dragon Warrior.nsfe
+	Dragoon X Omega II v1.26      	Sliver X		Dragoon X Omega II (v1.26).nsfe
+	Drop Zone	Neil Baldwin		Drop Zone.nsfe
+	Duck Hunt (VS)	< ? >		Duck Hunt (VS).nsfe
+	Duck Hunt	???		Duck Hunt.nsfe
+	Duck Tales (Protoype)	<?>		Duck Tales Prototype.nsfe
+	Disney's Duck Tales	<?>		Duck Tales.nsfe
+	Duck Tales 2	<?>		DuckTales2.nsfe
+	Dynowarz: The Destruction of Spondylus	O. Kasai, M. Harada, N. Nakayam		Dynowarz.nsfe
+	Erik The Viking	Neil Baldwin		Erik The Viking.nsfe
+	Excitebike	<?>		Excitebike.nsfe
+	Falsion	Sakamoto, Takenouchi, Fujio		Falsion.nsfe
+	Famicom Grand Prix II - 3D Hot Rally	Soyo Oka, Hiroaki Suga, Hideki Kanazashi		Famicom Grand Prix II - 3D Hot Rally.nsfe
+	Fantasy Zone (Japan)	N. Morota		Fantasy Zone (Japan).nsfe
+	Fantasy Zone	Masaharu Iwata		Fantasy Zone.nsfe
+	Faxanadu	<?>		Faxanadu.nsfe
+	Ferrari Grand Prix Challenge	Neil Baldwin		Ferrari Grand Prix Challenge.nsfe
+	Fester's Quest			Fester's Quest.nsfe
+	Final Fantasy 1	Nobuo Uematsu		Final Fantasy 1.nsfe
+	Final Fantasy 2	Nobuo Uematsu		Final Fantasy 2.nsfe
+	Final Fantasy 3	Nobuo Uematsu		Final Fantasy 3.nsfe
+	Final Mission	Kyouhei Sada		Final Mission.nsfe
+	Fire 'N Ice	Kajiya Shitamachi		Fire 'N Ice.nsfe
+	Fire Emblem Gaiden	Yuka Tsujiyoko		Fire Emblem Gaiden.nsfe
+	Fire Emblem	Yuka Tsujiyoko, Hirokazu Tanaka		Fire Emblem.nsfe
+	Flying Dragon-The Secret Scroll	<?>		Flying Dragon.nsfe
+	Flying Dragon-The Secret Scroll	<?>		Flying DragonHiryuNoKen.nsfe
+	Flying Warriors	<?>		Flying Warriors.nsfe
+	Freedom Force	<?>		Freedom Force.nsfe
+	Friday the 13th	David Wise		Friday the 13th.nsfe
+	Fudou Myouou Den			Fudou Myouou Den.nsfe
+	G.I. Joe: A Real American Hero	Takaha, Nobuyuki "Shiochan" Shioda		G.I.Joe - A Real American Hero.nsfe
+	G.I. Joe: The Atlantis Factor	<?>		G.I.Joe - The Atlantis Factor.nsfe
+	Gargoyle's Quest II	"Sato"		Gargoyle's Quest 2.nsfe
+	Getsufuu Maden	<?>		Getsufuu Maden.nsfe
+	Ghostbusters 2	Frank Covitz, Mark Vanheck		Ghostbusters 2.nsfe
+	Ghosts 'n Goblins	<?>		Ghosts 'n Goblins.nsfe
+	Ghoul School 	Scott Marshall		Ghoul School.nsfe
+	Gimmick!	Masashi Kageyama & Naohisa Morota		Gimmick!.nsfe
+	Godzilla	<?>		Godzilla.nsfe
+	Goonies 2	<?>		Goonies II.nsfe
+	Goonies	???		Goonies.nsfe
+	Gradius II	H. Maezawa & Y. Morimoto		Gradius II.nsfe
+	Gradius	MIKI-CHANG		Gradius.nsfe
+	Gremlins 2: The New Batch	Nobuyuki Hara, About SS, Kodaka		Gremlins 2.nsfe
+	Guardian Legend	Miyamo Shant		Guardian Legend.nsfe
+	Guerilla War	Kenny Oh Chan & Tarkun		Guerilla War.nsfe
+	Gun-Nac	Golfer Sakoda		Gun Nac.nsfe
+	Gun.Smoke	Junko 'Swimmer Tamichan' Tamiya		Gun.Smoke.nsfe
+	Hebereke	Nobuyuki, About SS, Kodaka San		Hebereke.nsfe
+	Hero Quest (Prototype)	Neil Baldwin		Hero Quest.nsfe
+	Highway Star/Rad Racer	Nobuo Uematsu		HighwayStar.nsfe
+	Hydlide 3	<?>		Hydlide 3 - Yami Kara no Houmonsha (1989)(T&E)(Namco).nsfe
+	Ice Climbers	<?>		Ice Climbers.nsfe
+	Incredible Crash Test Dummies	Tim and Geoff Follin		Incredible Crash Test Dummies.nsfe
+	Ironsword: Wizards & Warriors II	David Wise		Ironsword - Wizards & Warriors 2.nsfe
+	Isolated Warrior	<?>		Isolated Warrior.nsfe
+	Jackal	Sakamoto & Fujio		Jackal.nsfe
+	Journey to Silius	Nobuyuki Hara, Shinichi Seya, Naoki Kodaka		Journey to Silius.nsfe
+	Jurassic Park	Jonathan Dunn		Jurassic Park.nsfe
+	Karnov	<?>		Karnov.nsfe
+	Kick Master	Takaha, Shiochan		Kick Master.nsfe
+	Kid Icarus	Hiro "Hip" Tanaka		Kid Icarus.nsfe
+	King Kong 2	Rusher Shinya, Brilliant Satoe, Yamako, Charley-Sada		King Kong 2.nsfe
+	Kirby's Adventure	Hirokazu Ando, Jun Ishikawa		Kirby's Adventure.nsfe
+	Klax	Dave O'Riva		Klax.nsfe
+	Kujaku Ou 2	<?>		Kujaku Ou 2.nsfe
+	Lagrange Point	Akio Dobashi & Noriyuki Takahashi		Lagrange Point.nsfe
+	Last Action Hero	<?>		Last Action Hero.nsfe
+	Legacy of the Wizard (Dragon Slayer IV)	Yuzo Koshiro		Legacy of the Wizard.nsfe
+	Legendary Wings	Yuukichan's Papa, Tmayochan, C. Manami		Legendary Wings.nsfe
+	Lifeforce	<?>		Lifeforce.nsfe
+	Link No Bouken	Tsukasan		Link No Bouken.nsfe
+	Little Samson	Kazuhide Sasuga, Yukimari		Little Samson.nsfe
+	Little Nemo: The Dream Master	"Gonzou" (Junko Tamiya)		LittleNemo.nsfe
+	M.C. Kids	Charles Deenen		M.C. Kids.nsfe
+	Mouryou Senki Madara	Konami Kuheiha Club		Madara.nsfe
+	Maniac Mansion	David Warhol		Maniac Mansion.nsfe
+	Marble Madness	<?>		Marble Madness.nsfe
+	Mario Bros.	<?>		Mario Bros.nsfe
+	Mario Fantasy Adventure	Nobuo Uematsu, Acmlm		Mario Fantasy Adventure.nsfe
+	Marvel's X-Men	<?>		Marvel's X-Men.nsfe
+	Maze of Galious 2	O. Hidemoni, S. Shinya et al.		Maze of Galious 2.nsfe
+	Mega Man	Chanchacobin M., Yuukican's Papa		Mega Man 1.nsfe
+	Mega Man II	Ogeretsu, Manami, Yuukichan's Papa		Mega Man 2.nsfe
+	Mega Man III	Bunbun		Mega Man 3.nsfe
+	Mega Man IV	Ojalin, Bun Bun		Mega Man 4.nsfe
+	Mega Man Ultra	Various, Arranged by Infidelity		Mega Man Ultra.nsfe
+	Mega Man V	Mari		Megaman 5.nsfe
+	Metal Gear	Kazuki Muraoka		Metal Gear.nsfe
+	Metal Storm	Toru Watanabe		Metal Storm.nsfe
+	Metroid	Hiro "Hip" Tanaka		Metroid FDS.nsfe
+	Metroid	Hiro "Hip" Tanaka		Metroid.nsfe
+	Mickey Mousecapade	<?>		Mickey Mousecapade.nsfe
+	Mig 29 Soviet Fighter	<?>		Mig 29 Soviet Fighter.nsfe
+	Mighty Final Fight	Setsuo Yamamoto, Yuko Takehara		Mighty Final Fight.nsfe
+	Mike Tyson's Punch-Out!!	U.Kaneoko,A.Nakatuka,and K.Yamamoto		Mike Tyson's Punch Out!!.nsfe
+	Miko-Miko Nurse OP Title	Loser Kashiwagi, ChuÅô(ﬂÑDﬂ;;)		Miko Miko Nurse.nsfe
+	Milon's Secret Castle	<?>		Milon's Secret Castle.nsfe
+	Mitsume ga Tooru	Hiroyuki Iwatsuki		Mitsume ga Tooru.nsfe
+	Moai Kun	H. Ueko		Moai Kun.nsfe
+	Monopoly	Bill Williams		Monopoly.nsfe
+	Monster Party	Mikumonky, Hashimotoravolta		Monster Party.nsfe
+	Moon Crystal	Tsukasa Tawada		Moon Crystal.nsfe
+	Mother	Keiichi Suzuki, Hirokazu Tanaka		Mother.nsfe
+	NARC	<?>		NARC.nsfe
+	New Ghostbusters II	Jun Ishikawa		New Ghostbusters 2.nsfe
+	Ninja Gaiden	More Yamasan, B.B, Hakase		Ninja Gaiden 1.nsfe
+	Ninja Gaiden II:The Dark Sword of Chaos	Shitamachi Kajiya, Mayu, Miya		Ninja Gaiden 2.nsfe
+	Ninja Gaiden III - The Ancient Ship of Doom	Miya, Kaori Nakabai, L. Shigeno		Ninja Gaiden III - The Ancient Ship of Doom.nsfe
+	Ordyne -Round X-	Wiz. [orig: Shinji "Megaten" Hosoe]		Ordyne - Round X.nsfe
+	Over Horizon	Masaharu "Rezon" Iwata		Over Horizon.nsfe
+	Palamedes 2 - Star Twinkles	Kyohei Sada		Palamedes 2 - Star Twinkles.nsfe
+	Parodius Da!	Takeyasu, Tomita		Parodius Da!.nsfe
+	Pescatore (Prototype)	<?>		Pescatore.nsfe
+	Pictionary 	???		Pictionary.nsfe
+	Pin-Bot	David Wise, Paul Proctor, Carole Stamper		Pin-Bot.nsfe
+	Pinball Quest			Pinball Quest.nsfe
+	Pipe Dream	J.Dale, K.Hatlelid, M.Sokyrka		Pipe Dream.nsfe
+	Platoon	Jonathan Dunn		Platoon.nsfe
+	Popeye	<?>		Popeye.nsfe
+	P.O.W.	<?>		POW.nsfe
+	Power Blade II	Kinuyo Yamashita		Power Blade II.nsfe
+	Power Blade	<?>		Power Blade.nsfe
+	Punch-Out!!	Yukio Kaneoka		Punch-Out (Arcade).nsfe
+	Puss 'n Boots: Pero's Great Adventure	Tomohisa Mitsuyasu		Puss 'n Boots.nsfe
+	Puyo Puyo 	<?>		Puyo Puyo (1993)(Compile)(Tokuma Shoten).nsfe
+	Rambo	<?>		Rambo.nsfe
+	R.C.PRO-AM	< ? >		RC Pro-Am.nsfe
+	Rescue: The Embassy Mission	<?>		Rescue - The Embassy Mission.nsfe
+	River City Ransom	Kazuo Sawa		River City Ransom.nsfe
+	Robin Hood - Prince of Thieves	Paul Webb		Robin Hood - Prince of Thieves (1991)(Sculptured Software).nsfe
+	Robocop 3	Jeroen Tel		Robocop 3.nsfe
+	Robocop	Sakai, Miura, Iwasaki, Suzuki		Robocop.nsfe
+	Rockman 2 Mininum	Tar		Rockman 2Min.nsfe
+	Rockman Deus Ex Machina	IKA		Rockman DEM.nsfe
+	Rockman Exhaust	DHI		Rockman EXHAUST.nsfe
+	Rockman 2 GrayZone	WINED		Rockman Grayzone.nsfe
+	Rockman No constancy	Various, Arranged by IKA		Rockman No constancy.nsfe
+	Rod Land / Yousei Monogatari Rodland	Tsukasa Tawada / Simon Pick		RodLand.nsfe
+	Roller Ball	???		RollerBall.nsfe
+	Rollergames	Suzuki,Matsuo,Fujio,Hanzawa		Rollergames (1990)(Konami).nsfe
+	Rush'n'Attack	<?>		Rush 'n' Attack.nsfe
+	Rygar			Rygar.nsfe
+	Section Z			Section Z.nsfe
+	Sesame Street ABC - 123	<?>		Sesame Street ABC - 123.nsfe
+	Shadowgate	<?>		Shadowgate.nsfe
+	Shatterhand	Iku Mizutani, Kouichi Yamanishi		Shatterhand.nsfe
+	Silver Surfer	Tim Follin & Geoff Follin		Silver Surfer.nsfe
+	Skate or Die 2	Rob Hubbard		Skate or Die 2.nsfe
+	Skate or Die!	Rob Hubbard,Kyle Granger,Christopher Grigg		Skate or Die!.nsfe
+	Ski or Die	Rob Hubbard		Ski or Die.nsfe
+	The Smurfs	Alberto Jose Gonzalez		Smurfs, The.nsfe
+	Snake Rattle & Roll	Dave Wise		Snake Rattle 'n' Roll.nsfe
+	Snake's Revenge	T. Ogura		Snakes Revenge.nsfe
+	Snow Bros.	Osamu Ohta, Tatsuya Uemura, Mikiko Suzuki		Snow Bros.nsfe
+	Solstice	Tim Follin		Solstice.nsfe
+	Star Wars	Marshall Parker		Star Wars.nsfe
+	Star Tropics II: Zoda's Revenge	T. Kumegawa, Y. Hirai		Startropics 2 - Zoda's Revenge.nsfe
+	Startropics	Y. Hirai		Startropics.nsfe
+	Stinger	Kyouhei 'Charlie' Sada		Stinger.nsfe
+	Strider Hiryu	"Misses Tarumi"		Strider Hiryu.nsfe
+	Strider Hiryu	"Misses Tarumi"		StriderHiryu.nsfe
+	Super Contra	H.Maezawa		Super Contra.nsfe
+	Super Dodge Ball	Kazuo Sawa		Super Dodge Ball.nsfe
+	Super Donkey Kong (Pirate)	<?>		Super Donkey Kong (Pirate).nsfe
+	Super Mario Bros.	Koji Kondo		Super Mario Bros 1.nsfe
+	Super Mario Bros. 2	Koji Kondo		Super Mario Bros 2.nsfe
+	Super Mario Bros. 3	Koji Kondo		Super Mario Bros 3.nsfe
+	Super Mario Bros. 1/2/Vs.	Koji Kondo		Super Mario Bros. 1 and 2.nsfe
+	Super Mario World	<?>		Super Mario World.nsfe
+	Super Spike V'Ball	K. Yamane, M. Hirasawa, T. Hirono		Super Spike V Ball.nsfe
+	Sweet Home	<?>		Sweet Home.nsfe
+	Swords and Serpents	<?>		Swords and Serpents.nsfe
+	T&C Surf Design - Wood & Water Rage	Hirohiko Takayama		T&C Surf Design - Wood & Water Rage.nsfe
+	Ai Senshi Nicole - BGM 01	Cover by Tsu Ryu		T_AiSenshiNicole_BGM1.nsfe
+	Ai Senshi Nicole - BGM 02	Cover by Tsu Ryu 		T_AiSenshiNicole_BGM2.nsfe
+	Ai Senshi Nicole - BGM 03	Cover by Tsu Ryu		T_AiSenshiNicole_BGM3.nsfe
+	Ai Senshi Nicole - BGM 04	Cover by Tsu Ryu		T_AiSenshiNicole_BGM4.nsfe
+	Ai Senshi Nicole - BGM 05	Cover by Tsu Ryu		T_AiSenshiNicole_BGM5.nsfe
+	Ai Senshi Senshi - BGM 06	Cover by Tsu Ryu		T_AiSenshiNicole_BGM6.nsfe
+	Ai Senshi Senshi - BGM 07	Cover by Tsu Ryu		T_AiSenshiNicole_BGM7.nsfe
+	Akumajou Dracula - Cross Heart	Cover by Tsu Ryu		T_AkumajouDracula_CrossYourHeart_VRC7Ver.nsfe
+	Carnival Babel - Blue Seed OP	Cover by Tsu Ryu		T_BlueSeed_CarnivalBabel_OpeningTheme.nsfe
+	Christmas NES Music #1	Tsu Ryu		T_ChristmasCover1_MidnightClear.nsfe
+	Dis~ - Mugen No Ryvius	Cover by Tsu Ryu		T_Dis_MugenNoRyvius.nsfe
+	GateKeepers - Opening Theme	Cover by Tsu Ryu		T_GateKeepers_AsuNoEgaoNoTameNi_OpeningTheme.nsfe
+	Gatekeepers - Kyokara Ashita e	Cover by Tsu Ryu		T_GateKeepers_KyouKaraAshitae_EndingTheme.nsfe
+	Get The World! Nes Version	NSF by Tsu Ryu		T_GetTheWorld!_NesVersion.nsfe
+	"Raika Is Good Enough" Medley	Tsu Ryu/Konami of Japan		T_GooniesII-SailorRaika_RaikaIsGoodEnough_Medley.nsfe
+	"Raika is Good Enough" Medley	Tsu Ryu/Konami 1987		T_GooniesII-SailorRaika_RaikaIsGoodEnough_Medleyv2.nsfe
+	Tough Boy - Hokuto No Ken	Remade by Tsu Ryu & K.Manami		T_HokutoNoKen_ToughBoy_NesVersion.nsfe
+	Infinity - Lost Universe Theme	Cover by Tsu Ryu		T_LostUniverse_Infinity_OpeningTheme.nsfe
+	Hitomi Wa 1K - MF MIKU Ending	Tsu Ryu and K. Manami		T_MetalFighterMiku_EndingTheme.nsfe
+	To Be The Wind - MF Miku Opening	Cover by Tsu Ryu		T_MetalFighterMiku_OpeningTheme.nsfe
+	180sx ~Passionate Racer~	Tsu Ryu		T_Original_180sxPassionateRacer.nsfe
+	Aboard Steel Frieght-6033	Tsu Ryu		T_Original_AboardSteelFrieght6033.nsfe
+	Accursed Fury	Tsu Ryu		T_Original_AccursedFury.nsfe
+	Adrenaline Fighting Spirit	Tsu Ryu		T_Original_AdrenalineFightingSpirit.nsfe
+	Alone	Tsu Ryu		T_Original_Alone.nsfe
+	Anjelica, Daisukiyo	Tsu Ryu		T_Original_AnjelicaDaisukiyo.nsfe
+	Another Harsh Winter	Tsu Ryu		T_Original_AnotherHarshWinter.nsfe
+	Armored Protagonist	Tsu Ryu		T_Original_ArmoredProtagonist.nsfe
+	A Silent Christmas ~ Midnight ~	Tsu Ryu		T_Original_ASilentChristmas.nsfe
+	Beepin' Frusteration	Tsu Ryu		T_Original_BeepinFrusteration.nsfe
+	Blood Soldier 	Tsu Ryu		T_Original_BloodSoldier.nsfe
+	Catch That Cat!	Tsu Ryu		T_Original_CatchThatCat!.nsfe
+	Citrus Flavored Dreams	Tsu Ryu		T_Original_CitrusFlavoredDreams.nsfe
+	City of Infidels	Tsu Ryu		T_Original_CityofInfidels.nsfe
+	Control Factor	Tsu Ryu		T_Original_ControlFactor.nsfe
+	Cry To Sleep ~ Spring Night ~	Tsu Ryu		T_Original_CryToSleep-SpringNight.nsfe
+	Cursed Corridor	Tsu Ryu		T_Original_CursedCorridor.nsfe
+	Dance Girl, Dance ~ º Love ~	Tsu Ryu		T_Original_DanceGirlDance¬ºLove.nsfe
+	Dear Friend, Dear Sky	Tsu Ryu		T_Original_DearFriendMyDearSky.nsfe
+	Sailor Raika - Defiance	Tsu Ryu		T_Original_Defiance.nsfe
+	Disc Error	Tsu Ryu		T_Original_DiscError.nsfe
+	Don't Lose!	Tsu Ryu		T_Original_DontLose!.nsfe
+	Feel You	Tsu Ryu		T_Original_FeelYou.nsfe
+	Fiesta! Fiesta! ( Loop Ver. )	Tsu Ryu		T_Original_FiestaFiesta!.nsfe
+	Fire Blooded Rival	Tsu Ryu		T_Original_FireBloodedRival.nsfe
+	Fire Blooded Rival	Tsu Ryu		T_Original_FireBloodedRival_DPCMVersion.nsfe
+	Galaga Inspirational 	Tsu Ryu		T_Original_GalagaInspirational.nsfe
+	Greedy Eyes	Tsu Ryu		T_Original_GreedyEyes.nsfe
+	Heartless Hero	Tsu Ryu		T_Original_HeartlessHero.nsfe
+	Heartless Hero (N106 Version)	Tsu Ryu		T_Original_HeartlessHero_N106Version.nsfe
+	Heaven Blue	Tsu Ryu		T_Original_HeavenBlue.nsfe
+	Humid	Tsu Ryu		T_Original_Humid.nsfe
+	I'll Wait For You In Heaven..	Tsu Ryu		T_Original_I'llWaitForYouInHeaven_Ver1.nsfe
+	I'll Wait For You In Heaven v2	Tsu Ryu		T_Original_I'llWaitForYouInHeaven_Ver2.nsfe
+	Invincible Fighter	Tsu Ryu		T_Original_InvincibleFighter.nsfe
+	Iron Conqueror	Tsu Ryu		T_Original_IronConqueror.nsfe
+	Kotetsu No Kokoro!	Tsu Ryu and S-Kino		T_Original_KotetsuNoKokoro!.nsfe
+	Lava Shower	Tsu Ryu		T_Original_LavaShower.nsfe
+	Lightning Wielder	Tsu Ryu		T_Original_LightningWielder.nsfe
+	Lovely Anjelica	Tsu Ryu		T_Original_LovelyAnjelica.nsfe
+	Mechanical Soul	Tsu Ryu 		T_Original_MechanicalSoul.nsfe
+	Meteor Beat	Tsu Ryu		T_Original_MeteorBeat.nsfe
+	Morning Impression	Tsu Ryu		T_Original_MorningImpression.nsfe
+	Outpost Escapade	Tsu Ryu		T_Original_OutpostEscapade.nsfe
+	Parachute!	Tsu Ryu		T_Original_Parachute!.nsfe
+	Pixelated Caffine	Tsu Ryu		T_Original_PixelatedCaffine.nsfe
+	Platinum River - Data March -	Tsu Ryu		T_Original_PlatinumRiver-DataMarch.nsfe
+	"Rakusho!" Theme of Raika	Tsu Ryu		T_Original_Rakusho!.nsfe
+	Rakusho! ( N106 Version )	Tsu Ryu		T_Original_Rakusho!_N106Version.nsfe
+	Sadist's Fall	Tsu Ryu		T_Original_SadistFall.nsfe
+	School Battle	Tsu Ryu		T_Original_SchoolBattle.nsfe
+	Separated by Distance	Tsu Ryu		T_Original_SeparatedByDistance.nsfe
+	Shinobi Soul	Tsu Ryu		T_Original_ShinobiSoul.nsfe
+	Slayer of Lies ( Full Ver. )	Tsu Ryu		T_Original_SlayerofLies_FullVersion.nsfe
+	Slayer of Lies ( Intro )	Tsu Ryu		T_Original_SlayerofLies_IntroVersion.nsfe
+	Sunday Walkabout	Tsu Ryu		T_Original_SundayWalkabout.nsfe
+	Theme of Megumi - Sailor Raika	Tsu Ryu and S-Kino		T_Original_SuperKick.nsfe
+	Unconditional Romance	Tsu Ryu		T_Original_UnconditionalRomance.nsfe
+	Until Next Time! ~Closing~	Tsu Ryu		T_Original_UntilNextTime!.nsfe
+	Untouchable Gunfighter	Tsu Ryu		T_Original_UntouchableGunfighter.nsfe
+	Sailor Raika - Whirlwind	Tsu Ryu		T_Original_Whirlwind.nsfe
+	You Don't Know Me	Tsu Ryu		T_Original_YouDontKnowMe.nsfe
+	Zubanukeru!	Tsu Ryu		T_Original_Zubanukeru!.nsfe
+	Gallantry - Raiden	Tsu Ryu [original by Seibu Kaihatsu]		T_Raiden_Gallantry.nsfe
+	Romance - Yoko Ishida	NSF by Tsu Ryu		T_Romance_NesVersion.nsfe
+	Rakusho! Theme of Raika	Tsu Ryu and S-Kino		T_SailorRaika_Rakusho!_KonamiVersion.nsfe
+	Slam Dunk - Ending Theme	Cover by Tsu Ryu		T_SlamDunk_EndingTheme.nsfe
+	Slam Dunk - Opening Theme	Cover by Tsu Ryu		T_SlamDunk_OpeningTheme.nsfe
+	Slayers TRY - Breeze (Opening)	Cover by Tsu Ryu		T_SlayersTRY_Breeze.nsfe
+	Slayers TRY - Breeze (Opening)	Cover by Tsu Ryu		T_SlayersTRY_Breeze_DPCM.nsfe
+	Slayers TRY - Dont Discouraged	Cover by Tsu Ryu		T_SlayersTRY_DontBeDiscouraged.nsfe
+	Theme of Balrog(Bison) - SFII	Tsu Ryu		T_StreetFighterII_BalrogTheme_NesVersion.nsfe
+	Theme of Balrog(Neardeath) SF2	Tsu Ryu		T_StreetFighterII_BalrogThemeND_NesVersion.nsfe
+	Theme of Bison - SFII	Cover by Tsu Ryu 2003		T_StreetFighterII_BisonTheme_NesVersion.nsfe
+	Theme of Bison (Neardeath) SF2	Tsu Ryu		T_StreetFighterII_BisonThemeND_NesVersion.nsfe
+	Theme of Blanka - SF2	Cover by Tsu Ryu		T_StreetFighterII_BlankaTheme_NesVersion.nsfe
+	Theme of Blanka (Neardeath) - SF	Cover by Tsu Ryu		T_StreetFighterII_BlankaThemeND_NesVersion.nsfe
+	Theme of Chun-Li - SFII	Cover by Tsu Ryu		T_StreetFighterII_ChunLiTheme_NesVersion.nsfe
+	Theme of ChunLi(Neardeath) - SF2	Cover by Tsu Ryu		T_StreetFighterII_ChunLiThemeND_NesVersion.nsfe
+	Staff Roll Theme - SFII	Tsu Ryu		T_StreetFighterII_CreditsTheme_NesVersion.nsfe
+	Theme of Dhalsim - SF2	Cover by Tsu Ryu		T_StreetFighterII_DhalsimTheme_NesVersion.nsfe
+	Theme of Dhalsim (Neardeath) - S	Cover by Tsu Ryu		T_StreetFighterII_DhalsimThemeND_NesVersion.nsfe
+	Theme of Guile - SF2	Cover by Tsu Ryu		T_StreetFighterII_GuileTheme_NesVersion.nsfe
+	Theme of Guile (Neardeath)- SF2	Cover by Tsu Ryu		T_StreetFighterII_GuileThemeND_NesVersion.nsfe
+	Theme of E.Honda - SFII	Cover by Tsu Ryu and S-Kino		T_StreetFighterII_HondaTheme_NesVersion.nsfe
+	Theme of E.Honda (Neardeath)	Cover by Tsu Ryu and S-Kino		T_StreetFighterII_HondaThemeND_NesVersion.nsfe
+	Theme of Ken - SF2	Cover by Tsu Ryu		T_StreetFighterII_KenTheme_NesVersion.nsfe
+	Theme of Ken (Neardeath) - SF2	Cover by Tsu Ryu		T_StreetFighterII_KenThemeND_NesVersion.nsfe
+	Player Select Theme - SF2	Cover by Tsu Ryu		T_StreetFighterII_PlayerSelectTheme.nsfe
+	Theme of Ryu - SFII (NES version	Remade by Tsu Ryu - 2003		T_StreetFighterII_RyuTheme_NesVersion.nsfe
+	Theme of Ryu (Neardeath) - SFII	Remade by Tsu Ryu		T_StreetFighterII_RyuThemeND_NesVersion.nsfe
+	Theme of Sagat - SFII	Tsu Ryu		T_StreetFighterII_SagatTheme_NesVersion.nsfe
+	Theme of Sagat(Neardeath) SF2	Tsu Ryu		T_StreetFighterII_SagatThemeND_NesVersion.nsfe
+	Title Theme - SFII (NES Version)	Remade by Tsu Ryu		T_StreetFighterII_TitleTheme_NesVersion.nsfe
+	Theme of Vega/Balrog - SFII	Tsu Ryu		T_StreetFighterII_VegaTheme_NesVersion.nsfe
+	Theme of Vega( Neardeath ) - SFI	Tsu Ryu		T_StreetFighterII_VegaThemeND_NesVersion.nsfe
+	Theme of Zangief - SF2	Cover by Tsu Ryu		T_StreetFighterII_ZangiefTheme_NesVersion.nsfe
+	Theme of Zangief(Neardeath)SF2	Tsu Ryu		T_StreetFighterII_ZangiefThemeND_NesVersion.nsfe
+	Tenshinokyusoku - Starship Yohko	Cover by Tsu Ryu		T_TenshiNoKyusoku_StarshipYohko.nsfe
+	We Survive - V.G Neo Opening	Cover by Tsu Ryu - 2004		T_VariableGeoNEO_WeSurvive_OpeningTheme.nsfe
+	V.G Neo - We Survive (VRC7)	Cover by Tsu Ryu		T_VariableGeoNEO_WeSurvive_VRC7Ver.nsfe
+	Taboo: The Sixth Sense	David Wise		Taboo - The Sixth Sense.nsfe
+	TaleSpin	<?>		Tale Spin.nsfe
+	Target Renegade	Tim Follin		Target Renegade.nsfe
+	Tecmo Bowl	K.Y. Jet		Tecmo Bowl.nsfe
+	Tecmo World Wrestling	Yamagishi,Okamura,Miyazaki,Tanaka		Tecmo World Wrestling.nsfe
+	Teenage Mutant Ninja Turtles 2	Y.Manno, K.Nakamura		Teenage Mutant Ninja Turtles 2.nsfe
+	TMNT 3 - The Manhattan Project	Yuichi Sakakura, Tomoya Tomita, Kouzou Nakamura		Teenage Mutant Ninja Turtles III - The Manhattan Project.nsfe
+	Teenage Mutant Ninja Turtles	Keizo Nakamura		Teenage Mutant Ninja Turtles.nsfe
+	Terminator 2	Tim and Geoff Follin		Terminator 2.nsfe
+	Tetris (Nintendo)	< ? >		Tetris (Nintendo).nsfe
+	Star Wars - The Empire Strikes Back	Paul Webb		The Empire Strikes Back.nsfe
+	The Little Mermaid	<?>		The Little Mermaid.nsfe
+	Time Diver Eon Man	<?>		Time Diver Eon Man.nsfe
+	Time Lord	<?>		Time Lord.nsfe
+	Tiny Toon Adventures	Funahashi, Nakashima & Minami		Tiny Toon Adventures.nsfe
+	Tom & Jerry	Tim and/or Geoff Follin		Tom and Jerry.nsfe
+	Tombs and Treasure	Nihon Falcom, Miyamo, Shanto, Civic Shinkun		Tombs & Treasure.nsfe
+	Top Gun: Dual Fighters	<?>		Top Gun - Dual Fighters.nsfe
+	Treasure Master	Tim Follin		Treasure Master.nsfe
+	Trojan	<?>		Trojan.nsfe
+	Ultima: Quest of the Avatar	Seiji Toda		Ultima - Quest of the Avatar.nsfe
+	Uninvited	< ? >		Uninvited.nsfe
+	Wario's Woods	Shinobu Amayake, Soyo Oka		Wario's Woods.nsfe
+	Werewolf - The Last Warrior	Sakai, Miura, Takahama		Werewolf - The Last Warrior.nsfe
+	Wild Gunman	< ? >		Wild Gunman.nsfe
+	Wizards & Warriors III	David Wise		Wizards & Warriors 3.nsfe
+	Wizards & Warriors	Dave/id Wise		Wizards & Warriors.nsfe
+	Wolverine	Software Creations Ltd.		Wolverine.nsfe
+	Wurm: Journey to the Center of the Earth	<?>		Wurm.nsfe
+	WWF WrestleMania Challenge	David Wise		WWF WrestleMania Challenge.nsfe
+	WWF WrestleMania	David Wise		WWF WrestleMania.nsfe
+	Xexyz	Hirohiko Takayama		Xexyz.nsfe
+	Yoshi's Cookie	Akira Nobuya, Noriko Tsutomu		Yoshi's Cookie.nsfe
+	Yoshi	Junichi Masuda		Yoshi.nsfe
+	Ys 1: Ancient Ys Vanished Omen	<?>		Ys - Ancient Ys Vanished Omen.nsfe
+	Ys 2: Ancient Ys Vanished - Final Chapter	Yuzo Koshiro		Ys 2 - Ancient Ys Vanished - Final Chapter.nsfe
+	Ys 3: Wanderers from Ys	Sound Team JDK		Ys 3 - Wanderers from Ys (1991)(Falcom)(26 Tracks).nsfe
+	Yuuyuuki	Soyo Oka		Yuuyuuki.nsfe
+	Zelda II - The Adventure of Link	Akito Nakatsuka		Zelda II - The Adventure of Link.nsfe
+	The Legend of Zelda	Koji Kondo		Zelda.nsfe
+	Zen Intergalactic Ninja	J. Kane, Nakamur, Ayachan, Sakagon, T. Tommy		Zen Intergalactic Ninja.nsfe
+	Zombie Nation	Norio Nakagata		Zombie Nation.nsfe

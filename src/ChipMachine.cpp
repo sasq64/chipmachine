@@ -114,7 +114,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 	setupCommands();
 	setupRules();
-	
+
 	initLua();
 	layoutScreen();
 

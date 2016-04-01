@@ -109,6 +109,7 @@ set(MUSICPLAYER_PLUGINS
 	aoplugin
 	gsfplugin
 	uadeplugin
+	tedplugin
 )
 add_subdirectory(${AP1_ROOT}/mods/musicplayer/plugins plugins)
 
@@ -150,3 +151,7 @@ if(APPLE)
        fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
        " COMPONENT Runtime)
 endif()
+
+
+add_executable(mksonglist mksonglist/mksonglist.cpp src/SongFileIdentifier.cpp)
+target_link_libraries(mksonglist coreutils archive sc68plugin mp3plugin)
