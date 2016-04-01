@@ -130,12 +130,13 @@ else()
 	add_executable(chipmachine ${SOURCE_FILES})
 endif()
 
-add_executable(cm ${PLUGIN_EXTRA_FILES} ${TEXTMODE_FILES})
-
-target_compile_definitions(cm PUBLIC TEXTMODE_ONLY)
-
 target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} docopt_s)
-target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS} docopt_s)
+
+if(NOT WIN32)
+	add_executable(cm ${PLUGIN_EXTRA_FILES} ${TEXTMODE_FILES})
+	target_compile_definitions(cm PUBLIC TEXTMODE_ONLY)
+	target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS} docopt_s)
+endif()
 
 if(APPLE)
 	set(APPS ${CMAKE_CURRENT_BINARY_DIR}/Chipmachine.app)
