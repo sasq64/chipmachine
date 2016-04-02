@@ -62,6 +62,13 @@ set(TEXTMODE_FILES
 add_custom_target(chipmachine.include_files SOURCES src/version.h src/TextField.h src/TextListView.h src/CueSheet.h
 	src/Dialog.h src/LineEdit.h src/Icons.h src/SongInfo.h src/SongInfoField.h src/ChipInterface.h)
 
+file(GLOB DATA_FILES data/*.txt)
+file(GLOB LUA_FILES lua/*.lua)
+
+add_custom_target(chipmachine.data_files SOURCES ${DATA_FILES})
+add_custom_target(chipmachine.lua_files SOURCES ${LUA_FILES})
+	
+
 set(APONE_MODULES
 	coreutils
 	audioplayer
@@ -151,7 +158,6 @@ if(APPLE)
        fixup_bundle(\"${APPS}\"   \"\"   \"${DIRS}\")
        " COMPONENT Runtime)
 endif()
-
 
 add_executable(mksonglist mksonglist/mksonglist.cpp src/SongFileIdentifier.cpp)
 target_link_libraries(mksonglist coreutils archive sc68plugin mp3plugin)

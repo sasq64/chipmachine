@@ -45,9 +45,12 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 			text = format("<%s>", parts[0]);
 		else
 			text = format("<%s / %s>", parts[0], parts[1]);
-	} else
-		text = format("%s / %s", parts[0], parts[1]);
-
+	} else {
+		if(parts[1] == "")
+			text = parts[0];
+		else
+			text = format("%s / %s", parts[0], parts[1]);
+	}
 	auto it = --colors.upper_bound(f);
 	c = it->second;
 	c = c * 0.75f;

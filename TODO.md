@@ -17,6 +17,10 @@
 * (Drag & Drop support)
 * (Command mode)
 
+meta
+
+what is current song and what is new song?
+
 
 
 ## ISSUES

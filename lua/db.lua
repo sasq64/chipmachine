@@ -179,7 +179,7 @@ DB = {
 	song_list = "data/syntax.txt",
 	song_template = "path title",
 	format = "MP3",
-	composer = "Syntax Error",
+	game = "Syntax Error",
 	local_dir = "/opt/Music/scenesat",
 	color = 0xfffff
 },

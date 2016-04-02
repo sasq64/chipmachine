@@ -40,7 +40,7 @@ namespace chipmachine {
 static const char USAGE[] =
 R"(chipmachine.
 	Usage:
-      chipmachine [options]
+      chipmachine [-d] [options]
       chipmachine [-d] <files>...
 
     Options:
@@ -132,6 +132,7 @@ int main(int argc, char *argv[]) {
 			SongInfo info = pl.getPlayingInfo();
 			print_fmt("Playing: %s\n",
 			          info.title != "" ? info.title : utils::path_filename(songs[pos - 1].path));
+			int tune = 0;
 			while(pl.playing()) {
 				pl.update();
 #ifdef ENABLE_CONSOLE
@@ -139,6 +140,10 @@ int main(int argc, char *argv[]) {
 					auto k = c->getKey(100);
 					if(k != Console::KEY_TIMEOUT) {
 						switch(k) {
+						case Console::KEY_RIGHT:
+							LOGD("SEEK");
+							pl.seek(tune++);
+							break;
 						case Console::KEY_ENTER:
 							pl.stop();
 							break;
