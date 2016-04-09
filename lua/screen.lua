@@ -80,7 +80,7 @@ x = SCREEN_WIDTH - 300 * GSCALE
 y = Settings.scroll[1] - 80 * GSCALE
 
 scale = 1.2 * GSCALE
-Settings.next_field = { x, y-14, 0.5, 0xff444477 }
+Settings.next_field = { x, y-28, 200.0 / SCREEN_PPI, 0xff444477 }
 
 Settings.next_title = { x, y, scale, TEXT_COLOR }
 Settings.next_composer = { x, y+26*scale, scale*0.6, TEXT_COLOR }
@@ -100,13 +100,17 @@ Settings.enter_title = { x, y, scale, TEXT_COLOR }
 Settings.enter_composer = { x, y+25*scale, scale*0.6, TEXT_COLOR }
 Settings.enter_format = { x, y+45*scale, scale*0.3, TEXT_COLOR }
 
-Settings.search_field = { X0, Y0, 1.0, SEARCH_COLOR }
-Settings.top_status = { X0, Y0, 1.0, FORMAT_COLOR }
+LSCALE = 300.0 / SCREEN_PPI
+LINE_HEIGHT = 1.2
+TEXT_HEIGHT = 24 * LSCALE
 
-LSCALE = 0.8
-LINE_HEIGHT = 1.0
-Settings.result_field = { X0, Y0+30, LSCALE, RESULT_COLOR }
-Settings.result_lines = (Y1-Y0)/(30*LSCALE*LINE_HEIGHT)
+Settings.search_field = { X0, Y0, LSCALE, SEARCH_COLOR }
+Settings.top_status = { X0, Y0, LSCALE, FORMAT_COLOR }
+--
+Settings.result_field = { X0, Y0+TEXT_HEIGHT, LSCALE, RESULT_COLOR }
+Settings.result_lines = (Y1-Y0)/(TEXT_HEIGHT*LINE_HEIGHT)
+
+Settings.toast_field = { 0, SCREEN_HEIGHT/2 - GSCALE * 20, GSCALE * 2.0, TEXT_COLOR }
 
 Settings.font = "data/Neutra.otf"
 Settings.list_font = "data/Neutra.otf"

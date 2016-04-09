@@ -5,52 +5,89 @@
 
 class LineEdit : public TextField {
 public:
-	LineEdit() : TextField() { cursorColor = grappix::Color::WHITE; }
+	LineEdit() {
+		cursorColor = grappix::Color::WHITE;
+	}
 
 	LineEdit(const grappix::Font &font, const std::string &text = "", float x = 0.F, float y = 0.F,
 	         float sc = 1.0F, uint32_t col = 0xffffffff)
-	    : TextField(font, "", x, y, sc, col) {
+	    : TextField(font, text, x, y, sc, col), prompt(font, "", x, y, sc, col) {
 		cursorColor = grappix::Color::WHITE; // grappix::Color(col)/2.0F;
-		this->text = prompt + text;
-		// tween::make_tween().sine().repeating().to(cursorColor,
-		// grappix::Color::WHITE).seconds(1.7);
+		std::tie(cursorW, cursorH) = font.get_size("o", scale);
+		xpos = getWidth();
+		tpos = text.length();
 	}
-
+	
+	virtual void setFont(const grappix::Font &f) override {
+		TextField::setFont(f);
+		prompt.setFont(f);
+		std::tie(cursorW, cursorH) = font.get_size("o", scale);
+	}
+	
+	
 	void on_ok(std::function<void(const std::string &)> cb) { onOk = cb; }
 
 	void on_key(uint32_t key) {
-		if(key < 0x100)
-			text = text + (char)key;
-		else {
+		using grappix::Window;
+		
+		if(key < 0x100) {
+			text.insert(tpos++, 1, key);
+		} else {
 			switch(key) {
-			case grappix::Window::BACKSPACE:
-				if(text.length() > prompt.length())
-					text = text.substr(0, text.length() - 1);
+			case Window::LEFT:
+				if(tpos > 0)
+					tpos--;
+				break;
+			case Window::RIGHT:
+				if(tpos < text.size())
+					tpos++;
+				break;
+			case Window::BACKSPACE:
+				if(tpos > 0) {
+					text.erase(--tpos, 1);
+				}
 				break;
 			}
 		}
-		tsize = font.get_size(text, scale);
+		TextField::setText(text);
+		
+		auto ts = font.get_size(text.substr(0,tpos), scale);
+		xpos = ts.x;
 	}
 
 	virtual void setText(const std::string &t) override {
-		text = prompt + t;
-		tsize.x = -1;
+		TextField::setText(t);
+		xpos  = getWidth();	
+		tpos = text.length();
 	}
 
-	virtual std::string getText() const override { return text.substr(prompt.length()); }
-
-	void setPrompt(const std::string &p) { prompt = p; }
+	void setPrompt(const std::string &p) { 
+		prompt.setText(p);
+	}
 
 	virtual void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
+	
+		prompt.scale = scale;
+		prompt.pos = pos;
+		auto saved = pos;
+		pos.x += (prompt.getWidth() * 1.2);
+		
+		int xm = cursorW * 0.2;
+		
+		target->rectangle(xpos + pos.x + xm, pos.y, cursorW - xm, cursorH * 0.8, cursorColor);
+		prompt.render(target, delta);
 		TextField::render(target, delta);
-		getWidth();
-		// LOGD("REC %s %d %d", text, tsize.x, tsize.y);
-		target->rectangle(pos.x + tsize.x + 2, pos.y + 2, 10, tsize.y - 4, cursorColor);
+		pos = saved;
 	}
 	grappix::Color cursorColor;
 	std::function<void(const std::string &)> onOk;
-
-	std::string prompt = ">";
+	
+	TextField prompt;
+	
+	int cursorH;
+	int cursorW;
+	int tpos = 0;
+	int xpos = 0;
 };
 
 #endif // LINE_EDIT_H

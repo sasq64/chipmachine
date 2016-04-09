@@ -40,9 +40,9 @@ public:
 	Icon() {}
 
 	Icon(grappix::Texture *tx, float x, float y, float w, float h)
-	    : texture(tx), x(x), y(y), w(w), h(h) {}
+	    : texture(tx), rec(x, y, w, h) {}
 
-	Icon(const image::bitmap &bm, float x, float y, float w, float h) : x(x), y(y), w(w), h(h) {
+	Icon(const image::bitmap &bm, float x, float y, float w, float h) : rec(x, y, w, h) {
 		texture = new grappix::Texture(bm);
 		glBindTexture(GL_TEXTURE_2D, texture->id());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -50,12 +50,18 @@ public:
 	}
 
 	void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
-		target->draw(*texture, x, y, w, h, nullptr);
+		target->draw(*texture, rec.x, rec.y, rec.w, rec.h, nullptr, color);
 	}
+	
+	void set(const grappix::Rectangle &r) {
+		rec = r;
+	}
+
+	grappix::Color color{0xffffffff};
+	grappix::Rectangle rec;
 
 private:
 	grappix::Texture *texture;
-	float x, y, w, h;
 };
 
 class ChipMachine {
@@ -88,11 +94,11 @@ private:
 		SEARCH_SCREEN = 1,
 		COMMAND_SCREEN = 2,
 	};
-
+	
 	static const uint32_t SHIFT = 0x10000;
 	static const uint32_t CTRL = 0x20000;
 	static const uint32_t ALT = 0x40000;
-
+	
 	void setVariable(const std::string &name, int index, const std::string &val);
 
 	void showScreen(Screen screen);
@@ -101,11 +107,11 @@ private:
 	void setupRules();
 	void setupCommands();
 	void updateKeys();
-
+	
 	void updateLists() {
-
-		int y = resultFieldTemplate.pos.y;
-
+		
+		int y = resultFieldTemplate.pos.y; 
+		
 		songList.setArea(grappix::Rectangle(topLeft.x, topLeft.y + y, grappix::screen.width() - topLeft.x,
 		                                    downRight.y - topLeft.y - y));
 		commandList.setArea(grappix::Rectangle(topLeft.x, topLeft.y + y, grappix::screen.width() - topLeft.x,
@@ -139,13 +145,13 @@ private:
 		"F11",
 		"F12"
 	};
-
+	
 	void addKey(uint32_t key, statemachine::Condition cond, const std::string &cmd) {
-
+		
 		auto screen = currentScreen;
 		bool onMain = false;
 		bool onSearch = false;
-
+		        
 		currentScreen = NO_SCREEN;
 		if(!cond.check()) {
 			currentScreen = MAIN_SCREEN;
@@ -154,8 +160,8 @@ private:
 			onSearch = cond.check();
 		}
 		currentScreen = screen;
-
-
+		
+		
 		auto it = std::find(commands.begin(), commands.end(), cmd);
 		if(it != commands.end()) {
 			smac.add(key, cond, static_cast<uint32_t>(std::distance(commands.begin(), it)));
@@ -228,8 +234,6 @@ private:
 	uint32_t bgcolor = 0;
 	bool starsOn = true;
 
-	std::string code;
-
 	LuaInterpreter lua;
 
 	demofx::StarField starEffect;
@@ -259,6 +263,7 @@ private:
 	RenderSet searchScreen;
 
 	LineEdit searchField;
+	TextField filterField;
 	TextField topStatus;
 	grappix::VerticalList songList;
 
@@ -301,7 +306,7 @@ private:
 
 	std::shared_ptr<IncrementalQuery> iquery;
 
-	bool haveSearchChars;
+	bool haveSearchChars = false;
 
 	statemachine::StateMachine smac;
 
@@ -316,10 +321,9 @@ private:
 
 	std::string userName;
 
-	int oldWidth;
-	int oldHeight;
-	int resizeDelay;
-	int showVolume;
+	std::pair<float, float> screenSize;
+	int resizeDelay = 0;
+	int showVolume = 0;
 
 	bool hasMoved = false;
 
@@ -328,22 +332,22 @@ private:
 	MusicBars musicBars;
 	MusicPlayerList::State playerState;
 	std::string scrollText;
-	
+
 	struct Command {
 		Command(const std::string &name, const std::function<void()> fn) : name(name), fn(fn) {}
 		std::string name;
 		std::function<void()> fn;
-		int shortcut = -1;
-		bool operator==(const std::string &n) {
-			return n == name;
-		}
+		std::string shortcut;
+		bool operator==(const std::string &n) { return n == name; }
+		bool operator==(const Command &c) { return c.name == name; }
 	};
-	
+
 	std::vector<Command> commands;
-	std::vector<std::string> matchingCommands;
-	
+	std::vector<Command*> matchingCommands;
+
 	int lastKey = 0;
-	bool searchUpdated = false;	
+	bool searchUpdated = false;
+	std::string filter;
 };
 }
 

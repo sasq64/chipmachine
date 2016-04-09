@@ -32,7 +32,9 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 	                                                    {"next_field", &nextField},
 	                                                    {"xinfo_field", &xinfoField},
 	                                                    {"search_field", &searchField},
+	                                                    {"command_field", &commandField},
 	                                                    {"top_status", &topStatus},
+	                                                    {"toast_field", &toastField},
 	                                                    {"result_field", &resultFieldTemplate}};
 
 	auto path = workDir; // current_exe_path() + ":" + File::getAppDir();
@@ -105,12 +107,10 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 		starsOn = stol(val) != 0;
 	} else if(name == "top_left") {
 		topLeft[index - 1] = stol(val);
-		songList.setArea(grappix::Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x,
-		                                    downRight.y - topLeft.y - 28));
+		updateLists();
 	} else if(name == "down_right") {
 		downRight[index - 1] = stol(val);
-		songList.setArea(grappix::Rectangle(topLeft.x, topLeft.y + 28, screen.width() - topLeft.x,
-		                                    downRight.y - topLeft.y - 28));
+		updateLists();
 	} else if(name == "scroll") {
 		switch(index) {
 		case 1:
@@ -135,6 +135,7 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 	} else if(name == "result_lines") {
 		numLines = stol(val);
 		songList.setVisible(numLines);
+		commandList.setVisible(numLines);
 	}
 }
 

@@ -114,13 +114,22 @@ ChipMachine::ChipMachine(const std::string &wd)
 	searchScreen.add(&topStatus);
 	topStatus.visible(false);
 
+	//toastField = TextField(font, "", topLeft.x, downRight.y - 134, 2.0, 0x00ffffff);
+	overlay.add(&toastField);
+
+	favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
+
 	setupCommands();
 	setupRules();
 
 	initLua();
 	layoutScreen();
 
-	favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
+	filterField = searchField;
+	searchScreen.add(&filterField);
+	filterField.visible(false);
+	filterField.color = 0xff55ff55;
+
 	mainScreen.add(&favIcon);
 	favIcon.visible(false);
 
@@ -136,8 +145,6 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 	musicBars.setup(spectrumWidth, spectrumHeight, 24);
 
-	toastField = TextField(font, "", topLeft.x, downRight.y - 134, 2.0, 0x00ffffff);
-	overlay.add(&toastField);
 
 	LOGD("WORKDIR %s", workDir.getName());
 	MusicDatabase::getInstance().initFromLuaAsync(this->workDir);
@@ -146,8 +153,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 		indexingDatabase = true;
 	}
 
-	oldWidth = screen.width();
-	oldHeight = screen.height();
+	screenSize = screen.size();
 	resizeDelay = 0;
 
 	auto listrec = grappix::Rectangle(topLeft.x, topLeft.y + 30 * searchField.scale,
@@ -174,28 +180,27 @@ ChipMachine::ChipMachine(const std::string &wd)
 				}
 				c = markColor;
 			}
-			grappix::screen.text(listFont, cmdName, rec.x, rec.y, c, resultFieldTemplate.scale);
+			grappix::screen.text(listFont, cmd->name, rec.x, rec.y, c, resultFieldTemplate.scale);
+			grappix::screen.text(listFont, cmd->shortcut, rec.x + 350, rec.y, 0xffffffff, resultFieldTemplate.scale * 0.8);
+
 		}
 	});
 
 	commandList.setTotal(commands.size());
 	clearCommand();
-	
+
 	// playlistField = TextField(listFont, "Favorites", downRight.x - 80, downRight.y - 10, 0.5,
 	// 0xff888888);
 	// mainScreen.add(playlistField);
 
-	commandField = LineEdit(font, "", topLeft.x, topLeft.y, 1.0, 0xff888888);
+	//commandField = LineEdit(font, "", topLeft.x, topLeft.y, 1.0, 0xff888888);
 	commandScreen.add(&commandField);
 	commandScreen.add(&commandList);
 
 	scrollText = "INITIAL_TEXT";
 	scrollEffect.set("scrolltext",
 	                 "Chipmachine " VERSION_STR " -- Just type to search -- UP/DOWN to select "
-	                 "-- ENTER to play, SHIFT+ENTER to enque -- LEFT/RIGHT for "
-	                 "subsongs -- F6 for next song -- F5 for pause -- CTRL+1 to 5 "
-	                 "for shuffle play -- F8 to clear queue -- ESCAPE to clear "
-	                 "search text ----- ");
+	                 "-- ENTER to play -- Press TAB to show all commands ---");
 	starEffect.fadeIn();
 
 	File f{File::getCacheDir() / "login"};
@@ -229,6 +234,7 @@ void ChipMachine::layoutScreen() {
 
 	lua.setGlobal("SCREEN_WIDTH", screen.width());
 	lua.setGlobal("SCREEN_HEIGHT", screen.height());
+	lua.setGlobal("SCREEN_PPI", screen.getPPI() < 0 ? 100 : screen.getPPI());
 
 	Resources::getInstance().load<string>(f.getName(), [=](shared_ptr<string> contents) {
 		lua.load(*contents, f);
@@ -248,6 +254,14 @@ void ChipMachine::layoutScreen() {
 
 	starEffect.resize(screen.width(), screen.height());
 	scrollEffect.resize(screen.width(), 45 * scrollEffect.scrollsize);
+
+	searchField.setFont(font);
+	commandField.pos = searchField.pos;
+	commandField.scale = searchField.scale;
+	commandField.cursorH = searchField.cursorH;
+	commandField.cursorW = searchField.cursorW;
+
+	favIcon.set(favPos);
 }
 
 void ChipMachine::play(const SongInfo &si) {
@@ -337,7 +351,7 @@ void ChipMachine::update() {
 
 		if(player.wasFromQueue()) {
 			currentTween = Tween::make()
-			                   .from(prevInfoField, currentInfoField)			                  
+			                   .from(prevInfoField, currentInfoField)
 			                   .from(currentInfoField, nextInfoField)
 			                   .from(nextInfoField, outsideInfoField)
 			                   .seconds(1.5)
@@ -505,12 +519,10 @@ void ChipMachine::removeToast() {
 
 void ChipMachine::render(uint32_t delta) {
 
-	static vector<uint16_t> temp2(8);
-
-	if(oldWidth != screen.width() || oldHeight != screen.height())
+	if(screen.size() != screenSize) {
 		resizeDelay = 2;
-	oldWidth = screen.width();
-	oldHeight = screen.height();
+		screenSize = screen.size();
+	}
 
 	if(resizeDelay) {
 		resizeDelay--;
@@ -526,8 +538,8 @@ void ChipMachine::render(uint32_t delta) {
 		showVolume--;
 
 		volumeIcon.render(screenptr, 0);
-		int v = player.getVolume() * 10;
-		v = v * volPos.w / 10;
+		auto v = (int)(player.getVolume() * 10);
+		v = (int)(v * volPos.w) / 10;
 		screen.rectangle(volPos.x + v, volPos.y, volPos.w - v, volPos.h, color);
 		// screen.text(listFont, std::to_string((int)(v * 100)), volPos.x, volPos.y, 10.0,
 		// 0xff8888ff);
