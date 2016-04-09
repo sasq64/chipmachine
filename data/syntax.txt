@@ -1,0 +1,104 @@
+P3-Frankerat-2000-05-17-Siddar_o_Moddar_1.mp3	M-P3 #1
+P3-Frankerat-2000-07-19-Siddar_o_Moddar_2.mp3	M-P3 #2
+P3-Frankerat-2000-10-04-Siddar_o_Moddar_3.mp3	M-P3 #3
+P3-Frankerat-2000-11-01-Siddar_o_Moddar_4.mp3	M-P3 #4
+P3-Frankerat-2000-12-06-Siddar_o_Moddar_5.mp3	M-P3 #5
+P3-Frankerat-2001-01-03-Siddar_o_Moddar_6.mp3	M-P3 #6
+2001-02-05_Syntax_Error_1.mp3	Syntax Error #1 (Hybris vs Lost Patrol)
+2001-02-12_Syntax_Error_2.mp3	Syntax Error #2 (Chips & Gods)
+2001-02-19_Syntax_Error_3.mp3	Syntax Error #3 (Donkey Kong Country)
+2001-02-27_Syntax_Error_4.mp3	Syntax Error #4 (Psycho Pigs vs Ninja Turtles)
+2001-03-06_Syntax_Error_5.mp3	Syntax Error #5 (Triad vs starfox)
+2001-03-13_Syntax_Error_6.mp3	Syntax Error #6 (Scanner (Jan Warnstam))
+2001-03-20_Syntax_Error_7.mp3	Syntax Error #7 (Laser Disco)
+2001-03-27_Syntax_Error_8.mp3	Syntax Error #8 (Önskelåtar)
+2001-04-03_Syntax_Error_9.mp3	Syntax Error #9 (Diddy Kong Racing)
+2001-04-10_Syntax_Error_10.mp3	Syntax Error #10 (Final Fantasy vs Shadowgate)
+2001-04-17_Syntax_Error_11.mp3	Syntax Error #11 (Mempheria vs Skaven)
+2001-04-24_Syntax_Error_12.mp3	Syntax Error #12 (Lemmings vs Dogs of War)
+2001-05-01_Syntax_Error_13.mp3	Syntax Error #13 (Turbo Outrun vs Golden Axe)
+2001-05-08_Syntax_Error_14.mp3	Syntax Error #14 (Battletoads vs Lagoon)
+2001-05-16_Syntax_Error_15.mp3	Syntax Error #15 (Chip 'N Dale vs Superfrog)
+2001-05-23_Syntax_Error_16.mp3	Syntax Error #16 (Last Ninja vs Wrecking Crew)
+2001-05-29_Syntax_Error_17.mp3	Syntax Error #17 (Akira vs Slagsmålsklubben)
+2001-06-05_Syntax_Error_18.mp3	Syntax Error #18 (Mega Man Special Del 1)
+2001-06-12_Syntax_Error_19.mp3	Syntax Error #19 (Mega Man Special Del 2)
+2001-06-20_Syntax_Error_20.mp3	Syntax Error #20 (Mega Man Special Del 3)
+2001-07-31_Syntax_Error_21.mp3	Syntax Error #21 (Journey to Silius vs Projekt NES)
+2001-08-07_Syntax_Error_22.mp3	Syntax Error #22 (Wizards & Warriors vs Lazy Jones)
+2001-08-14_Syntax_Error_23.mp3	Syntax Error #23 (Super Mario vs Bumbibjörnarna)
+2001-08-21_Syntax_Error_24.mp3	Syntax Error #24 (ABBA goes C64)
+2001-08-28_Syntax_Error_25.mp3	Syntax Error #25 (Bayou Billy vs Lizardking)
+2001-09-04_Syntax_Error_26.mp3	Syntax Error #26 (Bajs vs Kiss?)
+2001-09-11_Syntax_Error_27.mp3	Syntax Error #27 (Metroid Special)
+2001-09-25_Syntax_Error_28.mp3	Syntax Error #28 (HVSC)
+2001-10-02_Syntax_Error_29.mp3	Syntax Error #29 (Jeroen Tel vs HBT)
+2001-10-09_Syntax_Error_30.mp3	Syntax Error #30 (Danko vs Bucky 'O Hare)
+2001-10-16_Syntax_Error_31.mp3	Syntax Error #31 (The last Ninja Special)
+2001-10-23_Syntax_Error_32.mp3	Syntax Error #32 (Turtles vs Transformers)
+2001-10-30_Syntax_Error_33.mp3	Syntax Error #33 (Gameboy)
+2001-11-06_Syntax_Error_34.mp3	Syntax Error #34 (Chrono Trigger vs Glejs)
+2001-11-13_Syntax_Error_35.mp3	Syntax Error #35 (Chuck rock vs Batman)
+2001-11-20_Syntax_Error_36.mp3	Syntax Error #36 (Lizardking vs SND)
+2001-11-27_Syntax_Error_37.mp3	Syntax Error #37 (He-Man vs MacGyver)
+2001-12-04_Syntax_Error_38.mp3	Syntax Error #38 (Sonic vs Secret of Mana)
+2001-12-11_Syntax_Error_39.mp3	Syntax Error #39 (Kozo Nakamura)
+2001-12-18_Syntax_Error_40.mp3	Syntax Error #40 (Tomas Danko vs Allister Brimble)
+2002-01-10_Syntax_Error_41.mp3	Syntax Error #41 (Jul med Arpeggio 047)
+2002-01-17_Syntax_Error_42.mp3	Syntax Error #42 (Amiga Only)
+2002-01-24_Syntax_Error_43.mp3	Syntax Error #43 (Noceur vs Getta Robo)
+2002-01-31_Syntax_Error_44.mp3	Syntax Error #44 (NES Only)
+2002-02-14_Syntax_Error_45.mp3	Syntax Error #45 (Megadrive Only)
+2002-02-21_Syntax_Error_46.mp3	Syntax Error #46 (Atari XL vs Sega Master System)
+2002-02-28_Syntax_Error_47.mp3	Syntax Error #47 (Puss vs Wonder Boy)
+2002-03-07_Syntax_Error_48.mp3	Syntax Error #48 (Skate Night)
+2002-03-14_Syntax_Error_49.mp3	Syntax Error #49 (Dragon Ball vs Wilson Z)
+2002-03-21_Syntax_Error_50.mp3	Syntax Error #50 (Castlevania Special)
+2002-03-28_Syntax_Error_51.mp3	Syntax Error #51 (Klubb Chip)
+2002-04-04_Syntax_Error_52.mp3	Syntax Error #52 (Street Fighter II vs Pluxus)
+2002-04-11_Syntax_Error_53.mp3	Syntax Error #53 (Sämsta musiken)
+2002-04-18_Syntax_Error_54.mp3	Syntax Error #54 (Gremlins vs Lufia)
+2002-04-25_Syntax_Error_55.mp3	Syntax Error #55 (Duke Nukem vs Zool)
+2002-05-02_Syntax_Error_56.mp3	Syntax Error #56 (Sapparna slår till)
+2002-05-09_Syntax_Error_57.mp3	Syntax Error #57
+2002-05-16_Syntax_Error_58.mp3	Syntax Error #58
+2002-05-23_Syntax_Error_59.mp3	Syntax Error #59
+2002-05-30_Syntax_Error_60.mp3	Syntax Error #60
+2002-08-08_Syntax_Error_61.mp3	Syntax Error #61
+2002-08-15_Syntax_Error_62.mp3	Syntax Error #62
+2002-08-22_Syntax_Error_63.mp3	Syntax Error #63
+2002-08-29_Syntax_Error_64.mp3	Syntax Error #64
+2002-10-03_Syntax_Error_65.mp3	Syntax Error #65 (CD-releaser: Pontonius, Covox och Slagsmålsklubben)
+2002-10-10_Syntax_Error_66.mp3	Syntax Error #66 (Loonie, Gameboj Hitparade & de 6 grundpelarna inom spelmusikarkiv.)
+2002-10-17_Syntax_Error_67.mp3	Syntax Error #67 (Yasunori Mitsuda special (mit-suda yasu-nori))
+2002-10-24_Syntax_Error_68.mp3	Syntax Error #68 (Vem, var när?)
+2002-10-31_Syntax_Error_69.mp3	Syntax Error #69
+2002-11-07_Syntax_Error_70.mp3	Syntax Error #70
+2002-11-14_Syntax_Error_71.mp3	Syntax Error #71
+2002-11-21_Syntax_Error_72.mp3	Syntax Error #72
+2002-11-28_Syntax_Error_73.mp3	Syntax Error #73
+2002-12-19_Syntax_Error_76.mp3	Syntax Error #76
+2003-01-16_Syntax_Error_77.mp3	Syntax Error #77
+2003-01-23_Syntax_Error_78.mp3	Syntax Error #78
+2003-01-30_Syntax_Error_79.mp3	Syntax Error #79
+2003-02-06_Syntax_Error_80.mp3	Syntax Error #80
+2003-02-13_Syntax_Error_81.mp3	Syntax Error #81
+2003-02-20_Syntax_Error_82.mp3	Syntax Error #82
+2003-02-27_Syntax_Error_83.mp3	Syntax Error #83
+2003-03-06_Syntax_Error_84.mp3	Syntax Error #84
+2003-03-13_Syntax_Error_85.mp3	Syntax Error #85
+2003-03-20_Syntax_Error_86.mp3	Syntax Error #86
+2003-03-27_Syntax_Error_87.mp3	Syntax Error #87
+2003-04-03_Syntax_Error_88.mp3	Syntax Error #88
+2003-04-10_Syntax_Error_89.mp3	Syntax Error #89
+2003-04-17_Syntax_Error_90.mp3	Syntax Error #90
+2003-04-24_Syntax_Error_91.mp3	Syntax Error #91
+2003-05-01_Syntax_Error_92.mp3	Syntax Error #92
+2003-05-08_Syntax_Error_93.mp3	Syntax Error #93
+2003-05-15_Syntax_Error_94.mp3	Syntax Error #94
+2003-05-22_Syntax_Error_95.mp3	Syntax Error #95
+2003-05-29_Syntax_Error_96.mp3	Syntax Error #96
+2003-06-05_Syntax_Error_97.mp3	Syntax Error #97
+2003-06-12_Syntax_Error_98.mp3	Syntax Error #98
+2003-06-19_Syntax_Error_99.mp3	Syntax Error #99
+2007-01-19_Syntax_Error_101.mp3	Syntax Error #101

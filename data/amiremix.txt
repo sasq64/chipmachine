@@ -555,7 +555,6 @@
 2154	http://amigaremix.com/listen/2154/damongp_-_FormulaOneGrandPrix-Intro2008.mp3	FormulaOneGrandPrix-Intro2008	damongp
 2155	http://amigaremix.com/listen/2155/MononoM_-_Lotus_2_Level_2_night_course.mp3	Lotus 2 Level 2 (night course)	MononoM
 2156	http://amigaremix.com/listen/2156/DrFuture_-_Wasteland_2006_-_A_Number.mp3	Wasteland (2006 - A Number)	Dr.Future
-2158	http://amigaremix.com/listen/2158/Pavol_Lajciak_-_Turrican_III_-_Learning_to_Fly.mp3	Turrican III - Learning to Fly	Pavol Lajciak
 2159	http://amigaremix.com/listen/2159/Spiral_-_Sinking_II_SpaceJellyRemix.mp3	Sinking II [Space.Jelly.Remix]	Spiral
 2160	http://amigaremix.com/listen/2160/Mister_Ghostie_-_Across_The_Lands_The_Adventures_Of_Robin_Hood_-_The_Minstrels_Theme.mp3	Across The Lands [The Adventures Of Robin Hood - The Minstrel's Theme]	Mister Ghostie
 2162	http://amigaremix.com/listen/2162/daXX_-_Budbrain_-_Perhaps_daXX_ElectroHouse_ClubMix.mp3	Budbrain - Perhaps (daXX ElectroHouse ClubMix)	daXX
@@ -1161,3 +1160,47 @@
 2947	http://amigaremix.com/listen/2947/Isacco_Garcia_Peveri_-_ULTIMA_VI_-_Forest_Level.mp3	ULTIMA VI - Forest Level	Isacco Garcia Peveri
 2948	http://amigaremix.com/listen/2948/Mutetus_-_Turbo_Imploder_40.mp3	Turbo Imploder 4.0	Mutetus
 2949	http://amigaremix.com/listen/2949/Kime89_-_Super_Twintris_Tune_3_-_QUAD_Mix.mp3	Super Twintris (Tune 3 - QUAD! Mix)	Kime89
+2950	http://amigaremix.com/listen/2950/Robyn_-_Xeqtion.mp3	Xeqtion	Robyn
+2951	http://amigaremix.com/listen/2951/DerDiener_-_Outrun_-_Magical_Soundshower_Hip_Hop_Piano_mix.mp3	Outrun - Magical Soundshower (Hip Hop Piano mix)	DerDiener
+2952	http://amigaremix.com/listen/2952/DerDiener_-_Iron_Lord_-_DUBSTEP_MIX.mp3	Iron Lord - DUBSTEP MIX	DerDiener
+2953	http://amigaremix.com/listen/2953/TomWest_-_Shadow_of_the_Beast_HD_remake.mp3	Shadow of the Beast HD remake	TomWest
+2954	http://amigaremix.com/listen/2954/Isacco_Garcia_Peveri_-_R-Type_title.mp3	R-Type title	Isacco Garcia Peveri
+2955	http://amigaremix.com/listen/2955/Rapture_-_Premiere_-_Fantasy.mp3	Premiere - Fantasy	Rapture
+2956	http://amigaremix.com/listen/2956/Martin_Dodd_-_Necronom_500mm_Remix.mp3	Necronom (500mm Remix)	Martin Dodd
+2957	http://amigaremix.com/listen/2957/Isacco_Garcia_Peveri_-_Apprentice_Inside_Domus.mp3	Apprentice (Inside Domus)	Isacco Garcia Peveri
+2958	http://amigaremix.com/listen/2958/Andrea_Baroni_-_Super_Stardust_-_Special_Mission_1.mp3	Super Stardust - Special Mission 1	Andrea Baroni
+2959	http://amigaremix.com/listen/2959/Allister_Brimble_-_Captain_Planet_Ma_Ti.mp3	Captain Planet Ma Ti	Allister Brimble
+2961	http://amigaremix.com/listen/2961/Guemill_-_Turrican_2_-_The_Wall.mp3	Turrican 2 - The Wall	Guemill
+2962	http://amigaremix.com/listen/2962/TheRealParadigma_-_The_Dark.mp3	The Dark	TheRealParadigma
+2963	http://amigaremix.com/listen/2963/DrFuture_-_Apidya_-_The_Pond_Save_The_Last_Dance.mp3	Apidya - The Pond (Save The Last Dance)	Dr.Future
+2964	http://amigaremix.com/listen/2964/daXX_-_Stardust_Memories_-_daXX_Remix.mp3	Stardust Memories - daXX Remix	daXX
+2965	http://amigaremix.com/listen/2965/Mike_Z_-_Dune_2_Ingame_ambient_mix.mp3	Dune 2 (Ingame ambient mix)	Mike Z.
+2966	http://amigaremix.com/listen/2966/FabriceGP_-_Turrican_Title_Trance_remix.mp3	Turrican Title (Trance remix)	FabriceGP
+2967	http://amigaremix.com/listen/2967/daXX_-_Condom_Corruption_daXX_minimalistic_Remix.mp3	Condom Corruption (daXX minimalistic Remix)	daXX
+2968	http://amigaremix.com/listen/2968/DrFuture_-_Turrican_2_-_Exploring_Secret_Dungeons_Wild__Heart.mp3	Turrican 2 - Exploring Secret Dungeons (Wild @ Heart)	Dr.Future
+2969	http://amigaremix.com/listen/2969/trackah123_-_Jaguar_XJ220_Title_Digital_Acoustic_Remix.mp3	Jaguar XJ220 Title (Digital Acoustic Remix)	trackah123
+2970	http://amigaremix.com/listen/2970/daXX_-_Elysium_daXX_Remix.mp3	Elysium (daXX Remix)	daXX
+2971	http://amigaremix.com/listen/2971/Jujegolo_-_Shadow_of_the_Beast_-_Eerie_Forest.mp3	Shadow of the Beast - Eerie Forest	Jujegolo
+2972	http://amigaremix.com/listen/2972/daXX_-_Pinball_Dreams_Menu_Theme_daXX_Remix.mp3	Pinball Dreams Menu Theme (daXX Remix)	daXX
+2973	http://amigaremix.com/listen/2973/daXX_-_The_Secret_of_Monkey_Island_daXX_Remix.mp3	The Secret of Monkey Island (daXX Remix)	daXX
+2974	http://amigaremix.com/listen/2974/Joachip_-_Turbo_Imploder_40.mp3	Turbo Imploder 4.0	Joachip
+2975	http://amigaremix.com/listen/2975/Szudi_-_Lotus_Turbo_Challenge_2.mp3	Lotus Turbo Challenge 2	Szudi
+2976	http://amigaremix.com/listen/2976/Isacco_Garcia_Peveri_-_Jupiters_Masterdrive_Level_Selection_Menu.mp3	Jupiters Masterdrive Level Selection Menu	Isacco Garcia Peveri
+2977	http://amigaremix.com/listen/2977/Szudi_-_Another_World_Ending.mp3	Another World Ending	Szudi
+2980	http://amigaremix.com/listen/2980/Isacco_Garcia_Peveri_-_DYLAN_DOG_-_The_Murderers_Intro.mp3	DYLAN DOG - The Murderers Intro	Isacco Garcia Peveri
+2981	http://amigaremix.com/listen/2981/Flekador_-_Lotus_III_-_Space_Rock_Ninja_Remix.mp3	Lotus III - Space Rock Ninja Remix	Flekador
+2982	http://amigaremix.com/listen/2982/tEiS_-_Some_Day.mp3	Some Day	tEiS
+2983	http://amigaremix.com/listen/2983/Pepe_Pinapple_-_Return_of_the_Jedi_-_Hard_Wars.mp3	Return of the Jedi - Hard Wars	Pepe Pinapple
+2984	http://amigaremix.com/listen/2984/Pepe_Pinapple_-_Return_of_the_Jedi_-_Hard_Wars_Livemix.mp3	Return of the Jedi - Hard Wars (Livemix)	Pepe Pinapple
+2985	http://amigaremix.com/listen/2985/daXX_-_Arabian_Nights_daXX_Remix.mp3	Arabian Nights (daXX Remix)	daXX
+2986	http://amigaremix.com/listen/2986/daXX_-_Golden_Axe_-_Death_Adder_Theme_daXX_Remix.mp3	Golden Axe - Death Adder Theme (daXX Remix)	daXX
+2987	http://amigaremix.com/listen/2987/Gareth_Wood_-_Wrath_Of_The_Demon_Title_2016_Wremix.mp3	Wrath Of The Demon Title (2016 Wremix)	Gareth Wood
+2988	http://amigaremix.com/listen/2988/daXX_-_Fire__Ice_Temple_Theme_daXX_Remix.mp3	Fire & Ice Temple Theme (daXX Remix)	daXX
+2989	http://amigaremix.com/listen/2989/EXON_-_Lotus_Turbo_Challenge_2_Intro.mp3	Lotus Turbo Challenge 2 Intro	EXON
+2990	http://amigaremix.com/listen/2990/EXON_-_Hybris_2016_Remix.mp3	Hybris [2016 Remix]	EXON
+2991	http://amigaremix.com/listen/2991/Allister_Brimble_-_Stardust_Warp_Sequence_2.mp3	Stardust Warp Sequence 2	Allister Brimble
+2993	http://amigaremix.com/listen/2993/Rapture_-_Pinball_Prelude_Medley.mp3	Pinball Prelude Medley	Rapture
+2994	http://amigaremix.com/listen/2994/Sidicium_-_Strider_Vs_Thunderblade.mp3	Strider Vs Thunderblade	Sidicium
+2995	http://amigaremix.com/listen/2995/hyperunknown_-_Mantronix__Tips_Jazzy_Nork_-_Live_Jazz_Club_Cover.mp3	Mantronix & Tip's Jazzy Nork - Live Jazz Club Cover	hyperunknown
+2996	http://amigaremix.com/listen/2996/DrFuture_-_Great_Courts_2_You_Can_Win.mp3	Great Courts 2 (You Can Win)	Dr.Future
+2997	http://amigaremix.com/listen/2997/Instant_Remedy_-_Captain_Planet_Ma_Ti_Synthwave_Mix.mp3	Captain Planet Ma Ti (Synthwave Mix)	Instant Remedy
