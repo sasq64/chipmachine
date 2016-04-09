@@ -43,12 +43,10 @@ void ChipMachine::setupCommands() {
 			Tween::make().to(timeField.add, 0.0).seconds(0.5);
 	});
 
-	commands.emplace_back("add_list_song", [=]() {
+	commands.emplace_back("enque_song", [=]() {
 		if(player.addSong(getSelectedSong()))
 			songList.select(songList.selected() + 1);
 	});
-
-	commands.emplace_back("weird_command", [=]() {});
 
 	commands.emplace_back("add_current_favorite", [=]() {
 		if(isFavorite) {
@@ -63,8 +61,25 @@ void ChipMachine::setupCommands() {
 	commands.emplace_back("add_list_favorite", [=]() {
 		MusicDatabase::getInstance().addToPlaylist(currentPlaylistName, getSelectedSong());
 	});
+	
+	commands.emplace_back("clear_filter", [=]() {
+		filter = "";
+		searchUpdated = true;
+	});
 
-	commands.emplace_back("play_list_song", [=]() {
+	commands.emplace_back("set_collection_filter", [=]() {
+		
+		const auto &song = getSelectedSong();        
+		auto p = split(song.path, "::");
+		if(p.size() < 2)
+			return;
+		filter = p[0];
+		searchUpdated = true;
+			
+	});
+		
+
+	commands.emplace_back("play_song", [=]() {
 		player.playSong(getSelectedSong());
 		showScreen(MAIN_SCREEN);
 	});
@@ -90,7 +105,8 @@ void ChipMachine::setupCommands() {
 	});
 
 	commands.emplace_back("clear_search", [=]() {
-		iquery->clear();
+		//iquery->clear();
+		searchField.setText("");
 		searchUpdated = true;
 	});
 
@@ -98,7 +114,7 @@ void ChipMachine::setupCommands() {
 		int i = commandList.selected();
 		commandList.select(-1);
 		showScreen(lastScreen);
-		auto it = std::find(commands.begin(), commands.end(), matchingCommands[i]);
+		auto it = std::find(commands.begin(), commands.end(), *matchingCommands[i]);
 		if(it != commands.end())
 			it->fn();
 	});

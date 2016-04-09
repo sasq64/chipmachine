@@ -147,6 +147,11 @@ void IncrementalQuery::setString(const std::string &s) {
 	for(const auto &c : s) {
 		query.push_back(c);
 	}
+	if(query.size() == 0) {
+		lastStart = -1;
+		newRes = true;
+		finalResult.clear();
+	}
 	search();
 }
 
@@ -190,7 +195,7 @@ void IncrementalQuery::search() {
 	string q = string(&query[0], query.size());
 
 	auto words = split(q);
-
+	
 	// Words : IRON LORD -> 3L= "IRO"
 
 	// Remove empty strings
@@ -321,6 +326,7 @@ unsigned int SearchIndex::tlcode(const char *s) {
 
 int SearchIndex::search(const string &q, vector<int> &result, unsigned int searchLimit) {
 
+	
 	// result.resize(0);
 	// if(q.size() < 3)
 	//	return 0;
@@ -339,7 +345,7 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 
 	LOGV("Searching %d candidates for '%s'", tv.size(), query);
 	if(filter) {
-		LOGV("Filtering");
+		LOGD("Filtering");
 		if(q3) {
 			for(int index : tv) {
 				if(!filter(index))
@@ -347,8 +353,10 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 			}
 		} else {
 			for(int index : tv) {
-				if(filter(index))
+				if(filter(index)) {
+					LOGD("SKIP");
 					continue;
+				}
 				string s = strings[index];
 				simplify(s);
 				if(s.find(query) != string::npos) {

@@ -166,7 +166,9 @@ public:
 		Playlist(utils::File f) : fileName(f.getName()) {
 			if(f.exists()) {
 				for(const auto &l : f.getLines()) {
-					songs.emplace_back(l);
+					LOGD("SONG:'%s'", l);
+					if(l != "")
+						songs.emplace_back(l);
 				}
 			}
 			name = f.getFileName();
@@ -185,6 +187,8 @@ public:
 	void addToPlaylist(const std::string &plist, const SongInfo &song);
 	void removeFromPlaylist(const std::string &plist, const SongInfo &song);
 	std::vector<SongInfo> &getPlaylist(const std::string &plist);
+
+	void setFilter(const std::string &filter);
 
 private:
 	void initDatabase(const std::string &workDir, Variables &vars);
@@ -220,7 +224,6 @@ private:
 	void createTables();
 
 	static constexpr int PLAYLIST_INDEX = 0x10000000;
-	bool reindexNeeded;
 
 	SearchIndex composerIndex;
 	SearchIndex titleIndex;
@@ -233,9 +236,12 @@ private:
 	mutable std::mutex chkMutex;
 	mutable std::mutex dbMutex;
 	sqlite3db::Database db;
+	bool reindexNeeded;
 
 	uint16_t dbVersion;
 	uint16_t indexVersion;
+
+	int collectionFilter = -1;
 
 	std::future<void> initFuture;
 	std::atomic<bool> indexing;

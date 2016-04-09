@@ -111,13 +111,13 @@ bool MusicDatabase::parseRss(Variables &vars, const std::string &listFile,
 		auto c = i["dc:creator"];
 		if(c.valid())
 			composer = c.text();
-		if(composer == "") {
+		/*if(composer == "") {
 			auto dash = title.rfind(" - ");
 			if(dash != string::npos) {
 				composer = title.substr(dash + 2);
 				title = title.substr(0, dash);
 			}
-		}
+		}*/
 
 		auto pos = enclosure.find("file=");
 		if(pos != string::npos)
@@ -384,6 +384,30 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 	db.exec("COMMIT");
 }
 
+
+void MusicDatabase::setFilter(const std::string &filter) {
+	
+	if(filter == "") {
+		titleIndex.setFilter();
+		collectionFilter = -1;
+	} else {
+		LOGD("FILTER: '%s'", filter);
+		auto cq = db.query<int>("SELECT ROWID FROM collection WHERE id = ?", filter);
+		if(cq.step()) {
+			collectionFilter = cq.get();
+			LOGD("ID %d from %s", collectionFilter, filter);
+			//collectionFilter = 2;
+			titleIndex.setFilter([&](int index) {
+				return ((formats[index] >> 8) != collectionFilter);
+			});
+		}
+	}
+	
+	//titleIndex.setFilter([&](int index) {
+	//	return ((formats[index] & 0xff) != C64);
+	//});
+}
+
 int MusicDatabase::search(const string &query, vector<int> &result, unsigned int searchLimit) {
 
 	lock_guard<mutex>{dbMutex};
@@ -432,7 +456,9 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 			if(result.size() >= searchLimit)
 				break;
 			int songindex = composerToTitle[offset++];
-			result.push_back(songindex);
+			
+			if(collectionFilter == -1 || (formats[songindex] >> 8) == collectionFilter)
+				result.push_back(songindex);
 		}
 		if(result.size() >= searchLimit)
 			break;
@@ -868,7 +894,7 @@ void MusicDatabase::addToPlaylist(const std::string &plist, const SongInfo &song
 void MusicDatabase::removeFromPlaylist(const std::string &plist, const SongInfo &song) {
 	for(auto &pl : playLists) {
 		if(pl.name == plist) {
-			pl.songs.push_back(song);
+			pl.songs.erase(std::remove(pl.songs.begin(), pl.songs.end(), song));
 			pl.save();
 			break;
 		}

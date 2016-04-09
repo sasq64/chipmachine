@@ -1,7 +1,9 @@
 #include "ChipMachine.h"
 #include "Icons.h"
-
 #include "version.h"
+
+#include <coreutils/format.h>
+
 #include <cctype>
 #include <map>
 
@@ -13,10 +15,10 @@ using namespace tween;
 std::string compressWhitespace(std::string &&m) {
 	// Turn linefeeds into spaces
 	replace(m.begin(), m.end(), '\n', ' ');
-	// Turn space sequences into single spaces
+	// Turn whitespace sequences into single spaces
 	auto last = unique(m.begin(), m.end(),
-	                   [](const char &a, const char &b) -> bool { return (a == ' ' && b == ' '); });
-	m.resize(last - m.begin());
+	                   [](char a, char b) -> bool { return (isspace(a) && isspace(b)); });
+	m.resize(distance(m.begin(), last));
 	return m;
 }
 
@@ -70,8 +72,8 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 }
 
 ChipMachine::ChipMachine(const std::string &wd)
-    : workDir(wd), player(wd), currentScreen(0), eq(SpectrumAnalyzer::eq_slots), starEffect(screen),
-      scrollEffect(screen) {
+    : workDir(wd), player(wd), currentScreen(MAIN_SCREEN), eq(SpectrumAnalyzer::eq_slots),
+      starEffect(screen), scrollEffect(screen) {
 
 #ifdef USE_REMOTELISTS
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
@@ -116,9 +118,9 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 	//toastField = TextField(font, "", topLeft.x, downRight.y - 134, 2.0, 0x00ffffff);
 	overlay.add(&toastField);
-
+	
 	favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
-
+	
 	setupCommands();
 	setupRules();
 
@@ -167,7 +169,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 	commandList = VerticalList(listrec, numLines, [=](grappix::Rectangle &rec, int y,
 	                                                  uint32_t index, bool hilight) {
 		if(index < matchingCommands.size()) {
-			auto cmdName = matchingCommands[index];
+			auto cmd = matchingCommands[index];
 			uint32_t c = 0xaa00cc00;
 			if(hilight) {
 				static uint32_t markStartcolor = 0;
@@ -182,7 +184,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 			}
 			grappix::screen.text(listFont, cmd->name, rec.x, rec.y, c, resultFieldTemplate.scale);
 			grappix::screen.text(listFont, cmd->shortcut, rec.x + 350, rec.y, 0xffffffff, resultFieldTemplate.scale * 0.8);
-
+			
 		}
 	});
 
@@ -254,13 +256,13 @@ void ChipMachine::layoutScreen() {
 
 	starEffect.resize(screen.width(), screen.height());
 	scrollEffect.resize(screen.width(), 45 * scrollEffect.scrollsize);
-
+	
 	searchField.setFont(font);
 	commandField.pos = searchField.pos;
 	commandField.scale = searchField.scale;
 	commandField.cursorH = searchField.cursorH;
 	commandField.cursorW = searchField.cursorW;
-
+	
 	favIcon.set(favPos);
 }
 

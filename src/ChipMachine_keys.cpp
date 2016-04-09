@@ -20,7 +20,7 @@ void ChipMachine::setupRules() {
 	addKey(Window::F3, "show_command");
 	
 	addKey(Window::BACKSPACE, if_equals(currentScreen, SEARCH_SCREEN) && if_false(haveSearchChars), "clear_filter");
-
+	
 	addKey(Window::ESCAPE, if_false(haveSearchChars), "show_main");
 	addKey(Window::ESCAPE, if_true(haveSearchChars), "clear_search");
 	addKey(Window::F6, "next_song");
@@ -164,20 +164,17 @@ void ChipMachine::updateKeys() {
 						int j = 0;
 						for(int i=0; i<commands.size(); i++) {
 							if(toLower(commands[i].name).find(ctext) != string::npos)
-								matchingCommands[j++] = commands[i].name;
+								matchingCommands[j++] = &commands[i];
 						}
 						matchingCommands.resize(j);
 					}
 				} else {
 					currentScreen = SEARCH_SCREEN;
 					if(hasMoved && event != ' ' && event != Window::BACKSPACE)
-						iquery->clear();
+						searchField.setText("");
 					hasMoved = false;
 					showScreen(SEARCH_SCREEN);
-					if(event == Window::BACKSPACE)
-						iquery->removeLast();
-					else
-						iquery->addLetter(tolower(event));
+					searchField.on_key(tolower(event));
 					searchUpdated = true;
 				}
 			}
@@ -188,14 +185,7 @@ void ChipMachine::updateKeys() {
 			commands[action.id].fn();
 		}
 	}
-	if(searchUpdated) {
-		searchField.setText(iquery->getString());
-		searchField.visible(true);
-		topStatus.visible(false);
-		songList.setTotal(iquery->numHits());
-		searchUpdated = false;
-	}
-
+	
 	if(songList.selected() != last_selection && iquery->numHits() > 0) {
 		int i = songList.selected();
 		SongInfo song = MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
@@ -203,8 +193,43 @@ void ChipMachine::updateKeys() {
 		bool isoffline = RemoteLoader::getInstance().isOffline(song.path);
 		topStatus.setText(format("Format: %s (%s)%s", song.format, ext, isoffline ? "*" : ""));
 		searchField.visible(false);
+		filterField.visible(false);
 		topStatus.visible(true);
 	}
+	
+	if(searchUpdated) {
+		auto s = searchField.getText();
+		if(s[0] == '\\') {
+			int pos = s.find(' ');
+			if(pos != string::npos) {
+				auto f = s.substr(1, pos-1);
+				if(f != filter) {
+					filter = f;
+					s = s.substr(pos+1);
+					searchField.setText(s);
+				}
+				
+			}
+		} 
+		
+		if(filter != filterField.getText()) {
+			LOGD("Filter now %s", filter);
+			filterField.setText(filter);
+			MusicDatabase::getInstance().setFilter(filter);
+			iquery->invalidate();
+			
+		}
+			
+		iquery->setString(s);
+		searchField.visible(true);
+		filterField.visible(true);
+		searchField.pos.x = filterField.pos.x + filterField.getWidth() + 5;
+		LOGD("X NOW %d", songField.pos.x);
+		topStatus.visible(false);
+		songList.setTotal(iquery->numHits());
+		searchUpdated = false;
+	}
+
 }
 
 } // namespace chipmachine

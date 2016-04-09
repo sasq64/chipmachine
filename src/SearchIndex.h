@@ -138,6 +138,10 @@ public:
 		return r;
 	}
 
+	void invalidate() {
+		oldWords.clear();
+	}
+	
 	// std::string getFull(int index) const {
 	//	return provider->getFullString(finalResult[index]);
 	//}
@@ -177,7 +181,10 @@ public:
 	static void simplify(std::string &s);
 	static unsigned int tlcode(const char *s);
 
-	void setFilter(std::function<bool(int)> f) { filter = f; }
+	void setFilter(std::function<bool(int)> f = nullptr) { 
+		filter = f;
+	}
+	
 
 private:
 	// Worker<int> worker;

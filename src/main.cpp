@@ -110,6 +110,7 @@ int main(int argc, char *argv[]) {
 	    File::getAppDir()
 	});
 	LOGD("PATH:%s", path);
+	
 	string workDir = File::findFile(path, "data").getDirectory();
 
 	if(workDir == "") {
