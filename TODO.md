@@ -60,8 +60,6 @@ what is current song and what is new song?
 
 Problem: Some SNG files does not require INS files.
 
-Problem: We want to treat some multi song files as one song with subtunes
-
 ### Playlist support
 
 Multiple playlists
@@ -70,121 +68,6 @@ Smart playlists
 
 Separate Playlist / Playqueue screen with edit capabilities
 
-
-
-Simple JobSystem
-WebGetter
-
-JOB SYSTEM
-==========
-
-Job dependencies
-Jobs in progress
-Cancel jobs (and job chain)
-
-Job outputs (data, file...)
-Remove files
-
-
-
-
-
-
-
-
-
-======================================================================================
-
-
-*DO:*
-
-When parsing modland, look for multi file songs.
-Create paths such as
-modland::some/path::file.ins::file.sng
-or
-modland::some/game::song01.psf::song02.psf....
-The latter case should be treated as sub songs.
-
-When loading path, load all files
-Mark secondary files. If more than one primary file, treat as sub songs
-
-### Rewrite search interface
-
-Search string -> words
-Lookup first word in all indexes
-
-
-
-## DONE
-
-X Better tween on song failure, and go to next after delay
-X List displays old result after last
-X Second word digits => wrong results
-X MDX Needs secondary file download
-X Tween source position for songs that are not NEXT seems wrong
-X MP3 on Raspberry
-X Star skip
-X Hilight color fade to type color
-X Key repeat
-X Skip to next prev composer
-
-X &amp; in mp3 names
-X Local MP3 not mp3 format
-X Fade out eq on list screen
-X EQ colors from screen.lua
-
-X Report song failed to play
-
-X VOLUME CONTROL
-X QUIT
-
-X Slow playlist info parsing
-X Remove slash on non demo lists
-
-X DB init in thread, progess display
-
-X Update db rules
-
-X Remove online playlists for now
-
-X Mods don't end (Compilications.mod)
-
-
-
-
-
-## OLD STUFF
-
-## STATIC PLAYLISTS
-
-### Sounds of Scenesat
-
-### Amiga Classics
-
-
-## PLUGINS TO BE ADDED
-
-* TEDPLAY
-
-## FILTER
-
-Collection & Type stored
-Configure colors in lua file
-
-Collection IS <name>
-Format IS between <lower> and <higher>
-
-## COMMAND MODE
-
-Default TAB to Enter, ENTER to leave
-Uses searchIndex for registered commands to render the main list
-
-
-
-
-
-
-//
 
 >> NETWORK RULES <<
 >>>>>>>>><<<<<<<<<<

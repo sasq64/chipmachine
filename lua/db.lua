@@ -43,8 +43,6 @@ DB = {
 {
 	name = "HVTC",
 	id =  "hvtc",
-	-- source = "http://www.prg.dtu.dk/HVSC/C64Music/",
-	-- source = "http://hvsc.etv.cx/C64Music/",
 	source = "http://plus4world.powweb.com/feat/tedsound/player/",
 	song_list = "data/hvtc.txt",
 	local_dir = "/opt/Music/hvtc",
@@ -160,14 +158,14 @@ DB = {
 	id = "weekchip",
 	type =  "podcast",
 	source = "",
-	composer = "Dj CUTMAN",
+	presenter = "Dj CUTMAN",
 	song_list = "http://thisweekinchiptune.libsyn.com/rss",
 	color = 0xfffff
 },
 {
 	name = "Gamewave Podcast",
 	id = "gamewave",
-	type =  "podcast",
+	type = "podcast",
 	source = "",
 	song_list = "http://gamewave.yays.co/rss.xml",
 	color = 0xfffff
@@ -179,8 +177,7 @@ DB = {
 	song_list = "data/syntax.txt",
 	song_template = "path title",
 	format = "MP3",
-	game = "Syntax Error",
-	local_dir = "/opt/Music/scenesat",
+	-- presenter = "Sol"
 	color = 0xfffff
 },
 {

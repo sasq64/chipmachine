@@ -1,7 +1,15 @@
 
+== v1.3
+
+* Command screen
+* Quick pause on OSX
+* Added Plus/4 Ted music
+* Collection filter
+* Text mode GUI
+* Telnet server
 
 
-v1.2
+== v1.2
 
 * JIS decoding for S98 and MDX plugins
 * Metadata for Campcom/Saturn, MDX & S98 plugins

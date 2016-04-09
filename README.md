@@ -8,10 +8,10 @@ chipmachine
 *A demoscene/retro Jukebox/spotify-like  music player*
 
 * **Type anything to incrementally search in entire database**
-![ONE](http://apone.org:8080/chipmachine/cs1.png)
+![ONE](http://85.24.142.250/chipmachine/cs1.png)
 
 * **Hit enter to play directly**
-![TWO](http://apone.org:8080/chipmachine/cs2.png)
+![TWO](http://85.24.142.250/chipmachine/cs2.png)
 
 
 ## Prerequisites
@@ -21,6 +21,7 @@ chipmachine
 ```
 $ sudo apt-get install cmake git g++ zlib1g-dev libao-dev libgl1-mesa-dev libasound2-dev libglfw3-dev libcurl4-gnutls-dev libglew-dev libmpg123-dev ninja-build
 ```
+* NOTE: glfw3 does not exist in Trusty, but you can find deb packages for it (or you can build it yourself).
 
 ### Mac OSX
 

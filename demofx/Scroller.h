@@ -78,8 +78,8 @@ private:
 	const std::string sineShaderF = R"(
 		uniform sampler2D sTexture;
 
-		const vec4 color0 = vec4(1.0, 1.0, 0.0, 1.0);
-		const vec4 color1 = vec4(0.0, 0.0, 1.0, 1.0);
+		const vec4 color0 = vec4(0.7, 1.0, 0.5, 1.0);
+		const vec4 color1 = vec4(0.2, 0.0, 1.0, 1.0);
 
 		varying vec2 UV;
 
