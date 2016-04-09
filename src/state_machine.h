@@ -20,7 +20,8 @@ public:
 
 template <class T> class EQCondition : public BaseCondition {
 public:
-	EQCondition(const T &watch, T val) : watch(watch), val(val) {}
+	EQCondition(const T &watch, T val) : watch(watch), val(val) { LOGD("EQCond %p", &watch); }
+
 	bool check() const override { return watch == val; }
 
 private:
@@ -60,23 +61,59 @@ private:
 	const std::shared_ptr<T> &ptr;
 };
 
-std::shared_ptr<BaseCondition> if_true(const bool &watch);
-std::shared_ptr<BaseCondition> if_false(const bool &watch);
+class AndCondition : public BaseCondition {
+public:
+	AndCondition(std::shared_ptr<BaseCondition> a, std::shared_ptr<BaseCondition> b) : a(a), b(b) {}
+	bool check() const override { return a->check() && b->check(); }
 
-template <class T> std::shared_ptr<BaseCondition> if_equals(const T &watch, T val) {
-	return std::make_shared<EQCondition<T>>(watch, val);
+private:
+	std::shared_ptr<BaseCondition> a;
+	std::shared_ptr<BaseCondition> b;
+};
+
+class OrCondition : public BaseCondition {
+public:
+	OrCondition(std::shared_ptr<BaseCondition> a, std::shared_ptr<BaseCondition> b) : a(a), b(b) {}
+	bool check() const override { return a->check() || b->check(); }
+
+private:
+	std::shared_ptr<BaseCondition> a;
+	std::shared_ptr<BaseCondition> b;
+};
+
+struct Condition {
+	Condition(std::shared_ptr<BaseCondition> bc) : c(bc) {}
+	std::shared_ptr<BaseCondition> c;
+	bool check() const { return c->check(); }
+	Condition operator&&(const Condition &other) {
+		return Condition(std::make_shared<AndCondition>(c, other.c));
+	}
+	Condition operator||(const Condition &other) {
+		return Condition(std::make_shared<OrCondition>(c, other.c));
+	}
+};
+
+template <typename C, typename... ARGS> Condition make_condition(ARGS &&... args) {
+	return Condition(std::make_shared<C>(std::forward<ARGS>(args)...));
 }
 
-template <class T> std::shared_ptr<BaseCondition> if_not_equals(const T &watch, T val) {
-	return std::make_shared<NEQCondition<T>>(watch, val);
+Condition if_true(const bool &watch);
+Condition if_false(const bool &watch);
+
+template <class T> Condition if_equals(const T &watch, T val) {
+	return make_condition<EQCondition<T>>(watch, val);
 }
 
-template <class T> std::shared_ptr<BaseCondition> if_not_null(const std::shared_ptr<T> &ptr) {
-	return std::make_shared<SharedPtrNotNullCondition<T>>(ptr);
+template <class T> Condition if_not_equals(const T &watch, T val) {
+	return make_condition<NEQCondition<T>>(watch, val);
 }
 
-template <class T> std::shared_ptr<BaseCondition> if_null(const std::shared_ptr<T> &ptr) {
-	return std::make_shared<SharedPtrNullCondition<T>>(ptr);
+template <class T> Condition if_not_null(const std::shared_ptr<T> &ptr) {
+	return make_condition<SharedPtrNotNullCondition<T>>(ptr);
+}
+
+template <class T> Condition if_null(const std::shared_ptr<T> &ptr) {
+	return make_condition<SharedPtrNullCondition<T>>(ptr);
 }
 
 extern std::shared_ptr<BaseCondition> ALWAYS_TRUE;
@@ -93,7 +130,7 @@ public:
 		bool found = false;
 		auto &amap = actionmap[event];
 		for(const auto &a : amap.actions) {
-			if(a.condition->check()) {
+			if(a.condition.check()) {
 				found = true;
 				actions.emplace_back(a.action, event);
 				if(a.stop)
@@ -104,28 +141,26 @@ public:
 	}
 
 	// If event e occurs and current state matches sm, perform action a
-	void add(uint32_t event, std::shared_ptr<BaseCondition> c, uint32_t action, bool stop = true) {
+	void add(uint32_t event, Condition c, uint32_t action, bool stop = true) {
 		ActionSet &a = actionmap[event];
-		a.actions.push_back(Mapping(c, action, stop));
+		a.actions.emplace_back(c, action, stop);
 	}
 
-	void add(const char *chars, std::shared_ptr<BaseCondition> c, uint32_t action,
-	         bool stop = true) {
+	void add(const char *chars, Condition c, uint32_t action, bool stop = true) {
 		for(unsigned i = 0; i < strlen(chars); i++) {
 			auto event = chars[i];
 			ActionSet &a = actionmap[event];
-			a.actions.push_back(Mapping(c, action, stop));
+			a.actions.emplace_back(c, action, stop);
 		}
 	}
 
 	// Each event (uint32_t) maps to several mappings.
 	// Each mapping is a condition and an action.
 	// The first mapping with a true condtition will fire
-	void add(std::vector<uint32_t> events, std::shared_ptr<BaseCondition> c, uint32_t action,
-	         bool stop = true) {
+	void add(std::vector<uint32_t> events, Condition c, uint32_t action, bool stop = true) {
 		for(auto event : events) {
 			ActionSet &a = actionmap[event];
-			a.actions.push_back(Mapping(c, action, stop));
+			a.actions.emplace_back(c, action, stop);
 		}
 	}
 	void add(uint32_t event, uint32_t action, bool stop = true) {
@@ -151,13 +186,13 @@ public:
 		}
 		return Action();
 	}
-	
+
 	int actionsLeft() { return actions.size(); }
 
 	struct Mapping {
-		Mapping(std::shared_ptr<BaseCondition> condition, uint32_t action, bool stop = true)
+		Mapping(Condition condition, uint32_t action, bool stop = true)
 		    : condition(condition), action(action), stop(stop) {}
-		std::shared_ptr<BaseCondition> condition;
+		Condition condition;
 		uint32_t action;
 		bool stop = false;
 	};

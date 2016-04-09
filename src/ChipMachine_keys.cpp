@@ -7,60 +7,61 @@ using namespace tween;
 
 namespace chipmachine {
 
-static const uint32_t SHIFT = 0x10000;
-static const uint32_t CTRL = 0x20000;
-static const uint32_t ALT = 0x40000;
 
 void ChipMachine::setupRules() {
 
 	using namespace statemachine;
 
 	addKey(Window::F1, "show_main");
+	addKey(Window::F2, "show_search");
 	addKey({Window::UP, Window::DOWN, Window::PAGEUP, Window::PAGEDOWN},
 	       if_equals(currentScreen, MAIN_SCREEN), "show_search");
-	addKey(Window::F2, "show_search");
 	addKey(Window::F5, "play_pause");
-	addKey(Window::ENTER, if_equals(currentScreen, COMMAND_SCREEN), "execute_selected_command");
 	addKey(Window::F3, "show_command");
 	
+	addKey(Window::BACKSPACE, if_equals(currentScreen, SEARCH_SCREEN) && if_false(haveSearchChars), "clear_filter");
+
 	addKey(Window::ESCAPE, if_false(haveSearchChars), "show_main");
 	addKey(Window::ESCAPE, if_true(haveSearchChars), "clear_search");
 	addKey(Window::F6, "next_song");
 	addKey(Window::ENTER, if_equals(currentScreen, MAIN_SCREEN), "next_song");
-	addKey(Window::ENTER, if_equals(currentScreen, SEARCH_SCREEN), "play_list_song");
-	addKey(Window::ENTER | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), "add_list_song");
-	addKey(Window::F9, if_equals(currentScreen, SEARCH_SCREEN), "add_list_song");
+	addKey(Window::ENTER, if_equals(currentScreen, SEARCH_SCREEN), "play_song");
+	addKey(Window::ENTER, if_equals(currentScreen, COMMAND_SCREEN), "execute_selected_command");
+	addKey(Window::ENTER | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), "enque_song");
+	addKey(Window::F9, if_equals(currentScreen, SEARCH_SCREEN), "enque_song");
 	addKey(Window::DOWN | SHIFT, if_equals(currentScreen, SEARCH_SCREEN), "next_composer");
 	addKey(Window::F7, if_equals(currentScreen, SEARCH_SCREEN), "add_list_favorite");
 	addKey(Window::F7, if_equals(currentScreen, MAIN_SCREEN), "add_current_favorite");
 	addKey(Window::F8, "clear_songs");
-	addKey(Window::LEFT, "prev_subtune");
-	addKey(Window::RIGHT, "next_subtune");
+	addKey(Window::LEFT, if_not_equals(currentScreen, COMMAND_SCREEN), "prev_subtune");
+	addKey(Window::RIGHT, if_not_equals(currentScreen, COMMAND_SCREEN), "next_subtune");
 	addKey(Window::F4, "layout_screen");
-	addKey(Window::F4 | ALT, "quit");
 	addKey(Window::ESCAPE | SHIFT, "quit");
+	addKey(Window::F4 | ALT, "quit");
 	addKey('r' | CTRL, "random_shuffle");
 	addKey('f' | CTRL, "format_shuffle");
 	addKey('c' | CTRL, "composer_shuffle");
 	addKey('s' | CTRL, "result_shuffle");
 	addKey('o' | CTRL, "collection_shuffle");
-	addKey('1' | CTRL, "random_shuffle");
-	addKey('2' | CTRL, "collection_shuffle");
-	addKey('3' | CTRL, "format_shuffle");
-	addKey('4' | CTRL, "composer_shuffle");
-	addKey('5' | CTRL, "result_shuffle");
 	addKey('-', "volume_down");
-	addKey("=+", "volume_up");
+	addKey({'+', '='}, "volume_up");
 	addKey(Window::TAB, "toggle_command");
+	std::string empty("");
+	addKey('i' | CTRL, if_equals(filter, empty), "set_collection_filter");
+	addKey('i' | CTRL, if_not_equals(filter, empty), "clear_filter");
 }
 
-void ChipMachine::showScreen(int screen) {
+void ChipMachine::showScreen(Screen screen) {
 	if(currentScreen != screen) {
 		hasMoved = (screen != SEARCH_SCREEN);
 		currentScreen = screen;
-		grappix::Color &c = (screen == MAIN_SCREEN ? spectrumColorMain : spectrumColorSearch);
-		Tween::make().to(spectrumColor, c).seconds(0.5);
-		Tween::make().to(scrollEffect.alpha, 1.0).seconds(0.5);
+		if(screen == MAIN_SCREEN) {
+			Tween::make().to(spectrumColor, spectrumColorMain).seconds(0.5);
+			Tween::make().to(scrollEffect.alpha, 1.0).seconds(0.5);
+		} else {
+			Tween::make().to(spectrumColor, spectrumColorSearch).seconds(0.5);
+			Tween::make().to(scrollEffect.alpha, 0.0).seconds(0.5);
+		}
 	}
 }
 

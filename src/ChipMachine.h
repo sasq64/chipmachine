@@ -82,63 +82,138 @@ public:
 	MusicPlayerList &musicPlayer() { return player; }
 
 private:
+	enum Screen {
+		NO_SCREEN = -1,
+		MAIN_SCREEN = 0,
+		SEARCH_SCREEN = 1,
+		COMMAND_SCREEN = 2,
+	};
+
+	static const uint32_t SHIFT = 0x10000;
+	static const uint32_t CTRL = 0x20000;
+	static const uint32_t ALT = 0x40000;
+
 	void setVariable(const std::string &name, int index, const std::string &val);
 
-	void showScreen(int screen);
+	void showScreen(Screen screen);
 	SongInfo getSelectedSong();
 
 	void setupRules();
 	void setupCommands();
 	void updateKeys();
 
-	void addKey(std::vector<uint32_t> events, const std::string &cmd) {
-		for(int i=0; i<commands.size(); i++) {
-			if(commands[i].name == cmd) {
-				smac.add(events, i);
-			}
-		}
+	void updateLists() {
+
+		int y = resultFieldTemplate.pos.y;
+
+		songList.setArea(grappix::Rectangle(topLeft.x, topLeft.y + y, grappix::screen.width() - topLeft.x,
+		                                    downRight.y - topLeft.y - y));
+		commandList.setArea(grappix::Rectangle(topLeft.x, topLeft.y + y, grappix::screen.width() - topLeft.x,
+		                                    downRight.y - topLeft.y - y));
 	}
-	template <typename T> void addKey(T&& key, const std::string &cmd) {
+
+	const std::vector<std::string> key_names = {
+		"UP",
+		"DOWN",
+		"LEFT",
+		"RIGHT",
+		"ENTER",
+		"ESCAPE",
+		"BACKSPACE",
+		"TAB",
+		"PAGEUP",
+		"PAGEDOWN",
+		"DELETE",
+		"HOME",
+		"END",
+		"F1",
+		"F2",
+		"F3",
+		"F4",
+		"F5",
+		"F6",
+		"F7",
+		"F8",
+		"F9",
+		"F10",
+		"F11",
+		"F12"
+	};
+
+	void addKey(uint32_t key, statemachine::Condition cond, const std::string &cmd) {
+
+		auto screen = currentScreen;
+		bool onMain = false;
+		bool onSearch = false;
+
+		currentScreen = NO_SCREEN;
+		if(!cond.check()) {
+			currentScreen = MAIN_SCREEN;
+			onMain = cond.check();
+			currentScreen = SEARCH_SCREEN;
+			onSearch = cond.check();
+		}
+		currentScreen = screen;
+
+
 		auto it = std::find(commands.begin(), commands.end(), cmd);
-		if(it != commands.end()) 
-			smac.add(std::forward<T>(key), std::distance(commands.begin(), it));
-	}
-	
-	void addKey(std::vector<uint32_t> events, std::shared_ptr<statemachine::BaseCondition> cond, const std::string &cmd) {
-		for(int i=0; i<commands.size(); i++) {
-			if(commands[i].name == cmd) {
-				smac.add(events, cond, i);
+		if(it != commands.end()) {
+			smac.add(key, cond, static_cast<uint32_t>(std::distance(commands.begin(), it)));
+			if(key == grappix::Window::BACKSPACE)
+				return;
+			if(it->shortcut == "") {
+				std::string name;
+				if(key & SHIFT)
+					name += "shift+";
+				if(key & ALT)
+					name += "alt+";
+				if(key & CTRL)
+					name += "ctrl+";
+				key &= 0xffff;
+				if(key < 0x100)
+					name.append(1, tolower(key));
+				else if(key <= grappix::Window::F12)
+					name += utils::toLower(key_names[key - 0x100]);
+				if(onSearch)
+					name += " [search]";
+				if(onMain)
+					name += " [main]";
+				it->shortcut = name;
 			}
 		}
 	}
-	template <typename T> void addKey(T&& key, std::shared_ptr<statemachine::BaseCondition> cond, const std::string &cmd) {
-		for(int i=0; i<commands.size(); i++) {
-			if(commands[i].name == cmd) {
-				smac.add(key, cond, i);
-			}
-		}
+
+	void addKey(std::vector<uint32_t> events, statemachine::Condition cond,
+	            const std::string &cmd) {
+		for(auto &e : events)
+			addKey(e, cond, cmd);
 	}
-	
+
+	void addKey(std::vector<uint32_t> events, const std::string &cmd) {
+		addKey(events, statemachine::ALWAYS_TRUE, cmd);
+	}
+
+	void addKey(uint32_t key, const std::string &cmd) {
+		addKey(key, statemachine::ALWAYS_TRUE, cmd);
+	}
+
 	void clearCommand() {
 		matchingCommands.resize(commands.size());
-		int i=0;
+		int i = 0;
 		for(auto &c : commands)
-			matchingCommands[i++] = c.name;
+			matchingCommands[i++] = &c;
 	}
-		 	
+
 	utils::File workDir;
 
 	MusicPlayerList player;
 
-	const int MAIN_SCREEN = 0;
-	const int SEARCH_SCREEN = 1;
-	const int COMMAND_SCREEN = 2;
-
-	int lastScreen = MAIN_SCREEN;
-	int currentScreen = MAIN_SCREEN;
+	Screen lastScreen = MAIN_SCREEN;
+	Screen currentScreen = MAIN_SCREEN;
 
 	std::unique_ptr<TelnetInterface> telnet;
 
+	// Aera of screen used for UI (defaults are for TV with overscan)
 	utils::vec2i topLeft = {80, 54};
 	utils::vec2i downRight = {636, 520};
 
