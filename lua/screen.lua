@@ -67,20 +67,24 @@ Settings.xinfo_field = { X0 - 4, SY + 35 * GSCALE, GSCALE * 0.75, 0xffffffff }
 
 Settings.favicon = { X0 + 330 * GSCALE, SY - GSCALE*25, 8*8 * GSCALE, 8*6 * GSCALE }
 
+EQ_SLOTS = 24
+SPECW = SCREEN_WIDTH / (EQ_SLOTS*2)
+SPECH = SPECW * 3
 
 if TV then
-  Settings.scroll = { Y1 - 100, 2.0, 4, "data/Bello.otf" }
+  Settings.scroll = { Y1 - 100, GSCALE * 2.0, 4, "data/Bello.otf" }
   Settings.spectrum = { X0-40, Y1+40, 28, 80.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
 else
-  Settings.scroll = { Y1 - 140, 2.0, 4, "data/Bello.otf" }
-  Settings.spectrum = { X0, Y1, 32, 100.0, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
+  Settings.scroll = { Y1 - GSCALE * 100, GSCALE * 2.0, 4, "data/Bello.otf" }
+  Settings.spectrum = { X0, Y1, SPECW, SPECH, SPECTRUM_COLOR0, SPECTRUM_COLOR1 }
 end
 
 x = SCREEN_WIDTH - 300 * GSCALE
 y = Settings.scroll[1] - 80 * GSCALE
 
 scale = 1.2 * GSCALE
-Settings.next_field = { x, y-28, 200.0 / SCREEN_PPI, 0xff444477 }
+
+Settings.next_field = { x, y-(28 * SCREEN_PPI / 240), SCREEN_PPI / 240, 0xff444477 }
 
 Settings.next_title = { x, y, scale, TEXT_COLOR }
 Settings.next_composer = { x, y+26*scale, scale*0.6, TEXT_COLOR }
@@ -99,8 +103,8 @@ scale = 1.0
 Settings.enter_title = { x, y, scale, TEXT_COLOR }
 Settings.enter_composer = { x, y+25*scale, scale*0.6, TEXT_COLOR }
 Settings.enter_format = { x, y+45*scale, scale*0.3, TEXT_COLOR }
-
-LSCALE = 300.0 / SCREEN_PPI
+-- 220
+LSCALE = SCREEN_PPI / 160.0;
 LINE_HEIGHT = 1.2
 TEXT_HEIGHT = 24 * LSCALE
 
