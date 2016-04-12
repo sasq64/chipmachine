@@ -155,7 +155,7 @@ public:
 		return true;
 	}
 
-	SongInfo lookup(const std::string &path);
+	SongInfo& lookup(SongInfo &song);
 
 	static MusicDatabase &getInstance() {
 		static MusicDatabase mdb;
@@ -179,7 +179,10 @@ public:
 		void save() {
 			utils::File f{fileName};
 			for(const auto &s : songs) {
-				f.writeln(s.path);
+				if(s.starttune >= 0)
+					f.writeln(utils::format("%s;%d", s.path, s.starttune));
+				else
+					f.writeln(s.path);
 			}
 		}
 	};

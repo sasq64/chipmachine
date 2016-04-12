@@ -50,6 +50,8 @@ public:
 	}
 
 	void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
+		if((color >> 24) == 0)
+			return;
 		target->draw(*texture, rec.x, rec.y, rec.w, rec.h, nullptr, color);
 	}
 	
@@ -107,7 +109,7 @@ private:
 	void setupRules();
 	void setupCommands();
 	void updateKeys();
-	
+	void updateFavorite();
 	void updateLists() {
 		
 		int y = resultFieldTemplate.pos.y; 
@@ -348,6 +350,7 @@ private:
 	int lastKey = 0;
 	bool searchUpdated = false;
 	std::string filter;
+	uint32_t favColor = 0x884444;
 };
 }
 

@@ -1,5 +1,6 @@
 #include "ChipMachine.h"
 
+
 using namespace std;
 using namespace utils;
 using namespace grappix;
@@ -9,7 +10,23 @@ namespace chipmachine {
 
 void ChipMachine::setupCommands() {
 
-	commands.emplace_back("show_main", [=]() { showScreen(MAIN_SCREEN); });
+	auto cmd = [=](const string &name, const function<void()> &f) {
+		commands.emplace_back(name, f);
+	};
+	
+	cmd("test_dialog", [=]() { 
+		currentDialog = make_shared<Dialog>(screenptr, font, "Type something:");
+		overlay.add(currentDialog);
+	});
+	
+	cmd("show_main", [=]() { showScreen(MAIN_SCREEN); });
+	
+	
+	cmd("close_dialog", [=]() { 
+		if(currentDialog)
+			currentDialog->remove();
+		currentDialog = nullptr;
+	});
 
 	commands.emplace_back("show_search", [=]() {
 		if(currentScreen != SEARCH_SCREEN) {
@@ -49,13 +66,20 @@ void ChipMachine::setupCommands() {
 	});
 
 	commands.emplace_back("add_current_favorite", [=]() {
+		auto song = dbInfo;
+		if(currentTune != song.starttune)
+			song.starttune = currentTune;
+		else
+			song.starttune = -1;
 		if(isFavorite) {
-			MusicDatabase::getInstance().removeFromPlaylist(currentPlaylistName, dbInfo);
+			MusicDatabase::getInstance().removeFromPlaylist(currentPlaylistName, song);
 		} else {
-			MusicDatabase::getInstance().addToPlaylist(currentPlaylistName, dbInfo);
+			MusicDatabase::getInstance().addToPlaylist(currentPlaylistName, song);
 		}
 		isFavorite = !isFavorite;
-		favIcon.visible(isFavorite);
+		uint32_t alpha = isFavorite ? 0xff : 0x00;
+		Tween::make().to(favIcon.color, Color(favColor | (alpha << 24))).seconds(0.25);
+		//favIcon.visible(isFavorite);
 	});
 
 	commands.emplace_back("add_list_favorite", [=]() {
@@ -78,7 +102,6 @@ void ChipMachine::setupCommands() {
 			
 	});
 		
-
 	commands.emplace_back("play_song", [=]() {
 		player.playSong(getSelectedSong());
 		showScreen(MAIN_SCREEN);

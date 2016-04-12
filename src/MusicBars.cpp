@@ -106,11 +106,13 @@ void MusicBars::setup(int w, int h, int slots) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	eqProgram = grappix::get_program(grappix::TEXTURED_PROGRAM).clone();
-#ifdef PIXEL_EQ
-	eqProgram.setFragmentSource(eqShaderF);
-#endif
-	// eqProgram.setVertexSource(eqShaderV);
+	if(!eqProgram) {
+		eqProgram = grappix::get_program(grappix::TEXTURED_PROGRAM).clone();
+	#ifdef PIXEL_EQ
+		eqProgram.setFragmentSource(eqShaderF);
+	#endif
+		// eqProgram.setVertexSource(eqShaderV);
+	}
 }
 
 void MusicBars::render(const utils::vec2i &spectrumPos, const grappix::Color &spectrumColor,

@@ -226,6 +226,7 @@ void MusicPlayer::updatePlayingInfo() {
 		si.format = ptr->getMeta("format");
 		si.numtunes = ptr->getMetaInt("songs");
 		si.starttune = ptr->getMetaInt("startSong");
+		if(si.starttune == -1) si.starttune = 0;
 
 		length = ptr->getMetaInt("length");
 		message = ptr->getMeta("message");

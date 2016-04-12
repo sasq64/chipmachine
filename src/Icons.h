@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#define Z 0xff444488
+#define Z 0xffffffff
 static const image::bitmap heart_icon = {8,
                                          6,
                                          {0, Z, Z, 0, Z, Z, 0, 0, Z, Z, Z, Z, Z, Z, Z, 0, Z, Z, Z,

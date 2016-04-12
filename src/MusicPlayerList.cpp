@@ -156,11 +156,9 @@ bool MusicPlayerList::handlePlaylist(const string &fileName) {
 	for(const string &s : lines) {
 		playList.push_back(SongInfo(s));
 	}
-	SongInfo &si = playList.front();
-	auto path = si.path;
-	si = MusicDatabase::getInstance().lookup(si.path);
-	if(si.path == "") {
-		LOGD("Could not lookup '%s'", path);
+	MusicDatabase::getInstance().lookup(playList.front());
+	if(playList.front().path == "") {
+		LOGD("Could not lookup '%s'", playList.front().path);
 		errors.push_back("Bad song in playlist");
 		SET_STATE(ERROR);
 		return false;
@@ -218,6 +216,9 @@ bool MusicPlayerList::playFile(const std::string &fn) {
 		if(reportSongs)
 			RemoteLists::getInstance().songPlayed(currentInfo.path);
 #endif
+		LOGD("STARRTUNE %d", currentInfo.starttune);
+		if(currentInfo.starttune >= 0)
+			mp.seek(currentInfo.starttune);
 		changedSong = false;
 		LOGD("CHANGED MULTI:%s", changedMulti ? "YES" : "NO");
 		if(!changedMulti) {
@@ -346,12 +347,11 @@ void MusicPlayerList::update() {
 
 		if(playList.size() > 0) {
 			// Update info for next song from
-			SongInfo &si = playList.front();
-			si = MusicDatabase::getInstance().lookup(si.path);
+			MusicDatabase::getInstance().lookup(playList.front());
 		}
 
 		// pos = 0;
-		LOGD("Next song from queue : %s", currentInfo.path);
+		LOGD("Next song from queue : %s (%d)", currentInfo.path, currentInfo.starttune);
 		if(partyMode) {
 			partyLockDown = true;
 			setPermissions(CAN_PAUSE | CAN_ADD_SONG | PARTYMODE);

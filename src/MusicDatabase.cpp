@@ -468,10 +468,10 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 }
 
 // Lookup the given path in the database
-SongInfo MusicDatabase::lookup(const std::string &p) {
+SongInfo& MusicDatabase::lookup(SongInfo &song) {
 
 	lock_guard<mutex>{dbMutex};
-	auto path = p;
+	auto path = song.path;
 
 	auto parts = split(path, "::");
 	if(parts.size() > 1) {
@@ -493,7 +493,6 @@ SongInfo MusicDatabase::lookup(const std::string &p) {
 	    "WHERE song.collection = collection.ROWID AND song.path = ?",
 	    path);
 
-	SongInfo song;
 	if(q.step()) {
 		string coll;
 		tie(song.path, song.title, song.game, song.composer, song.format, coll, song.metadata) =
@@ -891,10 +890,12 @@ void MusicDatabase::addToPlaylist(const std::string &plist, const SongInfo &song
 	}
 }
 
-void MusicDatabase::removeFromPlaylist(const std::string &plist, const SongInfo &song) {
+void MusicDatabase::removeFromPlaylist(const std::string &plist, const SongInfo &toRemove) {
 	for(auto &pl : playLists) {
 		if(pl.name == plist) {
-			pl.songs.erase(std::remove(pl.songs.begin(), pl.songs.end(), song));
+			pl.songs.erase(std::remove_if(pl.songs.begin(), pl.songs.end(), [&](const SongInfo &song) ->bool {
+				return song.path == toRemove.path && (song.starttune == -1 || song.starttune == toRemove.starttune);
+			}), pl.songs.end());
 			pl.save();
 			break;
 		}

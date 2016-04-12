@@ -1,6 +1,7 @@
 #ifndef SONGINFO_H
 #define SONGINFO_H
 
+#include <coreutils/log.h>
 #include <string>
 
 struct SongInfo {
@@ -8,9 +9,23 @@ struct SongInfo {
 	         const std::string &title = "", const std::string &composer = "",
 	         const std::string &format = "", const std::string &metadata = "")
 	    : path(path), game(game), title(title), composer(composer), format(format),
-	      metadata(metadata) {}
+	      metadata(metadata) {
+		auto pos = path.find_last_of(';');
+		if(pos != std::string::npos) {
+			auto s = path.substr(pos+1);
+			LOGD("STARTTUNE %s", s);
+			if(s.size() < 3) {
+				starttune = stol(s);
+				this->path = path.substr(0, pos);
+			}
+		}
+	}
+	
 
-	bool operator==(const SongInfo &other) { return path == other.path; }
+	bool operator==(const SongInfo &other) {
+		LOGD("%s %d vs %s %d", path, starttune, other.path, other.starttune);
+		return path == other.path && starttune == other.starttune; 
+	}
 
 	std::string path;
 	std::string game;
@@ -19,7 +34,7 @@ struct SongInfo {
     std::string format;
 	std::string metadata;
 	int numtunes = 0;
-	int starttune = 0;
+	int starttune = -1;
 };
 
 #endif // SONGINFO_H

@@ -24,6 +24,8 @@ public:
 
 	void on_key(uint32_t key) {
 
+		LOGD("DIALOG: %d", key);
+		
 		if(key == grappix::Window::ENTER) {
 			if(onOk)
 				onOk(lineEdit.getText());

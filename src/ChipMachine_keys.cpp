@@ -19,7 +19,10 @@ void ChipMachine::setupRules() {
 	addKey(Window::F5, "play_pause");
 	addKey(Window::F3, "show_command");
 	
-	addKey(Window::BACKSPACE, if_equals(currentScreen, SEARCH_SCREEN) && if_false(haveSearchChars), "clear_filter");
+	addKey(Window::BACKSPACE, if_equals(currentScreen, SEARCH_SCREEN) && if_null(currentDialog) && if_false(haveSearchChars), "clear_filter");
+	
+	addKey(Window::ESCAPE, if_not_null(currentDialog), "close_dialog");
+	
 	
 	addKey(Window::ESCAPE, if_false(haveSearchChars), "show_main");
 	addKey(Window::ESCAPE, if_true(haveSearchChars), "clear_search");
@@ -33,8 +36,8 @@ void ChipMachine::setupRules() {
 	addKey(Window::F7, if_equals(currentScreen, SEARCH_SCREEN), "add_list_favorite");
 	addKey(Window::F7, if_equals(currentScreen, MAIN_SCREEN), "add_current_favorite");
 	addKey(Window::F8, "clear_songs");
-	addKey(Window::LEFT, if_not_equals(currentScreen, COMMAND_SCREEN), "prev_subtune");
-	addKey(Window::RIGHT, if_not_equals(currentScreen, COMMAND_SCREEN), "next_subtune");
+	addKey(Window::LEFT, if_not_equals(currentScreen, COMMAND_SCREEN) && if_null(currentDialog), "prev_subtune");
+	addKey(Window::RIGHT, if_not_equals(currentScreen, COMMAND_SCREEN) && if_null(currentDialog), "next_subtune");
 	addKey(Window::F4, "layout_screen");
 	addKey(Window::ESCAPE | SHIFT, "quit");
 	addKey(Window::F4 | ALT, "quit");
@@ -169,7 +172,6 @@ void ChipMachine::updateKeys() {
 						matchingCommands.resize(j);
 					}
 				} else {
-					currentScreen = SEARCH_SCREEN;
 					if(hasMoved && event != ' ' && event != Window::BACKSPACE)
 						searchField.setText("");
 					hasMoved = false;
