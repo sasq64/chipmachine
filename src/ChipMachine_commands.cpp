@@ -1,6 +1,9 @@
 #include "ChipMachine.h"
 
-
+#include <aws/dynamodb/DynamoDBClient.h>
+#include <aws/dynamodb/model/PutItemRequest.h>
+#include <aws/core/utils/Outcome.h>
+#include <aws/core/client/ClientConfiguration.h>
 using namespace std;
 using namespace utils;
 using namespace grappix;
@@ -13,6 +16,31 @@ void ChipMachine::setupCommands() {
 	auto cmd = [=](const string &name, const function<void()> &f) {
 		commands.emplace_back(name, f);
 	};
+	
+	cmd("dynamo_test", [=]() {
+		
+		using namespace Aws;
+		using namespace Aws::DynamoDB;
+		using namespace Aws::DynamoDB::Model;
+		
+		Client::ClientConfiguration config;
+		config
+		
+		auto client = Aws::MakeShared<DynamoDBClient>("", config);
+		
+		Aws::DynamoDB::DynamoDBClient dynamoDbClient;
+		PutItemRequest putItemRequest;
+		putItemRequest.WithTableName("TestTableName");
+		AttributeValue hashKeyAttribute;
+		//hashKeyAttribute.SetS("SampleHashKeyValue");
+		putItemRequest.AddItem("HashKey", hashKeyAttribute);
+		AttributeValue valueAttribute;
+		//valueAttribute.SetS("SampleValue");
+		putItemRequest.AddItem("Value", valueAttribute);
+		auto putItemOutcome = dynamoDbClient.PutItem(putItemRequest);
+		
+	});
+	
 	
 	cmd("test_dialog", [=]() { 
 		currentDialog = make_shared<Dialog>(screenptr, font, "Type something:");
