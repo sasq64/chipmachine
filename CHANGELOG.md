@@ -1,12 +1,21 @@
 
 == v1.3
 
+* Local playlists; stored in $HOME/.config/chipmachine/playlists
 * Command screen
-* Quick pause on OSX
-* Added Plus/4 Ted music
+* Audio: Quick pause and volume on OSX
+* Plus/4 Ted music playback
 * Collection filter
-* Text mode GUI
-* Telnet server
+* Better command line arguments
+* Text mode GUI (-X)
+* Telnet server (-T)
+* Improved dynamic layout
+* Subtune specific favorites
+* New Data source; High Voltage Ted Collection
+* New Data source; Syntax Error (Radio Show)
+* New Data source; Gamewave (Podcast)
+* New Data source; This Week in Chiptune (Podcast)
+* New Data source; C64 Takeaway (Podcast)
 
 
 == v1.2
@@ -18,7 +27,7 @@
 * Show descriptions from podcasts in scrolltext (Bitjam, Bitar till kaffet)
 * Cuesheet support, shown as subtitle (Demovibes, Bitjam)
 * 'Multi file' songs; Show certain multi file songs as a single song with
-  subtunesi (Nintendo DS, GBA, N64, Playstation etc from Modland)
+  subtunes (Nintendo DS, GBA, N64, Playstation etc from Modland)
 * New Datasources:
 * Added radio stations (Scenesat, Slay Radio, Nectarine etc)
 * New data source; Demovibes

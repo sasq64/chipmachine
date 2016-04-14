@@ -4,7 +4,7 @@
 -- local_dir : If exists, will be checked first for files before downloading.
 -- If song_list or or source can not be found, database will not be added
 
-VERSION = 9;
+VERSION = 10;
 
 DB = {
 {
@@ -180,14 +180,14 @@ DB = {
 	-- presenter = "Sol"
 	color = 0xfffff
 },
-{
-	name = "NSFE",
-	id = "nsfe",
-	source = "",
-	song_list = "data/nsfe.txt",
-	local_dir = "/opt/M/nsfe",
-	color = 0xfffff
-},
+-- {
+-- 	name = "NSFE",
+-- 	id = "nsfe",
+-- 	source = "",
+-- 	song_list = "data/nsfe.txt",
+-- 	local_dir = "/opt/M/nsfe",
+-- 	color = 0xfffff
+-- },
 {
 	name = "C64 Take-away",
 	id = "takeaway",
