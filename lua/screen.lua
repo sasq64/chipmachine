@@ -69,7 +69,7 @@ Settings.favicon = { X0 + 330 * GSCALE, SY - GSCALE*25, 8*8 * GSCALE, 8*6 * GSCA
 
 EQ_SLOTS = 24
 SPECW = SCREEN_WIDTH / (EQ_SLOTS*2)
-SPECH = SPECW * 3
+SPECH = SPECW * 3.5
 
 if TV then
   Settings.scroll = { Y1 - 100, GSCALE * 2.0, 4, "data/Bello.otf" }
@@ -105,6 +105,7 @@ Settings.enter_composer = { x, y+25*scale, scale*0.6, TEXT_COLOR }
 Settings.enter_format = { x, y+45*scale, scale*0.3, TEXT_COLOR }
 -- 220
 LSCALE = SCREEN_PPI / 160.0;
+if(LSCALE < 0.75) then LSCALE = 0.75 end
 LINE_HEIGHT = 1.2
 TEXT_HEIGHT = 24 * LSCALE
 

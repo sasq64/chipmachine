@@ -82,6 +82,13 @@ void MusicBars::setup(int w, int h, int slots) {
 	spectrumWidth = w;
 	spectrumHeight = h;
 
+	interval = 6;
+	int gap = 1;
+	if(spectrumWidth < 18) {
+		interval = 4;
+		gap = 0;
+	}
+
 	image::bitmap eqbar(spectrumWidth * 24, spectrumHeight);
 	Color col(0xff66ff66);
 	Color toc0(0xff008888);
@@ -93,7 +100,7 @@ void MusicBars::setup(int w, int h, int slots) {
 	for(int y = eqbar.height() - 1; y > 0; y--) {
 		for(int x = 0; x < eqbar.width(); x++) {
 			eqbar[x + y * eqbar.width()] =
-			    (y % 6 > 1) && (x % spectrumWidth != 0) ? (uint32_t)col : 0x00000000;
+			    (y % interval > gap) && (x % spectrumWidth != 0) ? (uint32_t)col : 0x00000000;
 		}
 		col = col + deltac;
 		if(y == h2) {
@@ -137,8 +144,8 @@ void MusicBars::render(const utils::vec2i &spectrumPos, const grappix::Color &sp
 	screen.draw(eqTexture, spectrumPos.x, spectrumPos.y - spectrumHeight, spectrumWidth * 24,
 	            spectrumHeight, nullptr, spectrumColor);
 	for(auto i : count_to(eq.size())) {
-		int h = (spectrumHeight * eq[i] / (256 * 6));
-		h *= 6;
+		int h = (spectrumHeight * eq[i] / (256 * interval));
+		h *= interval + 1;
 		screen.rectangle(spectrumPos.x + (spectrumWidth)*i, spectrumPos.y - spectrumHeight,
 		                 spectrumWidth, spectrumHeight - h, 0xff000000);
 	}

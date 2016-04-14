@@ -15,4 +15,5 @@ private:
 
 	int spectrumHeight = 20;
 	int spectrumWidth = 24;
+	int interval = 6;
 };
