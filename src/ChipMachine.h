@@ -112,11 +112,11 @@ private:
 	void updateFavorite();
 	void updateLists() {
 		
-		int y = resultFieldTemplate.pos.y; 
+		int y = resultFieldTemplate.pos.y + 5;
 		
-		songList.setArea(grappix::Rectangle(topLeft.x, topLeft.y + y, grappix::screen.width() - topLeft.x,
+		songList.setArea(grappix::Rectangle(topLeft.x, y, grappix::screen.width() - topLeft.x,
 		                                    downRight.y - topLeft.y - y));
-		commandList.setArea(grappix::Rectangle(topLeft.x, topLeft.y + y, grappix::screen.width() - topLeft.x,
+		commandList.setArea(grappix::Rectangle(topLeft.x, y, grappix::screen.width() - topLeft.x,
 		                                    downRight.y - topLeft.y - y));
 	}
 

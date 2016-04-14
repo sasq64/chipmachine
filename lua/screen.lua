@@ -117,7 +117,7 @@ Settings.top_status = { X0, Y0, LSCALE, FORMAT_COLOR }
 Settings.result_field = { X0, Y0+TEXT_HEIGHT, LSCALE, RESULT_COLOR }
 Settings.result_lines = (Y1-Y0)/(TEXT_HEIGHT*LINE_HEIGHT)
 
-Settings.toast_field = { 0, SCREEN_HEIGHT/2 - GSCALE * 20, GSCALE * 2.0, TEXT_COLOR }
+Settings.toast_field = { 0, SCREEN_HEIGHT/2 - GSCALE * 20, GSCALE * 2.0, 0x00000000 }
 
 Settings.font = "data/Neutra.otf"
 Settings.list_font = "data/Neutra.otf"

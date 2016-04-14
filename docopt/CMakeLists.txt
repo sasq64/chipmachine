@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.0.2)
 
 option(WITH_TESTS           "Build tests."       OFF)
 option(WITH_EXAMPLE         "Build example."     OFF)
@@ -16,6 +16,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 if(NOT CMAKE_CXX_STANDARD)
 	set(CMAKE_CXX_STANDARD 11)
 endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # Suppression of "unknown pragma" warning on GCC
 if(CMAKE_COMPILER_IS_GNUCXX)

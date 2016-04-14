@@ -1,13 +1,13 @@
 
-== v1.3
+### v1.3
 
 * Local playlists; stored in $HOME/.config/chipmachine/playlists
-* Command screen
-* Audio: Quick pause and volume on OSX
+* Command screen (TAB)
+* Audio: Fix quick pause and volume on OSX
 * Plus/4 Ted music playback
-* Collection filter
+* Collection filter (Ctrl+I)
 * Better command line arguments
-* Text mode GUI (-X)
+* Text mode GUI (not on Windows) (-X) 
 * Telnet server (-T)
 * Improved dynamic layout
 * Subtune specific favorites
@@ -18,7 +18,7 @@
 * New Data source; C64 Takeaway (Podcast)
 
 
-== v1.2
+### v1.2
 
 * JIS decoding for S98 and MDX plugins
 * Metadata for Campcom/Saturn, MDX & S98 plugins

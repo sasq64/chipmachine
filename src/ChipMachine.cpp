@@ -171,6 +171,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 	songList =
 	    VerticalList(listrec, numLines, [=](grappix::Rectangle &rec, int y, uint32_t index,
 	                                        bool hilight) { renderSong(rec, y, index, hilight); });
+	
 	searchScreen.add(&songList);
 
 	commandList = VerticalList(listrec, numLines, [=](grappix::Rectangle &rec, int y,
@@ -200,6 +201,8 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 	commandList.setTotal(commands.size());
 	clearCommand();
+	
+	updateLists();
 
 	// playlistField = TextField(listFont, "Favorites", downRight.x - 80, downRight.y - 10, 0.5,
 	// 0xff888888);
