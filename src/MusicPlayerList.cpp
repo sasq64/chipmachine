@@ -156,6 +156,10 @@ bool MusicPlayerList::handlePlaylist(const string &fileName) {
 	for(const string &s : lines) {
 		playList.push_back(SongInfo(s));
 	}
+
+    if(playList.size() == 0)
+        return false;
+
 	MusicDatabase::getInstance().lookup(playList.front());
 	if(playList.front().path == "") {
 		LOGD("Could not lookup '%s'", playList.front().path);

@@ -178,6 +178,8 @@ public:
 		std::vector<SongInfo> songs;
 		void save() {
 			utils::File f{fileName};
+            f.open(utils::File::WRITE);
+            LOGD("Writing to %s", fileName);
 			for(const auto &s : songs) {
 				if(s.starttune >= 0)
 					f.writeln(utils::format("%s;%d", s.path, s.starttune));

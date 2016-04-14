@@ -13,7 +13,7 @@ public:
 	         float sc = 1.0F, uint32_t col = 0xffffffff)
 	    : TextField(font, text, x, y, sc, col), prompt(font, "", x, y, sc, col) {
 		cursorColor = grappix::Color::WHITE; // grappix::Color(col)/2.0F;
-		std::tie(cursorW, cursorH) = font.get_size("o", scale);
+		std::tie(cursorW, cursorH) = font.get_size("o", scale).to_tuple();
 		xpos = getWidth();
 		tpos = text.length();
 	}
@@ -21,7 +21,7 @@ public:
 	virtual void setFont(const grappix::Font &f) override {
 		TextField::setFont(f);
 		prompt.setFont(f);
-		std::tie(cursorW, cursorH) = font.get_size("o", scale);
+		std::tie(cursorW, cursorH) = font.get_size("o", scale).to_tuple();
 	}
 	
 	

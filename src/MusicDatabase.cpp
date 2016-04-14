@@ -10,6 +10,7 @@
 
 #include <set>
 #include <chrono>
+#include <algorithm>
 
 using namespace std;
 using namespace utils;
@@ -767,14 +768,17 @@ void MusicDatabase::initFromLuaAsync(const File &workDir) {
 bool MusicDatabase::initFromLua(const File &workDir) {
 
 	File playlistDir{File::getConfigDir() / "playlists"};
+	makedir(playlistDir);
 	bool favFound = false;
 	for(auto f : playlistDir.listFiles()) {
 		playLists.emplace_back(f);
 		if(playLists.back().name == "Favorites")
 			favFound = true;
 	}
-	if(!favFound)
+	if(!favFound) {
 		playLists.emplace_back(playlistDir / "Favorites");
+		playLists.back().save();
+	}
 
 	reindexNeeded = false;
 
