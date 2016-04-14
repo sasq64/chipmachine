@@ -82,10 +82,12 @@ end
 x = SCREEN_WIDTH - 300 * GSCALE
 y = Settings.scroll[1] - 80 * GSCALE
 
+
+NSCALE = SCREEN_PPI / 240.0;
+if(NSCALE < 0.5) then NSCALE = 0.5 end
+Settings.next_field = { x, y-(28 * NSCALE), NSCALE, 0xff444477 }
+
 scale = 1.2 * GSCALE
-
-Settings.next_field = { x, y-(28 * SCREEN_PPI / 240), SCREEN_PPI / 240, 0xff444477 }
-
 Settings.next_title = { x, y, scale, TEXT_COLOR }
 Settings.next_composer = { x, y+26*scale, scale*0.6, TEXT_COLOR }
 Settings.next_format = { x, y+44*scale, scale*0.3, TEXT_COLOR }

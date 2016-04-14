@@ -145,7 +145,7 @@ void MusicBars::render(const utils::vec2i &spectrumPos, const grappix::Color &sp
 	            spectrumHeight, nullptr, spectrumColor);
 	for(auto i : count_to(eq.size())) {
 		int h = (spectrumHeight * eq[i] / (256 * interval));
-		h *= interval + 1;
+		h *= interval - 1;
 		screen.rectangle(spectrumPos.x + (spectrumWidth)*i, spectrumPos.y - spectrumHeight,
 		                 spectrumWidth, spectrumHeight - h, 0xff000000);
 	}

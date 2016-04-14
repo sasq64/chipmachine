@@ -159,8 +159,8 @@ int main(int argc, char *argv[]) {
 		
 	if(textMode || telnetServer) {
 		ChipInterface ci(workDir);
-#ifndef _WIN32
 		if(textMode) {
+#ifndef _WIN32
 			logging::setLevel(logging::ERROR);
 			auto console = std::shared_ptr<bbs::Console>(bbs::Console::createLocalConsole());
 			runConsole(console, ci);
@@ -168,11 +168,11 @@ int main(int argc, char *argv[]) {
 				std::thread conThread(runConsole, console, std::ref(ci));
 			else
 				runConsole(console, ci);
-		}
 #else
-		puts("Textmode not supported on Windows");
-		exit(0);
+			puts("Textmode not supported on Windows");
+			exit(0);
 #endif
+		}
 		if(telnetServer) {
 			auto telnet = std::make_shared<bbs::TelnetServer>(12345);
 			telnet->setOnConnect([&](bbs::TelnetServer::Session &session) {
