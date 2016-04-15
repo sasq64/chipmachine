@@ -41,6 +41,9 @@ void ChipMachine::setupRules() {
 	addKey(Window::F4, "layout_screen");
 	addKey(Window::ESCAPE | SHIFT, "quit");
 	addKey(Window::F4 | ALT, "quit");
+	
+	addKey('d' | CTRL, "download_current");
+	
 	addKey('r' | CTRL, "random_shuffle");
 	addKey('f' | CTRL, "format_shuffle");
 	addKey('c' | CTRL, "composer_shuffle");

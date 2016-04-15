@@ -368,6 +368,8 @@ void MusicPlayerList::update() {
 void MusicPlayerList::playCurrent() {
 
 	SET_STATE(LOADING);
+	
+	songFiles.clear();
 
 	LOGD("PLAY PATH:%s", currentInfo.path);
 	string prefix, path;
@@ -413,6 +415,8 @@ void MusicPlayerList::playCurrent() {
 	cueTitle = "";
 
 	if(File::exists(currentInfo.path)) {
+		LOGD("PLAYING LOCAL FILE %s", currentInfo.path);
+		songFiles = { File(currentInfo.path) };
 		loadedFile = currentInfo.path;
 		files = 0;
 		return;
@@ -477,6 +481,7 @@ void MusicPlayerList::playCurrent() {
 				errors.push_back("Could not load secondary file");
 				SET_STATE(ERROR);
 			};
+			songFiles.push_back(f);
 			files--;
 		});
 	}
@@ -490,6 +495,7 @@ void MusicPlayerList::playCurrent() {
 			files--;
 			return;
 		}
+		songFiles.push_back(f0);
 		loadedFile = f0.getName();
 		auto ext = toLower(path_extension(loadedFile));
 		LOGD("Loaded file '%s'", loadedFile);
@@ -508,10 +514,12 @@ void MusicPlayerList::playCurrent() {
 					} else {
 						LOGD("Copying secondary file to %s", target.getName());
 						File::copy(f.getName(), target);
+						songFiles.push_back(target);
 					}
 					files--;
 				});
-			}
+			} else
+				songFiles.push_back(target);
 		}
 
 		files--;

@@ -14,21 +14,9 @@ void ChipMachine::setupCommands() {
 		commands.emplace_back(name, f);
 	};
 	
-	cmd("test_dialog", [=]() { 
-		currentDialog = make_shared<Dialog>(screenptr, font, "Type something:");
-		overlay.add(currentDialog);
-	});
-	
 	cmd("show_main", [=]() { showScreen(MAIN_SCREEN); });
 	
-	
-	cmd("close_dialog", [=]() { 
-		if(currentDialog)
-			currentDialog->remove();
-		currentDialog = nullptr;
-	});
-
-	commands.emplace_back("show_search", [=]() {
+	cmd("show_search", [=]() {
 		if(currentScreen != SEARCH_SCREEN) {
 			showScreen(SEARCH_SCREEN);
 			songList.onKey((grappix::Window::key)lastKey);
@@ -38,13 +26,13 @@ void ChipMachine::setupCommands() {
 		searchUpdated = true;
 	});
 
-	commands.emplace_back("show_command", [=]() {
+	cmd("show_command", [=]() {
 		if(currentScreen != COMMAND_SCREEN)
 			lastScreen = currentScreen;
 		showScreen(COMMAND_SCREEN);
 	});
 
-	commands.emplace_back("toggle_command", [=]() {
+	cmd("toggle_command", [=]() {
 		if(currentScreen != COMMAND_SCREEN) {
 			lastScreen = currentScreen;
 			showScreen(COMMAND_SCREEN);
@@ -52,7 +40,34 @@ void ChipMachine::setupCommands() {
 			showScreen(lastScreen);
 	});
 	
-	commands.emplace_back("play_pause", [=]() {
+	cmd("download_current", [=]() { 
+		auto target = File::getHomeDir() / "Downloads";
+		makedir(target);
+		
+		auto files = player.getSongFiles();
+		if(files.size() == 0)
+			return;
+		for(const auto &from : files) {
+			string fileName;
+			string title = currentInfo.title;
+			string composer = currentInfo.composer;
+			if(composer == "" || composer == "?")
+				composer = "Unknown";
+			if(title == "")
+				title = currentInfo.game;
+			auto ext = path_extension(from);
+			if(title == "" || endsWith(ext, "lib"))
+				fileName = from.getFileName();
+			else
+				fileName = format("%s - %s.%s", currentInfo.composer, title, ext);
+			auto to = target / fileName;
+			File::copy(from, to);
+		}
+		toast("Downloaded file", 2);
+	});
+	
+	
+	cmd("play_pause", [=]() {
 		player.pause(!player.isPaused());
 		if(player.isPaused()) {
 			Tween::make().sine().repeating().to(timeField.add, 1.0).seconds(0.5);
@@ -60,12 +75,12 @@ void ChipMachine::setupCommands() {
 			Tween::make().to(timeField.add, 0.0).seconds(0.5);
 	});
 
-	commands.emplace_back("enque_song", [=]() {
+	cmd("enque_song", [=]() {
 		if(player.addSong(getSelectedSong()))
 			songList.select(songList.selected() + 1);
 	});
 
-	commands.emplace_back("add_current_favorite", [=]() {
+	cmd("add_current_favorite", [=]() {
 		auto song = dbInfo;
 		if(currentTune != song.starttune)
 			song.starttune = currentTune;
@@ -82,16 +97,16 @@ void ChipMachine::setupCommands() {
 		//favIcon.visible(isFavorite);
 	});
 
-	commands.emplace_back("add_list_favorite", [=]() {
+	cmd("add_list_favorite", [=]() {
 		MusicDatabase::getInstance().addToPlaylist(currentPlaylistName, getSelectedSong());
 	});
 	
-	commands.emplace_back("clear_filter", [=]() {
+	cmd("clear_filter", [=]() {
 		filter = "";
 		searchUpdated = true;
 	});
 
-	commands.emplace_back("set_collection_filter", [=]() {
+	cmd("set_collection_filter", [=]() {
 		
 		const auto &song = getSelectedSong();        
 		auto p = split(song.path, "::");
@@ -102,12 +117,12 @@ void ChipMachine::setupCommands() {
 			
 	});
 		
-	commands.emplace_back("play_song", [=]() {
+	cmd("play_song", [=]() {
 		player.playSong(getSelectedSong());
 		showScreen(MAIN_SCREEN);
 	});
 
-	commands.emplace_back("next_composer", [=]() {
+	cmd("next_composer", [=]() {
 		string composer;
 		int index = songList.selected();
 		while(index < songList.size()) {
@@ -122,18 +137,17 @@ void ChipMachine::setupCommands() {
 		songList.select(index);
 	});
 
-	commands.emplace_back("next_song", [=]() {
+	cmd("next_song", [=]() {
 		showScreen(MAIN_SCREEN);
 		player.nextSong();
 	});
 
-	commands.emplace_back("clear_search", [=]() {
-		//iquery->clear();
+	cmd("clear_search", [=]() {
 		searchField.setText("");
 		searchUpdated = true;
 	});
 
-	commands.emplace_back("execute_selected_command", [=]() {
+	cmd("execute_selected_command", [=]() {
 		int i = commandList.selected();
 		commandList.select(-1);
 		showScreen(lastScreen);
@@ -142,60 +156,60 @@ void ChipMachine::setupCommands() {
 			it->fn();
 	});
 
-	commands.emplace_back("next_subtune", [=]() {
+	cmd("next_subtune", [=]() {
 		if(currentInfo.numtunes == 0)
 			player.seek(-1, player.getPosition() + 10);
 		else if(currentTune < currentInfo.numtunes - 1)
 			player.seek(currentTune + 1);
 	});
 
-	commands.emplace_back("prev_subtune", [=]() {
+	cmd("prev_subtune", [=]() {
 		if(currentInfo.numtunes == 0)
 			player.seek(-1, player.getPosition() - 10);
 		else if(currentTune > 0)
 			player.seek(currentTune - 1);
 	});
 
-	commands.emplace_back("clear_songs", [=]() {
+	cmd("clear_songs", [=]() {
 		player.clearSongs();
 		toast("Playlist cleared", 2);
 	});
 
-	commands.emplace_back("volume_up", [=]() {
+	cmd("volume_up", [=]() {
 		player.setVolume(player.getVolume() + 0.1);
 		showVolume = 30;
 	});
 
-	commands.emplace_back("volume_down", [=]() {
+	cmd("volume_down", [=]() {
 		player.setVolume(player.getVolume() - 0.1);
 		showVolume = 30;
 	});
 
-	commands.emplace_back("layout_screen", [=]() { layoutScreen(); });
+	cmd("layout_screen", [=]() { layoutScreen(); });
 
-	commands.emplace_back("quit", [=]() { screen.close(); });
+	cmd("quit", [=]() { screen.close(); });
 
-	commands.emplace_back("random_shuffle", [=]() {
+	cmd("random_shuffle", [=]() {
 		toast("Random shuffle!", 2);
 		shuffleSongs(false, false, false, 100);
 	});
 
-	commands.emplace_back("composer_shuffle", [=]() {
+	cmd("composer_shuffle", [=]() {
 		toast("Composer shuffle!", 2);
 		shuffleSongs(false, true, false, 1000);
 	});
 
-	commands.emplace_back("format_shuffle", [=]() {
+	cmd("format_shuffle", [=]() {
 		toast("Format shuffle!", 2);
 		shuffleSongs(true, false, false, 100);
 	});
 
-	commands.emplace_back("collection_shuffle", [=]() {
+	cmd("collection_shuffle", [=]() {
 		toast("Collection shuffle!", 2);
 		shuffleSongs(false, false, true, 100);
 	});
 
-	commands.emplace_back("result_shuffle", [=]() {
+	cmd("result_shuffle", [=]() {
 		toast("Result shuffle!", 2);
 		player.clearSongs();
 		for(int i = 0; i < iquery->numHits(); i++) {
@@ -216,30 +230,18 @@ void ChipMachine::setupCommands() {
 		showScreen(MAIN_SCREEN);
 		player.nextSong();
 	});
-/*  case EDIT_PLAYLIST:
-    if(songList.selected() < (int)playlists.size())
-        editPlaylistName = playlists[songList.selected()];
-    else
-        editPlaylistName = "";
-    commandField.setText(editPlaylistName);
-    playlistEdit = true;
-    commandField.visible(true);
-    searchField.visible(false);
-    topStatus.visible(false);
-    break;
-case SELECT_PLAYLIST:
-    currentPlaylistName = commandField.getText();
-    LOGD("OLDNAME %s NEWNAME %s", editPlaylistName, currentPlaylistName);
-    if(editPlaylistName == "")
-        PlaylistDatabase::getInstance().createPlaylist(currentPlaylistName);
-    else if(editPlaylistName != currentPlaylistName)
-        PlaylistDatabase::getInstance().renamePlaylist(editPlaylistName,
-                                                       currentPlaylistName);
-
-    commandField.visible(false);
-    playlistEdit = false;
-    playlistField.setText(currentPlaylistName);
-    break;*/
+	
+	cmd("close_dialog", [=]() { 
+		if(currentDialog)
+			currentDialog->remove();
+		currentDialog = nullptr;
+	});
+	
+	cmd("test_dialog", [=]() { 
+		currentDialog = make_shared<Dialog>(screenptr, font, "Type something:");
+		overlay.add(currentDialog);
+	});
+	
 #ifdef USE_REMOTELISTS
 	if(userName == "") {
 		currentDialog = make_shared<Dialog>(screenptr, font, "Login with handle:");
@@ -264,5 +266,7 @@ case SELECT_PLAYLIST:
 		                                    [=]() { toast("Uploaded", 2); });
 	}
 #endif
+
 }
-}
+
+} // namespace

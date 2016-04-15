@@ -126,14 +126,16 @@ public:
 
 	void setVolume(float volume) { mp.setVolume(volume); }
 
-	float getVolume() { return mp.getVolume(); }
+	float getVolume() const { return mp.getVolume(); }
 
 	void stop() {
 		SET_STATE(STOPPED);
 		mp.stop();
 	}
 
-	bool wasFromQueue() { return playedNext; }
+	bool wasFromQueue() const { return playedNext; }
+	
+	const std::vector<utils::File> &getSongFiles() const { return songFiles; }
 
 private:
 	bool handlePlaylist(const std::string &fileName);
@@ -158,9 +160,6 @@ private:
 	std::string loadedFile;
 
 	std::future<std::string> ytfuture;
-
-	// WebGetter webgetter;
-	// RemoteLoader loader;
 
 	std::atomic<State> state; // = STOPPED;
 	SongInfo currentInfo;
@@ -189,6 +188,9 @@ private:
 	bool changedMulti = false;
 	// RemoteLists &tracker;
 	bool playedNext;
+	
+	std::vector<utils::File> songFiles;
+	
 };
 
 } // namespace chipmachine

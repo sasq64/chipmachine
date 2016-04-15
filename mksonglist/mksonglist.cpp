@@ -2,56 +2,42 @@
 
 #include <coreutils/utils.h>
 #include <coreutils/file.h>
-#include <coreutils/format.h>
-#include <coreutils/log.h>
 
-using namespace std;
-using namespace utils;
+void makeList(const std::string &local_dir, const std::string &list_file) {
 
-void makeList(const string &local_dir, const string &list_file) {
+	using namespace std;
+	using namespace utils;
 
-	//makedir(File::getCacheDir() / ".rsntemp");
 	File listFile{list_file};
 
-	function<void(File &)> checkDir;
-	checkDir = [&](File &root) {
+	function<void(File &)> checkDir = [&](File &root) {
 		for(auto &rf : root.listFiles()) {
 			if(rf.isDir()) {
 				checkDir(rf);
 			} else {
 				auto name = rf.getName();
 				SongInfo songInfo(name);
-
-				auto pos = name.find(local_dir);
-				if(pos != string::npos) {
-					name = name.substr(pos + local_dir.length());
-					if(name[0] == '/')
-						name = name.substr(1);
-				}
+				name = name.substr(local_dir.length());
+				if(name[0] == '/')
+					name = name.substr(1);
 				songInfo.metadata = name;
 				if(identify_song(songInfo)) {
 
-					LOGD("TITLE %s", songInfo.title);
-
-					listFile.writeln(format("%s\t%s\t%s\t%s\t%s", songInfo.title,
-											songInfo.game, songInfo.composer,
-											songInfo.format, name));
+					listFile.writeln(join("\t", songInfo.title, songInfo.game, songInfo.composer,
+					                      songInfo.format, name));
 				}
 			}
 		}
 	};
 
 	File root{local_dir};
-
-	LOGD("Checking local dir '%s'", root.getName());
-
 	checkDir(root);
-
 	listFile.close();
 }
 
-
 int main(int argc, char **argv) {
+	if(argc < 3)
+		return 0;
 	makeList(argv[1], argv[2]);
 	return 0;
 }

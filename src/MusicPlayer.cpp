@@ -280,7 +280,7 @@ void MusicPlayer::setVolume(float v) {
 	AudioPlayer::set_volume(volume * 100);
 }
 
-float MusicPlayer::getVolume() {
+float MusicPlayer::getVolume() const {
 	return volume;
 }
 

@@ -155,7 +155,7 @@ public:
 	int getSilence();
 
 	void setVolume(float v);
-	float getVolume();
+	float getVolume() const;
 
 	// Fadeout music
 	void fadeOut(float secs);

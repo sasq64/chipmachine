@@ -9,7 +9,7 @@ namespace chipmachine {
 
 void ChipMachine::setVariable(const std::string &name, int index, const std::string &val) {
 
-	// The text fields that are configurable lfrom lua
+	// The text fields that are configurable from lua
 	static unordered_map<string, TextField *> fields = {{"main_title", &currentInfoField[0]},
 	                                                    {"main_composer", &currentInfoField[1]},
 	                                                    {"main_format", &currentInfoField[2]},
@@ -37,19 +37,13 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 	                                                    {"toast_field", &toastField},
 	                                                    {"result_field", &resultFieldTemplate}};
 
-	auto path = workDir; // current_exe_path() + ":" + File::getAppDir();
+	auto path = workDir;
 
 	if(fields.count(name) > 0) {
 		auto &f = (*fields[name]);
 		if(index >= 4) {
 			auto c = Color(stoll(val));
-			/*if(name == "main_title" || name == "next_title")
-				outsideInfoField[0].color = c;
-			else if(name == "main_composer" || name == "next_composer")
-				outsideInfoField[1].color = c;
-			else if(name == "main_format" || name == "next_format")
-				outsideInfoField[2].color = c;
-			else */ if(name == "time_field")
+			if(name == "time_field")
 				timeColor = c;
 			f.color = c;
 			if(name == "result_field") {
@@ -87,9 +81,9 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 			for(auto &f : fields) {
 				f.second->setFont(font);
 			}
-			// listFont = Font(val, 32, 256);// | Font::DISTANCE_MAP);
-			// resultFieldTemplate->setFont(listFont);
-		}
+		} else
+			throw file_not_found_exception(fontFile.getName());
+
 	} else if(name == "list_font") {
 		File fontFile = File::findFile(path, val);
 
@@ -97,7 +91,7 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 			listFont = Font(fontFile.getName(), 32, 256); // | Font::DISTANCE_MAP);
 			resultFieldTemplate.setFont(listFont);
 		} else
-			throw file_not_found_exception();
+			throw file_not_found_exception(fontFile.getName());
 
 	} else if(name == "favicon") {
 		favPos[index - 1] = stol(val);
