@@ -128,6 +128,11 @@ ChipMachine::ChipMachine(const std::string &wd)
 		}, heart_icon);
 	//favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
 	
+	float ww = volume_icon.width() * 15;
+	float hh = volume_icon.height() * 10;
+	volPos = {((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh};
+	volumeIcon = Icon(volume_icon, volPos.x, volPos.y, volPos.w, volPos.h);
+	
 	setupCommands();
 	setupRules();
 
@@ -147,10 +152,6 @@ ChipMachine::ChipMachine(const std::string &wd)
 	mainScreen.add(&netIcon);
 	netIcon.visible(false);
 
-	float ww = volume_icon.width() * 15;
-	float hh = volume_icon.height() * 10;
-	volPos = {((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh};
-	volumeIcon = Icon(volume_icon, volPos.x, volPos.y, volPos.w, volPos.h);
 	showVolume = 0;
 
 	musicBars.setup(spectrumWidth, spectrumHeight, 24);
@@ -278,6 +279,11 @@ void ChipMachine::layoutScreen() {
 	commandField.cursorW = searchField.cursorW;
 	
 	favIcon.set(favPos);
+	
+	float ww = volume_icon.width() * 15;
+	float hh = volume_icon.height() * 10;
+	volPos = {((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh};
+	volumeIcon.set(volPos);
 }
 
 void ChipMachine::play(const SongInfo &si) {
