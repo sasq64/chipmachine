@@ -22,7 +22,7 @@ struct SongInfoField : public Renderable {
 	}
 
 	void setInfo(const SongInfo &info) {
-		LOGD("Set info '%s' '%s' '%s'", info.title, info.composer, info.format);
+		//LOGD("Set info '%s' '%s' '%s'", info.title, info.composer, info.format);
 		auto t = info.title;
 		if(info.game != "" && info.title == "")
 			t = info.game;
@@ -36,13 +36,18 @@ struct SongInfoField : public Renderable {
 		fields[1]->setText(info.composer);
 		fields[2]->setText(info.format);
 	}
-
+	
 	int getWidth(int no) { return fields[no]->getWidth(); }
 
 	SongInfoField &operator=(const SongInfoField &other) {
 		for(int i = 0; i < 3; i++)
 			fields[i]->setText(other.fields[i]->getText());
 		return *this;
+	}
+	
+	void setAlign(float a) {
+		for(const auto &f : fields)
+			f->align = a;
 	}
 
 	virtual void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
@@ -75,6 +80,7 @@ struct SongInfoField : public Renderable {
 	iterator end() { return iterator(fields, 3); }
 
 	TextField &operator[](int i) { return *fields[i]; }
+	
 };
 
 #endif // SONG_INFO_FIELD_H

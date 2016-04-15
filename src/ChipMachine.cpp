@@ -92,6 +92,9 @@ ChipMachine::ChipMachine(const std::string &wd)
 	telnet->start();
 #endif
 
+	nextInfoField.setAlign(1.0);
+	nextField.align = 1.0;
+	
 	// SongInfo fields
 	mainScreen.add(&prevInfoField);
 	mainScreen.add(&currentInfoField);
@@ -143,8 +146,6 @@ ChipMachine::ChipMachine(const std::string &wd)
 	netIcon = Icon(net_icon, 2, 2, 8 * 3, 5 * 3);
 	mainScreen.add(&netIcon);
 	netIcon.visible(false);
-
-	Tween::make().sine().repeating().from(netIcon.color, hilightColor).seconds(1.0);
 
 	float ww = volume_icon.width() * 15;
 	float hh = volume_icon.height() * 10;
@@ -208,7 +209,6 @@ ChipMachine::ChipMachine(const std::string &wd)
 	// 0xff888888);
 	// mainScreen.add(playlistField);
 
-	//commandField = LineEdit(font, "", topLeft.x, topLeft.y, 1.0, 0xff888888);
 	commandScreen.add(&commandField);
 	commandScreen.add(&commandList);
 
@@ -303,7 +303,7 @@ void ChipMachine::update() {
 
 		static int delay = 30;
 		if(delay-- == 0)
-			toast("Indexing database", 3);
+			toast("Indexing database", STICKY);
 
 		if(!MusicDatabase::getInstance().busy()) {
 			indexingDatabase = false;
@@ -374,9 +374,16 @@ void ChipMachine::update() {
 
 		updateFavorite();
 		// Start tweening
+		LOGD("## TWEENING INFO FIELDS");
+		
+		// Setting next field here to get correct alignment
+		//if(player.listSize() > 0) {
+			//auto info = player.getInfo(1);
+			//nextInfoField.setInfo(info);
+		//}
 
 		if(player.wasFromQueue()) {
-			currentTween = Tween::make()
+			currentTween = Tween::make() // target , source  <------
 			                   .from(prevInfoField, currentInfoField)
 			                   .from(currentInfoField, nextInfoField)
 			                   .from(nextInfoField, outsideInfoField)
@@ -417,6 +424,8 @@ void ChipMachine::update() {
 			if(info.path != "")
 				RemoteLoader::getInstance().preCache(info.path);
 			if(info.path != currentNextPath) {
+				
+				LOGD("## SETTING NEXT INFO");
 
 				if(psz == 1)
 					nextField.setText("Next");
@@ -485,9 +494,9 @@ void ChipMachine::update() {
 	}
 
 	if(!player.getAllowed()) {
-		toast("Not allowed", 1);
+		toast("Not allowed", ERROR);
 	} else if(player.hasError()) {
-		toast(player.getError(), 1);
+		toast(player.getError(), ERROR);
 	}
 
 	if(!player.isPaused()) {
@@ -525,7 +534,7 @@ void fadeOut(float &alpha, float t = 0.25) {
 }
 
 
-void ChipMachine::toast(const std::string &txt, int type) {
+void ChipMachine::toast(const std::string &txt, ToastType type) {
 
 	static vector<Color> colors = {0xffffff, 0xff8888,
 	                               0x55aa55}; // Alpha intentionally left at zero
@@ -533,13 +542,13 @@ void ChipMachine::toast(const std::string &txt, int type) {
 	toastField.setText(txt);
 	int tlen = toastField.getWidth();
 	toastField.pos.x = topLeft.x + ((downRight.x - topLeft.x) - tlen) / 2;
-	toastField.color = colors[type % 3];
+	toastField.color = colors[(int)type % 3];
 
 	Tween::make()
 	    .to(toastField.color.alpha, 1.0)
 	    .seconds(0.25)
 	    .onComplete([=]() {
-		    if(type < 3)
+		    if((int)type < 3)
 			    Tween::make().to(toastField.color.alpha, 0.0).delay(1.0).seconds(0.25);
 		});
 }

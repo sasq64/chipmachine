@@ -7,9 +7,9 @@
  TITLE "BitJam Podcast #100"
  FILE "bitjam_100.mp3" MP3
    TRACK 01 AUDIO
-       TITLE "BitJam jingle"
-           PERFORMER "CONS"
-               INDEX 01 00:00:00
+   TITLE "BitJam jingle"
+   PERFORMER "CONS"
+   INDEX 01 00:00:00
 */
 #include <coreutils/log.h>
 #include <coreutils/file.h>

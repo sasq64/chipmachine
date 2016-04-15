@@ -7,6 +7,48 @@ using namespace tween;
 
 namespace chipmachine {
 
+void ChipMachine::addKey(uint32_t key, statemachine::Condition cond, const std::string &cmd) {
+	
+	auto screen = currentScreen;
+	bool onMain = false;
+	bool onSearch = false;
+			
+	currentScreen = NO_SCREEN;
+	if(!cond.check()) {
+		currentScreen = MAIN_SCREEN;
+		onMain = cond.check();
+		currentScreen = SEARCH_SCREEN;
+		onSearch = cond.check();
+	}
+	currentScreen = screen;
+	
+	
+	auto it = std::find(commands.begin(), commands.end(), cmd);
+	if(it != commands.end()) {
+		smac.add(key, cond, static_cast<uint32_t>(std::distance(commands.begin(), it)));
+		if(key == grappix::Window::BACKSPACE)
+			return;
+		if(it->shortcut == "") {
+			std::string name;
+			if(key & SHIFT)
+				name += "shift+";
+			if(key & ALT)
+				name += "alt+";
+			if(key & CTRL)
+				name += "ctrl+";
+			key &= 0xffff;
+			if(key < 0x100)
+				name.append(1, tolower(key));
+			else if(key <= grappix::Window::F12)
+				name += utils::toLower(key_names[key - 0x100]);
+			if(onSearch)
+				name += " [search]";
+			if(onMain)
+				name += " [main]";
+			it->shortcut = name;
+		}
+	}
+}
 
 void ChipMachine::setupRules() {
 

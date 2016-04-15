@@ -403,10 +403,6 @@ void MusicDatabase::setFilter(const std::string &filter) {
 			});
 		}
 	}
-	
-	//titleIndex.setFilter([&](int index) {
-	//	return ((formats[index] & 0xff) != C64);
-	//});
 }
 
 int MusicDatabase::search(const string &query, vector<int> &result, unsigned int searchLimit) {
@@ -431,10 +427,6 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 		}
 		return result.size();
 	}
-
-	// titleIndex.setFilter([&](int index) {
-	//	return ((formats[index] & 0xff) != C64);
-	//});
 
 	// Push back all matching playlists
 	for(int i = 0; i < playLists.size(); i++) {
@@ -605,14 +597,6 @@ static uint8_t formatToByte(const std::string &fmt, const std::string &path, int
 	}
 	return l;
 }
-
-/*
-emul
-ct cyber tracker
-hes
-atari digi mix
-kss .. really gme?
-*/
 
 template <typename T> static void readVector(std::vector<T> &v, File &f) {
 	auto sz = f.read<uint32_t>();
@@ -850,11 +834,11 @@ int MusicDatabase::getSongs(std::vector<SongInfo> &target, const SongInfo &match
 	}
 
 	if(match.format != "")
-		txt += format(" AND format=?", match.format);
+		txt += " AND format=?";
 	if(match.composer != "")
-		txt += format(" AND composer=?", match.composer);
+		txt += " AND composer=?";
 	if(collection != "")
-		txt += format(" AND collection.id=?", collection);
+		txt += " AND collection.id=?";
 	if(random)
 		txt += " ORDER BY RANDOM()";
 	if(limit > 0)

@@ -39,8 +39,7 @@ class Icon : public Renderable {
 public:
 	Icon() {}
 
-	Icon(grappix::Texture *tx, float x, float y, float w, float h)
-	    : texture(tx), rec(x, y, w, h) {}
+	Icon(grappix::Texture *tx, float x, float y, float w, float h) : texture(tx), rec(x, y, w, h) {}
 
 	Icon(const image::bitmap &bm, float x, float y, float w, float h) : rec(x, y, w, h) {
 		texture = new grappix::Texture(bm);
@@ -54,10 +53,8 @@ public:
 			return;
 		target->draw(*texture, rec.x, rec.y, rec.w, rec.h, nullptr, color);
 	}
-	
-	void set(const grappix::Rectangle &r) {
-		rec = r;
-	}
+
+	void set(const grappix::Rectangle &r) { rec = r; }
 
 	grappix::Color color{0xffffffff};
 	grappix::Rectangle rec;
@@ -81,7 +78,10 @@ public:
 	void play(const SongInfo &si);
 	void update();
 	void render(uint32_t delta);
-	void toast(const std::string &txt, int type);
+
+	enum ToastType { WHITE, ERROR, NORMAL, STICKY };
+
+	void toast(const std::string &txt, ToastType type = NORMAL);
 	void removeToast();
 
 	void setScrolltext(const std::string &txt);
@@ -96,11 +96,11 @@ private:
 		SEARCH_SCREEN = 1,
 		COMMAND_SCREEN = 2,
 	};
-	
+
 	static const uint32_t SHIFT = 0x10000;
 	static const uint32_t CTRL = 0x20000;
 	static const uint32_t ALT = 0x40000;
-	
+
 	void setVariable(const std::string &name, int index, const std::string &val);
 
 	void showScreen(Screen screen);
@@ -111,85 +111,21 @@ private:
 	void updateKeys();
 	void updateFavorite();
 	void updateLists() {
-		
+
 		int y = resultFieldTemplate.pos.y + 5;
-		
+
 		songList.setArea(grappix::Rectangle(topLeft.x, y, grappix::screen.width() - topLeft.x,
 		                                    downRight.y - topLeft.y - y));
 		commandList.setArea(grappix::Rectangle(topLeft.x, y, grappix::screen.width() - topLeft.x,
-		                                    downRight.y - topLeft.y - y));
+		                                       downRight.y - topLeft.y - y));
 	}
 
 	const std::vector<std::string> key_names = {
-		"UP",
-		"DOWN",
-		"LEFT",
-		"RIGHT",
-		"ENTER",
-		"ESCAPE",
-		"BACKSPACE",
-		"TAB",
-		"PAGEUP",
-		"PAGEDOWN",
-		"DELETE",
-		"HOME",
-		"END",
-		"F1",
-		"F2",
-		"F3",
-		"F4",
-		"F5",
-		"F6",
-		"F7",
-		"F8",
-		"F9",
-		"F10",
-		"F11",
-		"F12"
-	};
-	
-	void addKey(uint32_t key, statemachine::Condition cond, const std::string &cmd) {
-		
-		auto screen = currentScreen;
-		bool onMain = false;
-		bool onSearch = false;
-		        
-		currentScreen = NO_SCREEN;
-		if(!cond.check()) {
-			currentScreen = MAIN_SCREEN;
-			onMain = cond.check();
-			currentScreen = SEARCH_SCREEN;
-			onSearch = cond.check();
-		}
-		currentScreen = screen;
-		
-		
-		auto it = std::find(commands.begin(), commands.end(), cmd);
-		if(it != commands.end()) {
-			smac.add(key, cond, static_cast<uint32_t>(std::distance(commands.begin(), it)));
-			if(key == grappix::Window::BACKSPACE)
-				return;
-			if(it->shortcut == "") {
-				std::string name;
-				if(key & SHIFT)
-					name += "shift+";
-				if(key & ALT)
-					name += "alt+";
-				if(key & CTRL)
-					name += "ctrl+";
-				key &= 0xffff;
-				if(key < 0x100)
-					name.append(1, tolower(key));
-				else if(key <= grappix::Window::F12)
-					name += utils::toLower(key_names[key - 0x100]);
-				if(onSearch)
-					name += " [search]";
-				if(onMain)
-					name += " [main]";
-				it->shortcut = name;
-			}
-		}
-	}
+	    "UP",       "DOWN",   "LEFT", "RIGHT", "ENTER", "ESCAPE", "BACKSPACE", "TAB", "PAGEUP",
+	    "PAGEDOWN", "DELETE", "HOME", "END",   "F1",    "F2",     "F3",        "F4",  "F5",
+	    "F6",       "F7",     "F8",   "F9",    "F10",   "F11",    "F12"};
+
+	void addKey(uint32_t key, statemachine::Condition cond, const std::string &cmd);
 
 	void addKey(std::vector<uint32_t> events, statemachine::Condition cond,
 	            const std::string &cmd) {
@@ -246,6 +182,10 @@ private:
 	RenderSet overlay;
 	TextField toastField;
 
+	Icon favIcon;
+	Icon netIcon;
+	Icon volumeIcon;
+
 	// MAINSCREEN AND ITS RENDERABLES
 	RenderSet mainScreen;
 
@@ -259,7 +199,7 @@ private:
 	TextField songField;
 	TextField nextField;
 	TextField xinfoField;
-	TextField playlistField;
+	//TextField playlistField;
 
 	// SEARCHSCREEN AND ITS RENDERABLES
 	RenderSet searchScreen;
@@ -269,6 +209,8 @@ private:
 	TextField topStatus;
 	grappix::VerticalList songList;
 
+	TextField resultFieldTemplate;
+	
 	// COMMANDSCREEN AND ITS RENDERABLES
 
 	RenderSet commandScreen;
@@ -276,8 +218,6 @@ private:
 	grappix::VerticalList commandList;
 
 	//
-
-	TextField resultFieldTemplate;
 
 	string currentNextPath;
 	SongInfo currentInfo;
@@ -288,11 +228,7 @@ private:
 	bool lockDown = false;
 	bool isFavorite = false;
 
-	Icon favIcon;
-	Icon netIcon;
-	Icon volumeIcon;
-
-	grappix::Rectangle favPos = {80, 300, 16 * 8, 16 * 6};
+	grappix::Rectangle favPos;
 	grappix::Rectangle volPos;
 
 	int numLines = 20;
@@ -313,9 +249,9 @@ private:
 	statemachine::StateMachine smac;
 
 	std::string currentPlaylistName = "Favorites";
-	std::string editPlaylistName;
+	//std::string editPlaylistName;
 
-	bool playlistEdit = false;
+	//bool playlistEdit = false;
 
 	bool commandMode = false;
 
@@ -345,7 +281,7 @@ private:
 	};
 
 	std::vector<Command> commands;
-	std::vector<Command*> matchingCommands;
+	std::vector<Command *> matchingCommands;
 
 	int lastKey = 0;
 	bool searchUpdated = false;

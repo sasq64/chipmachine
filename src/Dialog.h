@@ -1,7 +1,7 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
-#include <grappix/gui/renderable.h>
+#include "TextField.h"
 
 class Dialog : public Renderable {
 public:
@@ -29,9 +29,9 @@ public:
 		if(key == grappix::Window::ENTER) {
 			if(onOk)
 				onOk(lineEdit.getText());
-			remove();
+			Renderable::remove();
 		} else if(key == grappix::Window::ESCAPE) {
-			remove();
+			Renderable::remove();
 		} else {
 			lineEdit.on_key(key);
 		}

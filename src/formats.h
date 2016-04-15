@@ -1,5 +1,5 @@
 
-const char *adlib_formats[] = {
+static const char *adlib_formats[] = {
     "adl",
     "adlib tracker 2",
     "adlib tracker 2 (v9 - v11)",
@@ -54,7 +54,7 @@ const char *adlib_formats[] = {
     "visual composer",
 };
 
-const char *uade_formats[] = {"actionamics",
+static const char *uade_formats[] = {"actionamics",
                               "activision pro",
                               "aero studio",
                               "ahx",
@@ -330,7 +330,7 @@ const char *uade_formats[] = {"actionamics",
                               "x-tracker",
                               "zoundmonitor"};
 
-const char *other_formats[] = {
+static const char *other_formats[] = {
     "fasttracker 2",
     "fasttracker",
     "impulsetracker",

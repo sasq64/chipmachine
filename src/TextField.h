@@ -12,20 +12,21 @@
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 class TextField : public Renderable {
 public:
-	TextField() : pos(0, 0), scale(1.0), color(0xffffffff), add(0), text(""), tsize(-1, -1) {
+	TextField() : pos(0, 0), scale(1.0), color(0xffffffff), add(0), align(0), text(""), tsize(-1, -1) {
 		static_assert(offsetof(TextField, add) - offsetof(TextField, color) == 7 * 4,
 		              "Fields not packed");
 	}
 
 	TextField(const grappix::Font &font, const std::string &text = "", float x = 0.0, float y = 0.0,
 	          float sc = 1.0, uint32_t col = 0xffffffff)
-	    : pos(x, y), scale(sc), color(col), add(0), text(text), tsize(-1, -1), font(font) {}
+	    : pos(x, y), scale(sc), color(col), add(0), align(0), text(text), tsize(-1, -1), font(font) {}
 
 #pragma pack(4)
 	grappix::Color color;
 	utils::vec2f pos;
 	float scale;
 	float add;
+	float align;
 #pragma pack()
 
 	virtual void setText(const std::string &t) {
@@ -52,9 +53,11 @@ public:
 	virtual void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
 		if(color.a == 0.0)
 			return;
-		if(tsize.x == -1)
+		if(tsize.x == -1 || oldScale != scale) {
 			tsize = font.get_size(text, scale);
-		target->text(font, text, pos.x, pos.y, color + add, scale);
+			oldScale = scale;
+		}
+		target->text(font, text, pos.x - tsize.x * align, pos.y, color + add, scale);
 	}
 
 	struct iterator {
@@ -76,12 +79,13 @@ public:
 
 	iterator begin() { return iterator(this, 0); }
 
-	iterator end() { return iterator(this, 8); }
+	iterator end() { return iterator(this, 9); }
 
 protected:
 	std::string text;
 	mutable utils::vec2i tsize;
 	grappix::Font font;
+	float oldScale = -1;
 };
 
 #endif // TEXT_FIELD_H

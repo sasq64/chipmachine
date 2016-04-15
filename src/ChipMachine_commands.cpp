@@ -1,6 +1,5 @@
 #include "ChipMachine.h"
 
-
 using namespace std;
 using namespace utils;
 using namespace grappix;
@@ -13,9 +12,9 @@ void ChipMachine::setupCommands() {
 	auto cmd = [=](const string &name, const function<void()> &f) {
 		commands.emplace_back(name, f);
 	};
-	
+
 	cmd("show_main", [=]() { showScreen(MAIN_SCREEN); });
-	
+
 	cmd("show_search", [=]() {
 		if(currentScreen != SEARCH_SCREEN) {
 			showScreen(SEARCH_SCREEN);
@@ -39,11 +38,11 @@ void ChipMachine::setupCommands() {
 		} else
 			showScreen(lastScreen);
 	});
-	
-	cmd("download_current", [=]() { 
+
+	cmd("download_current", [=]() {
 		auto target = File::getHomeDir() / "Downloads";
 		makedir(target);
-		
+
 		auto files = player.getSongFiles();
 		if(files.size() == 0)
 			return;
@@ -59,14 +58,18 @@ void ChipMachine::setupCommands() {
 			if(title == "" || endsWith(ext, "lib"))
 				fileName = from.getFileName();
 			else
-				fileName = format("%s - %s.%s", currentInfo.composer, title, ext);
+				fileName = format("%s - %s.%s", composer, title, ext);
 			auto to = target / fileName;
-			File::copy(from, to);
+			try {
+				File::copy(from, to);
+			} catch (io_exception &e) {
+				to = target / from.getFileName();
+				File::copy(from, to);
+			}
 		}
-		toast("Downloaded file", 2);
+		toast("Downloaded file");
 	});
-	
-	
+
 	cmd("play_pause", [=]() {
 		player.pause(!player.isPaused());
 		if(player.isPaused()) {
@@ -94,29 +97,29 @@ void ChipMachine::setupCommands() {
 		isFavorite = !isFavorite;
 		uint32_t alpha = isFavorite ? 0xff : 0x00;
 		Tween::make().to(favIcon.color, Color(favColor | (alpha << 24))).seconds(0.25);
-		//favIcon.visible(isFavorite);
+		// favIcon.visible(isFavorite);
 	});
 
 	cmd("add_list_favorite", [=]() {
 		MusicDatabase::getInstance().addToPlaylist(currentPlaylistName, getSelectedSong());
 	});
-	
+
 	cmd("clear_filter", [=]() {
 		filter = "";
 		searchUpdated = true;
 	});
 
 	cmd("set_collection_filter", [=]() {
-		
-		const auto &song = getSelectedSong();        
+
+		const auto &song = getSelectedSong();
 		auto p = split(song.path, "::");
 		if(p.size() < 2)
 			return;
 		filter = p[0];
 		searchUpdated = true;
-			
+
 	});
-		
+
 	cmd("play_song", [=]() {
 		player.playSong(getSelectedSong());
 		showScreen(MAIN_SCREEN);
@@ -172,7 +175,7 @@ void ChipMachine::setupCommands() {
 
 	cmd("clear_songs", [=]() {
 		player.clearSongs();
-		toast("Playlist cleared", 2);
+		toast("Playlist cleared");
 	});
 
 	cmd("volume_up", [=]() {
@@ -190,27 +193,27 @@ void ChipMachine::setupCommands() {
 	cmd("quit", [=]() { screen.close(); });
 
 	cmd("random_shuffle", [=]() {
-		toast("Random shuffle!", 2);
+		toast("Random shuffle!");
 		shuffleSongs(false, false, false, 100);
 	});
 
 	cmd("composer_shuffle", [=]() {
-		toast("Composer shuffle!", 2);
+		toast("Composer shuffle!");
 		shuffleSongs(false, true, false, 1000);
 	});
 
 	cmd("format_shuffle", [=]() {
-		toast("Format shuffle!", 2);
+		toast("Format shuffle!");
 		shuffleSongs(true, false, false, 100);
 	});
 
 	cmd("collection_shuffle", [=]() {
-		toast("Collection shuffle!", 2);
+		toast("Collection shuffle!");
 		shuffleSongs(false, false, true, 100);
 	});
 
 	cmd("result_shuffle", [=]() {
-		toast("Result shuffle!", 2);
+		toast("Result shuffle!");
 		player.clearSongs();
 		for(int i = 0; i < iquery->numHits(); i++) {
 			auto res = iquery->getResult(i);
@@ -230,18 +233,18 @@ void ChipMachine::setupCommands() {
 		showScreen(MAIN_SCREEN);
 		player.nextSong();
 	});
-	
-	cmd("close_dialog", [=]() { 
+
+	cmd("close_dialog", [=]() {
 		if(currentDialog)
 			currentDialog->remove();
 		currentDialog = nullptr;
 	});
-	
-	cmd("test_dialog", [=]() { 
+
+	cmd("test_dialog", [=]() {
 		currentDialog = make_shared<Dialog>(screenptr, font, "Type something:");
 		overlay.add(currentDialog);
 	});
-	
+
 #ifdef USE_REMOTELISTS
 	if(userName == "") {
 		currentDialog = make_shared<Dialog>(screenptr, font, "Login with handle:");
@@ -266,7 +269,6 @@ void ChipMachine::setupCommands() {
 		                                    [=]() { toast("Uploaded", 2); });
 	}
 #endif
-
 }
 
 } // namespace
