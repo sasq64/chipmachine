@@ -3,7 +3,7 @@
 
 * Local playlists; stored in $HOME/.config/chipmachine/playlists
 * Command screen (TAB)
-* Audio: Fix quick pause and volume on OSX
+* Audio: Fix quick pause and volume on OSX & Windows
 * Plus/4 Ted music playback
 * Collection filter (Ctrl+I)
 * Better command line arguments
@@ -11,6 +11,7 @@
 * Telnet server (-T)
 * Improved dynamic layout
 * Subtune specific favorites
+* Download current song (Ctrl+D)
 * New Data source; High Voltage Ted Collection
 * New Data source; Syntax Error (Radio Show)
 * New Data source; Gamewave (Podcast)
