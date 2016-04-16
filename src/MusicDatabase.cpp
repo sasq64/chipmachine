@@ -347,39 +347,27 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 
 	} else if(File::exists(local_dir)) {
 
-		function<void(File &)> checkDir;
-		checkDir = [&](File &root) {
-			LOGD("DIR %s", root.getName());
-			for(auto &rf : root.listFiles()) {
-				if(rf.isDir()) {
-					checkDir(rf);
-				} else {
-					auto name = rf.getName();
-					SongInfo songInfo(name);
-					if(identify_song(songInfo)) {
+        File root{ local_dir };
+        LOGD("Checking local dir '%s'", root.getName());
+        for(auto &rf : root.listRecursive()) {
+            auto name = rf.getName();
+            SongInfo songInfo(name);
+            if(identify_song(songInfo)) {
 
-						auto pos = name.find(local_dir);
-						if(pos != string::npos) {
-							name = name.substr(pos + local_dir.length());
-						}
+                auto pos = name.find(local_dir);
+                if(pos != string::npos) {
+                    name = name.substr(pos + local_dir.length());
+                }
 
-						query.bind(songInfo.title, songInfo.game, songInfo.composer,
-						           songInfo.format, name, collection_id, (char *)nullptr)
-						    .step();
-						if(writeListFile)
-							listFile.writeln(format("%s\t%s\t%s\t%s\t%s", songInfo.title,
-							                        songInfo.game, songInfo.composer,
-							                        songInfo.format, name));
-					}
-				}
-			}
-		};
-
-		File root{local_dir};
-
-		LOGD("Checking local dir '%s'", root.getName());
-		checkDir(root);
-	}
+                query.bind(songInfo.title, songInfo.game, songInfo.composer,
+                           songInfo.format, name, collection_id, (char *)nullptr)
+                    .step();
+                if(writeListFile)
+                    listFile.writeln(join("\t", songInfo.title, songInfo.game, songInfo.composer,
+                                          songInfo.format, name));
+            }
+        }
+    }
 
 	listFile.close();
 	db.exec("COMMIT");
