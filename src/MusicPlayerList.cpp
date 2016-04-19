@@ -381,7 +381,8 @@ void MusicPlayerList::playCurrent() {
 		path = currentInfo.path;
 
 	if(prefix == "playlist") {
-		handlePlaylist(path);
+		if(!handlePlaylist(path))
+			SET_STATE(ERROR);
 		return;
 	}
 

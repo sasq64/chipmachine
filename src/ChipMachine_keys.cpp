@@ -113,6 +113,7 @@ void ChipMachine::showScreen(Screen screen) {
 	}
 }
 
+
 SongInfo ChipMachine::getSelectedSong() {
 	int i = songList.selected();
 	if(i < 0)
@@ -216,6 +217,7 @@ void ChipMachine::updateKeys() {
 						}
 						matchingCommands.resize(j);
 					}
+					commandList.setTotal(matchingCommands.size());
 				} else {
 					if(hasMoved && event != ' ' && event != Window::BACKSPACE)
 						searchField.setText("");

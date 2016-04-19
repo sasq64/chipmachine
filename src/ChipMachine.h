@@ -148,6 +148,10 @@ private:
 			matchingCommands[i++] = &c;
 	}
 
+	bool haveSelection() {
+		return songList.selected() >= 0 && (songList.selected() < songList.size());
+	}
+	
 	utils::File workDir;
 
 	MusicPlayerList player;

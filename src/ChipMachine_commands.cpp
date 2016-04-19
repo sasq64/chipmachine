@@ -79,16 +79,16 @@ void ChipMachine::setupCommands() {
 	});
 
 	cmd("enque_song", [=]() {
-		if(player.addSong(getSelectedSong()))
+		if(haveSelection() && player.addSong(getSelectedSong()))
 			songList.select(songList.selected() + 1);
 	});
 
 	cmd("add_current_favorite", [=]() {
 		auto song = dbInfo;
-		if(currentTune != song.starttune)
+		//if(currentTune != song.starttune)
 			song.starttune = currentTune;
-		else
-			song.starttune = -1;
+		//else
+		//	song.starttune = -1;
 		if(isFavorite) {
 			MusicDatabase::getInstance().removeFromPlaylist(currentPlaylistName, song);
 		} else {
@@ -101,7 +101,8 @@ void ChipMachine::setupCommands() {
 	});
 
 	cmd("add_list_favorite", [=]() {
-		MusicDatabase::getInstance().addToPlaylist(currentPlaylistName, getSelectedSong());
+		if(haveSelection())
+			MusicDatabase::getInstance().addToPlaylist(currentPlaylistName, getSelectedSong());
 	});
 
 	cmd("clear_filter", [=]() {
@@ -121,8 +122,10 @@ void ChipMachine::setupCommands() {
 	});
 
 	cmd("play_song", [=]() {
-		player.playSong(getSelectedSong());
-		showScreen(MAIN_SCREEN);
+		if(haveSelection()) {
+			player.playSong(getSelectedSong());
+			showScreen(MAIN_SCREEN);
+		}
 	});
 
 	cmd("next_composer", [=]() {
