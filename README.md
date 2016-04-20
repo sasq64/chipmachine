@@ -13,6 +13,11 @@ chipmachine
 * **Hit enter to play directly**
 ![TWO](http://85.24.142.250/chipmachine/cs2.png)
 
+## Binaries
+
+Binaries for Mac OSX and Windows are available under *Releases*
+
+https://github.com/sasq64/chipmachine/releases
 
 ## Prerequisites
 
@@ -51,10 +56,6 @@ $ pacman -S mingw32/mingw-w64-i686-cmake msys/git mingw32/mingw-w64-i686-gcc min
 	# mkdir build ; cd build
 	# cmake ../chipmachine -GNinja -DCMAKE_BUILD_TYPE=Release
 	# ninja
-
-## Download binaries
-
-* http://apone.org:8080/chipmachine/
 
 ## Using the application
 
