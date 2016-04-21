@@ -1,17 +1,16 @@
-// #ifdef LINUX
-// #define BACKWARD_HAS_BFD 1
-// #include <backward-cpp/backward.hpp>
-// namespace backward {
-// 	backward::SignalHandling sh;
-// }
-// #endif
-//#define ENABLE_TELNET
+#ifdef LINUX
+#define BACKWARD_HAS_BFD 1
+#include <backward-cpp/backward.hpp>
+namespace backward {
+	backward::SignalHandling sh;
+}
+#endif
 
 #include "MusicPlayer.h"
 #include "ChipInterface.h"
 #ifndef TEXTMODE_ONLY
-#include "ChipMachine.h"
-#include <grappix/grappix.h>
+#  include "ChipMachine.h"
+#  include <grappix/grappix.h>
 #endif
 #include <musicplayer/PSFFile.h>
 #include <coreutils/format.h>
@@ -21,10 +20,10 @@
 #include <bbsutils/petsciiconsole.h>
 
 #ifndef _WIN32
-#include <bbsutils/console.h>
-#define ENABLE_CONSOLE
+#  include <bbsutils/console.h>
+#  define ENABLE_CONSOLE
 #endif
-
+#include "version.h"
 #include "../docopt/docopt.h"
 #include <vector>
 
@@ -197,6 +196,7 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}
 #ifndef TEXTMODE_ONLY
+	grappix::screen.setTitle("Chipmachine " VERSION_STR);
 	if(fullScreen)
 		grappix::screen.open(true);
 	else

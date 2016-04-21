@@ -113,6 +113,7 @@ void ChipMachine::showScreen(Screen screen) {
 	}
 }
 
+
 SongInfo ChipMachine::getSelectedSong() {
 	int i = songList.selected();
 	if(i < 0)
@@ -196,7 +197,6 @@ void ChipMachine::updateKeys() {
 
 		lastKey = key;
 		
-		
 		if(!smac.put_event(event)) {
 			if((key >= ' ' && key <= 'z') || key == Window::LEFT || key == Window::RIGHT ||
 			   key == Window::BACKSPACE || key == Window::ESCAPE || key == Window::ENTER) {
@@ -216,12 +216,15 @@ void ChipMachine::updateKeys() {
 						}
 						matchingCommands.resize(j);
 					}
+					commandList.setTotal(matchingCommands.size());
 				} else {
 					if(hasMoved && event != ' ' && event != Window::BACKSPACE)
 						searchField.setText("");
 					hasMoved = false;
 					showScreen(SEARCH_SCREEN);
-					searchField.on_key(tolower(event));
+					if(event >= 0x20 && event <= 0xff)
+						event = tolower(event);
+					searchField.on_key(event);
 					searchUpdated = true;
 				}
 			}

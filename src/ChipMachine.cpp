@@ -16,8 +16,7 @@ std::string compressWhitespace(std::string &&m) {
 	// Turn linefeeds into spaces
 	replace(m.begin(), m.end(), '\n', ' ');
 	// Turn whitespace sequences into single spaces
-	auto last = unique(m.begin(), m.end(),
-	                   [](char a, char b) -> bool { return (isspace(a) && isspace(b)); });
+	auto last = unique(m.begin(), m.end(), [](char a, char b) { return (a | b) <= 0x20; });
 	m.resize(distance(m.begin(), last));
 	return m;
 }
@@ -94,7 +93,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 	nextInfoField.setAlign(1.0);
 	nextField.align = 1.0;
-	
+
 	// SongInfo fields
 	mainScreen.add(&prevInfoField);
 	mainScreen.add(&currentInfoField);
@@ -119,20 +118,20 @@ ChipMachine::ChipMachine(const std::string &wd)
 	searchScreen.add(&topStatus);
 	topStatus.visible(false);
 
-	//toastField = TextField(font, "", topLeft.x, downRight.y - 134, 2.0, 0x00ffffff);
+	// toastField = TextField(font, "", topLeft.x, downRight.y - 134, 2.0, 0x00ffffff);
 	overlay.add(&toastField);
-	
-	Resources::getInstance().load<image::bitmap>(File::getCacheDir() / "favicon.png",
-		[=](shared_ptr<image::bitmap> bitmap) {
-			favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
+
+	Resources::getInstance().load<image::bitmap>(
+	    File::getCacheDir() / "favicon.png", [=](shared_ptr<image::bitmap> bitmap) {
+		    favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
 		}, heart_icon);
-	//favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
-	
+	// favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
+
 	float ww = volume_icon.width() * 15;
 	float hh = volume_icon.height() * 10;
 	volPos = {((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh};
 	volumeIcon = Icon(volume_icon, volPos.x, volPos.y, volPos.w, volPos.h);
-	
+
 	setupCommands();
 	setupRules();
 
@@ -145,7 +144,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 	filterField.color = 0xff55ff55;
 
 	mainScreen.add(&favIcon);
-	//favIcon.visible(false);
+	// favIcon.visible(false);
 	favIcon.color = Color(favColor);
 
 	netIcon = Icon(net_icon, 2, 2, 8 * 3, 5 * 3);
@@ -155,7 +154,6 @@ ChipMachine::ChipMachine(const std::string &wd)
 	showVolume = 0;
 
 	musicBars.setup(spectrumWidth, spectrumHeight, 24);
-
 
 	LOGD("WORKDIR %s", workDir.getName());
 	MusicDatabase::getInstance().initFromLuaAsync(this->workDir);
@@ -173,7 +171,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 	songList =
 	    VerticalList(listrec, numLines, [=](grappix::Rectangle &rec, int y, uint32_t index,
 	                                        bool hilight) { renderSong(rec, y, index, hilight); });
-	
+
 	searchScreen.add(&songList);
 
 	commandList = VerticalList(listrec, numLines, [=](grappix::Rectangle &rec, int y,
@@ -194,16 +192,17 @@ ChipMachine::ChipMachine(const std::string &wd)
 			}
 			static int cmdPos = -1;
 			if(cmdPos == -1)
-				cmdPos = listFont.get_width("012345678901234567890123456789", resultFieldTemplate.scale);
+				cmdPos =
+				    listFont.get_width("012345678901234567890123456789", resultFieldTemplate.scale);
 			grappix::screen.text(listFont, cmd->name, rec.x, rec.y, c, resultFieldTemplate.scale);
-			grappix::screen.text(listFont, cmd->shortcut, rec.x + cmdPos, rec.y, 0xffffffff, resultFieldTemplate.scale * 0.8);
-			
+			grappix::screen.text(listFont, cmd->shortcut, rec.x + cmdPos, rec.y, 0xffffffff,
+			                     resultFieldTemplate.scale * 0.8);
 		}
 	});
 
 	commandList.setTotal(commands.size());
 	clearCommand();
-	
+
 	updateLists();
 
 	// playlistField = TextField(listFont, "Favorites", downRight.x - 80, downRight.y - 10, 0.5,
@@ -271,15 +270,15 @@ void ChipMachine::layoutScreen() {
 	starEffect.resize(screen.width(), screen.height());
 	scrollEffect.resize(screen.width(), 45 * scrollEffect.scrollsize);
 	musicBars.setup(spectrumWidth, spectrumHeight, 24);
-	
+
 	searchField.setFont(font);
 	commandField.pos = searchField.pos;
 	commandField.scale = searchField.scale;
 	commandField.cursorH = searchField.cursorH;
 	commandField.cursorW = searchField.cursorW;
-	
+
 	favIcon.set(favPos);
-	
+
 	float ww = volume_icon.width() * 15;
 	float hh = volume_icon.height() * 10;
 	volPos = {((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh};
@@ -293,14 +292,16 @@ void ChipMachine::play(const SongInfo &si) {
 
 void ChipMachine::updateFavorite() {
 	auto favorites = MusicDatabase::getInstance().getPlaylist(currentPlaylistName);
-	auto favsong = find_if(favorites.begin(), favorites.end(), [&](const SongInfo &song) -> bool {
-		return (song.path == currentInfo.path && (currentTune == song.starttune || (currentTune == currentInfo.starttune && song.starttune == -1)));
+	auto favsong = find_if(favorites.begin(), favorites.end(), [&](const SongInfo &song) {
+		return (song.path == currentInfo.path &&
+		        (currentTune == song.starttune ||
+		         (currentTune == currentInfo.starttune && song.starttune == -1)));
 	});
 	bool last = isFavorite;
 	isFavorite = (favsong != favorites.end());
 	uint32_t alpha = isFavorite ? 0xff : 0x00;
 	favIcon.color = Color(favColor | (alpha << 24));
-	//favIcon.visible(isFavorite);
+	// favIcon.visible(isFavorite);
 }
 
 void ChipMachine::update() {
@@ -355,7 +356,7 @@ void ChipMachine::update() {
 
 		// Update current info, rely on tween to make sure it will fade in
 		currentInfoField.setInfo(currentInfo);
-		//currentTune = currentInfo.starttune;
+		// currentTune = currentInfo.starttune;
 		currentTune = player.getTune();
 
 		if(currentInfo.numtunes > 0)
@@ -381,11 +382,11 @@ void ChipMachine::update() {
 		updateFavorite();
 		// Start tweening
 		LOGD("## TWEENING INFO FIELDS");
-		
+
 		// Setting next field here to get correct alignment
-		//if(player.listSize() > 0) {
-			//auto info = player.getInfo(1);
-			//nextInfoField.setInfo(info);
+		// if(player.listSize() > 0) {
+		// auto info = player.getInfo(1);
+		// nextInfoField.setInfo(info);
 		//}
 
 		if(player.wasFromQueue()) {
@@ -430,7 +431,7 @@ void ChipMachine::update() {
 			if(info.path != "")
 				RemoteLoader::getInstance().preCache(info.path);
 			if(info.path != currentNextPath) {
-				
+
 				LOGD("## SETTING NEXT INFO");
 
 				if(psz == 1)
@@ -538,7 +539,6 @@ void ChipMachine::update() {
 void fadeOut(float &alpha, float t = 0.25) {
 	Tween::make().to(alpha, 0.0).seconds(t);
 }
-
 
 void ChipMachine::toast(const std::string &txt, ToastType type) {
 

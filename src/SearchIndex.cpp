@@ -261,8 +261,7 @@ void IncrementalQuery::search() {
 				str.erase(pos, words[i - 1].length());
 			}
 
-			const auto &p = words[i];
-			if(str.find(p) == string::npos) {
+			if(str.find(words[i]) == string::npos) {
 				// All words must match
 				found = false;
 				break;
@@ -297,7 +296,7 @@ void SearchIndex::initTrans() {
 	}
 }
 
-void SearchIndex::simplify(string &s) {
+string& SearchIndex::simplify(string &s) {
 
 	if(!transInited) {
 		initTrans();
@@ -312,6 +311,7 @@ void SearchIndex::simplify(string &s) {
 		}
 		p++;
 	}
+	return s;
 }
 
 unsigned int SearchIndex::tlcode(const char *s) {

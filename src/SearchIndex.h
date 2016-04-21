@@ -178,7 +178,7 @@ public:
 	void dump(utils::File &f);
 	void load(utils::File &f);
 
-	static void simplify(std::string &s);
+	static std::string& simplify(std::string &s);
 	static unsigned int tlcode(const char *s);
 
 	void setFilter(std::function<bool(int)> f = nullptr) { 

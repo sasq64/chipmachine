@@ -5,7 +5,6 @@ set(AP1_ROOT ../apone)
 include(${AP1_ROOT}/cmake/Utils.cmake)
 
 add_definitions(-DAPP_NAME=chipmachine)
-#(-DUSE_REMOTELISTS -DENABLE_TELNET)
 
 if(RASPBERRYPI)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv6 -mfpu=vfp -mfloat-abi=hard")
@@ -22,9 +21,6 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -DCM_DEBUG")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -DCM_DEBUG")
 
 
-#set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
-
-
 include_directories(${AP1_ROOT}/mods /usr/local/include)
 
 
@@ -37,11 +33,9 @@ set(SOURCE_FILES
 	src/MusicDatabase.cpp
 	src/MusicPlayer.cpp
 	src/MusicPlayerList.cpp
-#	src/RemoteLists.cpp
 	src/RemoteLoader.cpp
 	src/SearchIndex.cpp
 	src/SongFileIdentifier.cpp
-#	src/TelnetInterface.cpp
 	src/state_machine.cpp
 	src/textmode.cpp
 	src/main.cpp

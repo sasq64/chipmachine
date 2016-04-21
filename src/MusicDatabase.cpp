@@ -870,6 +870,7 @@ void MusicDatabase::removeFromPlaylist(const std::string &plist, const SongInfo 
 	for(auto &pl : playLists) {
 		if(pl.name == plist) {
 			pl.songs.erase(std::remove_if(pl.songs.begin(), pl.songs.end(), [&](const SongInfo &song) ->bool {
+				LOGD("%s;%d vs %s;%d", song.path, song.starttune, toRemove.path, toRemove.starttune);
 				return song.path == toRemove.path && (song.starttune == -1 || song.starttune == toRemove.starttune);
 			}), pl.songs.end());
 			pl.save();

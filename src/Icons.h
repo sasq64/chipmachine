@@ -1,7 +1,3 @@
-#ifndef ICONS_H
-#define ICONS_H
-
-#include <vector>
 
 #define Z 0xffffffff
 static const image::bitmap heart_icon = {8,
@@ -38,5 +34,3 @@ static const image::bitmap volume_icon = {
         Z, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, Z,
     }};
 #undef Z
-
-#endif // ICONS_H
