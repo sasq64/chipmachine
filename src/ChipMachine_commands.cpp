@@ -155,6 +155,8 @@ void ChipMachine::setupCommands() {
 
 	cmd("execute_selected_command", [=]() {
 		int i = commandList.selected();
+		if(matchingCommands.size() == 0)
+			return;
 		commandList.select(-1);
 		showScreen(lastScreen);
 		auto it = std::find(commands.begin(), commands.end(), *matchingCommands[i]);
