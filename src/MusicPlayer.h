@@ -162,7 +162,7 @@ public:
 	float getFadeVolume() { return fifo.getVolume(); }
 
 	void update();
-
+	
 private:
 	std::shared_ptr<ChipPlayer> fromFile(const std::string &fileName);
 	std::shared_ptr<ChipPlayer> fromStream(const std::string &fileName);
@@ -172,7 +172,7 @@ private:
 	SongInfo playingInfo;
 	// Fifo fifo;
 	SpectrumAnalyzer fft;
-	std::vector<std::shared_ptr<ChipPlugin>> plugins;
+	//std::vector<std::shared_ptr<ChipPlugin>> plugins;
 	bool paused = false;
 	std::array<uint16_t, SpectrumAnalyzer::eq_slots> spectrum;
 
