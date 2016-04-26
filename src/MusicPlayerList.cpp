@@ -330,13 +330,7 @@ void MusicPlayerList::update() {
 	}
 
 	if(state == LOADING) {
-		if(ytfuture.valid()) {
-			if(ytfuture.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready) {
-				string id = ytfuture.get();
-				LOGD("Converted %s", id);
-				playFile(loadedFile);
-			}
-		} else if(files == 0) {
+		if(files == 0) {
 			RemoteLoader::getInstance().cancel();
 			playFile(loadedFile);
 		}
@@ -462,6 +456,12 @@ void MusicPlayerList::playCurrent() {
 			if(cuefile)
 				cueSheet = make_shared<CueSheet>(cuefile);
 		});
+	}
+	
+	if(startsWith(currentInfo.path, "pouet::")) {
+		loadedFile = currentInfo.path.substr(7);
+		files = 0;
+		return;
 	}
 
 	if(currentInfo.format != "M3U" && (ext == "mp3" || toLower(currentInfo.format) == "mp3")) {

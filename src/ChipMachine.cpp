@@ -3,7 +3,8 @@
 #include "version.h"
 #include <grappix/window.h>
 #include <coreutils/format.h>
-
+#include <musicplayer/chipplugin.h>
+#include <musicplayer/plugins/ffmpegplugin/FFMPEGPlugin.h>
 #include <cctype>
 #include <map>
 
@@ -70,12 +71,46 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate.scale);
 }
 
+
+class YoutubePlugin : public ChipPlugin {
+public:
+	YoutubePlugin(LuaInterpreter &lua) : lua(lua) {
+		plugin = ChipPlugin::getPlugin("ffmpeg");
+	}
+	
+	virtual ChipPlayer *fromFile(const std::string &fileName) override {
+		LOGD("Youtube plugin %s", fileName);
+		string x = lua.call<string>(string("on_parse_youtube"), fileName);
+		
+		auto player = plugin->fromFile(x);
+		auto dpos = x.find("dur=");
+		if(dpos != string::npos) {
+			int length = atoi(x.substr(dpos+4).c_str());
+			player->setMeta("length",  length);
+		}
+		return player;	
+	}
+	
+	virtual bool canHandle(const string &name) override {
+		return startsWith(name, "http") && name.find("youtu") != string::npos;	
+	}
+	
+	virtual std::string name() const override { return "youtube"; }
+	
+	LuaInterpreter &lua;
+	std::shared_ptr<ChipPlugin> plugin;
+};
+
 ChipMachine::ChipMachine(const std::string &wd)
     : workDir(wd), player(wd), currentScreen(MAIN_SCREEN), eq(SpectrumAnalyzer::eq_slots),
       starEffect(screen), scrollEffect(screen) {
 
 	screen.setTitle("Chipmachine " VERSION_STR);
 	
+	lua.loadFile(workDir / "lua" / "init.lua");
+	
+	ChipPlugin::addPlugin(make_shared<YoutubePlugin>(lua));
+		
 #ifdef USE_REMOTELISTS
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
 		string e = error;
@@ -246,6 +281,8 @@ void ChipMachine::layoutScreen() {
 	LOGD("LAYOUT SCREEN");
 	currentTween.finish();
 	currentTween = Tween();
+
+	lua.call<void>("on_layout", screen.width(), screen.height(), screen.getPPI() < 0 ? 100 : screen.getPPI()); 
 
 	File f(workDir / "lua" / "screen.lua");
 

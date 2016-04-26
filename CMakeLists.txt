@@ -29,7 +29,7 @@ if(SAN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=${SAN}")
 endif()
 
-
+link_directories(/usr/local/lib)
 include_directories(${AP1_ROOT}/mods /usr/local/include)
 
 
@@ -123,6 +123,7 @@ set(MUSICPLAYER_PLUGINS
 	gsfplugin
 	uadeplugin
 	tedplugin
+	ffmpegplugin
 )
 add_subdirectory(${AP1_ROOT}/mods/musicplayer/plugins plugins)
 
