@@ -1,27 +1,35 @@
 
-songs = {}
-
-function cmd_status ()
-	print "STATUS"
-end
-
-function cmd_find (query)
-	songs = find(query)
-	cmd_print_result()
-end
-
-function cmd_print_result ()
-	for i,song in ipairs(songs) do
-		print(string.format("[%02d] %s - %s", i, song.composer, song.title))
+-- Given the link to a youtube URL, return an URL to an audio stream
+function on_parse_youtube (url)
+	name = os.tmpname()
+	os.execute(string.format('youtube-dl --skip-download -g "%s" > %s', url, name))
+	for l in io.lines(name) do
+		if string.find(l, 'mime=audio',1 , true) then
+			return l
+		end
 	end
+	for l in io.lines(name) do
+		if string.find(l, 'audio',1 , true) then
+			return l
+		end
+	end
+	return nil
 end
 
-function cmd_play (no)
-	play_file(songs[no].path)
+-- Called when screen needs layout
+function on_layout (width, height, ppi)
+	print("LUA LAYOUT");
 end
 
 
-toast("New telnet connection", 0);
+function on_select_plugin (filename, plugins)
+	if string.find(filename, '.mod', 1, true) then
+		for p in plugins do
+			if p == 'uade' then
+				return p;
+			end
+		end
+	end
+	return nil
+end
 
--- add_command('status', 'cmd_status');
--- add_command('find', 'cmd_find');

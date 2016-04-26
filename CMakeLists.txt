@@ -20,7 +20,7 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -DCM_DEBUG")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -DCM_DEBUG")
 
-
+link_directories(/usr/local/lib)
 include_directories(${AP1_ROOT}/mods /usr/local/include)
 
 
@@ -112,6 +112,7 @@ set(MUSICPLAYER_PLUGINS
 	gsfplugin
 	uadeplugin
 	tedplugin
+	ffmpegplugin
 )
 add_subdirectory(${AP1_ROOT}/mods/musicplayer/plugins plugins)
 

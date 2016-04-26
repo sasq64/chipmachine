@@ -196,13 +196,11 @@ DB = {
 	song_list = "data/c64takeaway.xml",
 	color = 0xfffff
 },
-
-
---,{
---	name = "Pouet/Youtube",
---	id =  "pouet",
---	source = "",
---	song_list = "data/pouet_youtube.xml",
---	color = 0xfffff
---}
+{
+	name = "Pouet/Youtube",
+	id =  "pouet",
+	source = "",
+	song_list = "data/pouet_youtube.xml",
+	color = 0xfffff
+}
 };

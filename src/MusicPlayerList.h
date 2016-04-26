@@ -14,7 +14,6 @@
 #include <coreutils/thread.h>
 #include <cstdint>
 #include <deque>
-#include <future>
 
 #define SET_STATE(x) (LOGD("STATE: " #x), state = x)
 
@@ -158,8 +157,6 @@ private:
 
 	std::atomic<int> files;
 	std::string loadedFile;
-
-	std::future<std::string> ytfuture;
 
 	std::atomic<State> state; // = STOPPED;
 	SongInfo currentInfo;
