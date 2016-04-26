@@ -7,8 +7,9 @@
 #include <musicplayer/plugins/ffmpegplugin/FFMPEGPlugin.h>
 #include <cctype>
 #include <map>
-
+#ifdef _WIN32
 #include <ShellApi.h>
+#endif
 
 using namespace std;
 using namespace utils;
@@ -109,9 +110,9 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 		lua.setGlobal("WINDOWS",
 #ifdef _WIN32
-		1
+		true
 #else
-		0
+		false
 #endif
 		);
 
@@ -133,11 +134,9 @@ ChipMachine::ChipMachine(const std::string &wd)
 			ShellExecuteEx(&ShExecInfo);
 			WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
 #else
-			char *oldDir = getwd(nullptr);
-			chdir(binDir.c_str());
+			if(cmd[0] != '/')
+				cmd = binDir + "/" + cmd; 
 			system(cmd.c_str());
-			chdir(oldDir);
-			free(oldDir);
 #endif
 		});
 
