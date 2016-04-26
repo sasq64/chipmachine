@@ -8,6 +8,8 @@
 #include <cctype>
 #include <map>
 
+#include <ShellApi.h>
+
 using namespace std;
 using namespace utils;
 using namespace grappix;
@@ -104,6 +106,40 @@ public:
 ChipMachine::ChipMachine(const std::string &wd)
     : workDir(wd), player(wd), currentScreen(MAIN_SCREEN), eq(SpectrumAnalyzer::eq_slots),
       starEffect(screen), scrollEffect(screen) {
+
+		lua.setGlobal("WINDOWS",
+#ifdef _WIN32
+		1
+#else
+		0
+#endif
+		);
+
+		string binDir = (workDir / "bin").getName();
+		lua.registerFunction("cm_execute", [binDir](std::string cmd) {
+			LOGD("BINDIR:%s", binDir);
+#ifdef _WIN32
+ 			auto cmdLine = utils::format("/C %s", cmd);
+			SHELLEXECUTEINFO ShExecInfo = {0};
+			ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+			ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+			ShExecInfo.hwnd = NULL;
+			ShExecInfo.lpVerb = NULL;
+			ShExecInfo.lpFile = "cmd.exe";        
+			ShExecInfo.lpParameters = cmdLine.c_str(); 
+			ShExecInfo.lpDirectory = binDir.c_str();
+			ShExecInfo.nShow = SW_HIDE;
+			ShExecInfo.hInstApp = NULL; 
+			ShellExecuteEx(&ShExecInfo);
+			WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
+#else
+			char *oldDir = getwd(nullptr);
+			chdir(binDir.c_str());
+			system(cmd.c_str());
+			chdir(oldDir);
+			free(oldDir);
+#endif
+		});
 
 		lua.loadFile(workDir / "lua" / "init.lua");
 		

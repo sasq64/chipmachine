@@ -1,8 +1,15 @@
 
 -- Given the link to a youtube URL, return an URL to an audio stream
 function on_parse_youtube (url)
-	name = os.tmpname()
-	os.execute(string.format('youtube-dl --skip-download -g "%s" > %s', url, name))
+	if WINDOWS then
+	  tmp = os.getenv("TMP");
+	  name = tmp .. "/ydlout.txt"
+	else
+	  name = os.tmpname()
+	end
+	os.remove(name)
+	cm_execute(string.format('youtube-dl --skip-download -g "%s" > %s', url, name))
+
 	for l in io.lines(name) do
 		if string.find(l, 'mime=audio',1 , true) then
 			return l
