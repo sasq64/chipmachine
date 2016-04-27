@@ -401,11 +401,12 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 		auto query2 = db.query("INSERT INTO prod2song (prodid, songid) "
 					 "VALUES (?, ?)");
 	
-			unordered_map<string, ParseProdFun> parsers = {
-				{"bitworld", &MusicDatabase::parseBitworld},
-				{"csdb", &MusicDatabase::parseCsdb},
-			};
-	
+		unordered_map<string, MemFun> parsers = {
+		    {"pouet", &MusicDatabase::parseStandard},       {"csdb", &MusicDatabase::parseCsdb},
+		    {"modland", &MusicDatabase::parseModland},   {"podcast", &MusicDatabase::parseRss},
+		    {"standard", &MusicDatabase::parseStandard},
+		};
+
 			auto parser = parsers[type];
 			//if(!parser)
 				//parser = &MusicDatabase::parseStandard;
@@ -428,7 +429,6 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 					}
 				}
 			});
-
 	} else {
 		auto query =
 			db.query("INSERT INTO song (title, game, composer, format, path, collection, metadata) "

@@ -215,7 +215,7 @@ DB = {
 	name = "Pouet/Youtube",
 	id =  "pouet",
 	source = "",
-	song_list = "data/pouet_youtube.xml",
+	song_list = "data/pouet.txt",
 	color = 0xfffff
 }
 };
