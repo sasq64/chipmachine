@@ -192,6 +192,7 @@ private:
 	// bool changedSong = false;
 	std::atomic<bool> dontPlay;
 	std::atomic<bool> playEnded;
+	bool checkSilence = true;
 };
 }
 

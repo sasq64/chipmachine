@@ -65,7 +65,7 @@ void MusicPlayer::update() {
 				message = p->getMeta("message");
 			}
 		}
-		silentFrames = fifo.getSilence();
+		silentFrames = checkSilence ? fifo.getSilence() : 0;
 
 		while(true) {
 
@@ -318,13 +318,14 @@ shared_ptr<ChipPlayer> MusicPlayer::fromFile(const string &fileName) {
 	shared_ptr<ChipPlayer> player;
 	string name = fileName;
 	utils::makeLower(name);
-
+	checkSilence = true;
 	for(auto &plugin : ChipPlugin::getPlugins()) {
 		if(plugin->canHandle(name)) {
 			LOGD("Playing with %s\n", plugin->name());
 			player = shared_ptr<ChipPlayer>(plugin->fromFile(fileName));
 			if(!player)
 				continue;
+			checkSilence = plugin->checkSilence();
 			break;
 		}
 	}
@@ -335,10 +336,12 @@ shared_ptr<ChipPlayer> MusicPlayer::fromStream(const string &fileName) {
 	shared_ptr<ChipPlayer> player;
 	string name = fileName;
 	utils::makeLower(name);
+	checkSilence = true;
 	for(auto &plugin : ChipPlugin::getPlugins()) {
 		if(plugin->canHandle(name)) {
 			LOGD("Playing with %s\n", plugin->name());
 			player = shared_ptr<ChipPlayer>(plugin->fromStream());
+			checkSilence = plugin->checkSilence();
 			break;
 		}
 	}
