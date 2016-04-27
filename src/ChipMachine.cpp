@@ -84,7 +84,8 @@ public:
 	virtual ChipPlayer *fromFile(const std::string &fileName) override {
 		LOGD("Youtube plugin %s", fileName);
 		string x = lua.call<string>(string("on_parse_youtube"), fileName);
-		
+		if(x == "")
+			return nullptr;
 		auto player = plugin->fromFile(x);
 		auto dpos = x.find("dur=");
 		if(dpos != string::npos) {

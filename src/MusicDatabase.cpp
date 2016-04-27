@@ -329,7 +329,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 	if(File::exists(listFile)) {
 
 		unordered_map<string, MemFun> parsers = {
-		    {"pouet", &MusicDatabase::parsePouet},       {"csdb", &MusicDatabase::parseCsdb},
+		    {"pouet", &MusicDatabase::parseStandard},       {"csdb", &MusicDatabase::parseCsdb},
 		    {"modland", &MusicDatabase::parseModland},   {"podcast", &MusicDatabase::parseRss},
 		    {"standard", &MusicDatabase::parseStandard},
 		};
