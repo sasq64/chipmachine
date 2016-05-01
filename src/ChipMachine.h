@@ -39,19 +39,27 @@ class Icon : public Renderable {
 public:
 	Icon() {}
 
-	Icon(grappix::Texture *tx, float x, float y, float w, float h) : texture(tx), rec(x, y, w, h) {}
+	Icon(std::shared_ptr<grappix::Texture> tx, float x, float y, float w, float h) : texture(tx), rec(x, y, w, h) {}
 
+	Icon(const image::bitmap &bm, int x = 0, int y = 0) : rec(x, y, bm.width(), bm.height()) {
+		setBitmap(bm);
+	}
+	
 	Icon(const image::bitmap &bm, float x, float y, float w, float h) : rec(x, y, w, h) {
-		texture = new grappix::Texture(bm);
-		glBindTexture(GL_TEXTURE_2D, texture->id());
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		setBitmap(bm);
 	}
 
 	void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
 		if((color >> 24) == 0)
 			return;
 		target->draw(*texture, rec.x, rec.y, rec.w, rec.h, nullptr, color);
+	}
+	
+	void setBitmap(const image::bitmap &bm) {
+		texture = make_shared<grappix::Texture>(bm);
+		glBindTexture(GL_TEXTURE_2D, texture->id());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	}
 
 	void set(const grappix::Rectangle &r) { rec = r; }
@@ -60,7 +68,7 @@ public:
 	grappix::Rectangle rec;
 
 private:
-	grappix::Texture *texture;
+	std::shared_ptr<grappix::Texture> texture;
 };
 
 class ChipMachine {
@@ -189,6 +197,7 @@ private:
 	Icon favIcon;
 	Icon netIcon;
 	Icon volumeIcon;
+	Icon screenShotIcon;
 
 	// MAINSCREEN AND ITS RENDERABLES
 	RenderSet mainScreen;

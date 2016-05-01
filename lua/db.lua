@@ -4,7 +4,7 @@
 -- local_dir : If exists, will be checked first for files before downloading.
 -- If song_list or or source can not be found, database will not be added
 
-VERSION = 10;
+VERSION = 11;
 
 DB = {
 {
@@ -14,10 +14,21 @@ DB = {
 	color = 0xfffff
 },
 {
+	name = "HVSC",
+	id =  "hvsc",
+	-- source = "http://www.prg.dtu.dk/HVSC/C64Music/",
+	-- source = "http://hvsc.etv.cx/C64Music/",
+	source = "http://www.sannic.nl/hvsc/HVSC63/C64Music/",
+	song_list = "data/hvsc.txt",
+	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/hvsc.txt",
+	local_dir = "/opt/Music/C64Music",
+	color = 0xfffff
+},
+{
 	name = "CSDb",
 	id =  "csdb",
 	local_dir = "",
-	song_list = "data/csdb.xml",
+	prod_list = "data/csdb.xml",
 	color = 0xfffff
 },
 {
@@ -30,14 +41,18 @@ DB = {
 	color = 0xfffff
 },
 {
-	name = "HVSC",
-	id =  "hvsc",
-	-- source = "http://www.prg.dtu.dk/HVSC/C64Music/",
-	-- source = "http://hvsc.etv.cx/C64Music/",
-	source = "http://www.sannic.nl/hvsc/HVSC63/C64Music/",
-	song_list = "data/hvsc.txt",
-	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/hvsc.txt",
-	local_dir = "/opt/Music/C64Music",
+	name = "Amp",
+	id =  "amp",
+	source = "http://amp.dascene.net/modules/",
+	song_template = "path",
+	index = "no",
+	song_list = "data/amp.txt",
+	color = 0xfffff
+},
+{
+	name = "Bitworld",
+	id =  "bitworld",
+	prod_list = "data/bitworld.txt",
 	color = 0xfffff
 },
 {

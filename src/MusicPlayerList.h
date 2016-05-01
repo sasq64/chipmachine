@@ -80,6 +80,8 @@ public:
 	std::string getMeta(const std::string &what) {
 		if(what == "sub_title" && cueTitle != "")
 			return cueTitle;
+		if(what == "screenshot")
+			return screenshot;
 		return mp.getMeta(what);
 	}
 
@@ -187,6 +189,8 @@ private:
 	bool playedNext;
 	
 	std::vector<utils::File> songFiles;
+	
+	std::string screenshot;
 	
 };
 

@@ -30,6 +30,7 @@ set(SOURCE_FILES
 	src/ChipMachine_config.cpp
 	src/ChipMachine_keys.cpp
 	src/ChipMachine_commands.cpp
+	src/GZPlugin.cpp
 	src/MusicDatabase.cpp
 	src/MusicPlayer.cpp
 	src/MusicPlayerList.cpp
@@ -43,6 +44,7 @@ set(SOURCE_FILES
 
 set(TEXTMODE_FILES
 	src/MusicDatabase.cpp
+	src/GZPlugin.cpp
 	src/MusicPlayer.cpp
 	src/MusicPlayerList.cpp
 	src/RemoteLoader.cpp

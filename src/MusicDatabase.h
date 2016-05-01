@@ -84,6 +84,17 @@ enum Formats {
 	PROTRACKER,
 
 	UADE,
+	
+	PRODUCT = 0x40
+	
+};
+
+struct Product {
+	std::string title;
+	std::string creator;
+	std::string type;
+	std::string screenshots;
+	std::vector<std::string> songs;
 };
 
 class MusicDatabase : public SearchProvider {
@@ -120,7 +131,7 @@ public:
 	std::string getTitle(int index) const {
 		std::lock_guard<std::mutex>{dbMutex};
 		if(index >= PLAYLIST_INDEX)
-			return playLists[index - PLAYLIST_INDEX].name;
+			return playLists[index - PLAYLIST_INDEX].name;		
 		return titleIndex.getString(index);
 	}
 
@@ -156,6 +167,10 @@ public:
 	}
 
 	SongInfo& lookup(SongInfo &song);
+	
+	std::vector<SongInfo> getProductSongs(uint32_t id);
+	
+	std::string getProductScreenshots(uint32_t id);
 
 	static MusicDatabase &getInstance() {
 		static MusicDatabase mdb;
@@ -193,7 +208,7 @@ public:
 	void removeFromPlaylist(const std::string &plist, const SongInfo &song);
 	std::vector<SongInfo> &getPlaylist(const std::string &plist);
 
-	void setFilter(const std::string &filter);
+	void setFilter(const std::string &filter, int type = 0);
 
 private:
 	void initDatabase(const std::string &workDir, Variables &vars);
@@ -209,16 +224,22 @@ private:
 		std::string local_dir;
 	};
 
-	typedef bool (MusicDatabase::*MemFun)(Variables &, const std::string &,
+	typedef bool (MusicDatabase::*ParseSongFun)(Variables &, const std::string &,
 	                                      std::function<void(const SongInfo &)>);
+	typedef bool (MusicDatabase::*ParseProdFun)(Variables &, const std::string &,
+	                                      std::function<void(const Product &)>);
 
 	bool parseCsdb(Variables &vars, const std::string &listFile,
-	               std::function<void(const SongInfo &)> callback);
+	               std::function<void(const Product &)> callback);
+	bool parseBitworld(Variables &vars, const std::string &listFile,
+	               std::function<void(const Product &)> callback);
 	bool parsePouet(Variables &vars, const std::string &listFile,
 	                std::function<void(const SongInfo &)> callback);
 	bool parseRss(Variables &vars, const std::string &listFile,
 	              std::function<void(const SongInfo &)> callback);
 	bool parseModland(Variables &vars, const std::string &listFile,
+	                  std::function<void(const SongInfo &)> callback);
+	bool parseAmp(Variables &vars, const std::string &listFile,
 	                  std::function<void(const SongInfo &)> callback);
 	bool parseStandard(Variables &vars, const std::string &listFile,
 	                   std::function<void(const SongInfo &)> callback);
@@ -252,6 +273,9 @@ private:
 	std::atomic<bool> indexing;
 
 	std::vector<Playlist> playLists;
+	std::unordered_map<uint64_t, uint32_t> pathMap;
+	uint32_t productStartIndex;
+	std::vector<uint8_t> dontIndex;
 };
 }
 

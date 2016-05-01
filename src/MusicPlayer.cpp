@@ -1,6 +1,6 @@
 
 #include "MusicPlayer.h"
-
+#include "GZPlugin.h"
 #include <coreutils/utils.h>
 #include <coreutils/format.h>
 
@@ -30,7 +30,8 @@ MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4) {
 
 	ChipPlugin::createPlugins(workDir);
 	ChipPlugin::addPlugin(make_shared<RSNPlugin>(ChipPlugin::getPlugins()));
-
+	ChipPlugin::addPlugin(make_shared<GZPlugin>(ChipPlugin::getPlugins()));
+	
 	dontPlay = playEnded = false;
 	AudioPlayer::play([=](int16_t *ptr, int size) mutable {
 

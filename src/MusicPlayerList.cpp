@@ -364,7 +364,7 @@ void MusicPlayerList::playCurrent() {
 	SET_STATE(LOADING);
 	
 	songFiles.clear();
-
+	
 	LOGD("PLAY PATH:%s", currentInfo.path);
 	string prefix, path;
 	auto parts = split(currentInfo.path, "::", 2);
@@ -373,6 +373,29 @@ void MusicPlayerList::playCurrent() {
 		path = parts[1];
 	} else
 		path = currentInfo.path;
+	
+	
+	if(prefix == "product") {
+		playList.clear();
+		auto id = stol(path);
+		vector<SongInfo> songs = MusicDatabase::getInstance().getProductSongs(id);
+		for(const auto &song : songs) {
+			playList.push_back(song);
+		}
+    	if(playList.size() == 0)
+        	return;
+		
+		//screenshot = MusicDatabase::getInstance().getProductScreenshots(id);
+		MusicDatabase::getInstance().lookup(playList.front());
+		if(playList.front().path == "") {
+			LOGD("Could not lookup '%s'", playList.front().path);
+			errors.push_back("Bad song in product");
+			SET_STATE(ERROR);
+			return;
+		}
+		SET_STATE(WAITING);
+		return;
+	}
 
 	if(prefix == "playlist") {
 		if(!handlePlaylist(path))
