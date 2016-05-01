@@ -1,7 +1,7 @@
 #include "ChipMachine.h"
 #include "Icons.h"
 #include "version.h"
-
+#include <grappix/window.h>
 #include <coreutils/format.h>
 
 #include <cctype>
@@ -74,6 +74,8 @@ ChipMachine::ChipMachine(const std::string &wd)
     : workDir(wd), player(wd), currentScreen(MAIN_SCREEN), eq(SpectrumAnalyzer::eq_slots),
       starEffect(screen), scrollEffect(screen) {
 
+	screen.setTitle("Chipmachine " VERSION_STR);
+	
 #ifdef USE_REMOTELISTS
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
 		string e = error;
@@ -334,10 +336,11 @@ void ChipMachine::update() {
 	playerState = player.getState();
 
 	if(playerState == MusicPlayerList::PLAY_STARTED) {
-		LOGD("MUSIC STARTING %s", currentInfo.title);
 		timeField.add = 0;
 		currentInfo = player.getInfo();
 		dbInfo = player.getDBInfo();
+		LOGD("MUSIC STARTING %s", currentInfo.title);
+		screen.setTitle(format("%s / %s (Chipmachine " VERSION_STR ")", currentInfo.title, currentInfo.composer));
 		string m;
 		if(currentInfo.metadata != "") {
 			m = compressWhitespace(currentInfo.metadata);
