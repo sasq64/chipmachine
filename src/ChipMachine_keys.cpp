@@ -64,10 +64,9 @@ void ChipMachine::setupRules() {
 	addKey(Window::BACKSPACE, if_equals(currentScreen, SEARCH_SCREEN) && if_null(currentDialog) && if_false(haveSearchChars), "clear_filter");
 	
 	addKey(Window::ESCAPE, if_not_null(currentDialog), "close_dialog");
+	addKey(Window::ESCAPE, if_equals(currentScreen, COMMAND_SCREEN), "clear_command");
+	addKey(Window::ESCAPE, if_equals(currentScreen, SEARCH_SCREEN), "clear_search");
 	
-	
-	addKey(Window::ESCAPE, if_false(haveSearchChars), "show_main");
-	addKey(Window::ESCAPE, if_true(haveSearchChars), "clear_search");
 	addKey(Window::F6, "next_song");
 	addKey(Window::ENTER, if_equals(currentScreen, MAIN_SCREEN), "next_song");
 	addKey(Window::ENTER, if_equals(currentScreen, SEARCH_SCREEN), "play_song");

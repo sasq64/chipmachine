@@ -149,10 +149,25 @@ void ChipMachine::setupCommands() {
 	});
 
 	cmd("clear_search", [=]() {
-		searchField.setText("");
-		searchUpdated = true;
+		if(searchField.getText() == "")
+			showScreen(MAIN_SCREEN);
+		else {
+			searchField.setText("");
+			searchUpdated = true;
+		}
 	});
 
+	cmd("clear_command", [=]() {
+		LOGD("CMD %s", commandField.getText());
+		if(commandField.getText() == "")
+			showScreen(MAIN_SCREEN);
+		else {
+			commandField.setText("");
+			clearCommand();
+			commandList.setTotal(matchingCommands.size());
+		}
+	});
+	
 	cmd("execute_selected_command", [=]() {
 		int i = commandList.selected();
 		if(matchingCommands.size() == 0)
