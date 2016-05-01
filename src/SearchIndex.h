@@ -184,7 +184,8 @@ public:
 	void setFilter(std::function<bool(int)> f = nullptr) { 
 		filter = f;
 	}
-	
+
+	uint32_t size() { return strings.size(); }	
 
 private:
 	// Worker<int> worker;
