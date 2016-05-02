@@ -6,6 +6,9 @@ include(${AP1_ROOT}/cmake/Utils.cmake)
 
 add_definitions(-DAPP_NAME=chipmachine)
 
+set(CMAKE_OSX_SYSROOT /Users/jonasm/MacOSX10.9.sdk)
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9")
+
 if(RASPBERRYPI)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv6 -mfpu=vfp -mfloat-abi=hard")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv6 -mfpu=vfp -mfloat-abi=hard")
