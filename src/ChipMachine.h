@@ -55,14 +55,16 @@ public:
 		target->draw(*texture, rec.x, rec.y, rec.w, rec.h, nullptr, color);
 	}
 	
-	void setBitmap(const image::bitmap &bm) {
-		texture = std::make_shared<grappix::Texture>(bm);
+	void setBitmap(const image::bitmap &bm, bool filter = false) {
+		texture = make_shared<grappix::Texture>(bm);
+		rec.w = bm.width();
+		rec.h = bm.height();
 		glBindTexture(GL_TEXTURE_2D, texture->id());
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter ? GL_LINEAR : GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter ? GL_LINEAR : GL_NEAREST);
 	}
 
-	void set(const grappix::Rectangle &r) { rec = r; }
+	void setArea(const grappix::Rectangle &r) { rec = r; }
 
 	grappix::Color color{0xffffffff};
 	grappix::Rectangle rec;
@@ -161,6 +163,8 @@ private:
 	bool haveSelection() {
 		return songList.selected() >= 0 && (songList.selected() < songList.size());
 	}
+	
+	void nextScreenshot();
 	
 	utils::File workDir;
 
@@ -297,13 +301,22 @@ private:
 
 	std::vector<Command> commands;
 	std::vector<Command *> matchingCommands;
-
+	std::mutex multiLoadLock;
 	int lastKey = 0;
 	bool searchUpdated = false;
 	std::string filter;
 	uint32_t favColor = 0x884444;
 
 	std::string namedToPlay;
+	int currentShot = -1;
+	struct NamedBitmap {
+		NamedBitmap(const std::string &name, const image::bitmap &bm) : name(name), bm(bm) {}
+		std::string name;
+		image::bitmap bm;
+	};
+	std::vector<NamedBitmap> screenshots;
+	uint64_t setShotAt = 0;
+	std::string currentScreenshot;
 };
 }
 

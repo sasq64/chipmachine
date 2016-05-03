@@ -70,11 +70,13 @@ set(SOURCE_FILES ${SOURCE_FILES} src/version.h src/TextField.h src/TextListView.
 file(GLOB DATA_FILES data/*.txt)
 file(GLOB LUA_FILES lua/*.lua)
 file(GLOB DOC_FILES *.md)
+file(GLOB SCRIPT_FILES scripts/*)
 
 add_custom_target(chipmachine.data_files SOURCES ${DATA_FILES} )
 add_custom_target(chipmachine.lua_files SOURCES ${LUA_FILES})
 add_custom_target(chipmachine.doc_files SOURCES ${DOC_FILES} )
-
+add_custom_target(chipmachine.script_files SOURCES ${SCRIPT_FILES} )
+  
 set(APONE_MODULES
 	coreutils
 	audioplayer
