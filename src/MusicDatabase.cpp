@@ -271,7 +271,7 @@ bool MusicDatabase::parseStandard(Variables &vars, const std::string &listFile,
                                   std::function<void(const SongInfo &)> callback) {
 
 	const char *metadata = nullptr;
-	int pi = 4, gi = 1, ti = 0, ci = 2, fi = 3;
+	int pi = 4, gi = 1, ti = 0, ci = 2, fi = 3, mi = 5;
 	auto templ = vars["song_template"];
 	auto format = vars["format"];
 	auto composer = vars["composer"];
@@ -306,6 +306,7 @@ bool MusicDatabase::parseStandard(Variables &vars, const std::string &listFile,
 		if(parts.size() >= columns) {
 
 			SongInfo song;
+			string metadata;
 
 			// Strip sorce from path if necessary
 			if(source != "" && parts[pi].find(source) == 0)
@@ -316,8 +317,13 @@ bool MusicDatabase::parseStandard(Variables &vars, const std::string &listFile,
 				parts[gi] = htmldecode(parts[gi]);
 			if(ci > 0)
 				parts[ci] = htmldecode(parts[ci]);
+			
+			if(parts.size() > mi)
+				metadata = parts[mi];
+			
 			song = SongInfo(parts[pi], gi >= 0 ? parts[gi] : "", parts[ti],
-			                ci >= 0 ? parts[ci] : composer, fi <= 0 ? format : parts[fi]);
+			                ci >= 0 ? parts[ci] : composer, fi <= 0 ? format : parts[fi],
+			                metadata);
 			callback(song);
 		}
 	}
@@ -649,17 +655,43 @@ SongInfo MusicDatabase::getSongInfo(int id) const {
 	}
 	throw not_found_exception();
 }
+std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
+	
+	lookup(s);
+	auto parts = split(s.path, "::");
+	string shot;
+	if(parts[0] == "pouet") {
+		shot = s.metadata;
+		if(shot != "")
+			shot = string("http://content.pouet.net/files/screenshots/") + shot;
+	}
+	return shot;
+}
 
 std::string MusicDatabase::getProductScreenshots(uint32_t id) {
 	std::vector<std::string> shots;
-	auto q = db.query<string>(		            
-		"SELECT screenshots "
-		"FROM product "
-		"WHERE prodid = ?",
+	auto q = db.query<string, string>(		            
+		"SELECT collection.id,screenshots "
+		"FROM product, collection "
+		"WHERE product.rowid = ? AND collection.ROWID = product.collection",
 		id);
 	
+	string screenshot;
+	string collection;
+	
 	if(q.step()) {
-		return q.get();
+		tie(collection, screenshot) = q.get_tuple();
+		string prefix = "";
+		if(collection == "pouet")
+			prefix = "http://content.pouet.net/files/screenshots/";
+		else if(collection == "bitworld")
+			prefix = "http://kestra.exotica.org.uk/files/screenies/";
+		auto parts = split(screenshot, ";");
+		for(auto &p : parts) {
+			p = prefix + p;
+		}
+		return join(parts, ";");
+		
 	}
 	return "";
 }

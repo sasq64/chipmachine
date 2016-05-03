@@ -85,6 +85,7 @@ void ChipMachine::setupRules() {
 	addKey(Window::F4 | ALT, "quit");
 	
 	addKey('d' | CTRL, "download_current");
+	addKey('z' | CTRL, "next_screenshot");
 	
 	addKey('r' | CTRL, "random_shuffle");
 	addKey('f' | CTRL, "format_shuffle");

@@ -171,6 +171,7 @@ public:
 	std::vector<SongInfo> getProductSongs(uint32_t id);
 	
 	std::string getProductScreenshots(uint32_t id);
+	std::string getSongScreenshots(SongInfo &s);
 
 	static MusicDatabase &getInstance() {
 		static MusicDatabase mdb;

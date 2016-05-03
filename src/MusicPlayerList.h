@@ -25,6 +25,18 @@ class ChipMachine;
 #undef ERROR
 #endif
 
+/*
+
+Thread model
+
+* Commands in through queued callbacks
+* State out needs to be mutexed on writing and reading
+
+  
+  
+*/
+
+
 class MusicPlayerList {
 public:
 	enum State {
@@ -47,7 +59,7 @@ public:
 		playerThread.join();
 	}
 
-	bool addSong(const SongInfo &si, bool shuffle = false);
+	void addSong(const SongInfo &si, bool shuffle = false); 
 	void playSong(const SongInfo &si);
 	void clearSongs();
 	void nextSong();
@@ -139,6 +151,15 @@ public:
 	const std::vector<utils::File> &getSongFiles() const { return songFiles; }
 
 private:
+	
+	void onThisThread(std::function<void()> f) {
+		LOCK_GUARD(plMutex);
+		funcs.push_back(f);
+	}
+	
+	std::vector<std::function<void()>> funcs;
+	
+	
 	bool handlePlaylist(const std::string &fileName);
 	void playCurrent();
 	bool playFile(const std::string &fileName);

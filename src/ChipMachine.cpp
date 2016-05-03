@@ -165,6 +165,9 @@ ChipMachine::ChipMachine(const std::string &wd)
 	nextInfoField.setAlign(1.0);
 	nextField.align = 1.0;
 
+	screenShotIcon = Icon(image::bitmap(8,8), 100, 100);
+	mainScreen.add(&screenShotIcon);
+
 	// SongInfo fields
 	mainScreen.add(&prevInfoField);
 	mainScreen.add(&currentInfoField);
@@ -224,9 +227,6 @@ ChipMachine::ChipMachine(const std::string &wd)
 	
 	auto bm = image::load_png(workDir / "data" / "types.png");
 	
-	screenShotIcon = Icon(bm, 100, 100);
-	mainScreen.add(&screenShotIcon);
-
 	showVolume = 0;
 
 	musicBars.setup(spectrumWidth, spectrumHeight, 24);
@@ -355,12 +355,12 @@ void ChipMachine::layoutScreen() {
 	commandField.cursorH = searchField.cursorH;
 	commandField.cursorW = searchField.cursorW;
 
-	favIcon.set(favPos);
+	favIcon.setArea(favPos);
 
 	float ww = volume_icon.width() * 15;
 	float hh = volume_icon.height() * 10;
 	volPos = {((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh};
-	volumeIcon.set(volPos);
+	volumeIcon.setArea(volPos);
 }
 
 void ChipMachine::play(const SongInfo &si) {
@@ -380,6 +380,32 @@ void ChipMachine::updateFavorite() {
 	uint32_t alpha = isFavorite ? 0xff : 0x00;
 	favIcon.color = Color(favColor | (alpha << 24));
 	// favIcon.visible(isFavorite);
+}
+
+void ChipMachine::nextScreenshot() {
+	setShotAt = utils::getms();
+	if(screenshots.size() == 0)
+		return;
+	
+	currentShot++;
+	if(currentShot >= screenshots.size())
+		currentShot = 0;
+	
+	Tween::make().to(screenShotIcon.color, Color(0x00000000)).seconds(1.0).onComplete([=]() {		
+		auto &bm = screenshots[currentShot].bm;
+		screenShotIcon.setBitmap(bm, true);
+		
+		auto y = xinfoField.pos.y + xinfoField.getHeight() + 10;
+		auto h = scrollEffect.scrolly - y;
+		auto x = xinfoField.pos.x;
+		
+		LOGD("HEIGHT %d", h);
+				
+		float d = (float)h / bm.height();
+		int w = bm.width() * d;	
+		screenShotIcon.setArea(Rectangle(x, y, w, h));
+		Tween::make().to(screenShotIcon.color, Color(0xffffffff)).seconds(1.0);
+	});	
 }
 
 void ChipMachine::update() {
@@ -426,6 +452,35 @@ void ChipMachine::update() {
 			scrollEffect.set("scrolltext", m);
 			scrollText = m;
 		}
+		
+		auto shot = player.getMeta("screenshot");
+		LOGD("SCREENSHOT: %s", shot);
+		if(shot != "" && shot != currentScreenshot) {
+			currentScreenshot = shot;
+			auto parts = split(shot, ";");
+			int total = parts.size();
+			auto cb = [=](File f) {
+				LOCK_GUARD(multiLoadLock);
+				auto bm = image::load_png(f.getName());
+				for(auto &px : bm) {
+					if((px & 0xffffff) == 0)
+						px &= 0xffffff;
+				}
+				
+				screenshots.emplace_back(f.getFileName(), bm);
+				
+				if(screenshots.size() == total) {
+					sort(screenshots.begin(), screenshots.end(), [](const NamedBitmap &a, const NamedBitmap &b) {
+						return a.name < b.name;
+					});
+					nextScreenshot();
+				}
+			};
+			screenshots.clear();
+			for(auto &p : parts)
+				webutils::Web::getInstance().getFile(p, cb);
+		} else
+			nextScreenshot();
 
 		// Make sure any previous tween is complete
 		currentTween.finish();
@@ -612,6 +667,11 @@ void ChipMachine::update() {
 	    playerState == MusicPlayerList::LOADING || webutils::Web::inProgress() > 0);
 
 	netIcon.visible(busy);
+	
+	if(setShotAt < utils::getms() - 10000)
+		nextScreenshot();
+	
+	
 }
 
 void fadeOut(float &alpha, float t = 0.25) {
@@ -690,5 +750,8 @@ void ChipMachine::render(uint32_t delta) {
 	listFont.update_cache();
 
 	screen.flip();
+	
+	webutils::Web::pollAll();
+	
 }
 }

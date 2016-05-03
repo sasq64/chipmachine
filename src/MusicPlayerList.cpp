@@ -19,92 +19,68 @@ MusicPlayerList::MusicPlayerList(const std::string &workDir) : mp(workDir) {
 	quitThread = false;
 	playerThread = thread([=]() {
 		while(!quitThread) {
+			plMutex.lock();
+			if(funcs.size()) {
+				auto q = funcs;
+				funcs.clear();
+				plMutex.unlock();
+				for(auto &f : q)
+					f();
+			} else
+				plMutex.unlock();
 			update();
 			sleepms(100);
 		}
 	});
 }
 
-bool MusicPlayerList::checkPermission(int flags) {
-	if(!(permissions & flags)) {
-		wasAllowed = false;
-		return false;
-	}
-	return true;
-}
+void MusicPlayerList::addSong(const SongInfo &si, bool shuffle) {
 
-bool MusicPlayerList::addSong(const SongInfo &si, bool shuffle) {
-
-	if(!checkPermission(CAN_ADD_SONG))
-		return false;
-	LOCK_GUARD(plMutex);
-
-	if(partyMode || shuffle) {
-		if(partyMode && playList.size() >= 50) {
-			wasAllowed = false;
-			return false;
+	//LOCK_GUARD(plMutex);
+	onThisThread([=] {
+		if(shuffle) {
+			playList.insert(playList.begin() + (rand() % (playList.size() + 1)), si);
+		} else {
+			LOGD("PUSH %s/%s (%s)", si.title, si.composer, si.path);
+			playList.push_back(si);
 		}
-		playList.insert(playList.begin() + (rand() % (playList.size() + 1)), si);
-	} else {
-		LOGD("PUSH %s/%s (%s)", si.title, si.composer, si.path);
-		playList.push_back(si);
-	}
-	return true;
+	});
+	//return true;
 }
 
 void MusicPlayerList::clearSongs() {
-	if(!checkPermission(CAN_CLEAR_SONGS))
-		return;
-	LOCK_GUARD(plMutex);
-	playList.clear();
+	//LOCK_GUARD(plMutex);
+	onThisThread( [=] { playList.clear(); });
 }
 
 void MusicPlayerList::nextSong() {
-	if(!checkPermission(CAN_SWITCH_SONG))
-		return;
-	LOCK_GUARD(plMutex);
-	if(playList.size() > 0) {
-		// mp.stop();
-		SET_STATE(WAITING);
-	}
+	//LOCK_GUARD(plMutex);
+	onThisThread( [=] {
+		if(playList.size() > 0) {
+			// mp.stop();
+			SET_STATE(WAITING);
+		}
+	});
 }
 
 void MusicPlayerList::playSong(const SongInfo &si) {
-	if(!checkPermission(CAN_SWITCH_SONG))
-		return;
 	LOCK_GUARD(plMutex);
 	dbInfo = currentInfo = si;
 	SET_STATE(PLAY_NOW);
 }
 
-void MusicPlayerList::updateInfo() {
-	auto si = mp.getPlayingInfo();
-	/* if(si.title != "")
-	    currentInfo.title = si.title;
-	if(si.composer != "")
-	    currentInfo.composer = si.composer; */
-	if(si.format != "")
-		currentInfo.format = si.format;
-	// if(si.length > 0)
-	//	currentInfo.length = si.length;
-	if(!multiSongs.size()) {
-		currentInfo.numtunes = si.numtunes;
-		currentInfo.starttune = si.starttune;
-	}
-}
-
 void MusicPlayerList::seek(int song, int seconds) {
-	if(!checkPermission(CAN_SEEK))
-		return;
-	if(multiSongs.size()) {
-		LOGD("CHANGED MULTI");
-		state = PLAY_MULTI;
-		multiSongNo = song;
-		return;
-	}
-	mp.seek(song, seconds);
-	if(song >= 0)
-		changedSong = true;
+	onThisThread([=] {
+		if(multiSongs.size()) {
+			LOGD("CHANGED MULTI");
+			state = PLAY_MULTI;
+			multiSongNo = song;
+			return;
+		}
+		mp.seek(song, seconds);
+		if(song >= 0)
+			changedSong = true;
+	});
 }
 
 uint16_t *MusicPlayerList::getSpectrum() {
@@ -141,6 +117,16 @@ int MusicPlayerList::listSize() {
 }
 
 /// PRIVATE
+
+void MusicPlayerList::updateInfo() {
+	auto si = mp.getPlayingInfo();
+	if(si.format != "")
+		currentInfo.format = si.format;
+	if(!multiSongs.size()) {
+		currentInfo.numtunes = si.numtunes;
+		currentInfo.starttune = si.starttune;
+	}
+}
 
 bool MusicPlayerList::handlePlaylist(const string &fileName) {
 
@@ -364,6 +350,7 @@ void MusicPlayerList::playCurrent() {
 	SET_STATE(LOADING);
 	
 	songFiles.clear();
+	//screenshot = "";
 	
 	LOGD("PLAY PATH:%s", currentInfo.path);
 	string prefix, path;
@@ -376,16 +363,18 @@ void MusicPlayerList::playCurrent() {
 	
 	
 	if(prefix == "product") {
-		playList.clear();
+		//playList.clear();
+		auto l = playList.size();
 		auto id = stol(path);
 		vector<SongInfo> songs = MusicDatabase::getInstance().getProductSongs(id);
 		for(const auto &song : songs) {
-			playList.push_back(song);
+			playList.push_front(song);
 		}
-    	if(playList.size() == 0)
+    	if(playList.size() == l)
         	return;
 		
-		//screenshot = MusicDatabase::getInstance().getProductScreenshots(id);
+		screenshot = MusicDatabase::getInstance().getProductScreenshots(id);
+		LOGD("Got screenshot: %s", screenshot);
 		MusicDatabase::getInstance().lookup(playList.front());
 		if(playList.front().path == "") {
 			LOGD("Could not lookup '%s'", playList.front().path);
@@ -395,6 +384,10 @@ void MusicPlayerList::playCurrent() {
 		}
 		SET_STATE(WAITING);
 		return;
+	} else {
+		auto s = MusicDatabase::getInstance().getSongScreenshots(currentInfo);
+		if(s != "")
+			screenshot = s;
 	}
 
 	if(prefix == "playlist") {

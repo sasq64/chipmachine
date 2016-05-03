@@ -79,10 +79,16 @@ void ChipMachine::setupCommands() {
 	});
 
 	cmd("enque_song", [=]() {
-		if(haveSelection() && player.addSong(getSelectedSong()))
+		if(haveSelection()) {
+			player.addSong(getSelectedSong());
 			songList.select(songList.selected() + 1);
+		}
 	});
 
+	cmd("next_screenshot", [=]() {
+		nextScreenshot();
+	});
+	
 	cmd("add_current_favorite", [=]() {
 		auto song = dbInfo;
 		//if(currentTune != song.starttune)
