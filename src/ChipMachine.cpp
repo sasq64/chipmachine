@@ -74,13 +74,10 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate.scale);
 }
 
-
 class YoutubePlugin : public ChipPlugin {
 public:
-	YoutubePlugin(LuaInterpreter &lua) : lua(lua) {
-		plugin = ChipPlugin::getPlugin("ffmpeg");
-	}
-	
+	YoutubePlugin(LuaInterpreter &lua) : lua(lua) { plugin = ChipPlugin::getPlugin("ffmpeg"); }
+
 	virtual ChipPlayer *fromFile(const std::string &fileName) override {
 		LOGD("Youtube plugin %s", fileName);
 		string x = lua.call<string>(string("on_parse_youtube"), fileName);
@@ -89,18 +86,18 @@ public:
 		auto player = plugin->fromFile(x);
 		auto dpos = x.find("dur=");
 		if(dpos != string::npos) {
-			int length = atoi(x.substr(dpos+4).c_str());
-			player->setMeta("length",  length);
+			int length = atoi(x.substr(dpos + 4).c_str());
+			player->setMeta("length", length);
 		}
-		return player;	
+		return player;
 	}
-	
+
 	virtual bool canHandle(const string &name) override {
-		return startsWith(name, "http") && name.find("youtu") != string::npos;	
+		return startsWith(name, "http") && name.find("youtu") != string::npos;
 	}
-	
+
 	virtual std::string name() const override { return "youtube"; }
-	
+
 	LuaInterpreter &lua;
 	std::shared_ptr<ChipPlugin> plugin;
 };
@@ -113,40 +110,40 @@ ChipMachine::ChipMachine(const std::string &wd)
 	
 		lua.setGlobal("WINDOWS",
 #ifdef _WIN32
-		true
+	              true
 #else
-		false
+	              false
 #endif
-		);
+	              );
 
-		string binDir = (workDir / "bin").getName();
-		lua.registerFunction("cm_execute", [binDir](std::string cmd) {
-			LOGD("BINDIR:%s", binDir);
+	string binDir = (workDir / "bin").getName();
+	lua.registerFunction("cm_execute", [binDir](std::string cmd) {
+		LOGD("BINDIR:%s", binDir);
 #ifdef _WIN32
- 			auto cmdLine = utils::format("/C %s", cmd);
-			SHELLEXECUTEINFO ShExecInfo = {0};
-			ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-			ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-			ShExecInfo.hwnd = NULL;
-			ShExecInfo.lpVerb = NULL;
-			ShExecInfo.lpFile = "cmd.exe";        
-			ShExecInfo.lpParameters = cmdLine.c_str(); 
-			ShExecInfo.lpDirectory = binDir.c_str();
-			ShExecInfo.nShow = SW_HIDE;
-			ShExecInfo.hInstApp = NULL; 
-			ShellExecuteEx(&ShExecInfo);
-			WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
+		auto cmdLine = utils::format("/C %s", cmd);
+		SHELLEXECUTEINFO ShExecInfo = {0};
+		ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+		ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+		ShExecInfo.hwnd = NULL;
+		ShExecInfo.lpVerb = NULL;
+		ShExecInfo.lpFile = "cmd.exe";
+		ShExecInfo.lpParameters = cmdLine.c_str();
+		ShExecInfo.lpDirectory = binDir.c_str();
+		ShExecInfo.nShow = SW_HIDE;
+		ShExecInfo.hInstApp = NULL;
+		ShellExecuteEx(&ShExecInfo);
+		WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
 #else
 			if(cmd[0] != '/')
 				cmd = binDir + "/" + cmd; 
 			system(cmd.c_str());
 #endif
-		});
+	});
 
-		lua.loadFile(workDir / "lua" / "init.lua");
-		
-		ChipPlugin::addPlugin(make_shared<YoutubePlugin>(lua));
-		
+	lua.loadFile(workDir / "lua" / "init.lua");
+
+	ChipPlugin::addPlugin(make_shared<YoutubePlugin>(lua));
+
 #ifdef USE_REMOTELISTS
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
 		string e = error;
@@ -167,7 +164,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 	nextInfoField.setAlign(1.0);
 	nextField.align = 1.0;
 
-	screenShotIcon = Icon(image::bitmap(8,8), 100, 100);
+	screenShotIcon = Icon(image::bitmap(8, 8), 100, 100);
 	mainScreen.add(&screenShotIcon);
 
 	// SongInfo fields
@@ -226,7 +223,6 @@ ChipMachine::ChipMachine(const std::string &wd)
 	netIcon = Icon(net_icon, 2, 2, 8 * 3, 5 * 3);
 	mainScreen.add(&netIcon);
 	netIcon.visible(false);
-	
 	showVolume = 0;
 
 	musicBars.setup(spectrumWidth, spectrumHeight, 24);
@@ -321,7 +317,8 @@ void ChipMachine::layoutScreen() {
 	currentTween.finish();
 	currentTween = Tween();
 
-	lua.call<void>("on_layout", screen.width(), screen.height(), screen.getPPI() < 0 ? 100 : screen.getPPI()); 
+	lua.call<void>("on_layout", screen.width(), screen.height(),
+	               screen.getPPI() < 0 ? 100 : screen.getPPI());
 
 	File f(workDir / "lua" / "screen.lua");
 
@@ -386,26 +383,29 @@ void ChipMachine::nextScreenshot() {
 	setShotAt = utils::getms();
 	if(screenshots.size() == 0)
 		return;
-	
+
 	currentShot++;
 	if(currentShot >= screenshots.size())
 		currentShot = 0;
-	
-	Tween::make().to(screenShotIcon.color, Color(0x00000000)).seconds(1.0).onComplete([=]() {		
-		auto &bm = screenshots[currentShot].bm;
-		screenShotIcon.setBitmap(bm, true);
-		
-		auto y = xinfoField.pos.y + xinfoField.getHeight() + 10;
-		auto h = scrollEffect.scrolly - y;
-		auto x = xinfoField.pos.x;
-		
-		LOGD("HEIGHT %d", h);
-				
-		float d = (float)h / bm.height();
-		int w = bm.width() * d;	
-		screenShotIcon.setArea(Rectangle(x, y, w, h));
-		Tween::make().to(screenShotIcon.color, Color(0xffffffff)).seconds(1.0);
-	});	
+
+	Tween::make()
+	    .to(screenShotIcon.color, Color(0x00000000))
+	    .seconds(1.0)
+	    .onComplete([=]() {
+		    auto &bm = screenshots[currentShot].bm;
+		    screenShotIcon.setBitmap(bm, true);
+
+		    auto y = xinfoField.pos.y + xinfoField.getHeight() + 10;
+		    auto h = scrollEffect.scrolly - y;
+		    auto x = xinfoField.pos.x;
+
+		    LOGD("HEIGHT %d", h);
+
+		    float d = (float)h / bm.height();
+		    int w = bm.width() * d;
+		    screenShotIcon.setArea(Rectangle(x, y, w, h));
+		    Tween::make().to(screenShotIcon.color, Color(0xffffffff)).seconds(1.0);
+		});
 }
 
 void ChipMachine::update() {
@@ -474,7 +474,7 @@ void ChipMachine::update() {
 			scrollEffect.set("scrolltext", m);
 			scrollText = m;
 		}
-		
+
 		auto shot = player.getMeta("screenshot");
 		LOGD("SCREENSHOT: %s", shot);
 		if(shot != "" && shot != currentScreenshot) {
@@ -482,19 +482,35 @@ void ChipMachine::update() {
 			auto parts = split(shot, ";");
 			int total = parts.size();
 			auto cb = [=](File f) {
-				LOCK_GUARD(multiLoadLock);
-				auto bm = image::load_png(f.getName());
-				for(auto &px : bm) {
-					if((px & 0xffffff) == 0)
-						px &= 0xffffff;
+				int t = total;
+				if(!f) {
+					screenshots.emplace_back();
+				} else {	
+					//LOCK_GUARD(multiLoadLock);
+					
+					if(toLower(path_extension(f.getName())) == "gif") {
+						t--;
+						for(auto &bm : image::load_gifs(f.getName())) {
+							for(auto &px : bm) {
+								if((px & 0xffffff) == 0)
+									px &= 0xffffff;
+							}
+							screenshots.emplace_back(f.getFileName(), bm);
+							t++;
+						}
+					} else {					
+						auto bm = image::load_image(f.getName());
+						for(auto &px : bm) {
+							if((px & 0xffffff) == 0)
+								px &= 0xffffff;
+						}
+						screenshots.emplace_back(f.getFileName(), bm);
+					}
 				}
-				
-				screenshots.emplace_back(f.getFileName(), bm);
-				
-				if(screenshots.size() == total) {
-					sort(screenshots.begin(), screenshots.end(), [](const NamedBitmap &a, const NamedBitmap &b) {
-						return a.name < b.name;
-					});
+
+				if(screenshots.size() >= t) {
+					screenshots.erase(std::remove(screenshots.begin(), screenshots.end(), ""), screenshots.end());
+					sort(screenshots.begin(), screenshots.end());
 					nextScreenshot();
 				}
 			};
@@ -537,12 +553,6 @@ void ChipMachine::update() {
 		updateFavorite();
 		// Start tweening
 		LOGD("## TWEENING INFO FIELDS");
-
-		// Setting next field here to get correct alignment
-		// if(player.listSize() > 0) {
-		// auto info = player.getInfo(1);
-		// nextInfoField.setInfo(info);
-		//}
 
 		if(player.wasFromQueue()) {
 			currentTween = Tween::make() // target , source  <------
@@ -689,11 +699,9 @@ void ChipMachine::update() {
 	    playerState == MusicPlayerList::LOADING || webutils::Web::inProgress() > 0);
 
 	netIcon.visible(busy);
-	
+
 	if(setShotAt < utils::getms() - 10000)
 		nextScreenshot();
-	
-	
 }
 
 void fadeOut(float &alpha, float t = 0.25) {
@@ -772,8 +780,7 @@ void ChipMachine::render(uint32_t delta) {
 	listFont.update_cache();
 
 	screen.flip();
-	
+
 	webutils::Web::pollAll();
-	
 }
 }

@@ -310,9 +310,12 @@ private:
 	std::string namedToPlay;
 	int currentShot = -1;
 	struct NamedBitmap {
+		NamedBitmap() {}
 		NamedBitmap(const std::string &name, const image::bitmap &bm) : name(name), bm(bm) {}
 		std::string name;
 		image::bitmap bm;
+		bool operator==(const char *n) const { return strcmp(name.c_str(), n) == 0; }
+		bool operator<(const NamedBitmap &other) const { return name < other.name; }
 	};
 	std::vector<NamedBitmap> screenshots;
 	uint64_t setShotAt = 0;

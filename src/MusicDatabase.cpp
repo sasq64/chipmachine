@@ -76,6 +76,11 @@ bool MusicDatabase::parseCsdb(Variables &vars, const std::string &listFile,
 				group += gn;
 			}
 		}
+		auto shot = i["Screenshot"];
+		if(shot.valid()) {
+			prod.screenshots = shot.text();
+			LOGD("Screenshot %s", prod.screenshots);
+		}
 		prod.creator = group;
 		if((endsWith(prod.type, "Music Collection") || endsWith(prod.type, "Diskmag") ||
 		    endsWith(prod.type, "Demo")) && rt > 0) {
