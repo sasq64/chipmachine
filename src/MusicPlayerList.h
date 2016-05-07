@@ -92,8 +92,6 @@ public:
 	std::string getMeta(const std::string &what) {
 		if(what == "sub_title" && cueTitle != "")
 			return cueTitle;
-		if(what == "screenshot")
-			return screenshot;
 		return mp.getMeta(what);
 	}
 
@@ -173,7 +171,35 @@ private:
 
 	MusicPlayer mp;
 	std::mutex plMutex;
-	std::deque<SongInfo> playList;
+	
+	struct PlayQueue {
+		std::deque<SongInfo> songs;
+		std::deque<SongInfo> psongs;
+		std::string prodScreenshot;
+		int size() { return songs.size() + psongs.size(); }
+		void push_back(const SongInfo &s) { songs.push_back(s); }
+		//void push_font(const SongInfo &s) { songs.push_front(s); }
+		void clear() { psongs.clear(); songs.clear(); }
+		void pop_front() { 
+			if(psongs.size() > 0)
+				psongs.pop_front();
+			else
+				songs.pop_front(); 
+		}
+		SongInfo& front() {
+			if(psongs.size() > 0)
+				return psongs.front();
+			return songs.front(); 
+		}
+		SongInfo& getSong(int i) { 
+			if(i < psongs.size())
+				return psongs[i];
+			return songs[i - psongs.size()]; 
+		}
+		void insertAt(int i, const SongInfo &s) { songs.insert( songs.begin() + i, s); }
+	};
+	
+	PlayQueue playList;
 
 	std::atomic<bool> wasAllowed;
 	std::atomic<bool> quitThread;
@@ -205,13 +231,14 @@ private:
 
 	int multiSongNo;
 	std::vector<std::string> multiSongs;
+	//std::deque<SongInfo> productSongs;
 	bool changedMulti = false;
 	// RemoteLists &tracker;
 	bool playedNext;
 	
 	std::vector<utils::File> songFiles;
 	
-	std::string screenshot;
+	//std::string screenshot;
 	
 };
 

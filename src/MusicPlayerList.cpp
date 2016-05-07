@@ -39,7 +39,7 @@ void MusicPlayerList::addSong(const SongInfo &si, bool shuffle) {
 	//LOCK_GUARD(plMutex);
 	onThisThread([=] {
 		if(shuffle) {
-			playList.insert(playList.begin() + (rand() % (playList.size() + 1)), si);
+			playList.insertAt(rand() % (playList.size() + 1), si);
 		} else {
 			LOGD("PUSH %s/%s (%s)", si.title, si.composer, si.path);
 			playList.push_back(si);
@@ -95,8 +95,7 @@ SongInfo MusicPlayerList::getInfo(int index) {
 	LOCK_GUARD(plMutex);
 	if(index == 0)
 		return currentInfo;
-	else
-		return playList[index - 1];
+	return playList.getSong(index - 1);
 }
 
 SongInfo MusicPlayerList::getDBInfo() {
@@ -322,18 +321,17 @@ void MusicPlayerList::update() {
 		}
 	}
 
-	if(state == WAITING && playList.size() > 0) {
+	if(state == WAITING && (playList.size() > 0)) {
 		SET_STATE(STARTED);
+		playedNext = true;
 		dbInfo = currentInfo = playList.front();
 		playList.pop_front();
-
-		playedNext = true;
 
 		if(playList.size() > 0) {
 			// Update info for next song from
 			MusicDatabase::getInstance().lookup(playList.front());
 		}
-
+			
 		// pos = 0;
 		LOGD("Next song from queue : %s (%d)", currentInfo.path, currentInfo.starttune);
 		if(partyMode) {
@@ -363,21 +361,19 @@ void MusicPlayerList::playCurrent() {
 	
 	
 	if(prefix == "product") {
-		//playList.clear();
-		auto l = playList.size();
 		auto id = stol(path);
-		vector<SongInfo> songs = MusicDatabase::getInstance().getProductSongs(id);
-		for(const auto &song : songs) {
-			playList.push_front(song);
+		playList.psongs.clear();
+		for(const auto &song : MusicDatabase::getInstance().getProductSongs(id)) {
+			playList.psongs.push_back(song);
 		}
-    	if(playList.size() == l)
+    	if(playList.psongs.size() == 0)
         	return;
-		
+	/*	
 		screenshot = MusicDatabase::getInstance().getProductScreenshots(id);
-		LOGD("Got screenshot: %s", screenshot);
-		MusicDatabase::getInstance().lookup(playList.front());
-		if(playList.front().path == "") {
-			LOGD("Could not lookup '%s'", playList.front().path);
+		LOGD("Got screenshot: %s", screenshot); */
+		MusicDatabase::getInstance().lookup(playList.psongs.front());
+		if(playList.psongs.front().path == "") {
+			LOGD("Could not lookup '%s'",playList.psongs.front().path);
 			errors.push_back("Bad song in product");
 			SET_STATE(ERROR);
 			return;
@@ -385,9 +381,10 @@ void MusicPlayerList::playCurrent() {
 		SET_STATE(WAITING);
 		return;
 	} else {
-		auto s = MusicDatabase::getInstance().getSongScreenshots(currentInfo);
-		if(s != "")
-			screenshot = s;
+		if(currentInfo.metadata[SongInfo::SCREENSHOT] == "") {
+			auto s = MusicDatabase::getInstance().getSongScreenshots(currentInfo);
+			currentInfo.metadata[SongInfo::SCREENSHOT] = s;
+		}
 	}
 
 	if(prefix == "playlist") {

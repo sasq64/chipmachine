@@ -50,7 +50,7 @@ public:
 	}
 
 	void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
-		if((color >> 24) == 0)
+		if(!texture || (color >> 24) == 0)
 			return;
 		target->draw(*texture, rec.x, rec.y, rec.w, rec.h, nullptr, color);
 	}
@@ -62,6 +62,10 @@ public:
 		glBindTexture(GL_TEXTURE_2D, texture->id());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter ? GL_LINEAR : GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter ? GL_LINEAR : GL_NEAREST);
+	}
+	
+	void clear() {
+		texture = nullptr;
 	}
 
 	void setArea(const grappix::Rectangle &r) { rec = r; }

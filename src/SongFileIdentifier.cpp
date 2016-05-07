@@ -323,7 +323,7 @@ bool identify_song(SongInfo &info, string ext) {
 
 	if(ext == "prg") {
 
-		auto parts = split(info.metadata, "/");
+		auto parts = split(info.metadata[SongInfo::INFO], "/");
 		LOGD("PARTS %s", parts);
 		int l = parts.size();
 		auto title = path_basename(parts[l-1]);

@@ -16,7 +16,7 @@ void makeList(const std::string &local_dir, const std::string &list_file) {
         name = name.substr(local_dir.length());
         if(name[0] == '/')
             name = name.substr(1);
-        songInfo.metadata = name;
+        songInfo.metadata[SongInfo::INFO] = name;
         if(identify_song(songInfo)) {
             listFile.writeln(join("\t", songInfo.title, songInfo.game, songInfo.composer,
                                   songInfo.format, name));
