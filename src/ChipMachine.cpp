@@ -465,8 +465,8 @@ void ChipMachine::update() {
 		LOGD("MUSIC STARTING %s", currentInfo.title);
 		screen.setTitle(format("%s / %s (Chipmachine " VERSION_STR ")", currentInfo.title, currentInfo.composer));
 		string m;
-		if(currentInfo.metadata != "") {
-			m = compressWhitespace(currentInfo.metadata);
+		if(currentInfo.metadata[SongInfo::INFO] != "") {
+			m = compressWhitespace(currentInfo.metadata[SongInfo::INFO]);
 		} else {
 			m = compressWhitespace(player.getMeta("message"));
 		}
@@ -475,48 +475,56 @@ void ChipMachine::update() {
 			scrollText = m;
 		}
 
-		auto shot = player.getMeta("screenshot");
+		auto shot = currentInfo.metadata[SongInfo::SCREENSHOT]; //player.getMeta("screenshot");
 		LOGD("SCREENSHOT: %s", shot);
-		if(shot != "" && shot != currentScreenshot) {
+	
+		if(shot != currentScreenshot) {
+			screenShotIcon.clear();
+			screenshots.clear();
 			currentScreenshot = shot;
-			auto parts = split(shot, ";");
-			int total = parts.size();
-			auto cb = [=](File f) {
-				int t = total;
-				if(!f) {
-					screenshots.emplace_back();
-				} else {	
-					//LOCK_GUARD(multiLoadLock);
-					
-					if(toLower(path_extension(f.getName())) == "gif") {
-						t--;
-						for(auto &bm : image::load_gifs(f.getName())) {
+			
+		
+			if(shot != "") {
+				auto parts = split(shot, ";");
+				int total = parts.size();
+				auto cb = [=](File f) {
+					if(currentScreenshot == "")
+						return; // We probably got a new screenshot while loading
+					int t = total;
+					if(!f) {
+						screenshots.emplace_back();
+					} else {	
+						//LOCK_GUARD(multiLoadLock);
+						
+						if(toLower(path_extension(f.getName())) == "gif") {
+							t--;
+							for(auto &bm : image::load_gifs(f.getName())) {
+								for(auto &px : bm) {
+									if((px & 0xffffff) == 0)
+										px &= 0xffffff;
+								}
+								screenshots.emplace_back(f.getFileName(), bm);
+								t++;
+							}
+						} else {
+							auto bm = image::load_image(f.getName());
 							for(auto &px : bm) {
 								if((px & 0xffffff) == 0)
 									px &= 0xffffff;
 							}
 							screenshots.emplace_back(f.getFileName(), bm);
-							t++;
 						}
-					} else {					
-						auto bm = image::load_image(f.getName());
-						for(auto &px : bm) {
-							if((px & 0xffffff) == 0)
-								px &= 0xffffff;
-						}
-						screenshots.emplace_back(f.getFileName(), bm);
 					}
-				}
-
-				if(screenshots.size() >= t) {
-					screenshots.erase(std::remove(screenshots.begin(), screenshots.end(), ""), screenshots.end());
-					sort(screenshots.begin(), screenshots.end());
-					nextScreenshot();
-				}
-			};
-			screenshots.clear();
-			for(auto &p : parts)
-				webutils::Web::getInstance().getFile(p, cb);
+	
+					if(screenshots.size() >= t) {
+						screenshots.erase(std::remove(screenshots.begin(), screenshots.end(), ""), screenshots.end());
+						sort(screenshots.begin(), screenshots.end());
+						nextScreenshot();
+					}
+				};
+				for(auto &p : parts)
+					webutils::Web::getInstance().getFile(p, cb);
+			}
 		} else
 			nextScreenshot();
 
@@ -529,7 +537,7 @@ void ChipMachine::update() {
 		currentInfoField.setInfo(currentInfo);
 		// currentTune = currentInfo.starttune;
 		currentTune = player.getTune();
-
+		
 		if(currentInfo.numtunes > 0)
 			songField.setText(format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
 		else
@@ -639,6 +647,11 @@ void ChipMachine::update() {
 		} else if(lockDown && !party) {
 			lockDown = false;
 			Tween::make().to(timeField.color, timeColor).seconds(2.0);
+		}
+		
+		auto br = player.getMeta("bitrate");
+		if(br != "") {
+			songField.setText(format("%s KBit", br));
 		}
 
 		auto p = player.getPosition();
