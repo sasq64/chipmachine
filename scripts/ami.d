@@ -100,6 +100,7 @@ void main() {
 	auto metaRx = ctRegex!`(.*)\s+\(([^\)]*)\)\s+by\s+(.*)`;
 	auto hrefRx = ctRegex!`href='([^']+)'`;
 	auto imgRx = ctRegex!`<img\s+[^>]*src=["']([^"']+)["']`;
+	auto akaRx = ctRegex!`<span.*>aka .*<\/span>`;
 
 	foreach(id ; 1 .. 100000) {
 		auto fileName = format("bitworld.%s.html", id);
@@ -116,7 +117,9 @@ void main() {
 		auto contents = findTag(s, "div", [ "class" : "area symbolspace" ]);
 		if(contents) {
 
-			auto line = stripTags(findTag(contents, "h1"));
+			auto header = findTag(contents, "h1");
+			header = replaceAll(header, akaRx, "");
+			auto line = stripTags(header);
 			auto c = matchFirst(line, metaRx);
 			if(c) {
 				//string[string] x;
