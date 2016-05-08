@@ -253,6 +253,18 @@ void ChipMachine::setupCommands() {
 		showScreen(MAIN_SCREEN);
 		player.nextSong();
 	});
+	
+	cmd("favorite_shuffle", [=]() {
+		toast("Favorites shuffle!");
+		player.clearSongs();
+		auto favorites = MusicDatabase::getInstance().getPlaylist(currentPlaylistName);
+		for(const auto &s : favorites) {
+			if(!endsWith(s.path, ".plist"))
+				player.addSong(s, true);
+		}
+		showScreen(MAIN_SCREEN);
+		player.nextSong();
+	});
 
 	cmd("close_dialog", [=]() {
 		if(currentDialog)
