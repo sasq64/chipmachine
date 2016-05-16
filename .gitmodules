@@ -1,0 +1,3 @@
+[submodule "apone"]
+	path = apone
+	url = git@github.com:sasq64/apone.git
