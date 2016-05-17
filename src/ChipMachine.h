@@ -223,7 +223,7 @@ private:
 
 	//
 
-	string currentNextPath;
+	std::string currentNextPath;
 	SongInfo currentInfo;
 	SongInfo dbInfo;
 	int currentTune = 0;
