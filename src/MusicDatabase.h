@@ -6,7 +6,10 @@
 
 #include <coreutils/file.h>
 #include <coreutils/utils.h>
-#include <sqlite3/database.h>
+//#include <sqlite3/database.h>
+namespace sqlite3db {
+	class Database;
+}
 
 #include <unordered_set>
 #include <coreutils/thread.h>
@@ -101,10 +104,9 @@ class MusicDatabase : public SearchProvider {
 public:
 	using Variables = std::unordered_map<std::string, std::string>;
 
-	MusicDatabase() : db(utils::File::getCacheDir() / "music.db"), reindexNeeded(false) {
-		createTables();
-	}
-
+	MusicDatabase();
+	~MusicDatabase();
+	
 	bool initFromLua(const utils::File &workDir);
 	void initFromLuaAsync(const utils::File &workDir);
 
@@ -262,7 +264,8 @@ private:
 
 	mutable std::mutex chkMutex;
 	mutable std::mutex dbMutex;
-	sqlite3db::Database db;
+	std::unique_ptr<sqlite3db::Database> db_ptr;
+	sqlite3db::Database &db;
 	bool reindexNeeded;
 
 	uint16_t dbVersion;

@@ -1,41 +1,41 @@
 #include "ChipMachine.h"
 
-using namespace std;
 using namespace utils;
-using namespace grappix;
-using namespace tween;
+
+using tween::Tween;
 
 namespace chipmachine {
 
 void ChipMachine::setVariable(const std::string &name, int index, const std::string &val) {
 
 	// The text fields that are configurable from lua
-	static unordered_map<string, TextField *> fields = {{"main_title", &currentInfoField[0]},
-	                                                    {"main_composer", &currentInfoField[1]},
-	                                                    {"main_format", &currentInfoField[2]},
+	static std::unordered_map<std::string, TextField *> fields = {
+	    {"main_title", &currentInfoField[0]},
+	    {"main_composer", &currentInfoField[1]},
+	    {"main_format", &currentInfoField[2]},
 
-	                                                    {"next_title", &nextInfoField[0]},
-	                                                    {"next_composer", &nextInfoField[1]},
-	                                                    {"next_format", &nextInfoField[2]},
+	    {"next_title", &nextInfoField[0]},
+	    {"next_composer", &nextInfoField[1]},
+	    {"next_format", &nextInfoField[2]},
 
-	                                                    {"exit_title", &prevInfoField[0]},
-	                                                    {"exit_composer", &prevInfoField[1]},
-	                                                    {"exit_format", &prevInfoField[2]},
+	    {"exit_title", &prevInfoField[0]},
+	    {"exit_composer", &prevInfoField[1]},
+	    {"exit_format", &prevInfoField[2]},
 
-	                                                    {"enter_title", &outsideInfoField[0]},
-	                                                    {"enter_composer", &outsideInfoField[1]},
-	                                                    {"enter_format", &outsideInfoField[2]},
+	    {"enter_title", &outsideInfoField[0]},
+	    {"enter_composer", &outsideInfoField[1]},
+	    {"enter_format", &outsideInfoField[2]},
 
-	                                                    {"length_field", &lengthField},
-	                                                    {"time_field", &timeField},
-	                                                    {"song_field", &songField},
-	                                                    {"next_field", &nextField},
-	                                                    {"xinfo_field", &xinfoField},
-	                                                    {"search_field", &searchField},
-	                                                    {"command_field", &commandField},
-	                                                    {"top_status", &topStatus},
-	                                                    {"toast_field", &toastField},
-	                                                    {"result_field", &resultFieldTemplate}};
+	    {"length_field", &lengthField},
+	    {"time_field", &timeField},
+	    {"song_field", &songField},
+	    {"next_field", &nextField},
+	    {"xinfo_field", &xinfoField},
+	    {"search_field", &searchField},
+	    {"command_field", &commandField},
+	    {"top_status", &topStatus},
+	    {"toast_field", &toastField},
+	    {"result_field", &resultFieldTemplate}};
 
 	auto path = workDir;
 
@@ -77,7 +77,7 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 		File fontFile = File::findFile(path, val);
 
 		if(fontFile.exists()) {
-			font = Font(fontFile.getName(), 48, 512 | Font::DISTANCE_MAP);
+			font = grappix::Font(fontFile.getName(), 48, 512 | grappix::Font::DISTANCE_MAP);
 			for(auto &f : fields) {
 				f.second->setFont(font);
 			}
@@ -88,7 +88,7 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 		File fontFile = File::findFile(path, val);
 
 		if(fontFile.exists()) {
-			listFont = Font(fontFile.getName(), 32, 256); // | Font::DISTANCE_MAP);
+			listFont = grappix::Font(fontFile.getName(), 32, 256); // | Font::DISTANCE_MAP);
 			resultFieldTemplate.setFont(listFont);
 		} else
 			throw file_not_found_exception(fontFile.getName());

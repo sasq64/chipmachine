@@ -1,3 +1,12 @@
+### v1.4
+
+* New data source; Pouet demos
+* New data source; Bitworld amiga demos
+* New Plugin: FFMPeg / Youtube
+* Screenshot display for demos
+
+
+
 
 ### v1.3
 

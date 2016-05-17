@@ -242,8 +242,8 @@ bool parseMp3(SongInfo &info) {
 			info.title = htmldecode(v2->title->p);
 			info.composer = htmldecode(v2->artist->p);
 		} else if(v1) {
-			info.title = htmldecode((char *)v2->title);
-			info.composer = htmldecode((char *)v2->artist);
+			info.title = htmldecode((char *)v1->title);
+			info.composer = htmldecode((char *)v1->artist);
 		}
 	}
 

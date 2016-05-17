@@ -56,7 +56,7 @@ public:
 	}
 	
 	void setBitmap(const image::bitmap &bm, bool filter = false) {
-		texture = make_shared<grappix::Texture>(bm);
+		texture = std::make_shared<grappix::Texture>(bm);
 		rec.w = bm.width();
 		rec.h = bm.height();
 		glBindTexture(GL_TEXTURE_2D, texture->id());
@@ -240,7 +240,7 @@ private:
 
 	//
 
-	string currentNextPath;
+	std::string currentNextPath;
 	SongInfo currentInfo;
 	SongInfo dbInfo;
 	int currentTune = 0;
@@ -309,14 +309,9 @@ private:
 	std::string filter;
 	uint32_t favColor = 0x884444;
 	int currentShot = -1;
-	struct NamedBitmap {
-		NamedBitmap() {}
-		NamedBitmap(const std::string &name, const image::bitmap &bm) : name(name), bm(bm) {}
-		std::string name;
-		image::bitmap bm;
-		bool operator==(const char *n) const { return strcmp(name.c_str(), n) == 0; }
-		bool operator<(const NamedBitmap &other) const { return name < other.name; }
-	};
+
+	using NamedBitmap = utils::Named<image::bitmap>;
+
 	std::vector<NamedBitmap> screenshots;
 	uint64_t setShotAt = 0;
 	std::string currentScreenshot;

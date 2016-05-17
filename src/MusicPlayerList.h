@@ -19,7 +19,7 @@
 
 namespace chipmachine {
 
-class ChipMachine;
+//class ChipMachine;
 
 #ifdef _WIN32
 #undef ERROR

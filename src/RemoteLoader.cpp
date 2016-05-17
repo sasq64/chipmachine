@@ -1,14 +1,18 @@
 #include "RemoteLoader.h"
 
 #include <coreutils/log.h>
+#include <webutils/web.h>
 
 using namespace std;
 using namespace utils;
 
-RemoteLoader::RemoteLoader() : webgetter(utils::File::getCacheDir() / "_webfiles") {
-	// webgetter.setErrorCallback([](int code, const string &msg) {
+RemoteLoader::RemoteLoader() : webgetter(std::make_unique<webutils::Web>(utils::File::getCacheDir() / "_webfiles")) {
+	// webgetter->setErrorCallback([](int code, const string &msg) {
 	//	LOGD("Error %d %s", code, msg);
 	//});
+}
+
+RemoteLoader::~RemoteLoader() {
 }
 
 void RemoteLoader::registerSource(const std::string &name, const std::string url,
@@ -18,6 +22,14 @@ void RemoteLoader::registerSource(const std::string &name, const std::string url
 		s.local_dir += "/";
 	sources[name] = s;
 }
+
+void RemoteLoader::cancel() {
+	if(lastSession)
+		lastSession->stop();
+	lastSession = nullptr;
+}
+
+void RemoteLoader::update() { webgetter->poll(); }
 
 // modland:Protracker/X/Y.mod"
 bool RemoteLoader::inCache(const std::string &p) const {
@@ -39,7 +51,7 @@ bool RemoteLoader::inCache(const std::string &p) const {
 		url = url.substr(0, url.length() - 4);
 	}
 
-	return webgetter.inCache(url);
+	return webgetter->inCache(url);
 }
 
 bool RemoteLoader::isOffline(const std::string &p) {
@@ -57,7 +69,7 @@ bool RemoteLoader::isOffline(const std::string &p) {
 	return inCache(p) || File::exists(local_path);
 }
 
-bool RemoteLoader::load(const std::string &p, function<void(File f)> done_cb) {
+bool RemoteLoader::load(const std::string &p, const function<void(File f)> &done_cb) {
 
 	Source source;
 	string path = p;
@@ -81,7 +93,7 @@ bool RemoteLoader::load(const std::string &p, function<void(File f)> done_cb) {
 		url = url.substr(0, url.length() - 4);
 	}
 
-	lastSession = webgetter.getFile(url, [=](webutils::Web::Job job) {
+	lastSession = webgetter->getFile(url, [=](webutils::WebJob job) {
 		LOGD("CODE %d", job.code());
 		auto f = job.file();
 		string fileName = f.getName();
@@ -97,7 +109,7 @@ bool RemoteLoader::load(const std::string &p, function<void(File f)> done_cb) {
 
 void RemoteLoader::preCache(const std::string &path) {}
 
-std::shared_ptr<webutils::Web::Job>
+std::shared_ptr<webutils::WebJob>
 RemoteLoader::stream(const std::string &p,
                      std::function<bool(int what, const uint8_t *data, int size)> data_cb) {
 
@@ -118,8 +130,8 @@ RemoteLoader::stream(const std::string &p,
 
 	string url = source.url + path;
 	bool headers = false;
-	lastSession = webgetter.streamData(
-	    url, [=](webutils::Web::Job &job, uint8_t *data, int size) mutable -> bool {
+	lastSession = webgetter->streamData(
+	    url, [=](webutils::WebJob &job, uint8_t *data, int size) mutable -> bool {
 		    if(!headers) {
 			    string s = job.getHeader("icy-metaint");
 			    if(s != "") {

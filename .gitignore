@@ -1,7 +1,11 @@
-*.a
-obj/
-generated/
-builds/
+*\.a
+*\.o
+*\.dylib
+*\.log
+*\.cmake
+obj/*
+builds/*
+build/*
 *~
 _cache/
 _files/
@@ -11,9 +15,9 @@ _files/
 *.db
 chipmachine
 play
-debian-pkg/
+# debian-pkg/
 sc68.cfg
 index.dat
 *.sublime-*
 .tags*
-android/
+# android/

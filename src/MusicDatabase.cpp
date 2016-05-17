@@ -12,11 +12,19 @@
 #include <set>
 #include <chrono>
 #include <algorithm>
+#include <sqlite3/database.h>
 
 using namespace std;
 using namespace utils;
 
 namespace chipmachine {
+
+MusicDatabase::MusicDatabase() : db_ptr(std::make_unique<sqlite3db::Database>(utils::File::getCacheDir() / "music.db")), db(*db_ptr), reindexNeeded(false) {
+	createTables();
+}
+
+MusicDatabase::~MusicDatabase() {
+};
 
 void MusicDatabase::createTables() {
 	db.exec("CREATE TABLE IF NOT EXISTS collection (name STRING, url STRING, localdir STRING, "

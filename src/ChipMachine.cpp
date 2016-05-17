@@ -4,21 +4,24 @@
 
 #include <coreutils/format.h>
 #include <musicplayer/chipplugin.h>
-#include <musicplayer/plugins/ffmpegplugin/FFMPEGPlugin.h>
+#include <webutils/web.h>
+
 #include <cctype>
 #include <map>
 #ifdef _WIN32
 #include <ShellApi.h>
 #endif
 
-using namespace std;
 using namespace utils;
 using namespace grappix;
 using namespace tween;
 
+using std::string;
+template <typename T> using sPTR = std::shared_ptr<T>;
+
 std::string compressWhitespace(std::string &&m) {
 	// Turn linefeeds into spaces
-	replace(m.begin(), m.end(), '\n', ' ');
+	std::replace(m.begin(), m.end(), '\n', ' ');
 	// Turn whitespace sequences into single spaces
 	auto last = unique(m.begin(), m.end(), [](char a, char b) { return (a | b) <= 0x20; });
 	m.resize(distance(m.begin(), last));
@@ -33,7 +36,8 @@ namespace chipmachine {
 
 void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
 
-	static const map<uint32_t, uint32_t> colors = {
+	static const std::map<uint32_t, uint32_t> colors = {
+	
 	    {NOT_SET, 0xffff00ff}, {PLAYLIST, 0xffffff88}, {CONSOLE, 0xffdd3355}, {C64, 0xffcc8844},
 	    {ATARI, 0xffcccc33},   {MP3, 0xff88ff88},      {M3U, 0xffaaddaa},     {YOUTUBE, 0xffff0000},
 	    {PC, 0xffcccccc},      {AMIGA, 0xff6666cc},    {PRODUCT, 0xffff88cc}, {255, 0xff00ffff}};
@@ -99,7 +103,7 @@ public:
 	virtual std::string name() const override { return "youtube"; }
 
 	LuaInterpreter &lua;
-	std::shared_ptr<ChipPlugin> plugin;
+	sPTR<ChipPlugin> plugin;
 };
 
 ChipMachine::ChipMachine(const std::string &wd)
@@ -140,7 +144,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 	lua.loadFile(workDir / "lua" / "init.lua");
 
-	ChipPlugin::addPlugin(make_shared<YoutubePlugin>(lua));
+	ChipPlugin::addPlugin(std::make_shared<YoutubePlugin>(lua));
 
 #ifdef USE_REMOTELISTS
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
@@ -192,10 +196,12 @@ ChipMachine::ChipMachine(const std::string &wd)
 	// toastField = TextField(font, "", topLeft.x, downRight.y - 134, 2.0, 0x00ffffff);
 	overlay.add(&toastField);
 
-	Resources::getInstance().load<image::bitmap>(
-	    File::getCacheDir() / "favicon.png", [=](shared_ptr<image::bitmap> bitmap) {
-		    favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
-		}, heart_icon);
+	Resources::getInstance().load<image::bitmap>(File::getCacheDir() / "favicon.png",
+	                                             [=](sPTR<image::bitmap> bitmap) {
+		                                             favIcon = Icon(heart_icon, favPos.x, favPos.y,
+		                                                            favPos.w, favPos.h);
+		                                         },
+	                                             heart_icon);
 	// favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
 
 	float ww = volume_icon.width() * 15;
@@ -325,7 +331,7 @@ void ChipMachine::layoutScreen() {
 	lua.setGlobal("SCREEN_HEIGHT", screen.height());
 	lua.setGlobal("SCREEN_PPI", screen.getPPI() < 0 ? 100 : screen.getPPI());
 
-	Resources::getInstance().load<string>(f.getName(), [=](shared_ptr<string> contents) {
+	Resources::getInstance().load<string>(f.getName(), [=](sPTR<string> contents) {
 		lua.load(*contents, f);
 
 		lua.load(R"(
@@ -387,24 +393,21 @@ void ChipMachine::nextScreenshot() {
 	if(currentShot >= screenshots.size())
 		currentShot = 0;
 
-	Tween::make()
-	    .to(screenShotIcon.color, Color(0x00000000))
-	    .seconds(1.0)
-	    .onComplete([=]() {
-		    auto &bm = screenshots[currentShot].bm;
-		    screenShotIcon.setBitmap(bm, true);
+	Tween::make().to(screenShotIcon.color, Color(0x00000000)).seconds(1.0).onComplete([=]() {
+		image::bitmap &bm = screenshots[currentShot];
+		screenShotIcon.setBitmap(bm, true);
 
-		    auto y = xinfoField.pos.y + xinfoField.getHeight() + 10;
-		    auto h = scrollEffect.scrolly - y;
-		    auto x = xinfoField.pos.x;
+		auto y = xinfoField.pos.y + xinfoField.getHeight() + 10;
+		auto h = scrollEffect.scrolly - y;
+		auto x = xinfoField.pos.x;
 
-		    LOGD("HEIGHT %d", h);
+		LOGD("HEIGHT %d", h);
 
-		    float d = (float)h / bm.height();
-		    int w = bm.width() * d;
-		    screenShotIcon.setArea(Rectangle(x, y, w, h));
-		    Tween::make().to(screenShotIcon.color, Color(0xffffffff)).seconds(1.0);
-		});
+		float d = (float)h / bm.height();
+		int w = bm.width() * d;
+		screenShotIcon.setArea(Rectangle(x, y, w, h));
+		Tween::make().to(screenShotIcon.color, Color(0xffffffff)).seconds(1.0);
+	});
 }
 
 void ChipMachine::update() {
@@ -452,15 +455,14 @@ void ChipMachine::update() {
 			scrollText = m;
 		}
 
-		auto shot = currentInfo.metadata[SongInfo::SCREENSHOT]; //player.getMeta("screenshot");
+		auto shot = currentInfo.metadata[SongInfo::SCREENSHOT]; // player.getMeta("screenshot");
 		LOGD("SCREENSHOT: %s", shot);
-	
+
 		if(shot != currentScreenshot) {
 			screenShotIcon.clear();
 			screenshots.clear();
 			currentScreenshot = shot;
-			
-		
+
 			if(shot != "") {
 				auto parts = split(shot, ";");
 				int total = parts.size();
@@ -470,9 +472,9 @@ void ChipMachine::update() {
 					int t = total;
 					if(!f) {
 						screenshots.emplace_back();
-					} else {	
-						//LOCK_GUARD(multiLoadLock);
-						
+					} else {
+						// LOCK_GUARD(multiLoadLock);
+
 						if(toLower(path_extension(f.getName())) == "gif") {
 							t--;
 							for(auto &bm : image::load_gifs(f.getName())) {
@@ -492,9 +494,10 @@ void ChipMachine::update() {
 							screenshots.emplace_back(f.getFileName(), bm);
 						}
 					}
-	
+
 					if(screenshots.size() >= t) {
-						screenshots.erase(std::remove(screenshots.begin(), screenshots.end(), ""), screenshots.end());
+						screenshots.erase(std::remove(screenshots.begin(), screenshots.end(), ""),
+						                  screenshots.end());
 						sort(screenshots.begin(), screenshots.end());
 						nextScreenshot();
 					}
@@ -514,7 +517,7 @@ void ChipMachine::update() {
 		currentInfoField.setInfo(currentInfo);
 		// currentTune = currentInfo.starttune;
 		currentTune = player.getTune();
-		
+
 		if(currentInfo.numtunes > 0)
 			songField.setText(format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
 		else
@@ -564,13 +567,11 @@ void ChipMachine::update() {
 		SongInfo song = player.getInfo();
 		prevInfoField.setInfo(song);
 		LOGD("SONG %s could not be played", song.path);
-		currentTween = Tween::make()
-		                   .from(prevInfoField, nextInfoField)
-		                   .seconds(3.0)
-		                   .onComplete([=]() {
-			                   if(playerState == MusicPlayerList::STOPPED)
-				                   player.nextSong();
-			               });
+		currentTween =
+		    Tween::make().from(prevInfoField, nextInfoField).seconds(3.0).onComplete([=]() {
+			    if(playerState == MusicPlayerList::STOPPED)
+				    player.nextSong();
+			});
 		currentTween.start();
 	}
 
@@ -625,7 +626,7 @@ void ChipMachine::update() {
 			lockDown = false;
 			Tween::make().to(timeField.color, timeColor).seconds(2.0);
 		}
-		
+
 		auto br = player.getMeta("bitrate");
 		if(br != "") {
 			songField.setText(format("%s KBit", br));
@@ -700,7 +701,7 @@ void fadeOut(float &alpha, float t = 0.25) {
 
 void ChipMachine::toast(const std::string &txt, ToastType type) {
 
-	static vector<Color> colors = {0xffffff, 0xff8888,
+	static std::vector<Color> colors = {0xffffff, 0xff8888,
 	                               0x55aa55}; // Alpha intentionally left at zero
 
 	toastField.setText(txt);
@@ -708,13 +709,10 @@ void ChipMachine::toast(const std::string &txt, ToastType type) {
 	toastField.pos.x = topLeft.x + ((downRight.x - topLeft.x) - tlen) / 2;
 	toastField.color = colors[(int)type % 3];
 
-	Tween::make()
-	    .to(toastField.color.alpha, 1.0)
-	    .seconds(0.25)
-	    .onComplete([=]() {
-		    if((int)type < 3)
-			    Tween::make().to(toastField.color.alpha, 0.0).delay(1.0).seconds(0.25);
-		});
+	Tween::make().to(toastField.color.alpha, 1.0).seconds(0.25).onComplete([=]() {
+		if((int)type < 3)
+			Tween::make().to(toastField.color.alpha, 0.0).delay(1.0).seconds(0.25);
+	});
 }
 
 void ChipMachine::removeToast() {

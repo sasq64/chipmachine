@@ -3,7 +3,7 @@
 
 #include <coreutils/log.h>
 #include <string>
-#include <unordered_map>
+#include <vector>
 
 struct SongInfo {
 	SongInfo(const std::string &path = "", const std::string &game = "",
