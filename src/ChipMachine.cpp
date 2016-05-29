@@ -25,9 +25,6 @@
 #include <functional>
 #include <cctype>
 #include <map>
-#ifdef _WIN32
-#include <ShellApi.h>
-#endif
 
 using namespace utils;
 using namespace grappix;
@@ -114,7 +111,7 @@ void ChipMachine::renderCommand(grappix::Rectangle &rec, int y, uint32_t index, 
 			}
 			c = markColor;
 		}
-		static int cmdPos = listFont.get_width(string('X', 30), resultFieldTemplate.scale);
+		static int cmdPos = listFont.get_width(string(30, 'X'), resultFieldTemplate.scale);
 		grappix::screen.text(listFont, cmd->name, rec.x, rec.y, c, resultFieldTemplate.scale);
 		grappix::screen.text(listFont, cmd->shortcut, rec.x + cmdPos, rec.y, 0xffffffff,
 		                     resultFieldTemplate.scale * 0.8);
@@ -167,7 +164,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 	string binDir = (workDir / "bin").getName();
 	lua.registerFunction("cm_execute", [binDir](std::string cmd) {
 		LOGD("BINDIR:%s", binDir);
-		shellExec(binDir + "/" + cmd);
+		shellExec(cmd, binDir);
 	});
 
 	lua.loadFile(workDir / "lua" / "init.lua");

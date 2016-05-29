@@ -3,7 +3,7 @@ project(chipmachine)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
-set(AP1_ROOT apone)
+set(AP1_ROOT ../apone)
 include(${AP1_ROOT}/cmake/Utils.cmake)
 
 add_definitions(-DAPP_NAME=chipmachine)
