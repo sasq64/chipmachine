@@ -1,3 +1,20 @@
+/***************************************************************************************************
+   Chipmachine source code by Jonas Minnberg (sasq64@gmail.com)
+
+   Licensed to the Apache Software Foundation (ASF) under one or more contributor license
+   agreements.  See the NOTICE file distributed with this work for additional information regarding
+   copyright ownership.  The ASF licenses this file to you under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with the License.  You may
+   obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software distributed under the
+   License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+   express or implied.  See the License for the specific language governing permissions and
+   limitations under the License.
+ **************************************************************************************************/
+
 #include "ChipMachine.h"
 #include "Icons.h"
 #include "version.h"
@@ -5,7 +22,7 @@
 #include <coreutils/format.h>
 #include <musicplayer/chipplugin.h>
 #include <webutils/web.h>
-
+#include <functional>
 #include <cctype>
 #include <map>
 #ifdef _WIN32
@@ -19,6 +36,8 @@ using namespace tween;
 using std::string;
 template <typename T> using sPTR = std::shared_ptr<T>;
 
+/** Compress all consecutive whiltespace characters into single spaces
+ */
 std::string compressWhitespace(std::string &&m) {
 	// Turn linefeeds into spaces
 	std::replace(m.begin(), m.end(), '\n', ' ');
@@ -28,6 +47,8 @@ std::string compressWhitespace(std::string &&m) {
 	return m;
 }
 
+/** Compress all consecutive whiltespace characters into single spaces
+ */
 std::string compressWhitespace(const std::string &text) {
 	return compressWhitespace(std::string(text));
 }
@@ -37,7 +58,7 @@ namespace chipmachine {
 void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
 
 	static const std::map<uint32_t, uint32_t> colors = {
-	
+
 	    {NOT_SET, 0xffff00ff}, {PLAYLIST, 0xffffff88}, {CONSOLE, 0xffdd3355}, {C64, 0xffcc8844},
 	    {ATARI, 0xffcccc33},   {MP3, 0xff88ff88},      {M3U, 0xffaaddaa},     {YOUTUBE, 0xffff0000},
 	    {PC, 0xffcccccc},      {AMIGA, 0xff6666cc},    {PRODUCT, 0xffff88cc}, {255, 0xff00ffff}};
@@ -78,6 +99,28 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate.scale);
 }
 
+void ChipMachine::renderCommand(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
+	if(index < matchingCommands.size()) {
+		auto cmd = matchingCommands[index];
+		uint32_t c = 0xaa00cc00;
+		if(hilight) {
+			static uint32_t markStartcolor = 0;
+			if(markStartcolor != c) {
+				markStartcolor = c;
+				markColor = c;
+				markTween =
+				    Tween::make().sine().repeating().from(markColor, hilightColor).seconds(1.0);
+				markTween.start();
+			}
+			c = markColor;
+		}
+		static int cmdPos = listFont.get_width(string('X', 30), resultFieldTemplate.scale);
+		grappix::screen.text(listFont, cmd->name, rec.x, rec.y, c, resultFieldTemplate.scale);
+		grappix::screen.text(listFont, cmd->shortcut, rec.x + cmdPos, rec.y, 0xffffffff,
+		                     resultFieldTemplate.scale * 0.8);
+	}
+}
+
 class YoutubePlugin : public ChipPlugin {
 public:
 	YoutubePlugin(LuaInterpreter &lua) : lua(lua) { plugin = ChipPlugin::getPlugin("ffmpeg"); }
@@ -106,40 +149,25 @@ public:
 	sPTR<ChipPlugin> plugin;
 };
 
+template <typename CLASS, typename... ARGS> std::function<void(ARGS...)>
+toLambda(CLASS *ptr, void (CLASS::*f)(ARGS...)) {
+	return [=](ARGS ... args) { (ptr->*f)(args...); };
+}
+
 ChipMachine::ChipMachine(const std::string &wd)
     : workDir(wd), player(wd), currentScreen(MAIN_SCREEN), eq(SpectrumAnalyzer::eq_slots),
       starEffect(screen), scrollEffect(screen) {
 
-	lua.setGlobal("WINDOWS",
 #ifdef _WIN32
-	              true
+	lua.setGlobal("WINDOWS", true);
 #else
-	              false
+	lua.setGlobal("WINDOWS", false);
 #endif
-	              );
 
 	string binDir = (workDir / "bin").getName();
 	lua.registerFunction("cm_execute", [binDir](std::string cmd) {
 		LOGD("BINDIR:%s", binDir);
-#ifdef _WIN32
-		auto cmdLine = utils::format("/C %s", cmd);
-		SHELLEXECUTEINFO ShExecInfo = {0};
-		ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-		ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-		ShExecInfo.hwnd = NULL;
-		ShExecInfo.lpVerb = NULL;
-		ShExecInfo.lpFile = "cmd.exe";
-		ShExecInfo.lpParameters = cmdLine.c_str();
-		ShExecInfo.lpDirectory = binDir.c_str();
-		ShExecInfo.nShow = SW_HIDE;
-		ShExecInfo.hInstApp = NULL;
-		ShellExecuteEx(&ShExecInfo);
-		WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
-#else
-			if(cmd[0] != '/')
-				cmd = binDir + "/" + cmd; 
-			system(cmd.c_str());
-#endif
+		shellExec(binDir + "/" + cmd);
 	});
 
 	lua.loadFile(workDir / "lua" / "init.lua");
@@ -197,9 +225,9 @@ ChipMachine::ChipMachine(const std::string &wd)
 	overlay.add(&toastField);
 
 	Resources::getInstance().load<image::bitmap>(File::getCacheDir() / "favicon.png",
-	                                             [=](sPTR<image::bitmap> bitmap) {
-		                                             favIcon = Icon(heart_icon, favPos.x, favPos.y,
-		                                                            favPos.w, favPos.h);
+	                                             [=](sPTR<image::bitmap> bm) {
+		                                             favIcon = Icon(*bm, favPos.x, favPos.y,
+		                                                            bm->width(), bm->height());
 		                                         },
 	                                             heart_icon);
 	// favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
@@ -245,41 +273,12 @@ ChipMachine::ChipMachine(const std::string &wd)
 	auto listrec = grappix::Rectangle(topLeft.x, topLeft.y + 30 * searchField.scale,
 	                                  screen.width() - topLeft.x,
 	                                  downRight.y - topLeft.y - searchField.scale * 30);
-	songList =
-	    VerticalList(listrec, numLines, [=](grappix::Rectangle &rec, int y, uint32_t index,
-	                                        bool hilight) { renderSong(rec, y, index, hilight); });
-
+	songList = VerticalList(listrec, numLines, toLambda(this, &ChipMachine::renderSong));
 	searchScreen.add(&songList);
 
-	commandList = VerticalList(listrec, numLines, [=](grappix::Rectangle &rec, int y,
-	                                                  uint32_t index, bool hilight) {
-		if(index < matchingCommands.size()) {
-			auto cmd = matchingCommands[index];
-			uint32_t c = 0xaa00cc00;
-			if(hilight) {
-				static uint32_t markStartcolor = 0;
-				if(markStartcolor != c) {
-					markStartcolor = c;
-					markColor = c;
-					markTween =
-					    Tween::make().sine().repeating().from(markColor, hilightColor).seconds(1.0);
-					markTween.start();
-				}
-				c = markColor;
-			}
-			static int cmdPos = -1;
-			if(cmdPos == -1)
-				cmdPos =
-				    listFont.get_width("012345678901234567890123456789", resultFieldTemplate.scale);
-			grappix::screen.text(listFont, cmd->name, rec.x, rec.y, c, resultFieldTemplate.scale);
-			grappix::screen.text(listFont, cmd->shortcut, rec.x + cmdPos, rec.y, 0xffffffff,
-			                     resultFieldTemplate.scale * 0.8);
-		}
-	});
-
+	commandList = VerticalList(listrec, numLines, toLambda(this, &ChipMachine::renderCommand));
 	commandList.setTotal(commands.size());
 	clearCommand();
-
 	updateLists();
 
 	// playlistField = TextField(listFont, "Favorites", downRight.x - 80, downRight.y - 10, 0.5,
@@ -702,7 +701,7 @@ void fadeOut(float &alpha, float t = 0.25) {
 void ChipMachine::toast(const std::string &txt, ToastType type) {
 
 	static std::vector<Color> colors = {0xffffff, 0xff8888,
-	                               0x55aa55}; // Alpha intentionally left at zero
+	                                    0x55aa55}; // Alpha intentionally left at zero
 
 	toastField.setText(txt);
 	int tlen = toastField.getWidth();

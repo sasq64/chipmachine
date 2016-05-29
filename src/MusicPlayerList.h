@@ -9,7 +9,6 @@
 #include "RemoteLoader.h"
 #include "MusicDatabase.h"
 #include "CueSheet.h"
-//#include <webutils/webgetter.h>
 
 #include <coreutils/thread.h>
 #include <cstdint>
@@ -18,8 +17,6 @@
 #define SET_STATE(x) (LOGD("STATE: " #x), state = x)
 
 namespace chipmachine {
-
-//class ChipMachine;
 
 #ifdef _WIN32
 #undef ERROR

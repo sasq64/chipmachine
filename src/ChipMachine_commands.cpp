@@ -203,22 +203,22 @@ void ChipMachine::setupCommands() {
 
 	cmd("random_shuffle", [=] {
 		toast("Random shuffle!");
-		shuffleSongs(false, false, false, 100);
+		shuffleSongs(SHUFFLE_ALL, 100);
 	});
 
 	cmd("composer_shuffle", [=] {
 		toast("Composer shuffle!");
-		shuffleSongs(false, true, false, 1000);
+		shuffleSongs(SHUFFLE_COMPOSER, 1000);
 	});
 
 	cmd("format_shuffle", [=] {
 		toast("Format shuffle!");
-		shuffleSongs(true, false, false, 100);
+		shuffleSongs(SHUFFLE_FORMAT, 100);
 	});
 
 	cmd("collection_shuffle", [=] {
 		toast("Collection shuffle!");
-		shuffleSongs(false, false, true, 100);
+		shuffleSongs(SHUFFLE_COLLECTION, 100);
 	});
 
 	cmd("result_shuffle", [=] {

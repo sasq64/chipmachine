@@ -8,11 +8,13 @@ using namespace tween;
 namespace chipmachine {
 
 void ChipMachine::addKey(uint32_t key, statemachine::Condition cond, const std::string &cmd) {
-	
+
 	auto screen = currentScreen;
 	bool onMain = false;
 	bool onSearch = false;
-			
+
+	// Figure out if the condition checks for main or search screen, used for printing
+	// info about the key combination below
 	currentScreen = NO_SCREEN;
 	if(!cond.check()) {
 		currentScreen = MAIN_SCREEN;
@@ -21,13 +23,13 @@ void ChipMachine::addKey(uint32_t key, statemachine::Condition cond, const std::
 		onSearch = cond.check();
 	}
 	currentScreen = screen;
-	
-	
+
 	auto it = std::find(commands.begin(), commands.end(), cmd);
 	if(it != commands.end()) {
 		smac.add(key, cond, static_cast<uint32_t>(std::distance(commands.begin(), it)));
 		if(key == grappix::Window::BACKSPACE)
 			return;
+		// If this is the first key we map to this command, give it a name
 		if(it->shortcut == "") {
 			std::string name;
 			if(key & SHIFT)
@@ -60,12 +62,13 @@ void ChipMachine::setupRules() {
 	       if_equals(currentScreen, MAIN_SCREEN), "show_search");
 	addKey(Window::F5, "play_pause");
 	addKey(Window::F3, "show_command");
-	
-	addKey(Window::BACKSPACE, if_equals(currentScreen, SEARCH_SCREEN) && if_null(currentDialog) && if_false(haveSearchChars), "clear_filter");
-	
+
+	addKey(Window::BACKSPACE, if_equals(currentScreen, SEARCH_SCREEN) && if_null(currentDialog) &&
+	                              if_false(haveSearchChars),
+	       "clear_filter");
+
 	addKey(Window::ESCAPE, if_not_null(currentDialog), "close_dialog");
-	
-	
+
 	addKey(Window::ESCAPE, if_false(haveSearchChars), "show_main");
 	addKey(Window::ESCAPE, if_true(haveSearchChars), "clear_search");
 	addKey(Window::F6, "next_song");
@@ -78,15 +81,17 @@ void ChipMachine::setupRules() {
 	addKey(Window::F7, if_equals(currentScreen, SEARCH_SCREEN), "add_list_favorite");
 	addKey(Window::F7, if_equals(currentScreen, MAIN_SCREEN), "add_current_favorite");
 	addKey(Window::F8, "clear_songs");
-	addKey(Window::LEFT, if_not_equals(currentScreen, COMMAND_SCREEN) && if_null(currentDialog), "prev_subtune");
-	addKey(Window::RIGHT, if_not_equals(currentScreen, COMMAND_SCREEN) && if_null(currentDialog), "next_subtune");
+	addKey(Window::LEFT, if_not_equals(currentScreen, COMMAND_SCREEN) && if_null(currentDialog),
+	       "prev_subtune");
+	addKey(Window::RIGHT, if_not_equals(currentScreen, COMMAND_SCREEN) && if_null(currentDialog),
+	       "next_subtune");
 	addKey(Window::F4, "layout_screen");
 	addKey(Window::ESCAPE | SHIFT, "quit");
 	addKey(Window::F4 | ALT, "quit");
-	
+
 	addKey('d' | CTRL, "download_current");
 	addKey('z' | CTRL, "next_screenshot");
-	
+
 	addKey('r' | CTRL, "random_shuffle");
 	addKey('f' | CTRL, "format_shuffle");
 	addKey('c' | CTRL, "composer_shuffle");
@@ -102,7 +107,7 @@ void ChipMachine::setupRules() {
 
 void ChipMachine::showScreen(Screen screen) {
 	if(currentScreen != screen) {
-		hasMoved = (screen != SEARCH_SCREEN);
+		hasLeftSearch = (screen != SEARCH_SCREEN);
 		currentScreen = screen;
 		if(screen == MAIN_SCREEN) {
 			Tween::make().to(spectrumColor, spectrumColorMain).seconds(0.5);
@@ -114,7 +119,6 @@ void ChipMachine::showScreen(Screen screen) {
 	}
 }
 
-
 SongInfo ChipMachine::getSelectedSong() {
 	int i = songList.selected();
 	if(i < 0)
@@ -122,17 +126,17 @@ SongInfo ChipMachine::getSelectedSong() {
 	return MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
 }
 
-void ChipMachine::shuffleSongs(bool format, bool composer, bool collection, int limit) {
+void ChipMachine::shuffleSongs(int what, int limit) {
 	vector<SongInfo> target;
 	SongInfo match = (currentScreen == SEARCH_SCREEN) ? getSelectedSong() : dbInfo;
 
 	LOGD("SHUFFLE %s / %s", match.composer, match.format);
 
-	if(!format)
+	if((what & SHUFFLE_FORMAT) == 0)
 		match.format = "";
-	if(!composer)
+	if((what & SHUFFLE_COMPOSER) == 0)
 		match.composer = "";
-	if(!collection)
+	if((what & SHUFFLE_FORMAT) == 0)
 		match.path = "";
 	match.title = match.game;
 
@@ -197,7 +201,7 @@ void ChipMachine::updateKeys() {
 			event = Window::LEFT;
 
 		lastKey = key;
-		
+
 		if(!smac.put_event(event)) {
 			if((key >= ' ' && key <= 'z') || key == Window::LEFT || key == Window::RIGHT ||
 			   key == Window::BACKSPACE || key == Window::ESCAPE || key == Window::ENTER) {
@@ -211,7 +215,7 @@ void ChipMachine::updateKeys() {
 					else {
 						matchingCommands.resize(commands.size());
 						int j = 0;
-						for(int i=0; i<commands.size(); i++) {
+						for(int i = 0; i < commands.size(); i++) {
 							if(toLower(commands[i].name).find(ctext) != string::npos)
 								matchingCommands[j++] = &commands[i];
 						}
@@ -219,9 +223,9 @@ void ChipMachine::updateKeys() {
 					}
 					commandList.setTotal(matchingCommands.size());
 				} else {
-					if(hasMoved && event != ' ' && event != Window::BACKSPACE)
+					if(hasLeftSearch && event != ' ' && event != Window::BACKSPACE)
 						searchField.setText("");
-					hasMoved = false;
+					hasLeftSearch = false;
 					showScreen(SEARCH_SCREEN);
 					if(event >= 0x20 && event <= 0xff)
 						event = tolower(event);
@@ -236,7 +240,7 @@ void ChipMachine::updateKeys() {
 			commands[action.id].fn();
 		}
 	}
-	
+
 	if(songList.selected() != last_selection && iquery->numHits() > 0) {
 		int i = songList.selected();
 		SongInfo song = MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
@@ -247,30 +251,28 @@ void ChipMachine::updateKeys() {
 		filterField.visible(false);
 		topStatus.visible(true);
 	}
-	
+
 	if(searchUpdated) {
 		auto s = searchField.getText();
 		if(s[0] == '\\') {
 			int pos = s.find(' ');
 			if(pos != string::npos) {
-				auto f = s.substr(1, pos-1);
+				auto f = s.substr(1, pos - 1);
 				if(f != filter) {
 					filter = f;
-					s = s.substr(pos+1);
+					s = s.substr(pos + 1);
 					searchField.setText(s);
 				}
-				
 			}
-		} 
-		
+		}
+
 		if(filter != filterField.getText()) {
 			LOGD("Filter now %s", filter);
 			filterField.setText(filter);
 			MusicDatabase::getInstance().setFilter(filter);
 			iquery->invalidate();
-			
 		}
-			
+
 		iquery->setString(s);
 		searchField.visible(true);
 		filterField.visible(true);
@@ -280,7 +282,6 @@ void ChipMachine::updateKeys() {
 		songList.setTotal(iquery->numHits());
 		searchUpdated = false;
 	}
-
 }
 
 } // namespace chipmachine

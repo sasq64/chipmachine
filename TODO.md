@@ -30,7 +30,7 @@ what is current song and what is new song?
 * UADE SONG END does not go to next?
 * Loop detecton, max play or remember skip position?
 * Limit stream speed
-* _lib2 and _lib3 support for PSF
+* lib2 and lib3 support for PSF
 * Common resampler in player, not in plugins
 
 * Repeating tweens sometimes die (title scrolling stops, selection hilight gone)
