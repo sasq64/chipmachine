@@ -66,12 +66,16 @@ except :
 if args.actions == 'build' :
     args.actions = [ 'build' ]
 
+grc = which('grc')
+
 for a in args.actions :
     a = a.strip()
     if a == 'build' :
         if not os.path.isfile(os.path.join(outputDir, 'build.ninja')) :
             subprocess.call(['cmake', '-B' + outputDir, '-H.'] + buildArgs)
         args = [buildTool, '-C', outputDir]
+        if grc :
+            args = ['grc', '-se', '--colour=auto', '-c', 'grc.conf'] + args
         if buildTool == 'make' :
             args.append('-j8')
         subprocess.call(args)
