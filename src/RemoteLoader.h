@@ -17,7 +17,7 @@ public:
 
 	bool load(const std::string &path, std::function<void(utils::File)> done_cb);
 
-	std::shared_ptr<webutils::Web::Job>
+	std::shared_ptr<webutils::WebJob>
 	stream(const std::string &path,
 	       std::function<bool(int what, const uint8_t *data, int size)> data_cb);
 
@@ -55,7 +55,7 @@ private:
 	std::unordered_map<std::string, Source> sources;
 
 	webutils::Web webgetter;
-	std::shared_ptr<webutils::Web::Job> lastSession;
+	std::shared_ptr<webutils::WebJob> lastSession;
 };
 
 #endif // REMOTE_LOADER_H
