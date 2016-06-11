@@ -18,8 +18,9 @@
 #include "ChipMachine.h"
 #include "Icons.h"
 #include "version.h"
-
+#include <fft/spectrum.h>
 #include <coreutils/format.h>
+#include <coreutils/settings.h>
 #include <musicplayer/chipplugin.h>
 #include <webutils/web.h>
 #include <functional>
@@ -162,6 +163,13 @@ ChipMachine::ChipMachine(const std::string &wd)
 #endif
 
 	string binDir = (workDir / "bin").getName();
+	lua.registerFunction("cm_set", [&](std::string var, std::string val) {
+		auto parts = split(var, ".");
+		if(parts.size() == 2) {	
+			auto& Settings = utils::Settings::getGroup(parts[0]);
+		 	Settings.set<double>(parts[1], atof(val.c_str()));
+		}
+	});
 	lua.registerFunction("cm_execute", [binDir](std::string cmd) {
 		LOGD("BINDIR:%s", binDir);
 		shellExec(cmd, binDir);
@@ -221,13 +229,11 @@ ChipMachine::ChipMachine(const std::string &wd)
 	// toastField = TextField(font, "", topLeft.x, downRight.y - 134, 2.0, 0x00ffffff);
 	overlay.add(&toastField);
 
-	Resources::getInstance().load<image::bitmap>(File::getCacheDir() / "favicon.png",
-	                                             [=](sPTR<image::bitmap> bm) {
-		                                             favIcon = Icon(*bm, favPos.x, favPos.y,
-		                                                            bm->width(), bm->height());
-		                                         },
-	                                             heart_icon);
-	// favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
+	auto &Res = Resources::getInstance();
+
+	Res.load<image::bitmap>(File::getCacheDir() / "favicon.png", [=](sPTR<image::bitmap> bm) {
+		favIcon = Icon(*bm, favPos.x, favPos.y, bm->width(), bm->height());
+ 	}, heart_icon);
 
 	float ww = volume_icon.width() * 15;
 	float hh = volume_icon.height() * 10;
