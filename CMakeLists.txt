@@ -146,6 +146,11 @@ if(NOT WIN32)
 	add_executable(cm ${PLUGIN_EXTRA_FILES} ${TEXTMODE_FILES})
 	target_compile_definitions(cm PUBLIC TEXTMODE_ONLY)
 	target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS} docopt_s)
+
+	add_executable(cmtest ${PLUGIN_EXTRA_FILES} ${TEXTMODE_FILES})
+	target_compile_definitions(cmtest PUBLIC TEXTMODE_ONLY CM_UNIT_TEST)
+	target_link_libraries(cmtest ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS})
+
 endif()
 
 if(APPLE)

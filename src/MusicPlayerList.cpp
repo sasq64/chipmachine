@@ -615,4 +615,32 @@ void MusicPlayerList::playCurrent() {
 		files--;
 	});
 }
+
+} // namespace
+
+#ifdef CM_UNIT_TEST
+
+#include "catch.hpp"
+
+TEST_CASE("chipmachine::MusicPlayerList", "") {
+
+	using namespace utils;
+	using namespace std;
+	using namespace chipmachine;
+
+	MusicPlayerList mp(".");
+
+	SongInfo info("music/Amiga/Starbuck - Tennis.mod");
+
+	mp.playSong(info);
+
+	int counter = 10;
+	while(counter--) {
+		utils::sleepms(100);
+	}
+	
+
+	//REQUIRE(file.getName() == "temp.text"i);
 }
+
+#endif

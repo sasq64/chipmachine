@@ -1,6 +1,11 @@
+#ifdef CM_UNIT_TEST
+# define CATCH_CONFIG_MAIN
+# include "catch.hpp"
+#else
+
 #ifdef LINUX
-#define BACKWARD_HAS_BFD 1
-#include <backward-cpp/backward.hpp>
+# define BACKWARD_HAS_BFD 1
+# include <backward-cpp/backward.hpp>
 namespace backward {
 backward::SignalHandling sh;
 }
@@ -9,8 +14,8 @@ backward::SignalHandling sh;
 #include "ChipInterface.h"
 #include "MusicPlayer.h"
 #ifndef TEXTMODE_ONLY
-#include "ChipMachine.h"
-#include <grappix/grappix.h>
+# include "ChipMachine.h"
+# include <grappix/grappix.h>
 #endif
 #include <bbsutils/ansiconsole.h>
 #include <bbsutils/petsciiconsole.h>
@@ -202,3 +207,5 @@ int main(int argc, char *argv[]) {
 #endif
 	return 0;
 }
+
+#endif // CM_UNIT_TEST

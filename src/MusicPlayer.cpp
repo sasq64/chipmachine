@@ -18,11 +18,6 @@ using namespace utils;
 
 namespace chipmachine {
 
-void Streamer::put(const uint8_t *ptr, int size) {
-	LOCK_GUARD(*playerMutex);
-	player->putStream(ptr, size);
-}
-
 MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4) {
 
 	AudioPlayer::set_volume(80);
@@ -58,14 +53,9 @@ void MusicPlayer::update() {
 
 	if(!paused && player) {
 
-        {
-			auto p = player.aquire();
-			if(p) {
-				sub_title = p->getMeta("sub_title");
-				length = p->getMetaInt("length");
-				message = p->getMeta("message");
-			}
-		}
+		sub_title = player->getMeta("sub_title");
+		length = player->getMetaInt("length");
+		message = player->getMeta("message");
 		silentFrames = checkSilence ? fifo.getSilence() : 0;
 
 		while(true) {
@@ -325,4 +315,33 @@ shared_ptr<ChipPlayer> MusicPlayer::fromStream(const string &fileName) {
 	}
 	return player;
 }
+
+void MusicPlayer::putStream(const uint8_t *ptr, int size) {
+	player->putStream(ptr, size);
 }
+
+void MusicPlayer::setParameter(const std::string &name, int what) {
+	player->setParameter(name, what);
+}
+
+} // namespace
+
+#ifdef CM_UNIT_TEST
+
+#include "catch.hpp"
+
+TEST_CASE("chipmachine::MusicPlayer", "") {
+
+	using namespace utils;
+	using namespace std;
+	using namespace chipmachine;
+
+	MusicPlayer mp(".");
+
+	REQUIRE(mp.playFile("music/Amiga/Starbuck - Tennis.mod") == true);
+
+
+	//REQUIRE(file.getName() == "temp.text"i);
+}
+
+#endif
