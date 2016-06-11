@@ -229,12 +229,12 @@ private:
 
 	typedef bool (MusicDatabase::*ParseSongFun)(Variables &, const std::string &,
 	                                      std::function<void(const SongInfo &)>);
-	typedef bool (MusicDatabase::*ParseProdFun)(Variables &, const std::string &,
+	typedef bool (MusicDatabase::*ParseProdFun)(const std::string &,
 	                                      std::function<void(const Product &)>);
 
-	bool parseCsdb(Variables &vars, const std::string &listFile,
+	bool parseCsdb(const std::string &listFile,
 	               std::function<void(const Product &)> callback);
-	bool parseBitworld(Variables &vars, const std::string &listFile,
+	bool parseBitworld(const std::string &listFile,
 	               std::function<void(const Product &)> callback);
 	bool parsePouet(Variables &vars, const std::string &listFile,
 	                std::function<void(const SongInfo &)> callback);

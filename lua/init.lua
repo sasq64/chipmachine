@@ -1,4 +1,7 @@
 
+
+cm_set("openmpt.separation", 0.0);
+
 -- Given the link to a youtube URL, return an URL to an audio stream
 function on_parse_youtube (url)
 	if WINDOWS then

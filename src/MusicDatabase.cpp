@@ -36,24 +36,21 @@ void MusicDatabase::createTables() {
 	db.exec("CREATE TABLE IF NOT EXISTS prod2song (songid INTEGER, prodid INTEGER)");
 }
 
-bool MusicDatabase::parseBitworld(Variables &vars, const std::string &listFile,
+bool MusicDatabase::parseBitworld(const std::string &listFile,
                                   std::function<void(const Product &)> callback) {
 
 	File f{listFile};
+	Product prod;
+	std::string id, songs;
 
 	for(const auto &s : f.getLines()) {
-		auto parts = split(s, "\t");
-		Product prod;
-		// LOGD("ID: %s", parts[0]);
-		prod.title = parts[1];
-		prod.creator = parts[2];
-		prod.type = parts[3];
-		prod.screenshots = parts[5];
-		for(const auto &s : split(parts[4], ";")) {
+		tie(id, prod.title, prod.creator, prod.type, songs, prod.screenshots) = tusplit<6>(s, "\t");
+		prod.songs.clear();
+		for(const auto &s : split(songs, ";")) {
 			if(endsWith(s, ".smpl"))
 				continue;
 			if(s[0] == 'M')
-				prod.songs.push_back(utils::urldecode(s.substr(2), ""));
+				prod.songs.push_back(utils::urldecode(s.substr(2)));
 			else
 				prod.songs.push_back(s.substr(2));
 		}
@@ -62,7 +59,7 @@ bool MusicDatabase::parseBitworld(Variables &vars, const std::string &listFile,
 	return true;
 }
 
-bool MusicDatabase::parseCsdb(Variables &vars, const std::string &listFile,
+bool MusicDatabase::parseCsdb(const std::string &listFile,
                               std::function<void(const Product &)> callback) {
 
 	auto doc = xmldoc::fromFile(listFile);
@@ -407,7 +404,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 		listFile = web.getFileBlocking(song_list);
 	} else if(song_list != "") {
 		listFile = File(workDir, song_list);
-		writeListFile = listFile.exists();
+		writeListFile = !listFile.exists();
 	}
 
 	if(prodCollection) {
@@ -426,7 +423,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 		// if(!parser)
 		// parser = &MusicDatabase::parseStandard;
 
-		(this->*parser)(vars, listFile, [&](const Product &prod) {
+		(this->*parser)(listFile, [&](const Product &prod) {
 			query.bind(prod.title, prod.creator, prod.type, prod.screenshots, collection_id).step();
 			auto prodrow = db.last_rowid();
 			for(string path : prod.songs) {
@@ -480,12 +477,13 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 			LOGD("Checking local dir '%s'", root.getName());
 			for(auto &rf : root.listRecursive()) {
 				auto name = rf.getName();
+				LOGD("Parsing %s", name);
 				SongInfo songInfo(name);
 				if(identify_song(songInfo)) {
 
 					auto pos = name.find(local_dir);
-					if(pos != string::npos) {
-						name = name.substr(pos + local_dir.length());
+					if(pos == 0) {
+						name = name.substr(local_dir.length());
 					}
 
 					query.bind(songInfo.title, songInfo.game, songInfo.composer, songInfo.format,
@@ -673,6 +671,8 @@ std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
 
 	lookup(s);
 	auto parts = split(s.path, "::");
+	if(parts.size() < 2)
+		return "";
 	string shot;
 	LOGD("Collection '%s'", parts[0]);
 	if(s.metadata[SongInfo::SCREENSHOT] != "") {
@@ -903,13 +903,15 @@ void MusicDatabase::generateIndex() {
 	// int maxTotal = 3;
 	int cindex = 0;
 
-	titleToComposer.reserve(438000);
-	composerToTitle.reserve(37000);
-	titleIndex.reserve(438000);
-	composerIndex.reserve(37000);
-	formats.reserve(438000);
+	const int approxSongs = 340000;
 
-	int step = 438000 / 20;
+	titleToComposer.reserve(approxSongs);
+	composerToTitle.reserve(37000);
+	titleIndex.reserve(approxSongs);
+	composerIndex.reserve(37000);
+	formats.reserve(approxSongs);
+
+	int step = approxSongs / 20;
 
 	unordered_map<string, vector<uint32_t>> composers;
 
