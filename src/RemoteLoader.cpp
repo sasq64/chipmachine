@@ -25,7 +25,9 @@ void RemoteLoader::registerSource(const std::string &name, const std::string url
 
 void RemoteLoader::cancel() {
 	if(lastSession)
-		lastSession->stop();
+		webgetter->removeJob(lastSession);
+	//if(lastSession)
+	//	lastSession->stop();
 	lastSession = nullptr;
 }
 

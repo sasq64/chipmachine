@@ -2,19 +2,23 @@
 #define MUSIC_PLAYER_LIST_H
 
 #include "SongInfo.h"
-#include "MusicPlayer.h"
+//#include "MusicPlayer.h"
 #ifdef USE_REMOTELISTS
 #include "RemoteLists.h"
 #endif
 #include "RemoteLoader.h"
 #include "MusicDatabase.h"
 #include "CueSheet.h"
-
+#include <coreutils/fifo.h>
 #include <coreutils/thread.h>
 #include <cstdint>
 #include <deque>
 
 #define SET_STATE(x) (LOGD("STATE: " #x), state = x)
+
+//#define LOCK_GUARD(x) if(x.try_lock()) x.unlock(); else LOGE("WAITING FOR LOCK"); \
+//std::lock_guard<std::mutex> guard(x)
+#define LOCK_GUARD(x) std::lock_guard<std::mutex> guard(x)
 
 namespace chipmachine {
 
@@ -28,11 +32,9 @@ Thread model
 
 * Commands in through queued callbacks
 * State out needs to be mutexed on writing and reading
-
-  
-  
 */
 
+class MusicPlayer;
 
 class MusicPlayerList {
 public:
@@ -69,31 +71,53 @@ public:
 	int getPosition();
 	int listSize();
 
-	bool playing() { return mp.playing(); }
+	bool updateSong = false;
+
+	// Copies that can be read from outside thread
+	struct Shared {
+		std::atomic<bool> playing;
+		std::atomic<int> tune;
+		std::atomic<bool> paused;
+		std::atomic<float> volume;
+		std::atomic<uint32_t> position;
+		std::atomic<int32_t> length;
+		std::atomic<int> playlist_size;
+
+		// Mutexed before reading/writing
+		SongInfo info[3];
+		std::vector<utils::File> songFiles;
+		std::string sub_title;
+		std::string message;
+	};
+	Shared shared;
+
+	bool playing() { return shared.playing; } //mp.playing(); }
 
 	int getTune() {
-		if(multiSongs.size())
-			return multiSongNo;
-		return mp.getTune();
+		return shared.tune;
+		//if(multiSongs.size())
+		//	return multiSongNo;
+		//return mp.getTune();
 	}
 
-	void pause(bool dopause = true) {
-		if(!(permissions & CAN_PAUSE))
-			return;
-		mp.pause(dopause);
-	}
-	bool isPaused() { return mp.isPaused(); }
+	void pause(bool dopause = true);
+	bool isPaused() { return shared.paused; } //mp.isPaused(); }
 
 	void seek(int song, int seconds = -1);
 
 	std::string getMeta(const std::string &what) {
-		if(what == "sub_title" && cueTitle != "")
-			return cueTitle;
-		return mp.getMeta(what);
+		LOCK_GUARD(plMutex);
+		if(what == "sub_title") {
+			if(cueTitle != "")
+				return cueTitle;
+		   	else
+			   	return shared.sub_title;
+		} else if(what == "message")
+			return shared.message;
+		return "";//mp.getMeta(what);
 	}
 
 	State getState() {
-		// LOCK_GUARD(plMutex);
 		State rc = state;
 		if(rc == PLAY_STARTED)
 			SET_STATE(PLAYING);
@@ -132,18 +156,19 @@ public:
 
 	void setReportSongs(bool on) { reportSongs = on; }
 
-	void setVolume(float volume) { mp.setVolume(volume); }
+	void setVolume(float volume); // { mp.setVolume(volume); }
 
-	float getVolume() const { return mp.getVolume(); }
+	float getVolume() const { return shared.volume; } //mp.getVolume(); }
 
-	void stop() {
-		SET_STATE(STOPPED);
-		mp.stop();
-	}
+	void stop();
 
 	bool wasFromQueue() const { return playedNext; }
 	
-	const std::vector<utils::File> &getSongFiles() const { return songFiles; }
+	std::vector<utils::File> getSongFiles() { 
+		LOCK_GUARD(plMutex);
+		return shared.songFiles;
+	}
+
 
 private:
 	
@@ -151,6 +176,7 @@ private:
 		LOCK_GUARD(plMutex);
 		funcs.push_back(f);
 	}
+	void putError(const std::string &error);
 	
 	std::vector<std::function<void()>> funcs;
 	
@@ -166,37 +192,53 @@ private:
 
 	std::deque<std::string> errors;
 
-	MusicPlayer mp;
+	std::shared_ptr<MusicPlayer> mp;
 	std::mutex plMutex;
 	
 	struct PlayQueue {
 		std::deque<SongInfo> songs;
 		std::deque<SongInfo> psongs;
 		std::string prodScreenshot;
-		int size() { return songs.size() + psongs.size(); }
-		void push_back(const SongInfo &s) { songs.push_back(s); }
+		int size() const { return songs.size() + psongs.size(); }
+		void push_back(const SongInfo &s) { songs.push_back(s); dirty = true; }
 		//void push_font(const SongInfo &s) { songs.push_front(s); }
-		void clear() { psongs.clear(); songs.clear(); }
+		void clear() { psongs.clear(); songs.clear(); dirty = true; }
 		void pop_front() { 
+			dirty = true;
 			if(psongs.size() > 0)
 				psongs.pop_front();
 			else
 				songs.pop_front(); 
+		}
+		const SongInfo& front() const {
+			if(psongs.size() > 0)
+				return psongs.front();
+			return songs.front(); 
 		}
 		SongInfo& front() {
 			if(psongs.size() > 0)
 				return psongs.front();
 			return songs.front(); 
 		}
-		SongInfo& getSong(int i) { 
-			if(i < psongs.size())
+		const SongInfo& getSong(int i) const { 
+			if(i < (int)psongs.size())
 				return psongs[i];
 			return songs[i - psongs.size()]; 
 		}
-		void insertAt(int i, const SongInfo &s) { songs.insert( songs.begin() + i, s); }
+		void insertAt(int i, const SongInfo &s) {
+			songs.insert( songs.begin() + i, s);
+			dirty = true;
+		}
+
+		bool dirty = false;
 	};
 	
 	PlayQueue playList;
+	// Current playing song, with updated info from player if possible
+	SongInfo currentInfo;
+	// Currently playing song as it was fetched from the database
+	SongInfo dbInfo;
+
 
 	std::atomic<bool> wasAllowed;
 	std::atomic<bool> quitThread;
@@ -205,8 +247,6 @@ private:
 	std::string loadedFile;
 
 	std::atomic<State> state; // = STOPPED;
-	SongInfo currentInfo;
-	SongInfo dbInfo;
 
 	std::thread playerThread;
 
@@ -236,6 +276,8 @@ private:
 	std::vector<utils::File> songFiles;
 	
 	//std::string screenshot;
+	utils::Fifo<uint8_t> streamFifo;
+	std::vector<std::pair<std::string, int>> streamParams;
 	
 };
 

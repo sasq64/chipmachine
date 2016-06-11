@@ -1,24 +1,25 @@
 #include "MusicPlayerList.h"
+#include "MusicPlayer.h"
 
 #include <coreutils/log.h>
 #include <coreutils/utils.h>
 #include <algorithm>
 #include <unordered_map>
 
-#include <musicplayer/chipplayer.h>
-
 using namespace std;
 using namespace utils;
 
 namespace chipmachine {
 
-MusicPlayerList::MusicPlayerList(const std::string &workDir) : mp(workDir) {
+MusicPlayerList::MusicPlayerList(const std::string &workDir) : mp(std::make_shared<MusicPlayer>(workDir)), streamFifo(128*1024) {
 	SET_STATE(STOPPED);
 	wasAllowed = true;
 	permissions = 0xff;
 	quitThread = false;
 	playerThread = thread([=]() {
 		while(!quitThread) {
+
+			// Call onThisThread delayed lambdas
 			plMutex.lock();
 			if(funcs.size()) {
 				auto q = funcs;
@@ -28,7 +29,37 @@ MusicPlayerList::MusicPlayerList(const std::string &workDir) : mp(workDir) {
 					f();
 			} else
 				plMutex.unlock();
+
+			// Update music player
 			update();
+
+			// Transfer state to shared
+			shared.paused = mp->isPaused();
+			shared.playing = mp->playing();
+			shared.volume = mp->getVolume();
+			shared.length = mp->getLength();
+			shared.position = mp->getPosition();
+			shared.playlist_size = playList.size();
+
+			if(multiSongs.size())
+				shared.tune = multiSongNo;
+			else
+				shared.tune = mp->getTune();
+
+			{ LOCK_GUARD(plMutex);
+				shared.info[0] = dbInfo;
+				shared.info[1] = currentInfo;
+				shared.sub_title = mp->getMeta("sub_title");
+				shared.message = mp->getMeta("message");
+
+				if(playList.size() > 0)
+					shared.info[2] = playList.getSong(0);
+				if(updateSong) {
+					shared.songFiles = songFiles;
+					updateSong = false;
+				}
+			}
+
 			sleepms(100);
 		}
 	});
@@ -36,7 +67,6 @@ MusicPlayerList::MusicPlayerList(const std::string &workDir) : mp(workDir) {
 
 void MusicPlayerList::addSong(const SongInfo &si, bool shuffle) {
 
-	//LOCK_GUARD(plMutex);
 	onThisThread([=] {
 		if(shuffle) {
 			playList.insertAt(rand() % (playList.size() + 1), si);
@@ -49,24 +79,43 @@ void MusicPlayerList::addSong(const SongInfo &si, bool shuffle) {
 }
 
 void MusicPlayerList::clearSongs() {
-	//LOCK_GUARD(plMutex);
 	onThisThread( [=] { playList.clear(); });
 }
 
 void MusicPlayerList::nextSong() {
-	//LOCK_GUARD(plMutex);
 	onThisThread( [=] {
 		if(playList.size() > 0) {
-			// mp.stop();
 			SET_STATE(WAITING);
 		}
 	});
 }
 
+void MusicPlayerList::pause(bool dopause) {
+	if(!(permissions & CAN_PAUSE))
+		return;
+	onThisThread([=] {
+		mp->pause(dopause);
+	});
+}
+
+void MusicPlayerList::setVolume(float volume) {
+	onThisThread([=] {
+	   	mp->setVolume(volume);
+	});
+}
+
+void MusicPlayerList::stop() {
+	onThisThread([=] {
+		SET_STATE(STOPPED);
+		mp->stop();
+	});
+}
+
 void MusicPlayerList::playSong(const SongInfo &si) {
-	LOCK_GUARD(plMutex);
-	dbInfo = currentInfo = si;
-	SET_STATE(PLAY_NOW);
+	onThisThread( [=] {
+		dbInfo = currentInfo = si;
+		SET_STATE(PLAY_NOW);
+	});
 }
 
 void MusicPlayerList::seek(int song, int seconds) {
@@ -77,48 +126,48 @@ void MusicPlayerList::seek(int song, int seconds) {
 			multiSongNo = song;
 			return;
 		}
-		mp.seek(song, seconds);
+		mp->seek(song, seconds);
 		if(song >= 0)
 			changedSong = true;
 	});
 }
 
 uint16_t *MusicPlayerList::getSpectrum() {
-	return mp.getSpectrum();
+	return mp->getSpectrum();
 }
 
 int MusicPlayerList::spectrumSize() {
-	return mp.spectrumSize();
+	return mp->spectrumSize();
 }
 
 SongInfo MusicPlayerList::getInfo(int index) {
 	LOCK_GUARD(plMutex);
-	if(index == 0)
-		return currentInfo;
-	return playList.getSong(index - 1);
+	if(index > 1)
+		return SongInfo();
+	return shared.info[index+1];
 }
 
 SongInfo MusicPlayerList::getDBInfo() {
 	LOCK_GUARD(plMutex);
-	return dbInfo;
+	return shared.info[0];
 }
 
 int MusicPlayerList::getLength() {
-	return mp.getLength(); // currentInfo.length;
+	return shared.length; //mp.getLength(); // currentInfo.length;
 }
 
 int MusicPlayerList::getPosition() {
-	return mp.getPosition();
+	return shared.position; //mp.getPosition();
 }
 
 int MusicPlayerList::listSize() {
-	return playList.size();
+	return shared.playlist_size;
 }
 
 /// PRIVATE
 
 void MusicPlayerList::updateInfo() {
-	auto si = mp.getPlayingInfo();
+	auto si = mp->getPlayingInfo();
 	if(si.format != "")
 		currentInfo.format = si.format;
 	if(!multiSongs.size()) {
@@ -148,8 +197,7 @@ bool MusicPlayerList::handlePlaylist(const string &fileName) {
 	MusicDatabase::getInstance().lookup(playList.front());
 	if(playList.front().path == "") {
 		LOGD("Could not lookup '%s'", playList.front().path);
-		errors.push_back("Bad song in playlist");
-		SET_STATE(ERROR);
+		putError("Bad song in playlist");
 		return false;
 	}
 	SET_STATE(WAITING);
@@ -200,14 +248,14 @@ bool MusicPlayerList::playFile(const std::string &fn) {
 		fileName = newName;
 	}
 
-	if(mp.playFile(fileName)) {
+	if(mp->playFile(fileName)) {
 #ifdef USE_REMOTELISTS
 		if(reportSongs)
 			RemoteLists::getInstance().songPlayed(currentInfo.path);
 #endif
 		LOGD("STARRTUNE %d", currentInfo.starttune);
 		if(currentInfo.starttune >= 0)
-			mp.seek(currentInfo.starttune);
+			mp->seek(currentInfo.starttune);
 		changedSong = false;
 		LOGD("CHANGED MULTI:%s", changedMulti ? "YES" : "NO");
 		if(!changedMulti) {
@@ -219,11 +267,15 @@ bool MusicPlayerList::playFile(const std::string &fn) {
 
 		changedMulti = false;
 		return true;
-	} else {
-		errors.push_back("Could not play song");
-		SET_STATE(ERROR);
-	}
+	} else 
+		putError("Could not play song");
 	return false;
+}
+
+void MusicPlayerList::putError(const std::string &error) {
+	LOCK_GUARD(plMutex);
+	errors.push_back(error);
+	SET_STATE(ERROR);
 }
 
 void MusicPlayerList::setPartyMode(bool on, int lockSec, int graceSec) {
@@ -236,9 +288,24 @@ void MusicPlayerList::setPartyMode(bool on, int lockSec, int graceSec) {
 
 void MusicPlayerList::update() {
 
-	LOCK_GUARD(plMutex);
+	static uint8_t buffer[1024*64];
 
-	mp.update();
+	if(streamParams.size() > 0) {
+		LOCK_GUARD(plMutex);
+		for(auto &x : streamParams) {
+			mp->setParameter(x.first, x.second);
+		}
+		streamParams.clear();
+	}
+
+	int count = streamFifo.filled();
+	if(count > 0) {
+		if(count > (int)sizeof(buffer))
+			count = sizeof(buffer);
+		streamFifo.get(buffer, count);
+		mp->putStream(buffer, count);
+	}
+	mp->update();
 
 	RemoteLoader::getInstance().update();
 
@@ -274,30 +341,30 @@ void MusicPlayerList::update() {
 
 	if(state == PLAYING || state == PLAY_STARTED) {
 
-		auto pos = mp.getPosition();
-		auto length = mp.getLength();
+		auto pos = mp->getPosition();
+		auto length = mp->getLength();
 
 		if(cueSheet) {
 			cueTitle = cueSheet->getTitle(pos);
 		}
 
 		if(!changedSong && playList.size() > 0) {
-			if(!mp.playing()) {
+			if(!mp->playing()) {
 				if(playList.size() == 0)
 					SET_STATE(STOPPED);
 				else
 					SET_STATE(WAITING);
 			} else if((length > 0 && pos > length) && pos > 7) {
 				LOGD("STATE: Song length exceeded");
-				mp.fadeOut(3.0);
+				mp->fadeOut(3.0);
 				SET_STATE(FADING);
-			} else if(detectSilence && mp.getSilence() > 44100 * 6 && pos > 7) {
+			} else if(detectSilence && mp->getSilence() > 44100 * 6 && pos > 7) {
 				LOGD("STATE: Silence detected");
-				mp.fadeOut(0.5);
+				mp->fadeOut(0.5);
 				SET_STATE(FADING);
 			}
 		} else if(partyLockDown) {
-			if((length > 0 && pos > length) || mp.getSilence() > 44100 * 6) {
+			if((length > 0 && pos > length) || mp->getSilence() > 44100 * 6) {
 				partyLockDown = false;
 				setPermissions(0xffff);
 			}
@@ -305,7 +372,7 @@ void MusicPlayerList::update() {
 	}
 
 	if(state == FADING) {
-		if(mp.getFadeVolume() <= 0.01) {
+		if(mp->getFadeVolume() <= 0.01) {
 			LOGD("STATE: Music ended");
 			if(playList.size() == 0)
 				SET_STATE(STOPPED);
@@ -349,6 +416,9 @@ void MusicPlayerList::playCurrent() {
 	
 	songFiles.clear();
 	//screenshot = "";
+	RemoteLoader &loader = RemoteLoader::getInstance();
+	streamFifo.clear();
+	loader.cancel();
 	
 	LOGD("PLAY PATH:%s", currentInfo.path);
 	string prefix, path;
@@ -374,8 +444,7 @@ void MusicPlayerList::playCurrent() {
 		MusicDatabase::getInstance().lookup(playList.psongs.front());
 		if(playList.psongs.front().path == "") {
 			LOGD("Could not lookup '%s'",playList.psongs.front().path);
-			errors.push_back("Bad song in product");
-			SET_STATE(ERROR);
+			putError("Bad song in product");
 			return;
 		}
 		SET_STATE(WAITING);
@@ -421,6 +490,7 @@ void MusicPlayerList::playCurrent() {
 
 	cueSheet = nullptr;
 	cueTitle = "";
+	updateSong = true;
 
 	if(File::exists(currentInfo.path)) {
 		LOGD("PLAYING LOCAL FILE %s", currentInfo.path);
@@ -432,8 +502,7 @@ void MusicPlayerList::playCurrent() {
 
 	loadedFile = "";
 	files = 0;
-	RemoteLoader &loader = RemoteLoader::getInstance();
-	loader.cancel();
+	streamFifo.clear();
 
 	string cueName = "";
 	if(prefix == "bitjam")
@@ -456,19 +525,26 @@ void MusicPlayerList::playCurrent() {
 
 	if(currentInfo.format != "M3U" && (ext == "mp3" || toLower(currentInfo.format) == "mp3")) {
 
-		auto streamer = mp.streamFile("dummy.mp3");
-
-		if(streamer) {
+		if(mp->streamFile("dummy.mp3")) {
 			SET_STATE(PLAY_STARTED);
+			LOGD("### Start Stream");
 			loader.stream(currentInfo.path, [=](int what, const uint8_t *ptr, int n) -> bool {
-				if(what == RemoteLoader::PARAMETER)
-					streamer->setParameter((char *)ptr, n);
-				else
-					streamer->putStream(ptr, n);
+				// TODO: Called from web thread. Can get rit of fifo and streamParams when
+				// we switch to new thread safe web interface
+				if(what == RemoteLoader::PARAMETER) {
+					LOCK_GUARD(plMutex);
+					streamParams.emplace_back((char*)ptr, n);
+					//mp->setParameter((char *)ptr, n);
+				} else {
+					//LOGD("Streaming %d bytes", n);
+					streamFifo.put(ptr, n);
+					//mp->putStream(ptr, n);
+				}
 				return true;
 			});
 		}
-		return;
+
+		return; 
 	}
 
 	bool isStarTrekker = (currentInfo.path.find("Startrekker") != string::npos);
@@ -491,9 +567,9 @@ void MusicPlayerList::playCurrent() {
 		auto smpl_file = currentInfo.path.substr(0, currentInfo.path.find_last_of('.') + 1) + ext2;
 		LOGD("Loading secondary (sample) file '%s'", smpl_file);
 		loader.load(smpl_file, [=](File f) {
+			updateSong = true;
 			if(!f) {
-				errors.push_back("Could not load secondary file");
-				SET_STATE(ERROR);
+				putError("Could not load secondary file");
 			};
 			songFiles.push_back(f);
 			files--;
@@ -504,17 +580,17 @@ void MusicPlayerList::playCurrent() {
 	files++;
 	loader.load(currentInfo.path, [=](File f0) {
 		if(!f0) {
-			errors.push_back("Could not load file");
-			SET_STATE(ERROR);
+			putError("Could not load file");
 			files--;
 			return;
 		}
+		updateSong = true;
 		songFiles.push_back(f0);
 		loadedFile = f0.getName();
 		auto ext = toLower(path_extension(loadedFile));
 		LOGD("Loaded file '%s'", loadedFile);
 		auto parentDir = File(path_directory(loadedFile));
-		auto fileList = mp.getSecondaryFiles(f0);
+		auto fileList = mp->getSecondaryFiles(f0);
 		for(auto s : fileList) {
 			File target = parentDir / s;
 			if(!target.exists()) {
@@ -523,11 +599,11 @@ void MusicPlayerList::playCurrent() {
 				auto url = path_directory(currentInfo.path) + "/" + s;
 				loader.load(url, [=](File f) {
 					if(!f) {
-						errors.push_back("Could not load file");
-						SET_STATE(ERROR);
+						putError("Could not load file");
 					} else {
 						LOGD("Copying secondary file to %s", target.getName());
 						File::copy(f.getName(), target);
+						updateSong = true;
 						songFiles.push_back(target);
 					}
 					files--;

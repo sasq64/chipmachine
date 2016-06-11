@@ -101,19 +101,15 @@ MusicPlayer::~MusicPlayer() {
 }
 
 void MusicPlayer::seek(int song, int seconds) {
-	auto ptr = player.aquire();
-	if(ptr) {
-		if(ptr->seekTo(song, seconds)) {
-			if(seconds < 0)
-				pos = 0;
-			else
-				pos = seconds * 44100;
-			fifo.clear();
-			// length = player->getMetaInt("length");
-			ptr.unlock();
-			updatePlayingInfo();
-			currentTune = song;
-		}
+	if(player->seekTo(song, seconds)) {
+		if(seconds < 0)
+			pos = 0;
+		else
+			pos = seconds * 44100;
+		fifo.clear();
+		// length = player->getMetaInt("length");
+		updatePlayingInfo();
+		currentTune = song;
 	}
 }
 
@@ -127,20 +123,15 @@ void MusicPlayer::fadeOut(float secs) {
 	fadeOutPos = pos + fadeLength;
 }
 
-SafePointer<ChipPlayer> MusicPlayer::streamFile(const string &fileName) {
+bool MusicPlayer::streamFile(const string &fileName) {
 	dontPlay = true;
 	silentFrames = 0;
 
-	{
-		LOCK_GUARD(infoMutex);
-		playingInfo = SongInfo();
-	}
-
+	playingInfo = SongInfo();
 	string name = fileName;
 
-	// LOCK_GUARD(*playerMutex);
 	player = nullptr;
-	player = make_safepointer(fromStream(fileName));
+	player = fromStream(fileName);
 
 	dontPlay = false;
 	playEnded = false;
@@ -156,10 +147,9 @@ SafePointer<ChipPlayer> MusicPlayer::streamFile(const string &fileName) {
 		length = 0;
 		sub_title = "";
 		currentTune = playingInfo.starttune;
-		// return make_shared<Streamer>(playerMutex, player);
-		return player;
+		return true;
 	}
-	return nullptr;
+	return false;
 }
 
 bool MusicPlayer::playFile(const string &fileName) {
@@ -167,10 +157,7 @@ bool MusicPlayer::playFile(const string &fileName) {
 	dontPlay = true;
 	silentFrames = 0;
 
-	{
-		LOCK_GUARD(infoMutex);
-		playingInfo = SongInfo();
-	}
+	playingInfo = SongInfo();
 
 	string name = fileName;
 
@@ -189,9 +176,8 @@ bool MusicPlayer::playFile(const string &fileName) {
 		}
 	}
 
-	// LOCK_GUARD(*playerMutex);
 	player = nullptr;
-	player = make_safepointer(fromFile(name));
+	player = fromFile(name);
 
 	dontPlay = false;
 	playEnded = false;
@@ -211,32 +197,26 @@ bool MusicPlayer::playFile(const string &fileName) {
 
 void MusicPlayer::updatePlayingInfo() {
 	SongInfo si;
-	auto ptr = player.aquire();
-	if(ptr) {
 
-		auto game = ptr->getMeta("game");
-		si.title = ptr->getMeta("title");
-		if(game != "") {
-			if(si.title != "") {
-				si.title = format("%s (%s)", game, si.title);
-			} else
-				si.title = game;
-		}
-
-		si.composer = ptr->getMeta("composer");
-		si.format = ptr->getMeta("format");
-		si.numtunes = ptr->getMetaInt("songs");
-		si.starttune = ptr->getMetaInt("startSong");
-		if(si.starttune == -1) si.starttune = 0;
-
-		length = ptr->getMetaInt("length");
-		message = ptr->getMeta("message");
-		sub_title = ptr->getMeta("sub_title");
+	auto game = player->getMeta("game");
+	si.title = player->getMeta("title");
+	if(game != "") {
+		if(si.title != "") {
+			si.title = format("%s (%s)", game, si.title);
+		} else
+			si.title = game;
 	}
-	{
-		LOCK_GUARD(infoMutex);
-		playingInfo = si;
-	}
+
+	si.composer = player->getMeta("composer");
+	si.format = player->getMeta("format");
+	si.numtunes = player->getMetaInt("songs");
+	si.starttune = player->getMetaInt("startSong");
+	if(si.starttune == -1) si.starttune = 0;
+
+	length = player->getMetaInt("length");
+	message = player->getMeta("message");
+	sub_title = player->getMeta("sub_title");
+	playingInfo = si;
 }
 
 void MusicPlayer::pause(bool dopause) {
@@ -249,16 +229,13 @@ void MusicPlayer::pause(bool dopause) {
 
 string MusicPlayer::getMeta(const string &what) {
 	if(what == "message") {
-		LOCK_GUARD(infoMutex);
 		return message;
 	} else if(what == "sub_title") {
-		LOCK_GUARD(infoMutex);
 		return sub_title;
 	}
 
-	auto p = player.aquire();
-	if(p.get())
-		return p->getMeta(what);
+	if(player)
+		return player->getMeta(what);
 	else
 		return "";
 }
