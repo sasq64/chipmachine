@@ -11,7 +11,7 @@ using namespace utils;
 
 namespace chipmachine {
 
-MusicPlayerList::MusicPlayerList(const std::string &workDir) : mp(std::make_shared<MusicPlayer>(workDir)), streamFifo(128*1024) {
+MusicPlayerList::MusicPlayerList(const std::string &workDir) : mp(std::make_shared<MusicPlayer>(workDir)) {
 	SET_STATE(STOPPED);
 	wasAllowed = true;
 	permissions = 0xff;
@@ -59,8 +59,10 @@ MusicPlayerList::MusicPlayerList(const std::string &workDir) : mp(std::make_shar
 					updateSong = false;
 				}
 			}
-
-			sleepms(100);
+			for(int i=0; i<10; i++) {
+				RemoteLoader::getInstance().update();
+				sleepms(10);
+			}
 		}
 	});
 }
@@ -288,26 +290,8 @@ void MusicPlayerList::setPartyMode(bool on, int lockSec, int graceSec) {
 
 void MusicPlayerList::update() {
 
-	static uint8_t buffer[1024*64];
-
-	if(streamParams.size() > 0) {
-		LOCK_GUARD(plMutex);
-		for(auto &x : streamParams) {
-			mp->setParameter(x.first, x.second);
-		}
-		streamParams.clear();
-	}
-
-	int count = streamFifo.filled();
-	if(count > 0) {
-		if(count > (int)sizeof(buffer))
-			count = sizeof(buffer);
-		streamFifo.get(buffer, count);
-		mp->putStream(buffer, count);
-	}
 	mp->update();
 
-	RemoteLoader::getInstance().update();
 
 	if(partyMode) {
 		auto p = getPosition();
@@ -417,7 +401,6 @@ void MusicPlayerList::playCurrent() {
 	songFiles.clear();
 	//screenshot = "";
 	RemoteLoader &loader = RemoteLoader::getInstance();
-	streamFifo.clear();
 	loader.cancel();
 	
 	LOGD("PLAY PATH:%s", currentInfo.path);
@@ -502,7 +485,6 @@ void MusicPlayerList::playCurrent() {
 
 	loadedFile = "";
 	files = 0;
-	streamFifo.clear();
 
 	string cueName = "";
 	if(prefix == "bitjam")
@@ -529,16 +511,10 @@ void MusicPlayerList::playCurrent() {
 			SET_STATE(PLAY_STARTED);
 			LOGD("### Start Stream");
 			loader.stream(currentInfo.path, [=](int what, const uint8_t *ptr, int n) -> bool {
-				// TODO: Called from web thread. Can get rit of fifo and streamParams when
-				// we switch to new thread safe web interface
 				if(what == RemoteLoader::PARAMETER) {
-					LOCK_GUARD(plMutex);
-					streamParams.emplace_back((char*)ptr, n);
-					//mp->setParameter((char *)ptr, n);
+					mp->setParameter((char *)ptr, n);
 				} else {
-					//LOGD("Streaming %d bytes", n);
-					streamFifo.put(ptr, n);
-					//mp->putStream(ptr, n);
+					mp->putStream(ptr, n);
 				}
 				return true;
 			});
@@ -579,6 +555,7 @@ void MusicPlayerList::playCurrent() {
 	// LOGD("LOADING:%s", currentInfo.path);
 	files++;
 	loader.load(currentInfo.path, [=](File f0) {
+		LOGD("File %s", f0.getName());
 		if(!f0) {
 			putError("Could not load file");
 			files--;

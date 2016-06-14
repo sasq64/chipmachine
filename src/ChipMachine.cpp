@@ -22,7 +22,7 @@
 #include <coreutils/format.h>
 #include <coreutils/settings.h>
 #include <musicplayer/chipplugin.h>
-#include <webutils/web.h>
+#include <webutils2/web.h>
 #include <functional>
 #include <cctype>
 #include <map>
@@ -477,23 +477,27 @@ void ChipMachine::update() {
 					} else {
 						// LOCK_GUARD(multiLoadLock);
 
-						if(toLower(path_extension(f.getName())) == "gif") {
-							t--;
-							for(auto &bm : image::load_gifs(f.getName())) {
+						try {
+							if(toLower(path_extension(f.getName())) == "gif") {
+								t--;
+								for(auto &bm : image::load_gifs(f.getName())) {
+									for(auto &px : bm) {
+										if((px & 0xffffff) == 0)
+											px &= 0xffffff;
+									}
+									screenshots.emplace_back(f.getFileName(), bm);
+									t++;
+								}
+							} else {
+								auto bm = image::load_image(f.getName());
 								for(auto &px : bm) {
 									if((px & 0xffffff) == 0)
 										px &= 0xffffff;
 								}
 								screenshots.emplace_back(f.getFileName(), bm);
-								t++;
 							}
-						} else {
-							auto bm = image::load_image(f.getName());
-							for(auto &px : bm) {
-								if((px & 0xffffff) == 0)
-									px &= 0xffffff;
-							}
-							screenshots.emplace_back(f.getFileName(), bm);
+						} catch (image::image_exception &ie) {
+							LOGD("Failed to open image. Unsupported color type?");
 						}
 					}
 
@@ -505,7 +509,8 @@ void ChipMachine::update() {
 					}
 				};
 				for(auto &p : parts)
-					webutils::Web::getInstance().getFile(p, cb);
+					RemoteLoader::getInstance().load(p, cb);
+					//webutils::Web::getInstance().getFile(p, cb);
 			}
 		} else
 			nextScreenshot();
@@ -689,7 +694,7 @@ void ChipMachine::update() {
 #ifdef ENABLE_TELNET
 	    WebRPC::inProgress() > 0 ||
 #endif
-	    playerState == MusicPlayerList::LOADING || webutils::Web::inProgress() > 0);
+	    playerState == MusicPlayerList::LOADING); // TODO: || webutils::Web::inProgress() > 0);
 
 	netIcon.visible(busy);
 
@@ -771,6 +776,7 @@ void ChipMachine::render(uint32_t delta) {
 
 	screen.flip();
 
-	webutils::Web::pollAll();
+	//webutils::Web::pollAll();
+	RemoteLoader::getInstance().update();
 }
 }

@@ -1,21 +1,22 @@
 #ifndef REMOTE_LOADER_H
 #define REMOTE_LOADER_H
 
-//#include <webutils/web.h>
-
 #include <string>
 #include <functional>
 #include <unordered_map>
 #include <memory>
 
+#include <webutils2/web.h>
+#include <webutils2/sinks.h>
+
 namespace utils {
 	class File;
 }
 
-namespace webutils {
-	class WebJob;
-	class Web;
-}
+//namespace webutils {
+//	class WebJob;
+//	class Web;
+//}
 
 class RemoteLoader {
 public:
@@ -27,7 +28,8 @@ public:
 
 	bool load(const std::string &path, const std::function<void(utils::File)> &done_cb);
 
-	std::shared_ptr<webutils::WebJob>
+	//std::shared_ptr<webutils::WebJob>
+	bool
 	stream(const std::string &path,
 	       std::function<bool(int what, const uint8_t *data, int size)> data_cb);
 
@@ -51,6 +53,7 @@ public:
 	static constexpr int END = 2;
 
 private:
+	utils::File cacheDir;
 	struct Source {
 		Source() {}
 		Source(const std::string &url, const std::string &ld) : url(url), local_dir(ld) {}
@@ -60,9 +63,10 @@ private:
 
 	std::unordered_map<std::string, Source> sources;
 
-	std::unique_ptr<webutils::Web> webgetter;
-	
-	std::shared_ptr<webutils::WebJob> lastSession;
+	//std::unique_ptr<webutils::Web> webgetter;
+	//std::shared_ptr<webutils::WebJob> lastSession;
+	webutils::WebResult<utils::File> lastFile;
+	webutils::WebResult<webutils::Callback> lastStream;
 };
 
 #endif // REMOTE_LOADER_H

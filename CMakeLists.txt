@@ -76,7 +76,7 @@ set(APONE_MODULES
 	grappix
 	fft
 	archive
-	webutils
+	webutils2
 #	json
 	luainterpreter
 	sqlite3
@@ -89,7 +89,7 @@ set(TEXT_MODULES
 	audioplayer
 	fft
 	archive
-	webutils
+	webutils2
 	luainterpreter
 	sqlite3
 	xml

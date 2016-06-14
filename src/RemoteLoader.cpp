@@ -1,12 +1,14 @@
 #include "RemoteLoader.h"
 
 #include <coreutils/log.h>
-#include <webutils/web.h>
 
 using namespace std;
 using namespace utils;
+//using namespace webutils;
 
-RemoteLoader::RemoteLoader() : webgetter(std::make_unique<webutils::Web>(utils::File::getCacheDir() / "_webfiles")) {
+RemoteLoader::RemoteLoader() { //: webgetter(std::make_unique<webutils::Web>(utils::File::getCacheDir() / "_webfiles")) {
+	cacheDir = utils::File::getCacheDir() / "_webfiles";
+	utils::makedirs(cacheDir);
 	// webgetter->setErrorCallback([](int code, const string &msg) {
 	//	LOGD("Error %d %s", code, msg);
 	//});
@@ -24,14 +26,11 @@ void RemoteLoader::registerSource(const std::string &name, const std::string url
 }
 
 void RemoteLoader::cancel() {
-	if(lastSession)
-		webgetter->removeJob(lastSession);
-	//if(lastSession)
-	//	lastSession->stop();
-	lastSession = nullptr;
+	if(lastStream)
+		lastStream.cancel();
 }
 
-void RemoteLoader::update() { webgetter->poll(); }
+void RemoteLoader::update() { webutils::poll(); }
 
 // modland:Protracker/X/Y.mod"
 bool RemoteLoader::inCache(const std::string &p) const {
@@ -52,8 +51,11 @@ bool RemoteLoader::inCache(const std::string &p) const {
 	if(url.find("snesmusic.org") != string::npos) {
 		url = url.substr(0, url.length() - 4);
 	}
+	
+	File targetFile = cacheDir / utils::urlencode(url, ":/\\?;");
 
-	return webgetter->inCache(url);
+	return targetFile.exists();
+
 }
 
 bool RemoteLoader::isOffline(const std::string &p) {
@@ -85,7 +87,7 @@ bool RemoteLoader::load(const std::string &p, const function<void(File f)> &done
     string local_path = source.local_dir + path;
 	LOGD("Local path: %s", local_path);
 	if(File::exists(local_path)) {
-		schedule_callback([=]() { done_cb(File(local_path)); });
+		done_cb(File(local_path));
 		return true;
 	}
 
@@ -95,9 +97,15 @@ bool RemoteLoader::load(const std::string &p, const function<void(File f)> &done
 		url = url.substr(0, url.length() - 4);
 	}
 
-	lastSession = webgetter->getFile(url, [=](webutils::WebJob job) {
-		LOGD("CODE %d", job.code());
-		auto f = job.file();
+	File targetFile = cacheDir / utils::urlencode(url, ":/\\?;");
+	if(targetFile.exists()) {
+		done_cb(targetFile);
+		return true;
+	}
+
+	lastFile = webutils::get<File>(url, targetFile).onDone([=](File &f) {
+		//LOGD("CODE %d", job.code());
+		//auto f = job.file();
 		string fileName = f.getName();
 		if(fileName.find("snesmusic.org") != string::npos) {
 			auto newFile = fileName + ".rsn";
@@ -111,7 +119,12 @@ bool RemoteLoader::load(const std::string &p, const function<void(File f)> &done
 
 void RemoteLoader::preCache(const std::string &path) {}
 
-std::shared_ptr<webutils::WebJob>
+struct Stream {
+
+};
+
+//std::shared_ptr<webutils::WebJob>
+bool
 RemoteLoader::stream(const std::string &p,
                      std::function<bool(int what, const uint8_t *data, int size)> data_cb) {
 
@@ -131,23 +144,21 @@ RemoteLoader::stream(const std::string &p,
 	//}
 
 	string url = source.url + path;
-	bool headers = false;
-	lastSession = webgetter->streamData(
-	    url, [=](webutils::WebJob &job, uint8_t *data, int size) mutable -> bool {
-		    if(!headers) {
-			    string s = job.getHeader("icy-metaint");
-			    if(s != "") {
-				    int mi = stol(s);
-				    data_cb(PARAMETER, (uint8_t *)"icy-interval", mi);
-			    }
-			    LOGD("CONTENT LENGTH %d", job.contentLength());
-			    if(job.contentLength() > 0)
-				    data_cb(PARAMETER, (uint8_t *)"size", job.contentLength());
-			    headers = true;
-		    }
-		    if(data == nullptr)
-			    return data_cb(END, nullptr, size);
-		    return data_cb(DATA, data, size);
-		});
-	return lastSession;
+	bool doneHeaders = false;
+
+	lastStream = webutils::get<std::function<bool(uint8_t *, size_t)>>(url, 
+			[=](uint8_t *ptr, size_t size) mutable -> bool {
+				if(!doneHeaders) {
+					string s = lastStream.getHeader("icy-metaint");
+					if(s != "") {
+						data_cb(PARAMETER, (uint8_t*)"icy-interval", stol(s));
+					}
+			    	if(lastStream.contentLength() > 0)
+				    	data_cb(PARAMETER, (uint8_t *)"size", lastStream.contentLength());
+					doneHeaders = true;
+				}
+				data_cb(0, ptr, size);
+				return true;
+			});
+	return false;
 }

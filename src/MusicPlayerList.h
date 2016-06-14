@@ -275,10 +275,6 @@ private:
 	
 	std::vector<utils::File> songFiles;
 	
-	//std::string screenshot;
-	utils::Fifo<uint8_t> streamFifo;
-	std::vector<std::pair<std::string, int>> streamParams;
-	
 };
 
 } // namespace chipmachine

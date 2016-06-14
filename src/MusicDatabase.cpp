@@ -5,7 +5,7 @@
 #include <luainterpreter/luainterpreter.h>
 #include <coreutils/utils.h>
 #include <crypto/md5.h>
-#include <webutils/web.h>
+#include <webutils2/web.h>
 #include <archive/archive.h>
 #include <xml/xml.h>
 
@@ -388,7 +388,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 	LOGD("Workdir:%s", workDir);
 	File listFile;
 	bool writeListFile = false;
-	webutils::Web web{File::getCacheDir() / "_webfiles"};
+	//webutils::Web web{File::getCacheDir() / "_webfiles"};
 
 	bool prodCollection = false;
 
@@ -401,7 +401,8 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 		song_list = remote_list;
 
 	if(startsWith(song_list, "http://")) {
-		listFile = web.getFileBlocking(song_list);
+		//listFile = web.getFileBlocking(song_list);
+		listFile = webutils::get<File>(song_list, File::getTempFile());
 	} else if(song_list != "") {
 		listFile = File(workDir, song_list);
 		writeListFile = !listFile.exists();
