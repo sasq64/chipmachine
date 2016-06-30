@@ -52,8 +52,10 @@ R"(
       -X, --textmode      Run in textmode)"
 #endif
 R"(
-      -T, --telnet      Start telnet server
-      -p <port>         Telnet server port (default 12345)
+      --play <what>       Shuffle collection,all or favorites
+      -K                  Only play if no keyboard is connected
+      -T, --telnet        Start telnet server
+      -p <port>           Telnet server port (default 12345)
 )";
 
 int main(int argc, char *argv[]) {
@@ -90,6 +92,8 @@ int main(int argc, char *argv[]) {
 		logging::setLevel(logging::DEBUG);
     }
 	telnetServer = args["--telnet"].asBool();
+	auto playWhat = args["--play"].asString();
+	bool onlyHeadless = args["-K"].asBool();
 	
 	if(args["<files>"]) {
 		const auto &sl = args["<files>"].asStringList();
@@ -203,6 +207,8 @@ int main(int argc, char *argv[]) {
 		grappix::screen.open(w, h, false);
 
 	static chipmachine::ChipMachine app(workDir);
+	if(playWhat != "" && (!onlyHeadless || !grappix::screen.haveKeyboard()))
+		app.playNamed(playWhat);
 
 	grappix::screen.render_loop([](uint32_t delta) {
 		app.update();

@@ -321,6 +321,27 @@ void ChipMachine::update() {
 			return;
 	}
 
+	if(namedToPlay != "") {
+		std::vector<SongInfo> target;
+		SongInfo info;
+		bool random = true;
+		if(namedToPlay == "favorites") {
+			target = MusicDatabase::getInstance().getPlaylist("Favorites");
+		} else
+		if(namedToPlay == "all") {
+			MusicDatabase::getInstance().getSongs(target, info, 500, random);
+		} else {
+			info.path = namedToPlay + "::x";
+			MusicDatabase::getInstance().getSongs(target, info, 500, random);
+		}
+		namedToPlay = "";
+		for(const auto &s : target) {
+			if(!endsWith(s.path, ".plist"))
+				player.addSong(s);
+		}
+		player.nextSong();
+	}
+
 	auto click = screen.get_click();
 	if(click != Window::NO_CLICK) {
 		LOGD("Clicked at %d %d\n", click.x, click.y);

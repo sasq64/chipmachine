@@ -89,6 +89,8 @@ public:
 
 	MusicPlayerList &musicPlayer() { return player; }
 
+	void playNamed(const std::string &what) { namedToPlay = what; }
+
 private:
 	enum Screen {
 		NO_SCREEN = -1,
@@ -291,6 +293,8 @@ private:
 	bool searchUpdated = false;
 	std::string filter;
 	uint32_t favColor = 0x884444;
+
+	std::string namedToPlay;
 };
 }
 
