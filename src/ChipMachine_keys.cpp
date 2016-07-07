@@ -90,6 +90,7 @@ void ChipMachine::setupRules() {
 	addKey('c' | CTRL, "composer_shuffle");
 	addKey('s' | CTRL, "result_shuffle");
 	addKey('o' | CTRL, "collection_shuffle");
+	addKey('g' | CTRL, "favorite_shuffle");
 	addKey('-', "volume_down");
 	addKey({'+', '='}, "volume_up");
 	addKey(Window::TAB, "toggle_command");

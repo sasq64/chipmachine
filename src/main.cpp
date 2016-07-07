@@ -66,6 +66,8 @@ int main(int argc, char *argv[]) {
 	logging::setLevel(logging::WARNING);
 #endif
 
+    srand(time(NULL));
+    
 	vector<SongInfo> songs;
 	int w = 960;
 	int h = 540;
@@ -77,7 +79,7 @@ int main(int argc, char *argv[]) {
 	bool textMode = false;
 #endif
 
-	auto args = docopt::docopt(USAGE, { argv + 1, argv + argc }, true, "Chipmachine 1.3");
+    auto args = docopt::docopt(USAGE, { argv + 1, argv + argc }, true, "Chipmachine 1.3");
                                                   
 #ifndef TEXTMODE_ONLY                       
 	if(args["--width"])
