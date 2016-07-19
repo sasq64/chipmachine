@@ -33,7 +33,7 @@ parser.add_argument('actions', choices=['build', 'clean', 'run'], default='build
 parser.add_argument('--buildsystem', choices=['ninja', 'make', 'xcode'], default='ninja',
                    help='Build system to use')
 
-parser.add_argument('--config', choices=['release', 'debug'], default='release',
+parser.add_argument('--config', choices=['release', 'debug', 'testing'], default='release',
                    help='Release or Debug config')
 
 parser.add_argument('--output', default='builds',
@@ -45,7 +45,8 @@ parser.add_argument('--target', choices=['native', 'raspberry', 'windows', 'andr
 args = parser.parse_args()
 
 configs = { 'release' : [ 'release', '-DCMAKE_BUILD_TYPE=Release' ],
-            'debug' : [ 'debug', '-DCMAKE_BUILD_TYPE=Debug' ]
+            'debug' : [ 'debug', '-DCMAKE_BUILD_TYPE=Debug' ],
+            'testing' : [ 'testing', '-DCMAKE_BUILD_TYPE=Testing' ]
           }
 buildsystems = { 'make' : ['-GUnix Makefiles'],
                  'ninja' : [ '-GNinja',  ] 

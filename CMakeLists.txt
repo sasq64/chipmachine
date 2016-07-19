@@ -22,6 +22,9 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -DCM_DEBUG")
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -DCM_DEBUG")
 
+set(CMAKE_CXX_FLAGS_TESTING "${CMAKE_CXX_FLAGS} -DCM_DEBUG -DUNIT_TEST -DCM_UNIT_TEST")
+set(CMAKE_C_FLAGS_TESTING "${CMAKE_C_FLAGS} -DCM_DEBUG -DUNIT_TEST -DCM_UNIT_TEST")
+
 link_directories(/usr/local/lib)
 include_directories(${AP1_ROOT}/mods /usr/local/include)
 
@@ -132,6 +135,15 @@ if(WIN32)
     set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -mwindows)
 endif()
 
+message(${CMAKE_BUILD_TYPE})
+if(NOT WIN32)
+	add_executable(cm ${PLUGIN_EXTRA_FILES} ${TEXTMODE_FILES})
+	target_compile_definitions(cm PUBLIC TEXTMODE_ONLY)
+	target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS} docopt_s)
+endif()
+
+if(NOT (CMAKE_BUILD_TYPE MATCHES Testing))
+
 if(APPLE)
 	add_executable(chipmachine MACOSX_BUNDLE ${SOURCE_FILES})
 	add_custom_command(TARGET chipmachine POST_BUILD
@@ -139,19 +151,8 @@ if(APPLE)
 else()
 	add_executable(chipmachine ${SOURCE_FILES})
 endif()
-
 target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} docopt_s)
 
-if(NOT WIN32)
-	add_executable(cm ${PLUGIN_EXTRA_FILES} ${TEXTMODE_FILES})
-	target_compile_definitions(cm PUBLIC TEXTMODE_ONLY)
-	target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS} docopt_s)
-
-	add_executable(cmtest ${PLUGIN_EXTRA_FILES} ${TEXTMODE_FILES})
-	target_compile_definitions(cmtest PUBLIC TEXTMODE_ONLY CM_UNIT_TEST)
-	target_link_libraries(cmtest ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS})
-
-endif()
 
 if(APPLE)
 	set(APPS ${CMAKE_CURRENT_BINARY_DIR}/Chipmachine.app)
@@ -168,3 +169,5 @@ endif()
 
 add_executable(mksonglist mksonglist/mksonglist.cpp src/SongFileIdentifier.cpp)
 target_link_libraries(mksonglist coreutils archive sc68plugin mp3plugin)
+
+endif()

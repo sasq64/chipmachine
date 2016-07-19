@@ -195,14 +195,14 @@ bool MusicPlayerList::handlePlaylist(const string &fileName) {
 
     if(playList.size() == 0)
         return false;
-
-	MusicDatabase::getInstance().lookup(playList.front());
+/*
+	lookup(playList.front());
 	if(playList.front().path == "") {
 		LOGD("Could not lookup '%s'", playList.front().path);
 		putError("Bad song in playlist");
 		return false;
 	}
-	SET_STATE(WAITING);
+	SET_STATE(WAITING); */
 	return true;
 }
 
@@ -241,6 +241,7 @@ bool MusicPlayerList::playFile(const std::string &fn) {
 
 	} else if(ext == "plist") {
 		handlePlaylist(fileName);
+		SET_STATE(WAITING);
 		return true;
 	} else if(ext == "jb") {
 		// Jason Brooke fix
@@ -380,7 +381,7 @@ void MusicPlayerList::update() {
 
 		if(playList.size() > 0) {
 			// Update info for next song from
-			MusicDatabase::getInstance().lookup(playList.front());
+			//lookup(playList.front());
 		}
 			
 		// pos = 0;
@@ -394,75 +395,68 @@ void MusicPlayerList::update() {
 	}
 }
 
+/// Main work horse - Load and play the song/playlist/stream/etc in currentInfo
 void MusicPlayerList::playCurrent() {
 
 	SET_STATE(LOADING);
 	
 	songFiles.clear();
-	//screenshot = "";
+	
 	RemoteLoader &loader = RemoteLoader::getInstance();
 	loader.cancel();
-	
-	LOGD("PLAY PATH:%s", currentInfo.path);
+
 	string prefix, path;
-	auto parts = split(currentInfo.path, "::", 2);
-	if(parts.size() == 2) {
-		prefix = parts[0];
-		path = parts[1];
-	} else
-		path = currentInfo.path;
-	
-	
-	if(prefix == "product") {
-		auto id = stol(path);
-		playList.psongs.clear();
-		for(const auto &song : MusicDatabase::getInstance().getProductSongs(id)) {
-			playList.psongs.push_back(song);
-		}
-    	if(playList.psongs.size() == 0)
-        	return;
-	/*	
-		screenshot = MusicDatabase::getInstance().getProductScreenshots(id);
-		LOGD("Got screenshot: %s", screenshot); */
-		MusicDatabase::getInstance().lookup(playList.psongs.front());
-		if(playList.psongs.front().path == "") {
-			LOGD("Could not lookup '%s'",playList.psongs.front().path);
-			putError("Bad song in product");
-			return;
-		}
-		SET_STATE(WAITING);
-		return;
-	} else {
-		if(currentInfo.metadata[SongInfo::SCREENSHOT] == "") {
-			auto s = MusicDatabase::getInstance().getSongScreenshots(currentInfo);
-			currentInfo.metadata[SongInfo::SCREENSHOT] = s;
-		}
-	}
 
-	if(prefix == "playlist") {
-		if(!handlePlaylist(path))
-			SET_STATE(ERROR);
-		return;
-	}
+	// Resolve path to a single song (expandning playlists, multi songs, products etc)
+	while(true) {
+		LOGD("Trying to play '%s'", currentInfo.path);
+		auto parts = split(currentInfo.path, "::", 2);
+		if(parts.size() == 2) {
+			prefix = parts[0];
+			path = parts[1];
+		} else
+			path = currentInfo.path;
 
-	if(startsWith(path, "MULTI:")) {
-		multiSongs = split(path.substr(6), "\t");
-		if(prefix != "") {
-			for(string &m : multiSongs) {
-				m = prefix + "::" + m;
+		// If song is a playlist, load it into the playQueue
+		if(prefix == "playlist") {
+			if(!handlePlaylist(path)) {
+				SET_STATE(ERROR);
+				return;
 			}
+			currentInfo = playList.front();
+			continue;
 		}
-		multiSongNo = 0;
-		currentInfo.path = multiSongs[0];
-		currentInfo.numtunes = multiSongs.size();
-		playCurrent();
-		return;
+
+		// A multi song is a group of songs that is treated like a single song with subtunes
+		if(startsWith(path, "MULTI:")) {
+			multiSongs = split(path.substr(6), "\t");
+			if(prefix != "") {
+				for(string &m : multiSongs) {
+					m = prefix + "::" + m;
+				}
+			}
+			multiSongNo = 0;
+			currentInfo.path = multiSongs[0];
+			currentInfo.numtunes = multiSongs.size();
+			continue;
+		}
+
+		// Get updated information from parent, if available.
+		// ... may modify the play queue
+		if(lookup(currentInfo)) {
+			if(playList.size() > 0)
+				currentInfo = playList.front();
+			else {
+				SET_STATE(ERROR);
+				return;
+			}
+			continue;
+		}
+		dbInfo = currentInfo;
+		break;
 	}
 
-	if(prefix == "index") {
-		int index = stol(path);
-		dbInfo = currentInfo = MusicDatabase::getInstance().getSongInfo(index);
-	}
+	// We have our info -- figure out what it is and load it
 
 	auto ext = path_extension(path);
 	makeLower(ext);
@@ -605,13 +599,21 @@ TEST_CASE("chipmachine::MusicPlayerList", "") {
 	using namespace std;
 	using namespace chipmachine;
 
-	MusicPlayerList mp(".");
+	auto& loader = RemoteLoader::getInstance();
 
-	SongInfo info("music/Amiga/Starbuck - Tennis.mod");
+	loader.registerSource("modland", "http://localhost:8000/MODLAND/", "");
+
+	MusicPlayerList mp(".");
+	mp.setLookupFunction([=](SongInfo &info, MusicPlayerList::PlayQueue &pq) -> bool {
+		// Prevent using MusicDatabase
+		return false;
+	});
+
+	SongInfo info("modland::Protracker/Horace Wimp/1990.mod");
 
 	mp.playSong(info);
 
-	int counter = 10;
+	int counter = 20;
 	while(counter--) {
 		utils::sleepms(100);
 	}

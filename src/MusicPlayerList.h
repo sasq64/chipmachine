@@ -169,32 +169,6 @@ public:
 		return shared.songFiles;
 	}
 
-
-private:
-	
-	void onThisThread(std::function<void()> f) {
-		LOCK_GUARD(plMutex);
-		funcs.push_back(f);
-	}
-	void putError(const std::string &error);
-	
-	std::vector<std::function<void()>> funcs;
-	
-	
-	bool handlePlaylist(const std::string &fileName);
-	void playCurrent();
-	bool playFile(const std::string &fileName);
-
-	void update();
-	void updateInfo();
-
-	bool checkPermission(int flags);
-
-	std::deque<std::string> errors;
-
-	std::shared_ptr<MusicPlayer> mp;
-	std::mutex plMutex;
-	
 	struct PlayQueue {
 		std::deque<SongInfo> songs;
 		std::deque<SongInfo> psongs;
@@ -233,6 +207,45 @@ private:
 		bool dirty = false;
 	};
 	
+	void setLookupFunction(const std::function<bool(SongInfo&, PlayQueue&)> &cb) {
+		lookup_cb = cb;
+	}
+
+	
+private:
+
+	bool lookup(SongInfo &info) {
+		if(lookup_cb)
+			return lookup_cb(info, playList);
+		//else
+		//	MusicDatabase::getInstance().lookup(info);
+		return false;
+	}
+
+	std::function<bool(SongInfo&, PlayQueue&)> lookup_cb;
+	
+	void onThisThread(std::function<void()> f) {
+		LOCK_GUARD(plMutex);
+		funcs.push_back(f);
+	}
+	void putError(const std::string &error);
+	
+	std::vector<std::function<void()>> funcs;
+	
+	
+	bool handlePlaylist(const std::string &fileName);
+	void playCurrent();
+	bool playFile(const std::string &fileName);
+
+	void update();
+	void updateInfo();
+
+	bool checkPermission(int flags);
+
+	std::deque<std::string> errors;
+
+	std::shared_ptr<MusicPlayer> mp;
+	std::mutex plMutex;
 	PlayQueue playList;
 	// Current playing song, with updated info from player if possible
 	SongInfo currentInfo;

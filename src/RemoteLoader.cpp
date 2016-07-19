@@ -6,7 +6,7 @@ using namespace std;
 using namespace utils;
 //using namespace webutils;
 
-RemoteLoader::RemoteLoader() { //: webgetter(std::make_unique<webutils::Web>(utils::File::getCacheDir() / "_webfiles")) {
+RemoteLoader::RemoteLoader() {
 	cacheDir = utils::File::getCacheDir() / "_webfiles";
 	utils::makedirs(cacheDir);
 	// webgetter->setErrorCallback([](int code, const string &msg) {

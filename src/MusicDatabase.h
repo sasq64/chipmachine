@@ -257,9 +257,9 @@ private:
 	SearchIndex composerIndex;
 	SearchIndex titleIndex;
 
-	std::vector<uint32_t> titleToComposer;
-	std::vector<uint32_t> composerToTitle;
-	std::vector<uint32_t> composerTitleStart;
+	std::vector<int32_t> titleToComposer;
+	std::vector<int32_t> composerToTitle;
+	std::vector<int32_t> composerTitleStart;
 	std::vector<uint16_t> formats;
 
 	mutable std::mutex chkMutex;

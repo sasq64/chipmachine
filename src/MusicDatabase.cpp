@@ -44,7 +44,7 @@ bool MusicDatabase::parseBitworld(const std::string &listFile,
 	std::string id, songs;
 
 	for(const auto &s : f.getLines()) {
-		tie(id, prod.title, prod.creator, prod.type, songs, prod.screenshots) = tusplit<6>(s, "\t");
+		tie(id, prod.title, prod.creator, prod.type, songs, prod.screenshots) = splitn<6>(s, "\t");
 		prod.songs.clear();
 		for(const auto &s : split(songs, ";")) {
 			if(endsWith(s, ".smpl"))
@@ -174,14 +174,6 @@ bool MusicDatabase::parseRss(Variables &vars, const std::string &listFile,
 		auto c = i["dc:creator"];
 		if(c.valid())
 			composer = c.text();
-		/*if(composer == "") {
-		    auto dash = title.rfind(" - ");
-		    if(dash != string::npos) {
-		        composer = title.substr(dash + 2);
-		        title = title.substr(0, dash);
-		    }
-		}*/
-
 		auto pos = enclosure.find("file=");
 		if(pos != string::npos)
 			enclosure = enclosure.substr(pos + 5);
@@ -541,14 +533,14 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 
 	// For empty query, return all playlists
 	if(query == "") {
-		for(int i = 0; i < playLists.size(); i++) {
+		for(unsigned i = 0; i < playLists.size(); i++) {
 			result.push_back(PLAYLIST_INDEX + i);
 		}
 		return result.size();
 	}
 
 	// Push back all matching playlists
-	for(int i = 0; i < playLists.size(); i++) {
+	for(unsigned i = 0; i < playLists.size(); i++) {
 		if(toLower(playLists[i].name).find(query) != string::npos)
 			result.push_back(PLAYLIST_INDEX + i);
 	}
@@ -827,7 +819,6 @@ static uint8_t formatToByte(const std::string &fmt, const std::string &path, int
 			l = MEGADRIVE;
 		if(l != UNKNOWN_FORMAT)
 			format_map[f] = l;
-		// fprintf(stderr, "%s\n", f.c_str());
 	}
 	return l;
 }

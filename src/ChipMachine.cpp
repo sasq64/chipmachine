@@ -162,6 +162,36 @@ ChipMachine::ChipMachine(const std::string &wd)
 	lua.setGlobal("WINDOWS", false);
 #endif
 
+	player.setLookupFunction([](SongInfo &info, MusicPlayerList::PlayQueue &playList) -> bool {
+		// NOTE: Happens on player thread
+		string prefix, path;
+		auto parts = split(info.path, "::", 2);
+		if(parts.size() == 2) {
+			prefix = parts[0];
+			path = parts[1];
+		} else
+			path = info.path;
+		if(prefix == "product") {
+			auto id = stol(path);
+
+			playList.psongs.clear();
+			bool first = false;
+			for(const auto &song : MusicDatabase::getInstance().getProductSongs(id)) {
+				playList.psongs.push_back(song);
+			}
+			return true;
+		} else {
+			if(info.metadata[SongInfo::SCREENSHOT] == "") {
+				auto s = MusicDatabase::getInstance().getSongScreenshots(info);
+				info.metadata[SongInfo::SCREENSHOT] = s;
+			}
+		}
+
+		MusicDatabase::getInstance().lookup(info);
+		return false;
+	});
+
+
 	string binDir = (workDir / "bin").getName();
 	lua.registerFunction("cm_set", [&](std::string var, std::string val) {
 		auto parts = split(var, ".");
@@ -396,6 +426,7 @@ void ChipMachine::nextScreenshot() {
 		currentShot = 0;
 
 	Tween::make().to(screenShotIcon.color, Color(0x00000000)).seconds(1.0).onComplete([=]() {
+		LOGD("Shot %d vs size %d", currentShot, screenshots.size());
 		image::bitmap &bm = screenshots[currentShot];
 		screenShotIcon.setBitmap(bm, true);
 
