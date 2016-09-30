@@ -4,7 +4,7 @@
 -- local_dir : If exists, will be checked first for files before downloading.
 -- If song_list or or source can not be found, database will not be added
 
-VERSION = 11;
+VERSION = 12;
 
 DB = {
 {
@@ -18,7 +18,7 @@ DB = {
 	id =  "hvsc",
 	-- source = "http://www.prg.dtu.dk/HVSC/C64Music/",
 	-- source = "http://hvsc.etv.cx/C64Music/",
-	source = "http://www.sannic.nl/hvsc/HVSC63/C64Music/",
+	source = "http://www.sannic.nl/hvsc/HVSC65/C64Music/",
 	song_list = "data/hvsc.txt",
 	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/hvsc.txt",
 	local_dir = "/opt/Music/C64Music",

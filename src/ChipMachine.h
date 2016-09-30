@@ -230,7 +230,7 @@ private:
 	Color markColor = 0xff00ff00;
 	Color hilightColor = 0xffffffff;
 
-	std::shared_ptr<IncrementalQuery> iquery;
+	std::unique_ptr<IncrementalQuery> iquery;
 
 	bool haveSearchChars = false;
 

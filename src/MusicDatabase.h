@@ -110,8 +110,7 @@ public:
 	bool initFromLua(const utils::File &workDir);
 	void initFromLuaAsync(const utils::File &workDir);
 
-	int search(const std::string &query, std::vector<int> &result,
-	           unsigned int searchLimit) override;
+	int search(const std::string &query, std::vector<int> &result, unsigned searchLimit) override;
 	// Lookup internal string for index
 	std::string getString(int index) const override {
 		std::lock_guard<std::mutex>{dbMutex};
@@ -144,9 +143,10 @@ public:
 		return composerIndex.getString(titleToComposer[index]);
 	}
 
-	std::shared_ptr<IncrementalQuery> createQuery() {
+	std::unique_ptr<IncrementalQuery> createQuery() {
 		std::lock_guard<std::mutex>{dbMutex};
-		return std::make_shared<IncrementalQuery>(this);
+		return std::make_unique<IncrementalQuery>(this);
+		//return std::unique_ptr<IncrementalQuery>(new IncrementalQuery(this));
 	}
 
 	int getSongs(std::vector<SongInfo> &target, const SongInfo &match, int limit, bool random);

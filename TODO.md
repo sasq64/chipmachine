@@ -183,3 +183,18 @@ GUI
 
 
 starttune
+
+## Version 1.4 TODO
+
+* Modulo eqbars height to even bar splits
+* BUG: Shuffle collection does not work
+* BUG: Remove space after \filter
+* Pause when streaming MP3
+* BUG: html-coded strings in titles still
+* Fix screenshots on job thread
+* Merge: Meta data in title
+* Setting: openmpt.panning
+* Callback: Plugin selection override
+* Don't show MP3 comment from RKO (6  5  4 ...)
+* Add to modland blacklist
+*

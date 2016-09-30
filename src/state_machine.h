@@ -52,6 +52,24 @@ private:
 	const std::shared_ptr<T> &ptr;
 };
 
+template <class T> class UniquePtrNullCondition : public BaseCondition {
+public:
+	UniquePtrNullCondition(const std::unique_ptr<T> &ptr) : ptr(ptr) {}
+	bool check() const override { return ptr == nullptr; }
+
+private:
+	const std::unique_ptr<T> &ptr;
+};
+
+template <class T> class UniquePtrNotNullCondition : public BaseCondition {
+public:
+	UniquePtrNotNullCondition(const std::unique_ptr<T> &ptr) : ptr(ptr) {}
+	bool check() const override { return ptr != nullptr; }
+
+private:
+	const std::unique_ptr<T> &ptr;
+};
+
 template <class T> class SharedPtrNullCondition : public BaseCondition {
 public:
 	SharedPtrNullCondition(const std::shared_ptr<T> &ptr) : ptr(ptr) {}
@@ -115,6 +133,15 @@ template <class T> Condition if_not_null(const std::shared_ptr<T> &ptr) {
 template <class T> Condition if_null(const std::shared_ptr<T> &ptr) {
 	return make_condition<SharedPtrNullCondition<T>>(ptr);
 }
+
+template <class T> Condition if_null(const std::unique_ptr<T> &ptr) {
+	return make_condition<UniquePtrNullCondition<T>>(ptr);
+}
+
+template <class T> Condition if_not_null(const std::unique_ptr<T> &ptr) {
+	return make_condition<UniquePtrNotNullCondition<T>>(ptr);
+}
+
 
 extern std::shared_ptr<BaseCondition> ALWAYS_TRUE;
 

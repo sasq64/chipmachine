@@ -739,8 +739,8 @@ void fadeOut(float &alpha, float t = 0.25) {
 
 void ChipMachine::toast(const std::string &txt, ToastType type) {
 
-	static std::vector<Color> colors = {0xffffff, 0xff8888,
-	                                    0x55aa55}; // Alpha intentionally left at zero
+	static std::array<Color, 3> colors = {{0xffffff, 0xff8888,
+	                                    0x55aa55}}; // Alpha intentionally left at zero
 
 	toastField.setText(txt);
 	int tlen = toastField.getWidth();

@@ -19,7 +19,9 @@ using namespace utils;
 
 namespace chipmachine {
 
-MusicDatabase::MusicDatabase() : db_ptr(std::make_unique<sqlite3db::Database>(utils::File::getCacheDir() / "music.db")), db(*db_ptr), reindexNeeded(false) {
+MusicDatabase::MusicDatabase()
+    : db_ptr(std::make_unique<sqlite3db::Database>(utils::File::getCacheDir() / "music.db")),
+      db(*db_ptr), reindexNeeded(false) {
 	createTables();
 }
 

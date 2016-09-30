@@ -1204,3 +1204,32 @@
 2995	http://amigaremix.com/listen/2995/hyperunknown_-_Mantronix__Tips_Jazzy_Nork_-_Live_Jazz_Club_Cover.mp3	Mantronix & Tip's Jazzy Nork - Live Jazz Club Cover	hyperunknown
 2996	http://amigaremix.com/listen/2996/DrFuture_-_Great_Courts_2_You_Can_Win.mp3	Great Courts 2 (You Can Win)	Dr.Future
 2997	http://amigaremix.com/listen/2997/Instant_Remedy_-_Captain_Planet_Ma_Ti_Synthwave_Mix.mp3	Captain Planet Ma Ti (Synthwave Mix)	Instant Remedy
+2998	http://amigaremix.com/listen/2998/Videogame_Orchestra_-_Lotus_3_-_Metal_Machine_-_Title_VGO_remake.mp3	Lotus 3 - Metal Machine - Title [VGO remake]	Videogame Orchestra
+2999	http://amigaremix.com/listen/2999/Szymon_Ilich_-_Risky_Woods_Menu_Track_-_Remake.mp3	Risky Woods Menu Track - Remake	Szymon Ilich
+3000	http://amigaremix.com/listen/3000/Instant_Remedy_-_Fantasy_World_Dizzy_EDM_Mix.mp3	Fantasy World Dizzy (EDM Mix)	Instant Remedy
+3002	http://amigaremix.com/listen/3002/Isacco_Garcia_Peveri_-_Ultima_VI_-_Introduction.mp3	Ultima VI - Introduction	Isacco Garcia Peveri
+3003	http://amigaremix.com/listen/3003/Dremix_-_Enigma_-_A_Final_Hyperbase_Dremix_Remix.mp3	Enigma - A Final Hyperbase (Dremix Remix)	Dremix
+3004	http://amigaremix.com/listen/3004/Isacco_Garcia_Peveri_-_Lupo_Alberto_Stage_2.mp3	Lupo Alberto Stage 2	Isacco Garcia Peveri
+3005	http://amigaremix.com/listen/3005/FabriceGP_-_Turrican_-_Trance_Remix_V2.mp3	Turrican - Trance Remix V2	FabriceGP
+3006	http://amigaremix.com/listen/3006/Martin_Dodd_-_Wrath_Of_The_Demon_Requiem_Remix_2016.mp3	Wrath Of The Demon (Requiem Remix 2016)	Martin Dodd
+3007	http://amigaremix.com/listen/3007/Guemill_-_Turrican_2_level_5-1.mp3	Turrican 2 level 5-1	Guemill
+3008	http://amigaremix.com/listen/3008/Aki_Jarvinen_-_Hero_Quest_ingame_metal_remix.mp3	Hero Quest ingame (metal remix)	Aki Järvinen
+3009	http://amigaremix.com/listen/3009/Sten_-_WorldCup_90_Genias.mp3	WorldCup 90 (Genias)	Sten
+3015	http://amigaremix.com/listen/3015/Sten_-_Over_The_Net.mp3	Over The Net	Sten
+3016	http://amigaremix.com/listen/3016/daXX_-_D-Mob_Music_Disc_3_daXX_ReMegamixed.mp3	D-Mob Music Disc 3 [daXX ReMegamixed]	daXX
+3017	http://amigaremix.com/listen/3017/fst_-_Hero_Quest_-_Gloom.mp3	Hero Quest - Gloom	fst
+3018	http://amigaremix.com/listen/3018/MimiTheCat_-_Alien_Breed_-_Tower_Assault_Remix.mp3	Alien Breed - Tower Assault Remix	MimiTheCat
+3019	http://amigaremix.com/listen/3019/PowerTrace_-_Super_Stardust_-_Special_Mission_1.mp3	Super Stardust - Special Mission 1	PowerTrace
+3020	http://amigaremix.com/listen/3020/daXX_-_3D_Demo_Part_2_daXX_Remix.mp3	3D Demo (Part 2) [daXX Remix]	daXX
+3021	http://amigaremix.com/listen/3021/daXX_-_3D_Demo_Part_1_-_Blow_ya_nose_NOW_daXX_Remix.mp3	3D Demo (Part 1) - Blow ya nose (NOW!) [daXX Remix]	daXX
+3022	http://amigaremix.com/listen/3022/Grasshopper_-_Vivamin-E_Grasshoppers_Chillstep_Edit.mp3	Vivamin-E (Grasshopper's Chillstep Edit)	Grasshopper
+3023	http://amigaremix.com/listen/3023/MimiTheCat_-_Lemmings_1_Pachelbels_Canon.mp3	Lemmings 1 (Pachelbel´s Canon)	MimiTheCat
+3024	http://amigaremix.com/listen/3024/daXX_-_Lotus_III_Intro_daXX_2016_Remix.mp3	Lotus III Intro [daXX 2016 Remix]	daXX
+3025	http://amigaremix.com/listen/3025/rebelcitizen_-_Another_World_Ending_Another_Rebelcitizen_Ending_Remix.mp3	Another World Ending (Another Rebelcitizen Ending Remix)	rebelcitizen
+3026	http://amigaremix.com/listen/3026/maf_-_Monday_Maf_remake.mp3	Monday (Maf remake)	maf
+3027	http://amigaremix.com/listen/3027/daXX_-_Human_Target_daXX_Remix.mp3	Human Target (daXX Remix)	daXX
+3028	http://amigaremix.com/listen/3028/daXX_-_Pinball_Dreams_-_Beatbox_Theme_daXX_Remix.mp3	Pinball Dreams - Beatbox Theme (daXX Remix)	daXX
+3029	http://amigaremix.com/listen/3029/LordPrenzer_-_Turrican_2_-_The_Greath_Bath.mp3	Turrican 2 - The Greath Bath	LordPrenzer
+3030	http://amigaremix.com/listen/3030/TITAN_-_Agony_-_Loading_Mountain_Breathless_RMX.mp3	Agony - Loading Mountain (Breathless RMX)	TITAN
+3031	http://amigaremix.com/listen/3031/MimiTheCat_-_Lotus_Turbo_Challenge_2_-_Title_remix.mp3	Lotus Turbo Challenge 2 - Title remix	MimiTheCat
+3032	http://amigaremix.com/listen/3032/MimiTheCat_-_Assassin_Special_Edition_-_Title.mp3	Assassin Special Edition - Title	MimiTheCat

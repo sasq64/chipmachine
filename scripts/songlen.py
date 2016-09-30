@@ -14,10 +14,10 @@ def parse(fname) :
     for line in f :
         a = line.split('=')
         if len(a) == 2 :
-            hash = int(a[0][:8], 16)
+            hash = int(a[0][:16], 16)
             
-            if lastName.find('Savage.sid') > -1 :
-                print "%s %s => %08x" % (lastName, a[0], hash)
+            #if lastName.find('Savage.sid') > -1 :
+             #   print "%s %s => %08x" % (lastName, a[0], hash)
             
             if hashMap.has_key(hash) :
                 print "Found duplicate ", lastName
@@ -47,6 +47,7 @@ def main(argv) :
     
     
     a = sorted(hashmap)
+    f.write(struct.pack('>BB', 0xff, 1))
     f.write(struct.pack('>I', len(a)))
     offset = 0
     offsets = []
@@ -55,9 +56,9 @@ def main(argv) :
         lens = hashmap[x]
         
         if len(lens) == 1 :        
-            f.write(struct.pack('>IH', x, lens[0]))
+            f.write(struct.pack('>QH', x, lens[0]))
         else :
-            f.write(struct.pack('>IH', x, offset | 0x8000))
+            f.write(struct.pack('>QH', x, offset | 0x8000))
             for i in range(len(lens)-1) :
                 l = lens[i]
                 offsets.append(struct.pack('>H', l))            
