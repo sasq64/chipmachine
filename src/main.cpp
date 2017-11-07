@@ -16,7 +16,6 @@
 #  define ENABLE_CONSOLE
 #endif
 #include "version.h"
-//#include "../docopt/docopt.h"
 #include "CLI11.hpp"
 #include <vector>
 
@@ -28,28 +27,6 @@ using namespace utils;
 namespace chipmachine {
 	void runConsole(shared_ptr<Console> console, ChipInterface &ci);
 }
-
-static const char USAGE[] =
-R"(chipmachine.
-	Usage:
-      chipmachine [-d] [options]
-      chipmachine [-d] <files>...
-
-    Options:
-      -d                Debug output)"
-#ifndef TEXTMODE_ONLY
-R"(
-      -f, --fullscreen    Run in Fullscreen
-      --width <width>     Width of window
-      --height <height>   Height of window
-      -X, --textmode      Run in textmode)"
-#endif
-R"(
-      --play <what>       Shuffle collection,all or favorites
-      -K                  Only play if no keyboard is connected
-      -T, --telnet        Start telnet server
-      -p <port>           Telnet server port (default 12345)
-)";
 
 int main(int argc, char *argv[]) {
 
