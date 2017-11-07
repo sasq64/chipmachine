@@ -66,7 +66,7 @@ file(GLOB DOC_FILES *.md)
 add_custom_target(chipmachine.data_files SOURCES ${DATA_FILES} )
 add_custom_target(chipmachine.lua_files SOURCES ${LUA_FILES})
 add_custom_target(chipmachine.doc_files SOURCES ${DOC_FILES} )
-  
+
 set(APONE_MODULES
 	coreutils
 	audioplayer
@@ -120,8 +120,6 @@ add_subdirectory(${AP1_ROOT}/mods/musicplayer/plugins plugins)
 
 include_directories(${AP1_ROOT}/mods/grappix ${AP1_ROOT}/mods/musicplayer/plugins)
 
-add_subdirectory(docopt)
-
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 if(WIN32)
@@ -136,12 +134,12 @@ else()
 	add_executable(chipmachine ${SOURCE_FILES})
 endif()
 
-target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} docopt_s)
+target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
 
 if(NOT WIN32)
 	add_executable(cm ${PLUGIN_EXTRA_FILES} ${TEXTMODE_FILES})
 	target_compile_definitions(cm PUBLIC TEXTMODE_ONLY)
-	target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS} docopt_s)
+	target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS})
 endif()
 
 if(APPLE)

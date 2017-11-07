@@ -1,11 +1,3 @@
-#ifdef LINUX
-#define BACKWARD_HAS_BFD 1
-#include <backward-cpp/backward.hpp>
-namespace backward {
-	backward::SignalHandling sh;
-}
-#endif
-
 #include "MusicPlayer.h"
 #include "ChipInterface.h"
 #ifndef TEXTMODE_ONLY
@@ -24,7 +16,8 @@ namespace backward {
 #  define ENABLE_CONSOLE
 #endif
 #include "version.h"
-#include "../docopt/docopt.h"
+//#include "../docopt/docopt.h"
+#include "CLI11.hpp"
 #include <vector>
 
 using namespace std;
@@ -69,8 +62,10 @@ int main(int argc, char *argv[]) {
 	vector<SongInfo> songs;
 	int w = 960;
 	int h = 540;
+    int port = 12345;
 	bool fullScreen = false;
 	bool telnetServer = false;
+    bool onlyHeadless = false;
 	string playWhat;
 #ifdef TEXTMODE_ONLY
     bool textMode = true;
@@ -78,32 +73,28 @@ int main(int argc, char *argv[]) {
 	bool textMode = false;
 #endif
 
-	auto args = docopt::docopt(USAGE, { argv + 1, argv + argc }, true, "Chipmachine 1.3");
-                                                  
-#ifndef TEXTMODE_ONLY                       
-	if(args["--width"])
-		w = args["--width"].asLong();
-	if(args["--height"])
-		h = args["--height"].asLong();
-	fullScreen = args["--fullscreen"].asBool();
-	textMode = args["--textmode"].asBool();
+    CLI::App opts{"Chipmachine 1.3"};
+
+#ifndef TEXTMODE_ONLY
+    opts.add_option("--width", w, "Width of window");
+    opts.add_option("--height", h, "Height of window");
+    opts.add_flag("-f,--fullscreen", fullScreen, "Run in fullscreen");
 #endif
-	if(args["-d"].asBool()) {
-		fullScreen = false;
+    opts.add_flag("-X,--textmode", textMode, "Run in textmode");
+    opts.add_flag_function("-d", [&](size_t count) {
+        fullScreen = false;
 		logging::setLevel(logging::DEBUG);
-    }
+        }, "Debug output");
 
-	telnetServer = args["--telnet"].asBool();
-	if(args["--playWhat"])
-		playWhat = args["--play"].asString();
-	bool onlyHeadless = args["-K"].asBool();
-	
-	if(args["<files>"]) {
-		const auto &sl = args["<files>"].asStringList();
-		std::copy(sl.begin(), sl.end(), std::back_inserter(songs));
-	}
+    opts.add_option("-T,--telnet", telnetServer, "Start telnet server");
+    opts.add_option("-p,--port", port, "Port for telnet server", 12345);
+    opts.add_flag("-K", onlyHeadless, "Only play if no keyboard is connected");
+    opts.add_option("--play", playWhat, "Shuffle a named collection (also 'all' or 'favorites')");
+    opts.add_option("files", songs, "Songs to play");
 
-	string path = File::makePath({                                 
+    CLI11_PARSE(opts, argc, argv)
+
+	string path = File::makePath({
 #ifdef __APPLE__
 	    (File::getExeDir() / ".." / "Resources").resolve(),
 #else
@@ -116,7 +107,7 @@ int main(int argc, char *argv[]) {
 	    File::getAppDir()
 	});
 	LOGD("PATH:%s", path);
-	
+
 	string workDir = File::findFile(path, "data").getDirectory();
 
 	if(workDir == "") {
@@ -162,7 +153,7 @@ int main(int argc, char *argv[]) {
 		}
 		return 0;
 	}
-		
+
 	if(textMode || telnetServer) {
 		ChipInterface ci(workDir);
 		if(textMode) {
@@ -180,14 +171,14 @@ int main(int argc, char *argv[]) {
 #endif
 		}
 		if(telnetServer) {
-			auto telnet = std::make_shared<bbs::TelnetServer>(12345);
+			auto telnet = std::make_shared<bbs::TelnetServer>(port);
 			telnet->setOnConnect([&](bbs::TelnetServer::Session &session) {
 				try {
 					std::shared_ptr<bbs::Console> console;
 					session.echo(false);
 					auto termType = session.getTermType();
 					LOGD("New telnet connection, TERMTYPE '%s'", termType);
-		
+
 					if(termType.length() > 0) {
 						console = std::make_shared<bbs::AnsiConsole>(session);
 					} else {
