@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(chipmachine)
 
-set(AP1_ROOT ../apone)
+set(AP1_ROOT apone)
 include(${AP1_ROOT}/cmake/Utils.cmake)
 
 add_definitions(-DAPP_NAME=chipmachine)

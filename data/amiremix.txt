@@ -587,6 +587,7 @@
 2199	http://amigaremix.com/listen/2199/DashN_-_F_A-18_Interceptor_afterburned_remix.mp3	F/A-18 Interceptor afterburned remix	DashN
 2200	http://amigaremix.com/listen/2200/CZ_Tunes_-_USS_John_Young_Sea_Knight_Theme.mp3	U.S.S. John Young (Sea Knight Theme)	CZ Tunes
 2201	http://amigaremix.com/listen/2201/Zzr_-_Amberstar_Track_14_-_Lurking_Square.mp3	Amberstar Track 14 - Lurking Square	Zzr
+2202	http://amigaremix.com/listen/2202/Dj_Alundra1_-_Lotus_Turbo_Challenge_2_-_Remix_Intro_2k3_piano.mp3	Lotus Turbo Challenge 2 - Remix Intro 2k3 piano	Dj Alundra1
 2203	http://amigaremix.com/listen/2203/teo_-_Enigmatic.mp3	Enigmatic	teo
 2204	http://amigaremix.com/listen/2204/DAWilson_-_STAmiga1_-_Hideaway_Mix.mp3	STAmiga1 - Hideaway Mix	D.A.Wilson
 2205	http://amigaremix.com/listen/2205/daXX_-_Beams_of_Light_-_daXX_NeoTrance_RMX.mp3	Beams of Light - daXX NeoTrance RMX	daXX
@@ -1204,3 +1205,86 @@
 2995	http://amigaremix.com/listen/2995/hyperunknown_-_Mantronix__Tips_Jazzy_Nork_-_Live_Jazz_Club_Cover.mp3	Mantronix & Tip's Jazzy Nork - Live Jazz Club Cover	hyperunknown
 2996	http://amigaremix.com/listen/2996/DrFuture_-_Great_Courts_2_You_Can_Win.mp3	Great Courts 2 (You Can Win)	Dr.Future
 2997	http://amigaremix.com/listen/2997/Instant_Remedy_-_Captain_Planet_Ma_Ti_Synthwave_Mix.mp3	Captain Planet Ma Ti (Synthwave Mix)	Instant Remedy
+2998	http://amigaremix.com/listen/2998/Videogame_Orchestra_-_Lotus_3_-_Metal_Machine_-_Title_VGO_remake.mp3	Lotus 3 - Metal Machine - Title [VGO remake]	Videogame Orchestra
+2999	http://amigaremix.com/listen/2999/Szymon_Ilich_-_Risky_Woods_Menu_Track_-_Remake.mp3	Risky Woods Menu Track - Remake	Szymon Ilich
+3000	http://amigaremix.com/listen/3000/Instant_Remedy_-_Fantasy_World_Dizzy_EDM_Mix.mp3	Fantasy World Dizzy (EDM Mix)	Instant Remedy
+3002	http://amigaremix.com/listen/3002/Isacco_Garcia_Peveri_-_Ultima_VI_-_Introduction.mp3	Ultima VI - Introduction	Isacco Garcia Peveri
+3003	http://amigaremix.com/listen/3003/Dremix_-_Enigma_-_A_Final_Hyperbase_Dremix_Remix.mp3	Enigma - A Final Hyperbase (Dremix Remix)	Dremix
+3004	http://amigaremix.com/listen/3004/Isacco_Garcia_Peveri_-_Lupo_Alberto_Stage_2.mp3	Lupo Alberto Stage 2	Isacco Garcia Peveri
+3005	http://amigaremix.com/listen/3005/FabriceGP_-_Turrican_-_Trance_Remix_V2.mp3	Turrican - Trance Remix V2	FabriceGP
+3006	http://amigaremix.com/listen/3006/Martin_Dodd_-_Wrath_Of_The_Demon_Requiem_Remix_2016.mp3	Wrath Of The Demon (Requiem Remix 2016)	Martin Dodd
+3007	http://amigaremix.com/listen/3007/Guemill_-_Turrican_2_level_5-1.mp3	Turrican 2 level 5-1	Guemill
+3008	http://amigaremix.com/listen/3008/Aki_Jarvinen_-_Hero_Quest_ingame_metal_remix.mp3	Hero Quest ingame (metal remix)	Aki Järvinen
+3009	http://amigaremix.com/listen/3009/Sten_-_WorldCup_90_Genias.mp3	WorldCup 90 (Genias)	Sten
+3015	http://amigaremix.com/listen/3015/Sten_-_Over_The_Net.mp3	Over The Net	Sten
+3016	http://amigaremix.com/listen/3016/daXX_-_D-Mob_Music_Disc_3_daXX_ReMegamixed.mp3	D-Mob Music Disc 3 [daXX ReMegamixed]	daXX
+3017	http://amigaremix.com/listen/3017/fst_-_Hero_Quest_-_Gloom.mp3	Hero Quest - Gloom	fst
+3018	http://amigaremix.com/listen/3018/MimiTheCat_-_Alien_Breed_-_Tower_Assault_Remix.mp3	Alien Breed - Tower Assault Remix	MimiTheCat
+3019	http://amigaremix.com/listen/3019/PowerTrace_-_Super_Stardust_-_Special_Mission_1.mp3	Super Stardust - Special Mission 1	PowerTrace
+3020	http://amigaremix.com/listen/3020/daXX_-_3D_Demo_Part_2_daXX_Remix.mp3	3D Demo (Part 2) [daXX Remix]	daXX
+3021	http://amigaremix.com/listen/3021/daXX_-_3D_Demo_Part_1_-_Blow_ya_nose_NOW_daXX_Remix.mp3	3D Demo (Part 1) - Blow ya nose (NOW!) [daXX Remix]	daXX
+3022	http://amigaremix.com/listen/3022/Grasshopper_-_Vivamin-E_Grasshoppers_Chillstep_Edit.mp3	Vivamin-E (Grasshopper's Chillstep Edit)	Grasshopper
+3023	http://amigaremix.com/listen/3023/MimiTheCat_-_Lemmings_1_Pachelbels_Canon.mp3	Lemmings 1 (Pachelbel´s Canon)	MimiTheCat
+3024	http://amigaremix.com/listen/3024/daXX_-_Lotus_III_Intro_daXX_2016_Remix.mp3	Lotus III Intro [daXX 2016 Remix]	daXX
+3025	http://amigaremix.com/listen/3025/rebelcitizen_-_Another_World_Ending_Another_Rebelcitizen_Ending_Remix.mp3	Another World Ending (Another Rebelcitizen Ending Remix)	rebelcitizen
+3026	http://amigaremix.com/listen/3026/maf_-_Monday_Maf_remake.mp3	Monday (Maf remake)	maf
+3027	http://amigaremix.com/listen/3027/daXX_-_Human_Target_daXX_Remix.mp3	Human Target (daXX Remix)	daXX
+3028	http://amigaremix.com/listen/3028/daXX_-_Pinball_Dreams_-_Beatbox_Theme_daXX_Remix.mp3	Pinball Dreams - Beatbox Theme (daXX Remix)	daXX
+3029	http://amigaremix.com/listen/3029/LordPrenzer_-_Turrican_2_-_The_Greath_Bath.mp3	Turrican 2 - The Greath Bath	LordPrenzer
+3030	http://amigaremix.com/listen/3030/TITAN_-_Agony_-_Loading_Mountain_Breathless_RMX.mp3	Agony - Loading Mountain (Breathless RMX)	TITAN
+3031	http://amigaremix.com/listen/3031/MimiTheCat_-_Lotus_Turbo_Challenge_2_-_Title_remix.mp3	Lotus Turbo Challenge 2 - Title remix	MimiTheCat
+3032	http://amigaremix.com/listen/3032/MimiTheCat_-_Assassin_Special_Edition_-_Title.mp3	Assassin Special Edition - Title	MimiTheCat
+3033	http://amigaremix.com/listen/3033/EXON_-_Turrican_2_-_The_Desert_Rocks_EXON_Remake.mp3	Turrican 2 - The Desert Rocks [EXON Remake]	EXON
+3035	http://amigaremix.com/listen/3035/EXON_-_Turrican_2_-_The_wall_EXON_Version.mp3	Turrican 2 - The wall [EXON Version]	EXON
+3036	http://amigaremix.com/listen/3036/Eino_Keskitalo_-_Xenon_-_Hajonta.mp3	Xenon - Hajonta	Eino Keskitalo
+3037	http://amigaremix.com/listen/3037/Curt_Cool_-_Gamegirl.mp3	Gamegirl	Curt Cool
+3038	http://amigaremix.com/listen/3038/Curt_Cool_-_Lips_on_Lips.mp3	Lips on Lips	Curt Cool
+3039	http://amigaremix.com/listen/3039/Ravenlord76_-_Turrican_2_-_Medley.mp3	Turrican 2 - Medley	Ravenlord76
+3040	http://amigaremix.com/listen/3040/LordPrenzer_-_Gods_Remake-LordPrenzer-Splintereye.mp3	Gods [Remake-LordPrenzer-Splintereye]	LordPrenzer
+3041	http://amigaremix.com/listen/3041/AL_ODARE_-_MegaBall_-_Main_Theme_Memories_of_Mackey.mp3	MegaBall - Main Theme [Memories of Mackey]	AL O'DARE
+3042	http://amigaremix.com/listen/3042/Dustin_Naegel_-_Ultima_VI_The_False_Prophet_Returns_2013_remix.mp3	Ultima VI: The False Prophet Returns [2013 remix]	Dustin Naegel
+3043	http://amigaremix.com/listen/3043/eclectic_-_Prophecy_the_viking_child_-_Level_6.mp3	Prophecy the viking child - Level 6	eclectic
+3044	http://amigaremix.com/listen/3044/eclectic_-_Prophecy_the_viking_child_-_Level_1.mp3	Prophecy the viking child - Level 1	eclectic
+3045	http://amigaremix.com/listen/3045/eclectic_-_Jim_power_Level_1.mp3	Jim power (Level 1)	eclectic
+3046	http://amigaremix.com/listen/3046/Murdock_-_Dune_-_Ecolove_VS_GITS.mp3	Dune - Ecolove VS GITS	Murdock
+3047	http://amigaremix.com/listen/3047/eclectic_-_Prophecy_the_viking_child_End_theme.mp3	Prophecy the viking child (End theme)	eclectic
+3048	http://amigaremix.com/listen/3048/AL_ODARE_-_Alfred_Chicken_Memories_of_Alfred.mp3	Alfred Chicken [Memories of Alfred]	AL O'DARE
+3049	http://amigaremix.com/listen/3049/AL_ODARE_-_Lemmings_Memories_of_Digging.mp3	Lemmings [Memories of Digging]	AL O'DARE
+3050	http://amigaremix.com/listen/3050/AL_ODARE_-_Elite_2_Frontier_Memories_of_Flying.mp3	Elite 2 Frontier [Memories of Flying]	AL O'DARE
+3051	http://amigaremix.com/listen/3051/AL_ODARE_-_Skidrow_Cracktro_-_Gearworks_Memories_of_NDOS.mp3	Skidrow Cracktro - Gearworks [Memories of NDOS]	AL O'DARE
+3052	http://amigaremix.com/listen/3052/Armandox_-_Guitar_Slinger_Armandox_2015_Remake.mp3	Guitar Slinger (Armandox 2015 Remake)	Armandox
+3053	http://amigaremix.com/listen/3053/daXX_-_Turrican_II_-_The_Desert_Rocks_daXX_Remix.mp3	Turrican II - The Desert Rocks (daXX Remix)	daXX
+3054	http://amigaremix.com/listen/3054/daXX_-_Shadow_of_the_Beast_-_The_Well.mp3	Shadow of the Beast - The Well	daXX
+3055	http://amigaremix.com/listen/3055/CZ_Tunes_-_Battle_Squadron_-_Game_Over_Christmas_Edit.mp3	Battle Squadron - Game Over (Christmas Edit)	CZ Tunes
+3061	http://amigaremix.com/listen/3061/pinozulpo_-_Gods_-_Into_the_antanifull.mp3	Gods - Into the antanifull	pinozulpo
+3062	http://amigaremix.com/listen/3062/pinozulpo_-_Speedball_2_-_Brutal_Antanux.mp3	Speedball 2 - Brutal Antanux	pinozulpo
+3067	http://amigaremix.com/listen/3067/Dj_Alundra1_-_Lotus_Turbo_Challenge_2.mp3	Lotus Turbo Challenge 2	Dj Alundra1
+3071	http://amigaremix.com/listen/3071/pinozulpo_-_Lords_of_the_Rising_Sun_-_Antanux.mp3	Lords of the Rising Sun - Antanux	pinozulpo
+3072	http://amigaremix.com/listen/3072/DrFuture_-_Turrican_2_Freedom.mp3	Turrican 2 (Freedom)	Dr.Future
+3073	http://amigaremix.com/listen/3073/MASTER_BOOT_RECORD_-_Another_World_Rework.mp3	Another World [Rework]	MASTER BOOT RECORD
+3075	http://amigaremix.com/listen/3075/Andrea_Milana_-_Second_Samurai_-EMX_Remix-.mp3	Second Samurai -EMX Remix-	Andrea Milana
+3078	http://amigaremix.com/listen/3078/pinozulpo_-_Twintris_-_Those_AntaNine.mp3	Twintris - Those AntaNine	pinozulpo
+3080	http://amigaremix.com/listen/3080/pinozulpo_-_Twintris_-_We_are_the_Devils_of_Antani.mp3	Twintris - We are the Devils of Antani	pinozulpo
+3081	http://amigaremix.com/listen/3081/pinozulpo_-_Defloration_Antanix.mp3	Defloration Antanix	pinozulpo
+3082	http://amigaremix.com/listen/3082/pinozulpo_-_Twintris_-_Audiokraft_Sbiriguda_Remix.mp3	Twintris - Audiokraft Sbiriguda Remix	pinozulpo
+3083	http://amigaremix.com/listen/3083/daXX_-_Pinball_Dreams_Intro_Remix.mp3	Pinball Dreams Intro Remix	daXX
+3084	http://amigaremix.com/listen/3084/SIDwave_-_Kohinoor_guitar_version.mp3	Kohinoor (guitar version)	SIDwave
+3085	http://amigaremix.com/listen/3085/SIDwave_-_Kohinoor_future_version.mp3	Kohinoor (future version)	SIDwave
+3086	http://amigaremix.com/listen/3086/Isacco_Garcia_Peveri_-_Chambers_Of_Shaolin_-_Test_Of_Balance.mp3	Chambers Of Shaolin - Test Of Balance	Isacco Garcia Peveri
+3087	http://amigaremix.com/listen/3087/Isacco_Garcia_Peveri_-_Robocop_3.mp3	Robocop 3	Isacco Garcia Peveri
+3089	http://amigaremix.com/listen/3089/Isacco_Garcia_Peveri_-_Boil_Up_Power_Midnight_Resistance_Stage_1.mp3	Boil Up! Power! (Midnight Resistance Stage 1)	Isacco Garcia Peveri
+3090	http://amigaremix.com/listen/3090/Gareth_Wood_-_X-Out_-_Drowning_In_Your_Love_Remix.mp3	X-Out - Drowning In Your Love Remix	Gareth Wood
+3091	http://amigaremix.com/listen/3091/Isacco_Garcia_Peveri_-_Thunderboy_Medley.mp3	Thunderboy Medley	Isacco Garcia Peveri
+3092	http://amigaremix.com/listen/3092/Aknotronic_-_Sleeping_Gods_Lie_Intro_Remix.mp3	Sleeping Gods Lie (Intro Remix)	Aknotronic
+3093	http://amigaremix.com/listen/3093/singleton_-_Rings_of_Medusa_-_Distorsion_mix.mp3	Rings of Medusa - Distorsion mix	singleton
+3094	http://amigaremix.com/listen/3094/Rapture_-_Parasol_Stars_Medley.mp3	Parasol Stars Medley	Rapture
+3095	http://amigaremix.com/listen/3095/EXON_-_Elf_-_Forest_world_2017_Remix.mp3	Elf - Forest world [2017 Remix]	EXON
+3096	http://amigaremix.com/listen/3096/XxDUSTYxX_-_Apidya_-_Meadows_Edge.mp3	Apidya - Meadow's Edge	XxDUSTYxX
+3097	http://amigaremix.com/listen/3097/Aknotronic_-_SWIV_Decimation_Remix.mp3	SWIV (Decimation Remix)	Aknotronic
+3098	http://amigaremix.com/listen/3098/EXON_-_Apidya_-_Meadows_Edge_EXON_2017s_REMIX.mp3	Apidya - Meadow's Edge (EXON 2017's REMIX)	EXON
+3099	http://amigaremix.com/listen/3099/dLx_-_Hyperbased_Saturday_Night_Edit.mp3	Hyperbased [Saturday Night Edit]	dLx
+3100	http://amigaremix.com/listen/3100/Murdock_-_Ecolove_VS_Ghost_In_The_Shell_voices.mp3	Ecolove VS Ghost In The Shell voices	Murdock
+3101	http://amigaremix.com/listen/3101/Captain_MoreGain_-_Return_To_Monkey_Island_Theme.mp3	Return To Monkey Island Theme	Captain MoreGain
+3102	http://amigaremix.com/listen/3102/Piepie_-_Enigma_-_A_Final_Hyperbase_Piepie_Remix.mp3	Enigma - A Final Hyperbase (Piepie Remix)	Piepie
+3103	http://amigaremix.com/listen/3103/daXX_-_Pinball_Dreams_Beatbox_Ingame_Remix.mp3	Pinball Dreams (Beatbox Ingame Remix)	daXX
+3104	http://amigaremix.com/listen/3104/Strange_Days_-_Atom_Demo_IV_Soundtrack_Strange_Days_2017_Refurbish.mp3	Atom Demo IV Soundtrack (Strange Days 2017 Refurbish)	Strange Days

@@ -71,6 +71,7 @@ int main(int argc, char *argv[]) {
 	int h = 540;
 	bool fullScreen = false;
 	bool telnetServer = false;
+	string playWhat;
 #ifdef TEXTMODE_ONLY
     bool textMode = true;
 #else
@@ -91,8 +92,10 @@ int main(int argc, char *argv[]) {
 		fullScreen = false;
 		logging::setLevel(logging::DEBUG);
     }
+
 	telnetServer = args["--telnet"].asBool();
-	auto playWhat = args["--play"].asString();
+	if(args["--playWhat"])
+		playWhat = args["--play"].asString();
 	bool onlyHeadless = args["-K"].asBool();
 	
 	if(args["<files>"]) {
