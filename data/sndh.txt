@@ -5,6 +5,7 @@ Captain Dynamo		4-Mat	Atari ST	4-Mat/Captain_Dynamo.sndh
 Chuck Rock		4-Mat	Atari ST	4-Mat/Chuck_Rock.sndh
 Despair		4mat & malodix	Atari ST	4-Mat/Despair.sndh
 Dizzy: Prince Of Yolkfolk 		4-Mat	Atari ST	4-Mat/Dizzy-Prince_Of_Yolkfolk.sndh
+Dark Side of the Spoon - TLB remix		Crawdaddy	Atari ST	4-Mat/DSOTS-The_Lost_Boys_remix.sndh
 G-Loc		4-Mat	Atari ST	4-Mat/G-Loc.sndh
 Heimdall		4-Mat	Atari ST	4-Mat/Heimdall.sndh
 Magic Dizzy 		4-Mat	Atari ST	4-Mat/Magicland_Dizzy.sndh
@@ -25,6 +26,7 @@ Rectangular Waves		505	Atari ST	505/ACM-Rectangular_Waves.sndh
 Tribal		505	Atari ST	505/ACM-Tribal.sndh
 ahead		505/checkpoint (2003)	Atari ST	505/Ahead.sndh
 Alive!		505	Atari ST	505/Alive.sndh
+Alternative party invite		505 / Paradox	Atari ST	505/Alternative_Invite.sndh
 Another Brick In The Wall		505	Atari ST	505/Another_Brick_In_The_Wall.sndh
 Antique		505	Atari ST	505/Antique.sndh
 Aragorn - UCM 22		505	Atari ST	505/Aragorn-UCM_22.sndh
@@ -48,6 +50,7 @@ chippy		505/paradox	Atari ST	505/Chippy.sndh
 Clouds		505	Atari ST	505/Clouds.sndh
 Clowns		505	Atari ST	505/Clowns.sndh
 coffee break		505/paradox	Atari ST	505/Coffee_Break.sndh
+Courage (compo version)		505	Atari ST	505/Courage.sndh
 CPU Eater		505	Atari ST	505/CPU_Eater.sndh
 december		505/checkpoint (2000)	Atari ST	505/December.sndh
 disco slide		505/paradox	Atari ST	505/Disco_Slide.sndh
@@ -76,6 +79,8 @@ parkbank (STE only)		505/paradox	Atari ST	505/DMA/Parkbank.sndh
 phazer (STE only)		505/paradox	Atari ST	505/DMA/Phazer.sndh
 Pozdrowienia do Gdanska		505/Paradox	Atari ST	505/DMA/Pozdrowienia.sndh
 RoboST (STE)		505	Atari ST	505/DMA/RoboST.sndh
+Sabotage		505	Atari ST	505/DMA/Sabotage.sndh
+Sabotage Intro		505/paradox	Atari ST	505/DMA/Sabotage_Intro.sndh
 Saboteaser		505	Atari ST	505/DMA/Saboteaser.sndh
 sequences, 2005		505 <nils feske>	Atari ST	505/DMA/Sequences.sndh
 shredder (STE only)		505/paradox	Atari ST	505/DMA/Shredder.sndh
@@ -102,6 +107,7 @@ Greetings		505	Atari ST	505/Greetings.sndh
 Hardsync 01I		505	Atari ST	505/Hardsync_01i.sndh
 Headaxe		505	Atari ST	505/Headaxe.sndh
 Heaven Sux		505	Atari ST	505/Heaven_Sucks.sndh
+Hires		505	Atari ST	505/Hires.sndh
 Hmmm One - EIL 3 invite		505	Atari ST	505/Hmmm_one-EIL3_invite.sndh
 hopping		505/checkpoint	Atari ST	505/Hopping.sndh
 Humming		505 / Checkpoint	Atari ST	505/Humming.sndh
@@ -152,6 +158,8 @@ Posh - Part 4		505	Atari ST	505/Posh-Part_4.sndh
 Posh - Part 5		505	Atari ST	505/Posh-Part_5.sndh
 psycho		505/paradox	Atari ST	505/Psycho.sndh
 Pulse (compo edit)		505	Atari ST	505/Pulse_(compo_edit).sndh
+Pulse intro		505	Atari ST	505/Pulse_Intro.sndh
+Pulse		505	Atari ST	505/Pulse_Main.sndh
 reasonless		505/paradox	Atari ST	505/Reasonless.sndh
 AEH		505/checkpoint	Atari ST	505/Relix/Aeh.sndh
 Anfang		505	Atari ST	505/Relix/Anfang.sndh
@@ -315,6 +323,8 @@ You Bore (D-Bug 180)		505	Atari ST	505/You_Bore_(D-Bug_180).sndh
 Zirkuss		505	Atari ST	505/Zirkuss.sndh
 Zymplix		505	Atari ST	505/Zymplix.sndh
 Zyncyventure		505/checkpoint	Atari ST	505/Zyncyventure.sndh
+Assembly Line		7an/SYNC=Amplitude Problem	Atari ST	7an/Assembly_Line.sndh
+Bleeps of San Secuestro		Amplitude Problem (7an)	Atari ST	7an/Bleeps_of_San_Secuestro.sndh
 Blip 1		7AN	Atari ST	7an/Blip_1.sndh
 Blip 2		7AN	Atari ST	7an/Blip_2.sndh
 Blip 3		7AN	Atari ST	7an/Blip_3.sndh
@@ -323,21 +333,23 @@ Nibbel Is Small Kermit Is Fat		7AN	Atari ST	7an/Nibbel_Small_Kermit_Fat.sndh
 Iron Trackers		Claude Abromont	Atari ST	Abromont_Claude/Iron_Trackers.sndh
 Killer Ball		Claude Abromont	Atari ST	Abromont_Claude/Killerball.sndh
 ACC Song		ACC	Atari ST	ACC/ACC_Song.sndh
-Ala Turk		ACC	Atari ST	ACC/Ala_Turk.sndh
+Ala Turk		ACC	Atari ST	ACC/Ala_Turka.sndh
 Badine		ACC	Atari ST	ACC/Badine.sndh
 Beguine		ACC	Atari ST	ACC/Beguine.sndh
 City Road		ACC	Atari ST	ACC/City_Road.sndh
 Copy Star 1.8		ACC	Atari ST	ACC/Copy_Star_1_8.sndh
 King of the Road		ACC	Atari ST	ACC/King_of_the_Road.sndh
-Michella		ACC	Atari ST	ACC/Michella.sndh
+Michella		ACC	Atari ST	ACC/Michelle.sndh
 Popcorn		ACC	Atari ST	ACC/Popcorn.sndh
+Ruby		ACC	Atari ST	ACC/Ruby.sndh
+Stupid		ACC	Atari ST	ACC/Stupid.sndh
+Demo Tune		Ace	Atari ST	Ace/Demo_Tune.sndh
 Blue Boys Stuff 11		Acid	Atari ST	Acid/Blue_Boys_Stuff_11.sndh
 The Blue Boys - Font Menu 3		Acid	Atari ST	Acid/TBB_Font_Compil_3.sndh
 Blue Boys Mod Compil 32		Acid	Atari ST	Acid/TBB_Mod_Compil_32.sndh
 Cute Animals		ActoDi	Atari ST	ActoDi/Cute_Animals.sndh
 Friday		ActoDi	Atari ST	ActoDi/Friday.sndh
 No Timer SV'14		ActoDi	Atari ST	ActoDi/No_Timer_SV14.sndh
-Prof E Gadd (NGC cover)		Per Almered/XiA/Checkpoint	Atari ST	ActoDi/Prof_E_Gadd_(NGC_cover).sndh
 Head Coach		CS Adams	Atari ST	Adams_CS/Head_Coach.sndh
 Groggy balldric		Magnus Adolphzon	Atari ST	Adolphzon_Magnus/Groggy_Baldlric.sndh
 3.5k Megademo Menu		Agrajag	Atari ST	Agrajag/3_5k_Megademo_Menu.sndh
@@ -414,6 +426,7 @@ Finale		Baggio	Atari ST	Baggio/Tut-Finale_(end_tune).sndh
 Rape Me		Baggio	Atari ST	Baggio/Tut-Rape_Me_(main_tune).sndh
 Xmas sux		Baggio / Evolution (2003)	Atari ST	Baggio/Xmas_sux.sndh
 Yolanda		Phil Bak	Atari ST	Bak_Phil/Yolanda.sndh
+The Karate Kid - Part II		Unknown Composer	Atari ST	Bak_Steve/Karate_Kid_Part_II.sndh
 Lands of Havoc		Steve Bak	Atari ST	Bak_Steve/Lands_of_Havoc.sndh
 Spirit of Excalibur		Christopher Barker	Atari ST	Barker_Christopher/Spirit_of_Excalibur.sndh
 The Third Courier		Christopher Barker	Atari ST	Barker_Christopher/The_Third_Courier.sndh
@@ -465,7 +478,7 @@ Elite		Wally Beben	Atari ST	Beben_Wally/Elite.sndh
 Foundation Waste		Wally Beben aka Hagar	Atari ST	Beben_Wally/Foundation_Waste.sndh
 Hammerfist 		Wally Beben	Atari ST	Beben_Wally/Hammer_Fist.sndh
 Hawkeye 		Wally Beben	Atari ST	Beben_Wally/Hawkeye.sndh
-Hyperdrome		Wally Beben aka Hagar	Atari ST	Beben_Wally/Hyperdrome.sndh
+Hyperdome 		Wally Beben aka Hagar	Atari ST	Beben_Wally/Hyperdome.sndh
 I-Ball 2		Wally Beben	Atari ST	Beben_Wally/I-Ball_2.sndh
 Lancaster		Wally Beben	Atari ST	Beben_Wally/Lancaster.sndh
 Liberator 		Wally Beben	Atari ST	Beben_Wally/Liberator.sndh
@@ -512,6 +525,7 @@ Offbeat		Big Alec	Atari ST	Big_Alec/Offbeat.sndh
 Poppycock - Intro		Big Alec	Atari ST	Big_Alec/Poppycock-Intro.sndh
 Poppycock - Sprites		Big Alec	Atari ST	Big_Alec/Poppycock-Sprites.sndh
 Poppycock - Stars		Big Alec	Atari ST	Big_Alec/Poppycock-Stars.sndh
+Pro BMX Simulator (cover)		Big Alec	Atari ST	Big_Alec/Pro_BMX_Simulator_(cover).sndh
 Prophecy (ST News 11.1)		Big Alec	Atari ST	Big_Alec/Prophecy_(ST_News_11_1).sndh
 Pursuit		Big Alec	Atari ST	Big_Alec/Pursuit.sndh
 Pursuit 2		Big Alec	Atari ST	Big_Alec/Pursuit_2.sndh
@@ -540,6 +554,9 @@ What Time is It? (Scrolly)		Big Alec	Atari ST	Big_Alec/What_Time_Is_It_(Scrolly)
 Wicked		Big Alec	Atari ST	Big_Alec/Wicked.sndh
 ROTTERDAM ATARI ACID		BIOSCILLATOR	Atari ST	Bioscillator/Rotterdam_Atari_Acid.sndh
 Dogfight		Philip Bishop	Atari ST	Bishop_Philip/Dogfight.sndh
+Bladerunner		Black	Atari ST	Black/Bladerunner.sndh
+Turrican 2 Final - release version		Black	Atari ST	Black/Turrican_2_final_release.sndh
+Turrican 2 final - Sid		Black	Atari ST	Black/Turrican_2_final_sid.sndh
 Detonate		Ian Blair	Atari ST	Blair_Ian/Detonate.sndh
 Mars Maze		P Blay	Atari ST	Blay_P/Mars_maze.sndh
 apologies all around		blind io	Atari ST	Blind-Io/Apologies_All_Around.sndh
@@ -559,7 +576,7 @@ Bebop		Ed Bogas	Atari ST	Bogas_Ed/Bebop.sndh
 Boogie		Ed Bogas	Atari ST	Bogas_Ed/Boogie.sndh
 Bossa Nova		Ed Bogas	Atari ST	Bogas_Ed/Bossa_Nova.sndh
 Brandenburg Concerto 2 by Bach		Ed Bogas	Atari ST	Bogas_Ed/Brandenburg_Concerto_2.sndh
-Calypso by Ed Bogas		Unknown	Atari ST	Bogas_Ed/Calypso.sndh
+Calypso		Ed Bogas	Atari ST	Bogas_Ed/Calypso.sndh
 Country Too		Ed Bogas	Atari ST	Bogas_Ed/Country_Too.sndh
 Echo Rock		Ed Bogas	Atari ST	Bogas_Ed/Echo_Rock.sndh
 Fifties		Ed Bogas	Atari ST	Bogas_Ed/Fifties.sndh
@@ -610,6 +627,7 @@ Heavy Metal		Jas C Brooke	Atari ST	Brooke_Jas_C/Heavy_Metal.sndh
 Hellfire 		Jas C Brooke	Atari ST	Brooke_Jas_C/Hellfire.sndh
 Ikari Warriors		Jas C Brooke	Atari ST	Brooke_Jas_C/Ikari_Warriors.sndh
 Overlander		Jas C Brooke	Atari ST	Brooke_Jas_C/Overlander.sndh
+Pac-Land		Jas C Brooke	Atari ST	Brooke_Jas_C/Pac_Land.sndh
 Resolution 101 		Jas C Brooke	Atari ST	Brooke_Jas_C/Resolution_101.sndh
 Revenge of the Mutant Camels		Jas C Brooke	Atari ST	Brooke_Jas_C/Revenge_Of_Mutant_Camels.sndh
 Rockford 		Jas C Brooke	Atari ST	Brooke_Jas_C/Rockford.sndh
@@ -783,11 +801,11 @@ Lost Boys Disk Maggie 2		Count Zero	Atari ST	Count_Zero/Maggie_2.sndh
 Willy Preview		Count Zero	Atari ST	Count_Zero/Willy_Preview.sndh
 Bedtime		Crawdaddy	Atari ST	Crawdaddy/Bedtime.sndh
 Blazer		Crawdaddy	Atari ST	Crawdaddy/Blazer.sndh
-Jammers		Crawdaddy	Atari ST	Crawdaddy/Bom_Tsh_Bap_Bao.sndh
 Bombsquad		Crawdaddy	Atari ST	Crawdaddy/Bomb_Squad.sndh
 Bounty hunter		Crawdaddy	Atari ST	Crawdaddy/Bounty_hunter.sndh
 Chinese heroes		Crawdaddy	Atari ST	Crawdaddy/Chinese_Heroes.sndh
 Chinese story		Crawdaddy	Atari ST	Crawdaddy/Chinese_Story.sndh
+Despair		Crawdaddy	Atari ST	Crawdaddy/Despair.sndh
 Detonation		Crawdaddy	Atari ST	Crawdaddy/Detonation.sndh
 Dropzone		Crawdaddy	Atari ST	Crawdaddy/Dropzone.sndh
 Electric Experience		Crawdaddy	Atari ST	Crawdaddy/Electric_Experience.sndh
@@ -801,6 +819,7 @@ Hidden		Crawdaddy	Atari ST	Crawdaddy/Hidden.sndh
 in the Woods		Crawdaddy	Atari ST	Crawdaddy/In_the_Woods.sndh
 Indian		Crawdaddy	Atari ST	Crawdaddy/Indian.sndh
 Intro (cross the deserts)		Crawdaddy	Atari ST	Crawdaddy/Intro_(cross_the_deserts).sndh
+Jammers		Crawdaddy	Atari ST	Crawdaddy/Jammers.sndh
 Japan		Crawdaddy	Atari ST	Crawdaddy/Japan.sndh
 Kruz Theme		Crawdaddy	Atari ST	Crawdaddy/Kruz_Theme.sndh
 Lame-Brain		Crawdaddy	Atari ST	Crawdaddy/LameBrain.sndh
@@ -820,7 +839,7 @@ Rezonati		Crawdaddy	Atari ST	Crawdaddy/Rezonati.sndh
 Rings Of Medusa Mix		Crawdaddy	Atari ST	Crawdaddy/Rings_Of_Meusa_Mix.sndh
 Seekers (Cross The Deserts)		Crawdaddy	Atari ST	Crawdaddy/Seekers(Cross_The_Deserts).sndh
 Streetkids		Crawdaddy	Atari ST	Crawdaddy/Streetkids.sndh
-Surfer In Hell		Crawdaddy	Atari ST	Crawdaddy/Surfer_In_Hell.sndh
+Suffer In Hell		Crawdaddy	Atari ST	Crawdaddy/Suffer_In_Hell.sndh
 The Cave		Crawdaddy	Atari ST	Crawdaddy/The_Cave.sndh
 The Desert		Crawdaddy	Atari ST	Crawdaddy/The_Desert.sndh
 The Forest		Crawdaddy	Atari ST	Crawdaddy/The_Forest.sndh
@@ -831,6 +850,7 @@ Tough Guys in Sweden		Crawdaddy	Atari ST	Crawdaddy/Tough_Guys_In_Sweden.sndh
 Walkman		Crawdaddy	Atari ST	Crawdaddy/Walkman.sndh
 Whatta Hell		Crawdaddy	Atari ST	Crawdaddy/Whatta_Hell.sndh
 Whatta Nerd!		Crawdaddy	Atari ST	Crawdaddy/Whatta_Nerd.sndh
+Who Knows		Crawdaddy	Atari ST	Crawdaddy/Who_Knows.sndh
 XXX-XXX		Crawdaddy	Atari ST	Crawdaddy/XXX-XXX.sndh
 Bouncing TITS		Crazy Q	Atari ST	Crazy_Q/Bouncing_TITS.sndh
 Chameleon		Crazy Q / Creators^DHS	Atari ST	Crazy_Q/Chameleon.sndh
@@ -886,6 +906,7 @@ Decisive Factor		!Cube	Atari ST	Cube/Decisive_Factor.sndh
 Dizzzruptor part 3 (Atari ST remix)		Yerzmyey+!Cube	Atari ST	Cube/Dizzzruptor_part_3.sndh
 Earth		!Cube/Aggression	Atari ST	Cube/Earth.sndh
 Eye on Scene Maggie Dentro		!Cube	Atari ST	Cube/Eye_On_Scene.sndh
+Glittering Waves		!Cube	Atari ST	Cube/Glittering_Waves.sndh
 Japanese (Sinful Sinuses)		!Cube	Atari ST	Cube/Japanese.sndh
 Outpost (Atari ST remix)		dEViLOCk+!Cube	Atari ST	Cube/Outpost.sndh
 Renaissance		!Cube	Atari ST	Cube/Renaissance.sndh
@@ -961,7 +982,9 @@ Rollin Ronny B		Adrian Dalecki	Atari ST	Dalecki_Adrian/Rollin_Ronny_B.sndh
 Soccer Manager Plus		Adrian Dalecki	Atari ST	Dalecki_Adrian/Soccer_Manager_Plus.sndh
 Turtle Table Tennis 		Adrian Dalecki	Atari ST	Dalecki_Adrian/Turtle_Table_Tennis.sndh
 deep blue		damo/resgods	Atari ST	Damo/DMA/Deep_Blue.sndh
+Sillyventure 2013 Invite Main		Damo	Atari ST	Damo/DMA/Sillyventure_2013_Invite.sndh
 funktion		damo / resgodz	Atari ST	Damo/Funktion.sndh
+Sillyventure 2013 Invite intro		Damo	Atari ST	Damo/Wings_of_Death_remix_Damo.sndh
 ym rucka		damo / resgodz (2003)	Atari ST	Damo/YM_Rucka.sndh
 Danko		Tomas Danko	Atari ST	Danko/Danko.sndh
 C64		Danny Oneway	Atari ST	Danny_Oneway/C64.sndh
@@ -1039,6 +1062,9 @@ Orbit 2000		Jeremy Das & Nik Sen	Atari ST	Das_Jeremy/Oribit_2000.sndh
 Radio Controlled Racer		Jeremy Das	Atari ST	Das_Jeremy/Radio_Controlled_Racer.sndh
 Touring Car Racer		Jeremy Das	Atari ST	Das_Jeremy/Touring_Car_Racer.sndh
 DATACORDER      		datavase	Atari ST	Datavase/Datacorder.sndh
+Rainbows		Davidow	Atari ST	Davidow/Rainbows.sndh
+Sidestep		Davidow	Atari ST	Davidow/Sidestep.sndh
+Studio Music		Davidow	Atari ST	Davidow/Studio_Music.sndh
 Alien Storm 		Mike Davies	Atari ST	Davies_Mike/Alien_Storm.sndh
 Die Hard 2 		Mike Davies	Atari ST	Davies_Mike/Die_Hard_2.sndh
 Dynasty Wars 		Mike Davies	Atari ST	Davies_Mike/Dynasty_Wars.sndh
@@ -1092,6 +1118,7 @@ Happy2		dhor	Atari ST	Dhor/Happy2.sndh
 hurry harry, hurry		dhor/mec	Atari ST	Dhor/Hurry_Harry_hurry.sndh
 Jumping squares		Dhor	Atari ST	Dhor/Jumping_Squares.sndh
 Bore		dhor/mec	Atari ST	Dhor/Unbeatable.sndh
+Uncomplicated		Dhor	Atari ST	Dhor/Uncomplicated.sndh
 Atari Evil Circus		Divag	Atari ST	Divag/DMA/Atari_Evil_Circus.sndh
 Boomjasz		Divag	Atari ST	Divag/DMA/Boomjasz.sndh
 Crash to live		Divag	Atari ST	Divag/DMA/Crash_To_Live.sndh
@@ -1101,6 +1128,7 @@ medievol		Divag	Atari ST	Divag/DMA/Medievol.sndh
 Mental Fury		Divag	Atari ST	Divag/DMA/Mental_Fury.sndh
 Technorobotic		Divag	Atari ST	Divag/DMA/Technorobotic.sndh
 La potato		DIVAG	Atari ST	Divag/La_potato.sndh
+2149 lives		Dma-Sc	Atari ST	Dma-Sc/2149_Lives.sndh
 Second Reality 2013 end		Skaven (ST adaption by Dma-Sc)	Atari ST	Dma-Sc/2nd_Reality_2013-End.sndh
 Second Reality 2013 main		Purple Motion (ST adaption by Dma-Sc)	Atari ST	Dma-Sc/2nd_Reality_2013-Main.sndh
 Alive! 7 Intro		Dma-Sc / Sector One	Atari ST	Dma-Sc/Alive_7_Intro.sndh
@@ -1111,6 +1139,7 @@ Antiques - Loader 3		Dma-Sc	Atari ST	Dma-Sc/Antiques-Loader_3.sndh
 Burton Tribute Project		Dma-Sc / Sector One	Atari ST	Dma-Sc/Burton_Tribute_Project.sndh
 Chipping for Ca$h		gwEm and Dma Sc	Atari ST	Dma-Sc/Chipping_for_Cash.sndh
 Chipster		DMA-SC	Atari ST	Dma-Sc/Chipster_(UCM_14).sndh
+Circle Dots		Dma-Sc / Sector One	Atari ST	Dma-Sc/Circle_Dots.sndh
 Clean Closet - UCM 19		DMA-SC	Atari ST	Dma-Sc/Clean_Closet_(UCM_19).sndh
 Coast II Coast		DMA SC	Atari ST	Dma-Sc/Coast.sndh
 Coast II Coast Edit		DMA SC	Atari ST	Dma-Sc/Coast_Edit.sndh
@@ -1167,6 +1196,7 @@ O-Style		DMA-SC	Atari ST	Dma-Sc/O-Style.sndh
 Odd Stuff end music		DMA-SC	Atari ST	Dma-Sc/Odd_Stuff-End.sndh
 Odd Stuff Main		DMA-SC	Atari ST	Dma-Sc/Odd_Stuff-Main.sndh
 Oric Demo		Dma-Sc / Sector One	Atari ST	Dma-Sc/Oric_Demo.sndh
+ParaDis3 - Parallax Dist.		Dma-Sc / Sector One	Atari ST	Dma-Sc/ParaDis3-Parallax_Dist.sndh
 Pie Bill Gates - Game		DMA-SC	Atari ST	Dma-Sc/Pie_Bill_Gates-In_game.sndh
 Pie Bill Gates - Menu		DMA-SC	Atari ST	Dma-Sc/Pie_Bill_Gates-Menu.sndh
 Pocket Groove		DMA-SC	Atari ST	Dma-Sc/Pocket_Groove.sndh
@@ -1216,7 +1246,6 @@ Wondering About My Loved...		Bobby Prince [ST by Dma-Sc]	Atari ST	Dma-Sc/Wolf_3D
 Wonderland Speedway		DMA-SC	Atari ST	Dma-Sc/Wonderland_Speedway.sndh
 YM Racing (YM Rockerz)		Dma Sc / Sector One (2003)	Atari ST	Dma-Sc/YM_Racing.sndh
 Blastiny Bobs		Doclands	Atari ST	Doclands/Blastiny_Bobs.sndh
-Delirious Demo 2 - Reset		Doclands	Atari ST	Doclands/Delerious_Demo2-Reset.sndh
 Doclands Sid		Doclands	Atari ST	Doclands/Docklands_Sid.sndh
 European Demos Main Menu		Doclands	Atari ST	Doclands/European_Demos-Mainmenu.sndh
 Frenetic		Doclands	Atari ST	Doclands/Frenetic.sndh
@@ -1320,6 +1349,7 @@ Pampradion livebeat		Dubmood & Zabutom	Atari ST	Dubmood/Pampradion_livebeat.sndh
 POSTapoclyphse		Dubmood	Atari ST	Dubmood/POSTapoclyphse.sndh
 Publicea i Media beat		Dubmood	Atari ST	Dubmood/Publicea_i_Media_beat.sndh
 SpaceJourney		Dubmood & Zabutom ! ! !	Atari ST	Dubmood/Space_Journey_(extended).sndh
+Zabutoms Space Journey (D-Bug remix)		Dubmood & Zabutom ! ! !	Atari ST	Dubmood/Space_Journey_DBug remix.sndh
 Speedloader I		Dubmood	Atari ST	Dubmood/Speedloader_I.sndh
 SPEEDLOADER II		DUBMOOD	Atari ST	Dubmood/Speedloader_II.sndh
 STILL D.U.B		DUBBIE	Atari ST	Dubmood/Speedloader_III.sndh
@@ -1360,6 +1390,10 @@ EIZ@WORK		EIZ/GRG	Atari ST	Eiz/Wiz_At_Work.sndh
 Elof Mix - STE only		Elof	Atari ST	Elof/Elof_Mix.sndh
 Farvalse - STE only		Elof	Atari ST	Elof/Farvalse.sndh
 CERROR RULEZ    		Elrinth	Atari ST	Elrinth/Cerror_Rulez.sndh
+Razor Megademo Intro		Emphii	Atari ST	Emphii/Razor_Megademo_Intro.sndh
+Razor's Mega Demo - Screen 4		Emphii	Atari ST	Emphii/Razor_Megademo_Screen_4.sndh
+Razor's Mega Demo - screen 5		Emphii	Atari ST	Emphii/Razor_Megademo_Screen_5.sndh
+Razor's Mega Demo - The Corps		Emphii	Atari ST	Emphii/Razor_Megademo_The_Corps.sndh
 Avante		Energizer	Atari ST	Energizer/Avante.sndh
 Crusader		Energizer	Atari ST	Energizer/Crusader.sndh
 Floating - Chip		Energizer	Atari ST	Energizer/Floating.sndh
@@ -1377,7 +1411,7 @@ ENS 8		ENS Music	Atari ST	ENS_Music/ENS_8.sndh
 silly cone		e^pi/Tristesse	Atari ST	Epi/Silly_Cone.sndh
 Another Illusion		Epic	Atari ST	Epic/Another_Illusion.sndh
 Doc Dots		Epic	Atari ST	Epic/Doc_Dots.sndh
-Epilsons' Nightmare		Epic	Atari ST	Epic/Epilsons_Nightmare.sndh
+Epsilons' Nightmare		Epic	Atari ST	Epic/Epsilons_Nightmare.sndh
 Feed My Frankenstein		Epic	Atari ST	Epic/Feed_My_Frankenstein.sndh
 Got No Respect For The Law		Epic	Atari ST	Epic/Got_No_Respect_For_Law.sndh
 Japanese Sunlight		Epic	Atari ST	Epic/Japanese_Sunlight.sndh
@@ -1427,6 +1461,7 @@ $14		Per Almered (XiA)	Atari ST	Excellence_In_Art/DMA/14.sndh
 1812 Overture(Tchaikovsky)		Per Almered (XiA) 2009	Atari ST	Excellence_In_Art/DMA/1812_Overture.sndh
 Brit		Per Almered (XiA) 2009	Atari ST	Excellence_In_Art/DMA/Brit.sndh
 Cheap (in terms of CPU)		Per Almered (XiA) 2009	Atari ST	Excellence_In_Art/DMA/Cheap_(in_terms_of_CPU).sndh
+Fuck Cancer		Excellence In Art	Atari ST	Excellence_In_Art/DMA/Fuck_Cancer.sndh
 Save The Earth Intro		Per Almered (XiA)	Atari ST	Excellence_In_Art/DMA/Save_The_Earth_Intro.sndh
 Sommarhack Report 2011 Pt 3		Excellence In Art	Atari ST	Excellence_In_Art/DMA/Sommarhack_Report_Pt_3.sndh
 Summer Deligths		Excellence in Art	Atari ST	Excellence_In_Art/DMA/Summer_Delights.sndh
@@ -1435,6 +1470,7 @@ Jim Parker: Midsomer Theme		Per Almered (XiA)	Atari ST	Excellence_In_Art/DMA/Tal
 The Last Song		Per Almered (XiA) 2009	Atari ST	Excellence_In_Art/DMA/The_Last_Song.sndh
 They pull me back in		Per Almered (XiA) 2009	Atari ST	Excellence_In_Art/DMA/The_pull_me_back_in.sndh
 Trans-Y VideoLife		Per Almered (XiA) 2009	Atari ST	Excellence_In_Art/DMA/Trans-Y_Videolife.sndh
+Xmas 2015		Excellence In Art	Atari ST	Excellence_In_Art/DMA/Xmas_2015.sndh
 Drumz		Excellence In Art	Atari ST	Excellence_In_Art/Drumz.sndh
 Elftec		Excellence In Art	Atari ST	Excellence_In_Art/Elftec.sndh
 Elftec 2		Excellence In Art	Atari ST	Excellence_In_Art/Elftec_2.sndh
@@ -1460,6 +1496,7 @@ No		Excellence In Art	Atari ST	Excellence_In_Art/No.sndh
 Offbeat		Excellence In Art	Atari ST	Excellence_In_Art/Offbeat.sndh
 Oxygene 4		Excellence In Art	Atari ST	Excellence_In_Art/Oxygene_4.sndh
 Prince Ig		Excellence In Art	Atari ST	Excellence_In_Art/Prince_Ig.sndh
+Prof E Gadd (NGC cover)		Per Almered/XiA/Checkpoint	Atari ST	Excellence_In_Art/Prof_E_Gadd_(NGC_cover).sndh
 Runner		Excellence In Art	Atari ST	Excellence_In_Art/Runner.sndh
 (S)ave (T)he (E)arth		Per Almered (XiA) 2009	Atari ST	Excellence_In_Art/Save_The_Earth.sndh
 SledgeBusters		Per Almered/XiA/Checkpoint	Atari ST	Excellence_In_Art/SledgeBusters.sndh
@@ -1609,6 +1646,7 @@ Tyranny		Gargamel / DHS	Atari ST	Gargamel/DMA/Tyranny.sndh
 SILISIUM SKOGEN 		Garvalf	Atari ST	Garvalf/Silisium_Skogen.sndh
 UCM 4 Intro		Gary	Atari ST	Gary/UCM_4_Intro.sndh
 UCM 5 Intro		Gary	Atari ST	Gary/UCM_5_Intro.sndh
+KGB - Fly Over Fantasy		Ged	Atari ST	Ged/KGB_Fly_Over_Fantasy.sndh
 Domination 		Holger Gehrmann	Atari ST	Gehrmann_Holger/Domination.sndh
 Extensor 		Holger Gehrmann	Atari ST	Gehrmann_Holger/Extensor.sndh
 Graffiti Man		Holger Ghermann	Atari ST	Gehrmann_Holger/Graffiti_Man.sndh
@@ -1618,6 +1656,8 @@ Oil Imperium 		Holger Gehrmann	Atari ST	Gehrmann_Holger/Oil_Imperium.sndh
 Space Port 		Holger Gehrmann	Atari ST	Gehrmann_Holger/Space_Port.sndh
 Terra Nova		Holger Gehrmann	Atari ST	Gehrmann_Holger/Terra_Nova.sndh
 Four-F		Greg George	Atari ST	George_Greg/Four-F.sndh
+Crazy Cars III		Fred Eric Gerard	Atari ST	Gerard_Fred_Eric/Crazy_Cars_III.sndh
+Super Cauldron		Fred Eric Gerard	Atari ST	Gerard_Fred_Eric/Super_Cauldron.sndh
 Biker		Reiner Glock	Atari ST	Glock_Reiner/Biker.sndh
 Hibernation Carol Demo		Golden Otter	Atari ST	Golden_Otter/Hibernation_Demo.sndh
 Hibernation Carol Demo 2		Golden Otter	Atari ST	Golden_Otter/Hibernation_Demo_2.sndh
@@ -1658,6 +1698,7 @@ Stardust Memories		gwEm (Jester conversion)	Atari ST	gwEm/DMA/Stardust_Memories.
 Trans-Debug Express (orig edit)		gwEm	Atari ST	gwEm/DMA/Trans_DBug_Express_Orig.sndh
 Trans-Debug Express (release edit)		gwEm	Atari ST	gwEm/DMA/Trans_DBug_Express_Release.sndh
 Ex in my Bed		gwEm	Atari ST	gwEm/Ex_In_My_Bed.sndh
+Flash of the ROM		gwEm/PHF^YM Rockerz	Atari ST	gwEm/Flash_of_the_Rom.sndh
 Forever 'Ardcore		gwEm (Jeff Wayne remix)	Atari ST	gwEm/Forever_Ardcore.sndh
 Full On! (re-version)		gwEm	Atari ST	gwEm/Full_On_(re_version).sndh
 Future Gone Wrong		gwEm	Atari ST	gwEm/Future_Gone_Wrong.sndh
@@ -1685,6 +1726,7 @@ Tune 4 My Broken Atari (re-version)		gwEm	Atari ST	gwEm/Tune_4_My_Broken_Atari.s
 U.L.S. Loader		gwEm	Atari ST	gwEm/ULS_Loader.sndh
 Underground... Like the Wombles		gwEm (Prodigy conversion)	Atari ST	gwEm/Underground_Liket_Wombles.sndh
 Wings of Death #6		gwEm (Mad Max conversion)	Atari ST	gwEm/Wings_of_Death_6.sndh
+YM303		gwEm	Atari ST	gwEm/YM303.sndh
 YM303 Ruffneck		gwEm	Atari ST	gwEm/YM303_Ruffneck.sndh
 ze japanim		gwEm	Atari ST	gwEm/ze_japanim.sndh
 Defend The Earth 2		Michael Haar	Atari ST	Haar_Michael/Defend_the_Earth_2.sndh
@@ -1732,7 +1774,7 @@ Xrun		Alex Herbert	Atari ST	Herbert_Alex/Xrun.sndh
 Treasure Search		Peter Hickman	Atari ST	Hickman_Peter/Treasure_Search.sndh
 CJ In The USA 		Ashley Hogg	Atari ST	Hogg_Ashley/CJ_In_The_USA.sndh
 Spikey in Transylvania		Ash Hogg	Atari ST	Hogg_Ashley/Spikey_in_Transylvania.sndh
-ACIA		Andre Hollweg	Atari ST	Hollweg_Andrew/ACIA.sndh
+ACIA		Michael Opel	Atari ST	Hollweg_Andrew/ACIA.sndh
 Explorer		Andre Hollweg	Atari ST	Hollweg_Andrew/Explorer.sndh
 Frog Race		Jan Holmgren	Atari ST	Holmgren_Jan/Frog_Race.sndh
 Battleships 		Rob Hubbard	Atari ST	Hubbard_Rob/Battleships.sndh
@@ -1754,10 +1796,18 @@ Betty (Golden Dawn 40a)		Illusion	Atari ST	Illusion/Betty_Golden_Dawn_40a.sndh
 Blutack		Illusion	Atari ST	Illusion/Bluetack.sndh
 Fucker (Golden Dawn 38)		Illusion	Atari ST	Illusion/Fucker_Golden_Dawn_38.sndh
 Legal Tools 5		Illusion	Atari ST	Illusion/Legal_Tools_5.sndh
+Maniac		Illusion	Atari ST	Illusion/Maniac.sndh
 Pure Energy 4		Illusion	Atari ST	Illusion/Pure_Energy_4.sndh
 Pure Energy 5		Illusion	Atari ST	Illusion/Pure_Energy_5.sndh
 Pure Energy 6		Illusion	Atari ST	Illusion/Pure_Energy_6.sndh
 Plax Atax		Insomnia	Atari ST	Insomnia/Plax_Atax.sndh
+Intruder 1		Intruder	Atari ST	Intruder/Intruder_1.sndh
+Intruder 2		Intruder	Atari ST	Intruder/Intruder_2.sndh
+Intruder 3		Intruder	Atari ST	Intruder/Intruder_3.sndh
+Intruder 4		Intruder	Atari ST	Intruder/Intruder_4.sndh
+Intruder 5		Intruder	Atari ST	Intruder/Intruder_5.sndh
+Intruder 6		Intruder	Atari ST	Intruder/Intruder_6.sndh
+Intruder 7		Intruder	Atari ST	Intruder/Intruder_7.sndh
 Carol of the Bells		Peter Inzerillo	Atari ST	Inzerillo_Peter/Carol_of_the_Bells.sndh
 Piano Man		Peter Inzerillo	Atari ST	Inzerillo_Peter/Piano_Man.sndh
 ...And..Action!!		Iso	Atari ST	ISO/And_Action.snd.sndh
@@ -1851,6 +1901,7 @@ Blue Angel 69		Stefan Jerowski	Atari ST	Jerowski_Stefan/Blue_Angel_69.sndh
 Mindbender		Stefan Jerowski	Atari ST	Jerowski_Stefan/Mindbender.sndh
 Sarakon 		Stefan Jerowski	Atari ST	Jerowski_Stefan/Sarakon.sndh
 Spherical 		Stefan Jerowski	Atari ST	Jerowski_Stefan/Spherical.sndh
+Synth Sample V		Stefan Jerowski	Atari ST	Jerowski_Stefan/Synth_Sample_V.sndh
 970 Bytes		Jess	Atari ST	Jess/970_Bytes.sndh
 A 60's Slow		Jess	Atari ST	Jess/A_Sixties_Slow.sndh
 Akira VS Sangoku		Jess	Atari ST	Jess/Akira_Versus_Sangoku.sndh
@@ -1947,7 +1998,7 @@ Dragons Breath		Richard Joseph	Atari ST	Joseph_Richard/Dragons_Breath.sndh
 International 3D Tennis Intro		Richard Joseph	Atari ST	Joseph_Richard/International_3D_Tennis_1.sndh
 International 3D Tennis Main		Richard Joseph	Atari ST	Joseph_Richard/International_3D_Tennis_2.sndh
 James Pond		Richard Joseph	Atari ST	Joseph_Richard/James_Pond.sndh
-James Pond 2 Codename: Robocod			Richard Joseph	Atari ST	Joseph_Richard/James_Pond_2.sndh
+James Pond 2 Codename:Robocod		Richard Joseph	Atari ST	Joseph_Richard/James_Pond_2.sndh
 Knightmare		Richard Joseph	Atari ST	Joseph_Richard/Knightmare.sndh
 Legend		Richard Joseph	Atari ST	Joseph_Richard/Legend.sndh
 Lure of the Temptress		Richard Joseph	Atari ST	Joseph_Richard/Lure_of_the_Temptress.sndh
@@ -1958,6 +2009,18 @@ Sensible Soccer		Richard Joseph	Atari ST	Joseph_Richard/Sensible_Soccer.sndh
 Speedball 2		Richard Joseph	Atari ST	Joseph_Richard/Speedball_2.sndh
 Steel Empire		Richard Joseph	Atari ST	Joseph_Richard/Steel_Empire.sndh
 Wizkid		Richard Joseph	Atari ST	Joseph_Richard/Wizkid.sndh
+3 Tunes		Jovis	Atari ST	Jovis/3_Tunes.sndh
+5 Tunes		Jovis	Atari ST	Jovis/5_Tunes.sndh
+Baf		Jovis	Atari ST	Jovis/BAF.sndh
+Cannon F		Jovis	Atari ST	Jovis/Cannon_F.sndh
+Compil using no drum		Jovis	Atari ST	Jovis/Compil_using_no_drum.sndh
+Compil with some crap		Jovis	Atari ST	Jovis/Compil_with_some_crap.sndh
+Fun Sad		Jovis	Atari ST	Jovis/Fun_Sad.sndh
+Ghost ship, then Fun-board		Jovis	Atari ST	Jovis/Ghost_ship_then_Fun_board.sndh
+If you were a photon		Jovis	Atari ST	Jovis/If_you_were_a_photon.sndh
+Jetset Willy Fantasy		Jovis	Atari ST	Jovis/Jetset_Willy_Fantasy.sndh
+Knucklebusters		Unknown	Atari ST	Jovis/Knucklebusters.sndh
+Lame Bip		Jovis	Atari ST	Jovis/Lame_Bip.sndh
 Lametrop - 3D Bobs		Jovis	Atari ST	Jovis/Lametrop-3D_Bobs.sndh
 Lametrop - Beast		Jovis	Atari ST	Jovis/Lametrop-Beast.sndh
 Lametrop - End		Jovis	Atari ST	Jovis/Lametrop-End.sndh
@@ -1967,6 +2030,20 @@ Lametrop - Intro Part 2		Jovis	Atari ST	Jovis/Lametrop-Intro_Part_2.sndh
 Lametrop - Jet Set Willy		Jovis	Atari ST	Jovis/Lametrop-Jet_Set_Willy.sndh
 Lametrop - Minitext		Jovis	Atari ST	Jovis/Lametrop-Minitext.sndh
 Lametrop - Starfield		Jovis	Atari ST	Jovis/Lametrop-Starfield.sndh
+Mars Station		Jovis	Atari ST	Jovis/Mars_Station.sndh
+Merry Goes Round		Jovis	Atari ST	Jovis/Merry_Goes_Round.sndh
+Mumuse		Jovis	Atari ST	Jovis/Mumuse.sndh
+No Dash		Jovis	Atari ST	Jovis/No_Dash.sndh
+Plucking		Jovis	Atari ST	Jovis/Plucking.sndh
+Sampled Attack		Jovis	Atari ST	Jovis/Sampled_Attack.sndh
+Speedrit		Jovis	Atari ST	Jovis/Speedrit.sndh
+Spider Ship		Jovis	Atari ST	Jovis/Spider_Ship.sndh
+Subir		Jovis	Atari ST	Jovis/Subir.sndh
+The old odd funstyle of J		Jovis	Atari ST	Jovis/The_old_odd_funstyle_of_J.sndh
+Think About what You Want		Jovis	Atari ST	Jovis/Think_About_what_You_Want.sndh
+Trash Buzz		Jovis	Atari ST	Jovis/Trash_Buzz.sndh
+Travel with Japman		Jovis	Atari ST	Jovis/Travel_with_Japman.sndh
+Zwaqwam		Jovis	Atari ST	Jovis/Zwaqwam.sndh
 Juriman		Juri	Atari ST	Juri/Juriman.sndh
 Beginning of the Ending Demo		Kafka	Atari ST	Kafka/Beginning_of_the_Ending.sndh
 Faith		Kanewood	Atari ST	Kanewood/Faith.sndh
@@ -2078,9 +2155,11 @@ RAS ATARI		Philip Linde	Atari ST	Linde_Philip/Ras_Atari.sndh
 Spraymaali		Philip Linde	Atari ST	Linde_Philip/Spraymaali.sndh
 Bullet Train		Francois Lionet	Atari ST	Lionet_Francois/Bullet_Train.sndh
 Mixed Up Mother Goose		Amenda Lombardo	Atari ST	Lombardo_Amenda/Mixed_Up_Mother_Goose.sndh
+Real Cyber Aciiiied		Lonestar	Atari ST	Lonestar/Real_Cyber_Aciiied.sndh
 Loony		Loony	Atari ST	Loony/Loony.sndh
 Arcade Trivia Quiz		Paul Loraine	Atari ST	Loraine_Paul/Arcade_Trivia_Quiz.sndh
 Huckleberry Hound in Hollywood Capers		Paul Loraine	Atari ST	Loraine_Paul/Huckleberry_Hound.sndh
+LFEE 91		LFEE	Atari ST	Loraine_Paul/LFEE91.sndh
 Paul Loraine		Popeye 2	Atari ST	Loraine_Paul/Popeye_2.sndh
 Scooby Doo and Scrappy Doo		Paul Loraine	Atari ST	Loraine_Paul/Scooby_Doo_And_Scrappy_Doo.sndh
 Ambition Intro 1		Lord	Atari ST	Lord/Ambition_Intro_1.sndh
@@ -2132,6 +2211,7 @@ Lip Gloss		Lotek Style	Atari ST	Lotek_Style/Lip_Gloss.sndh
 Loadatune		Lotek Style	Atari ST	Lotek_Style/Loadatune.sndh
 Lotusflower		Lotek Style	Atari ST	Lotek_Style/Lotus_Flower.sndh
 Mourning		Lotek Style	Atari ST	Lotek_Style/Mourning.sndh
+Neon Lips		Lotek Style / .tSCc.	Atari ST	Lotek_Style/Neon_Lips.sndh
 noisy again 2013		lotek style/tscc	Atari ST	Lotek_Style/Noisy_Again_2013.sndh
 Ode to DMA-SC		Lotek Style	Atari ST	Lotek_Style/Ode_To_DMA-SC.sndh
 Perfect Chipperman		Lotek Style	Atari ST	Lotek_Style/Perfect_Chipperman.sndh
@@ -2222,7 +2302,9 @@ Compo		Luebke	Atari ST	Luebke/Compo.sndh
 IRC Simulator		Luebke	Atari ST	Luebke/IRC_Simulator.sndh
 Jingle Bells		Luebke	Atari ST	Luebke/Jingle_Bells.sndh
 Paracon 3 invitro		Luebke	Atari ST	Luebke/Paracon_3_invitro.sndh
+Paracon 4 Invite		Luebke	Atari ST	Luebke/Paracon_4_invitro.sndh
 Reverse Pong		Luebke	Atari ST	Luebke/Reverse_Pong.sndh
+Xmas 2000		Luebke	Atari ST	Luebke/Xmas_2000.sndh
 Amazeing		Mikael Lundberg	Atari ST	Lundberg_Mikael/Amazeing.sndh
 Mushy Music		Mikael Lundberg	Atari ST	Lundberg_Mikael/Mushy_Music.sndh
 Rush		Mikael Lundberg	Atari ST	Lundberg_Mikael/Rush.sndh
@@ -2361,6 +2443,7 @@ Cuddly Demos - No Name		Mad Max	Atari ST	Mad_Max/Demos/Cuddly_Demos/No_Name.sndh
 Cuddly Demos - Reset		Mad Max	Atari ST	Mad_Max/Demos/Cuddly_Demos/Reset.sndh
 Robocop Tune 2		Mad Max	Atari ST	Mad_Max/Demos/Cuddly_Demos/Robocop_Tune_2.sndh
 Defcon		Mad Max	Atari ST	Mad_Max/Demos/Defcon.sndh
+Demo Music 5		Mad Max	Atari ST	Mad_Max/Demos/Demo_Music_5.sndh
 Demo Music 6		Mad Max	Atari ST	Mad_Max/Demos/Demo_Music_6.sndh
 Demo Music 8		Mad Max	Atari ST	Mad_Max/Demos/Demo_Music_8.sndh
 Demo Music 9		Mad Max	Atari ST	Mad_Max/Demos/Demo_Music_9.sndh
@@ -2370,6 +2453,7 @@ Faith (YM Rockerz)		Mad Max ( ?/2002 )	Atari ST	Mad_Max/Demos/Faith.sndh
 Gambol		Mad Max	Atari ST	Mad_Max/Demos/Gambol.sndh
 Jinks		Mad Max	Atari ST	Mad_Max/Demos/Jinks_Digi.sndh
 Beat Nick		Mad Max	Atari ST	Mad_Max/Demos/Lifes_A_Bitch/Beat_Nick.sndh
+Bittner Rap		Mad Max	Atari ST	Mad_Max/Demos/Lifes_A_Bitch/Bittner_Rap.sndh
 Life's A Bitch - GigaTex		Mad Max	Atari ST	Mad_Max/Demos/Lifes_A_Bitch/GigaTex.sndh
 Life's A Bitch - Loader		Mad Max	Atari ST	Mad_Max/Demos/Lifes_A_Bitch/Loader.sndh
 Axel F - LCD		Mad Max	Atari ST	Mad_Max/Demos/Little_Color_Demo/Axel_F.sndh
@@ -2424,6 +2508,7 @@ Scoop - That's The Way It Is		Mad Max	Atari ST	Mad_Max/Demos/Union_Demo/Scoop-Th
 Thundercats		Mad Max	Atari ST	Mad_Max/Demos/Union_Demo/Thundercats.sndh
 Virtual Escape		Jochen Hippel (1999)	Atari ST	Mad_Max/Demos/Virtual_Escape-End_Part.sndh
 2006		Mad Max	Atari ST	Mad_Max/Demos/WarpTyme_Intro_Music.sndh
+Sillyventure 2013 Invite intro		Damo	Atari ST	Mad_Max/Demos/Wings_of_Death_remix_Damo.sndh
 5th Gear		Mad Max	Atari ST	Mad_Max/Games/5th_Gear.sndh
 In 80 Days Around the World		Mad Max	Atari ST	Mad_Max/Games/80_Days_Around_the_World.sndh
 In 80 Days Around The World		Mad Max	Atari ST	Mad_Max/Games/80_Days_Around_World_digi.sndh
@@ -2525,6 +2610,7 @@ COVER FOR MARIA 		Marcer	Atari ST	Marcer/Cover_For_Maria.sndh
 ANIMAL2         		Marcer	Atari ST	Marcer/Dafvid_Demo_2_Pt_1.sndh
 ANIMAL3         		Marcer	Atari ST	Marcer/Dafvid_Demo_2_Pt_2.sndh
 MAD ST          		Marcer	Atari ST	Marcer/Dafvid_Demo_2_Pt_3.sndh
+Davids Raster Demo		Marcer	Atari ST	Marcer/Davids_Raster_Demo.sndh
 DISKO SID		Marcer	Atari ST	Marcer/Disc0_SID.sndh
 2149 Final		Marcer	Atari ST	Marcer/DMA/2149_Final.sndh
 cpu slider preview		Marcer	Atari ST	Marcer/DMA/CPU Slider Preview.sndh
@@ -2591,7 +2677,6 @@ TURRICANA		Marcer	Atari ST	Marcer/Turricana.sndh
 we remember 		marcer 2007	Atari ST	Marcer/We_Remember.sndh
 XMASSNOWMAN		Marcer	Atari ST	Marcer/Xmas_Snowman.sndh
 XMASMAN SID		Marcer	Atari ST	Marcer/Xmas_Snowman_SID.sndh
-YM Out		Marcer	Atari ST	Marcer/YM_Out.sndh
 first tYMe (Znax credits/scores)		marcer	Atari ST	Marcer/Znax_Credits-first_tYMe.sndh
 Greasy (Znax Menu)		Marcer	Atari ST	Marcer/Znax_Menu-Greasy.sndh
 Narco Police		Jose A Martin	Atari ST	Martin_Jos_A/Narco_Police.sndh
@@ -2600,7 +2685,8 @@ Lunacy		Roderick Martin	Atari ST	Martin_Roderick/Lunacy.sndh
 CLOSE ENCOUNT.OF THE 3rd KIND		Tom Marvin	Atari ST	Marvin_Tom/Close_Encounter_3rd_Kind.sndh
 THUNDERER          J.P.Sousa		Tom Marvin	Atari ST	Marvin_Tom/Thunderer.sndh
 Tolteka - Title		Ingo Massalski	Atari ST	Massalski_Ingo/Tolteka-Title.sndh
-Just Buggin - Xenex		Mate	Atari ST	Mate/Just_Buggin-Xenex.sndh
+The Coffin Shika		Matrix	Atari ST	Matrix/Coffin_Shika.sndh
+Look Whos Coding Too		Matrix	Atari ST	Matrix/Main Menu.sndh
 Whatta Big Rat		Max	Atari ST	Max/Whatta_Big_Rat.sndh
 Dragon Scape		Ian Maxwell	Atari ST	Maxwell_Ian/Dragon_Scape.sndh
 McDonald Land		Andi McGinty	Atari ST	McGinty_Andi/McDonald_Land.sndh
@@ -2615,6 +2701,8 @@ Librarie		Mephistow	Atari ST	Mephistow/Librarie.sndh
 Sound		Mephistow	Atari ST	Mephistow/Sound.sndh
 Ventura - Evil		Mephistow	Atari ST	Mephistow/Ventura-Evil.sndh
 Ventura - Hystanders		Mephistow	Atari ST	Mephistow/Ventura-Hystanders.sndh
+Delirious Demo 2 - Reset		Stan Mercury	Atari ST	Mercury_Stan/Delerious_Demo2-Reset.sndh
+European Demos Intro		Stan Mercury	Atari ST	Mercury_Stan/European_Demos_Intro.sndh
 Innuendo		Stan Mercury	Atari ST	Mercury_Stan/Innuendo.sndh
 Konix		Stan Mercury	Atari ST	Mercury_Stan/Konix.sndh
 Elefantastic		MCH and Mermaid	Atari ST	Mermaid/Elefantastic.sndh
@@ -2665,6 +2753,7 @@ Chasey End		Mr Coke	Atari ST	Mr_Coke/Chasey_End.sndh
 Chasey Loader		Mr Coke	Atari ST	Mr_Coke/Chasey_Loader.sndh
 Dasda		Mr Coke	Atari ST	Mr_Coke/Dasda.sndh
 Yet Another 4K Intro		Mr Coke	Atari ST	Mr_Coke/Yet_Another_4k_Intro.sndh
+AFR Intro		Mr. Man	Atari ST	Mr_Man/Atari_Forum_Intro.sndh
 MSI Sound Demo		Mr Saigon	Atari ST	Mr_Saigon/MSI_Sound_Demo.sndh
 Chariots of Fire		MSG	Atari ST	MSG/Chariots_of_Fire.sndh
 Chu Chu Rocket - Awards		MSG	Atari ST	MSG/Chu_Chu_Rocket-Award.sndh
@@ -2849,6 +2938,7 @@ Too Hot		No More	Atari ST	No_More/Too_Hot.sndh
 TRSI		No More	Atari ST	No_More/TRSI.sndh
 Unexpected		No More	Atari ST	No_More/Unexpected.sndh
 Vectronix		No More	Atari ST	No_More/Vectronix.sndh
+Vectronix Xmas		No More	Atari ST	No_More/Vectronix_Xmas.sndh
 World of Wonders		No More	Atari ST	No_More/World_of_Wonders.sndh
 Flipped		Andrew R. Oakley	Atari ST	Oakley_Andrew/Flipped.sndh
 Square Off		Andrew Oakley	Atari ST	Oakley_Andrew/Square_Off.sndh
@@ -2890,7 +2980,9 @@ Quartet 1.0 demo tunes		Rob Povey	Atari ST	Povey_Rob/Quartet_1_0.sndh
 Quartet v1.5		Rob Povey	Atari ST	Povey_Rob/Quartet_1_5.sndh
 GBISTCP - Mega 4 A		Powa Pixel	Atari ST	Powapixel/GBISTCP_Mega_4_Tune_1.sndh
 GBISTCP - Mega 4 B		Powa Pixel	Atari ST	Powapixel/GBISTCP_Mega_4_Tune_2.sndh
+Gyroscope		Powapixel	Atari ST	Powapixel/Gyroscope.sndh
 Mega 4 Disk Mag		Powa Pixel	Atari ST	Powapixel/Mega_4_Disk_Mag.sndh
+Prelude		Powapixel	Atari ST	Powapixel/Prelude.sndh
 Hellbent		Donovan Prince	Atari ST	Prince_Donovan/Hellbent.sndh
 Netherworld		Nigel Pritchard	Atari ST	Pritchard_Nigel/Netherworld.sndh
 Solider 2000		Nigel Pritchard	Atari ST	Pritchard_Nigel/Soldier_2000.sndh
@@ -2911,10 +3003,6 @@ Ralph Digi 1		Ralph	Atari ST	Ralph/Ralph_Digi_1.sndh
 Ralph Digi 2		Ralph	Atari ST	Ralph/Ralph_Digi_2.sndh
 Ralph Digi 3		Ralph	Atari ST	Ralph/Ralph_Digi_3.sndh
 Easy Learning Maths		Philip Rankin	Atari ST	Rankin_Philip/Easy_Learning_Maths.sndh
-Razor Megademo Intro		Vesa, Emphii, Bad Boy	Atari ST	Razor/Razor_Megademo_Intro.sndh
-Razor's Mega Demo - Screen 4		Vesa, Emphii, Bad Boy	Atari ST	Razor/Razor_Megademo_Screen_4.sndh
-Razor's Mega Demo - screen 5		Vesa, Emphii, Bad Boy	Atari ST	Razor/Razor_Megademo_Screen_5.sndh
-Razor's Mega Demo - The Corps		Vesa, Emphii, Bad Boy	Atari ST	Razor/Razor_Megademo_The_Corps.sndh
 Pink and a Byss!		Reb	Atari ST	Rebb/DMA/Pink_and_a_Byss.sndh
 French realtime		Rebb	Atari ST	Rebb/French_Realtime.sndh
 TSC 65		Redzone	Atari ST	Redzone/The_Syndicate_Menu_65.sndh
@@ -2936,6 +3024,7 @@ Bumble Beezer		Rhino / Torment (D Newman)	Atari ST	Rhino/DMA/Bumble_Beezer.sndh
 Three out of Four		Rhino / Torment (D Newman)	Atari ST	Rhino/DMA/Three_out_of_Four.sndh
 GBISTCP - Electronic Images		Rhino	Atari ST	Rhino/GBISTCP_Electronic_Images.sndh
 GBISTCP - Torment		Rhino	Atari ST	Rhino/GBISTCP_Torment.sndh
+Have you seen our coder anywhere?		Rhino	Atari ST	Rhino/Have_you_seen_our_coder.sndh
 PMP Competition Entry		Rhino	Atari ST	Rhino/PMP_Competition_Entry.sndh
 Shorty		Rhino / Torment	Atari ST	Rhino/Shorty.sndh
 Sundown 2012		Rhino	Atari ST	Rhino/Sundown_2012.sndh
@@ -3015,6 +3104,8 @@ Playtime		Rude Kid	Atari ST	Rude_Kid/Playtime.sndh
 Samba 2		Rude Kid	Atari ST	Rude_Kid/Samba_2.sndh
 TV Themes		Rude Kid	Atari ST	Rude_Kid/TV_Themes.sndh
 Weirdo 2		Rude Kid	Atari ST	Rude_Kid/Weirdo_2.sndh
+Great Courts		Haiko Ruttmann	Atari ST	Ruttman_Haiko/Great_Courts.sndh
+Tom And The Ghost		Haiko Ruttmann	Atari ST	Ruttman_Haiko/Tom_And_The_Ghost.sndh
 Twinworld		Haiko Ruttman	Atari ST	Ruttman_Haiko/Twinworld.sndh
 Hero		Salkin/047	Atari ST	Salkin/Hero.sndh
 Ko ko Kossan		Salkin/047	Atari ST	Salkin/Ko_ko_Kossan.sndh
@@ -3027,6 +3118,7 @@ Sally 2		Sally	Atari ST	Sally/Sally_2.sndh
 Sally Tri-Digi music		Sally	Atari ST	Sally/Sally_digi.sndh
 Stax 53 - Tune 1		Sally	Atari ST	Sally/Stax_Menu _53_Tune_1.sndh
 Stax 57		Sally	Atari ST	Sally/Stax_Menu _57.sndh
+Atari Touch		Sarek, (c) 2005	Atari ST	Sarek/Atari_Touch.sndh
 Xeron Overture		Sarek, (c) 2005	Atari ST	Sarek/Caprain_Xeron_Theme.sndh
 Improvisation		Sarek, (c) 2005	Atari ST	Sarek/Improvisation.sndh
 Organic Robots		Sarek, (c) 2005	Atari ST	Sarek/Organic_Robots.sndh
@@ -3102,6 +3194,7 @@ Slackskin & Flint		Justin Scharvona	Atari ST	Scharvona_Justin/Slackskin_and_Flin
 The Godfather		Justin Scharvona	Atari ST	Scharvona_Justin/The_Godfather.sndh
 Enola Gay		Schemantix	Atari ST	Schemantix/Enola_Gay.sndh
 Zombie Apocalypse		Schemantix	Atari ST	Schemantix/Zombie_Apocalypse.sndh
+BOMB FIGHT N RUN		SCHMX	Atari ST	Schmx/Bomb_Fight_N_Run.sndh
 Bonebreaker		schmx/awp	Atari ST	Schmx/Bonebreaker.sndh
 Eat This		schmx/awp	Atari ST	Schmx/Eat_This.sndh
 HIGHWAY UP NORTH		SCHMX & STU	Atari ST	Schmx/Highway_Up_North.sndh
@@ -3193,6 +3286,7 @@ Snork Intro - Vodka		Skyline	Atari ST	Skyline/Snork_Intro_Vodka.sndh
 Back To The Golden Age		F Smadja	Atari ST	Smadja_F/Back_to_the_Golden_Age.sndh
 Disciples of Steel		Jim Smelley & Steve Schrade	Atari ST	Smelley_Jim/Disciples_of_Steel.sndh
 Lettris		A. G. Smith	Atari ST	Smith_AG/Lettris.sndh
+Pure Energy 38		SNC	Atari ST	SNC/Pure_Energy_38.sndh
 Aura		Sonic	Atari ST	Sonic/Aura.sndh
 Hype		Sonic	Atari ST	Sonic/Hype.sndh
 It Goes On		Sonic	Atari ST	Sonic/It_Goes_On.sndh
@@ -3289,6 +3383,7 @@ Dynablaster		Rudi Stember	Atari ST	Stember_Rudi/Dynablaster.sndh
 The Patrician		Rudi Stember	Atari ST	Stember_Rudi/The_Patrician.sndh
 8 BIT STYLE		STU	Atari ST	Stu/8_Bit_Style.sndh
 AHARMAN		STU	Atari ST	Stu/Aharman.sndh
+AIR		STU	Atari ST	Stu/Air.sndh
 ATARI FORCE		STU	Atari ST	Stu/Atari_Force.sndh
 ATARI UNDERGROUND CHIPTUNE RESISTANCE		STU	Atari ST	Stu/Atari_Underground_Chiptune.sndh
 Audiosphere		Stu	Atari ST	Stu/Audiosphere.sndh
@@ -3317,8 +3412,10 @@ DROP DA BOMB LIVE INTRO		STU	Atari ST	Stu/Drop_Da_Bomb_Live_Intro.sndh
 DROP DA BOMB		STU	Atari ST	Stu/Drop_Da_Domb.sndh
 DRUMBASE		STU	Atari ST	Stu/Drumbase.sndh
 DYMANITE		STU	Atari ST	Stu/Dynamite.sndh
+EARTH		STU	Atari ST	Stu/Earth.sndh
 ELECTROX		STU	Atari ST	Stu/Electrox.sndh
 FLEX FLICKER		STU	Atari ST	Stu/Fex_Flicker.sndh
+FIRE		STU	Atari ST	Stu/Fire.sndh
 FIRST SID		STU	Atari ST	Stu/First_Sid.sndh
 FLOWER		STU	Atari ST	Stu/Flower.sndh
 FOR REAL		STU	Atari ST	Stu/For_Real.sndh
@@ -3384,6 +3481,7 @@ TOURIYANSE		STU	Atari ST	Stu/Touriyanse.sndh
 TWENTY-FIVE		STU	Atari ST	Stu/Twenty-Five.sndh
 TYMPANUM		STU	Atari ST	Stu/Tympanum.sndh
 ULTIMATE		STU	Atari ST	Stu/Ultimate.sndh
+WATER		STU	Atari ST	Stu/Water.sndh
 YMETAL		STU	Atari ST	Stu/YMetal.sndh
 Espionage		Paul Summers	Atari ST	Summers_Paul/Espionage.sndh
 Everton FC Intelligensia		Paul Summers	Atari ST	Summers_Paul/Everton_FC_Intelligensia.sndh
@@ -3397,7 +3495,31 @@ Sonic Boom		Paul Summers	Atari ST	Summers_Paul/Sonic_Boom.sndh
 Stryx		Paul Summers	Atari ST	Summers_Paul/Stryx.sndh
 Super Hang On		Paul Summers	Atari ST	Summers_Paul/Super_Hang_On.sndh
 Last Man		Piotr Szerszen	Atari ST	Szerszen_Piotr/Last_Man.sndh
+Bits 28		T1000	Atari ST	T1000/Bits_28.sndh
+Bits 29		t1000	Atari ST	T1000/Bits_29.sndh
+Bits 30		t1000	Atari ST	T1000/Bits_30.sndh
+Bits 31		t1000	Atari ST	T1000/Bits_31.sndh
+Bits 33		t1000	Atari ST	T1000/Bits_33.sndh
+Bits 34		t1000	Atari ST	T1000/Bits_34.sndh
+Bits 35		t1000	Atari ST	T1000/Bits_35.sndh
+Bits 36		t1000	Atari ST	T1000/Bits_36.sndh
+Bits 37		t1000	Atari ST	T1000/Bits_37.sndh
+Bits 38		t1000	Atari ST	T1000/Bits_38.sndh
+Bits 40		t1000	Atari ST	T1000/Bits_40.sndh
+Bits 42		t1000	Atari ST	T1000/Bits_42.sndh
+Bits 45		T1000	Atari ST	T1000/Bits_45.sndh
+Bits 49		t1000	Atari ST	T1000/Bits_49.sndh
+Bits 53		T1000	Atari ST	T1000/Bits_53.sndh
+Bits 55a		T1000	Atari ST	T1000/Bits_55a.sndh
+Bits 55b		T1000	Atari ST	T1000/Bits_55b.sndh
+Bits 55c		T1000	Atari ST	T1000/Bits_55c.sndh
+Bits 55e		T1000	Atari ST	T1000/Bits_55e.sndh
+Bits 56		t1000	Atari ST	T1000/Bits_56.sndh
+Bits 57		t1000	Atari ST	T1000/Bits_57.sndh
+Bits 58		T1000	Atari ST	T1000/Bits_58.sndh
 Bits 59		T1000	Atari ST	T1000/Bits_59.sndh
+Bits 60		T1000	Atari ST	T1000/Bits_60.sndh
+Bits 61		T1000	Atari ST	T1000/Bits_61.sndh
 The Beast Club - TBC 10		T1000	Atari ST	T1000/TBC_10.sndh
 The Beast Club - TBC 11		T1000	Atari ST	T1000/TBC_11.sndh
 The Beast Club - TBC 12		T1000	Atari ST	T1000/TBC_12.sndh
@@ -3473,6 +3595,7 @@ Double Fat (UCM 18)		Tao / Cream	Atari ST	Tao/Double_Fat_(UCM_18).sndh
 Eclipse (UCM 20)		Tao / Cream	Atari ST	Tao/Eclipse_(UCM_20).sndh
 End Theme		Tao / Cream (orig. Karsten Obarski)	Atari ST	Tao/End_Theme.sndh
 F6 v2 (EIL joke)		Tao / Cream	Atari ST	Tao/F6_v2.sndh
+Feelings		Tao	Atari ST	Tao/Feelings.sndh
 For Abyss		Tao	Atari ST	Tao/For_Abyss.sndh
 Force (Amiga conversion)		Tao / Cream	Atari ST	Tao/Force.sndh
 Groupie (YM Rockerz 3)		Tao / Cream	Atari ST	Tao/Groupie.sndh
@@ -3565,7 +3688,7 @@ Monty On The Run Highscore (Stmygm)		Tao / Cream (orig. Rob Hubbard)	Atari ST	Ta
 Rasputin (Stmygm)		Tao / Cream (orig. Rob Hubbard)	Atari ST	Tao/Songs_That_Make_You_Go_Mmh/Rasputin.sndh
 Sanxion Loader (Stmygm)		Tao / Cream (orig. Rob Hubbard)	Atari ST	Tao/Songs_That_Make_You_Go_Mmh/Sanxion_Loader.sndh
 Spellbound (Stmygm)		Tao / Cream (orig. Rob Hubbard)	Atari ST	Tao/Songs_That_Make_You_Go_Mmh/Spellbound.sndh
-Thundercats (Stmygm)		Tao / Cream (orig. Rob Hubbard)	Atari ST	Tao/Songs_That_Make_You_Go_Mmh/thu.sndh
+Thundercats (Stmygm)		Tao / Cream (orig. Rob Hubbard)	Atari ST	Tao/Songs_That_Make_You_Go_Mmh/Thundercats.sndh
 Zoolook (Stmygm)		Tao / Cream (orig. Rob Hubbard)	Atari ST	Tao/Songs_That_Make_You_Go_Mmh/Zoolook.sndh
 Spontex (UCM 17)		Tao / Cream	Atari ST	Tao/Spontex_(UCM_17).sndh
 Starchild (UCM 23)		Tao / Cream	Atari ST	Tao/Starchild_(UCM_23).sndh
@@ -3602,6 +3725,7 @@ The Powerman (Steps)		Tao / Cream	Atari ST	Tao/Steps/The_Powerman.sndh
 Walk On Ice (Steps)		Tao / Cream	Atari ST	Tao/Steps/Walk_On_Ice.sndh
 Wide Awake (Steps)		Tao / Cream	Atari ST	Tao/Steps/Wide_Awake.sndh
 Still Alive (Alive 7)		Tao / Cream	Atari ST	Tao/Still_Alive_(Alive_7).sndh
+STresSTeST		Tao	Atari ST	Tao/STreSTeST.sndh
 Sweety (Main Tune)		Tao / Cream (orig. Lotek Style/tSCc)	Atari ST	Tao/Sweety.sndh
 Thing (Alive 4)		Tao / Cream	Atari ST	Tao/Thing_(Alive_4).sndh
 Torture (Magic Synth vers.)		Tao / Cream	Atari ST	Tao/Torture_Magic_Synth.sndh
@@ -3724,6 +3848,7 @@ Red Heat		Keith Tinman	Atari ST	Tinman_Keith/Red_Heat.sndh
 Robocop 2		Keith Tinman	Atari ST	Tinman_Keith/Robocop_2.sndh
 The Untouchables		Keith Tinman	Atari ST	Tinman_Keith/The_Untouchables.sndh
 GSC 62		Titan	Atari ST	Titan/Great_Stuff_Compil_62.sndh
+Just Buggin - Mate		Titan	Atari ST	Titan/Just_Buggin-Mate.sndh
 ltc03 0ompa intro		tomchi::noextra	Atari ST	Tomchi/0ompa_intro.sndh
 ltc03 0ompa main		tomchi::noextra	Atari ST	Tomchi/0ompa_main.sndh
 1st Extra		Tomchi	Atari ST	Tomchi/1st_Extra.sndh
@@ -3732,6 +3857,7 @@ AC 2010 invit		Tomchi::Noextra	Atari ST	Tomchi/AC2010.sndh
 CHIPVENTURE		TomChi::Noextra	Atari ST	Tomchi/ChipVenture.sndh
 DCKolors		Tomchi	Atari ST	Tomchi/DCKolors.sndh
 Checkboard		Tomchi	Atari ST	Tomchi/DCKonboard.sndh
+ltc0a chom		tomchi::noextra	Atari ST	Tomchi/DMA/Chom.sndh
 ltc 08 sheep n chip		tomchi :: NoeXtra	Atari ST	Tomchi/DMA/LTC_08_Sheep_n_Chip.sndh
 MUDA		tomchi::noextra	Atari ST	Tomchi/DMA/Muda.sndh
 No Monkey		TOMCHI::NOEXTRA	Atari ST	Tomchi/DMA/No_Monkey.sndh
@@ -3740,6 +3866,7 @@ Endck		Tomchi	Atari ST	Tomchi/End_Screen.sndh
 Hap		Tomchi	Atari ST	Tomchi/Hap.sndh
 Oldckool - Intro		Tomchi	Atari ST	Tomchi/Intro.sndh
 KID IS VIP		TomChi::NoExtra	Atari ST	Tomchi/Kid_is_VP.sndh
+ltc01 ouacances		tomchi	Atari ST	Tomchi/Ltc01_Ouacances.sndh
 ltc 01 extra volume 2		Tomchi::Noextra	Atari ST	Tomchi/LTC_01_extra_volume_2.sndh
 No Extra		Tomchi	Atari ST	Tomchi/No_Extra.sndh
 Pakakaka		Tomchi	Atari ST	Tomchi/Pakakaka.sndh
@@ -3798,6 +3925,13 @@ Vangelis		Tufty	Atari ST	Tufty/Vangelis.sndh
 Vangelis 2		Tufty	Atari ST	Tufty/Vangelis_2.sndh
 Wierd		Tufty	Atari ST	Tufty/Weird.sndh
 Wunder		Tufty	Atari ST	Tufty/Wunder.sndh
+Altogether Now		Twitch	Atari ST	Twitch/Altogether_Now.sndh
+Funkymix		Twitch	Atari ST	Twitch/Funkymix.sndh
+It don't matter		Twitch	Atari ST	Twitch/It_Dont_Matter.sndh
+Modelmix 91		Twitch	Atari ST	Twitch/Model_Mix_91.sndh
+Only You		Twitch	Atari ST	Twitch/Only_You.sndh
+Straight Up		Twitch	Atari ST	Twitch/Striaght_Up.sndh
+Twitch's Hotmix		Twitch	Atari ST	Twitch/Twitchs_Hotmix.sndh
 Bad Boys		Tyan	Atari ST	Tyan/Bad_Boys.sndh
 Bits 2		Tyan	Atari ST	Tyan/Bits_2.sndh
 Bits 4		Tyan	Atari ST	Tyan/Bits_4.sndh
@@ -3877,22 +4011,33 @@ MERGING PRESENT AND PAST		ULTRASYD	Atari ST	Ultrasyd/Merging_Present_And_Past.sn
 SCENE SPIRIT		ULTRASYD	Atari ST	Ultrasyd/Scene_Spirit.sndh
 THE DAY YM KILLED FAKEBIT		ULTRASYD	Atari ST	Ultrasyd/The_Day_YM_Killed_Fakebit.sndh
 Thunderdome		Ultrasyd	Atari ST	Ultrasyd/Thunderdome.sndh
+808 State		Unknown	Atari ST	Unknown_Composer/808_State.sndh
+Acid		Unknown	Atari ST	Unknown_Composer/Acid.sndh
 Asterix im Morgenland - Title		Unknown	Atari ST	Unknown_Composer/Asterix_im_Morgenland.sndh
+Axel F		Unknown	Atari ST	Unknown_Composer/Axel_F_1.sndh
+Axel F		Unknown	Atari ST	Unknown_Composer/Axel_F_2.sndh
 Bach		Unknown	Atari ST	Unknown_Composer/Bach.sndh
 Ballade		Unknown	Atari ST	Unknown_Composer/Ballade.sndh
 Beyond the Titanic 2		Unknown	Atari ST	Unknown_Composer/Beyond_the_Titanic_2.sndh
+Big in Japan		Unknown	Atari ST	Unknown_Composer/Big_in_Japan.sndh
+Bob P		Unknown	Atari ST	Unknown_Composer/Bob_P.sndh
+Confuzion		Unknown	Atari ST	Unknown_Composer/Confuzion.sndh
 Countout		Unknown	Atari ST	Unknown_Composer/Count_Out.sndh
 Cybernoid		Unknown	Atari ST	Unknown_Composer/Cybernoid.sndh
-Dampf		Unknown	Atari ST	Unknown_Composer/Dampf.sndh
+Delta		Unknown	Atari ST	Unknown_Composer/Delta_2.sndh
 Dick Tracy		Unknown	Atari ST	Unknown_Composer/Dick_Tracy.sndh
 Dragon Lord		Unknown	Atari ST	Unknown_Composer/Dragon_Lord.sndh
+Elenor		Unknown	Atari ST	Unknown_Composer/Elenor.sndh
 European Soccer Challenge		Unknown	Atari ST	Unknown_Composer/European_Soccer_Challeng.sndh
 Final Command		Unknown	Atari ST	Unknown_Composer/Final_Command.sndh
-Fun Sad		Unknown	Atari ST	Unknown_Composer/Fun_Sad.sndh
+Flash		Unknown	Atari ST	Unknown_Composer/Flash.sndh
+Flying Shark		Unknown	Atari ST	Unknown_Composer/Flying_Shark.sndh
+Fugue		Unknown	Atari ST	Unknown_Composer/Fugue.sndh
 ESD G-Loc Intro		Unknown	Atari ST	Unknown_Composer/GLoc_ESD_Intro.sndh
 Gore 2		Unknown	Atari ST	Unknown_Composer/Gore_2.sndh
 Henriettas Book of Spells		Unknown	Atari ST	Unknown_Composer/Henriettas_Book_of_Spells.sndh
 Heroes of the Lance		Unknown	Atari ST	Unknown_Composer/Heroes_of_the_Lance.sndh
+House		Unknown	Atari ST	Unknown_Composer/House.sndh
 I-Ball		Unknown	Atari ST	Unknown_Composer/I_Ball.sndh
 Indiana Jones & Temple of Doom		Unknown	Atari ST	Unknown_Composer/Indiana_Jones_Temple_Doom.sndh
 International Karate		Unknown Composer	Atari ST	Unknown_Composer/International_Karate.sndh
@@ -3900,26 +4045,25 @@ International Soccer Challenge		Unknown	Atari ST	Unknown_Composer/International_
 Into The Eagles Nest - Title		Unknown	Atari ST	Unknown_Composer/Into_The_Eagles_Nest-Title.sndh
 Japs the Sequence		Unknown	Atari ST	Unknown_Composer/Japs_the_Sequence.sndh
 Jigsaw		Unknown Composer	Atari ST	Unknown_Composer/Jigsaw.sndh
-The Karate Kid - Part II		Unknown Composer	Atari ST	Unknown_Composer/Karate_Kid_Part_II.sndh
-Knucklebusters		Unknown	Atari ST	Unknown_Composer/Knucklebusters.sndh
-Lame Bip		Unknown	Atari ST	Unknown_Composer/Lame_Bip.sndh
+Killer		Unknown	Atari ST	Unknown_Composer/Killer.sndh
 Lemmings 2 - The Tribes		Unknown Composer	Atari ST	Unknown_Composer/Lemmings_2_The_Tribes.sndh
-Mars Station		Unknown	Atari ST	Unknown_Composer/Mars_Station.sndh
+Magnetic Fields		Unknown	Atari ST	Unknown_Composer/Magnetic_Fields.sndh
 Maze		Unknown	Atari ST	Unknown_Composer/Maze.sndh
 Medway Boys 11		Unknown	Atari ST	Unknown_Composer/Medway_Boys_11.sndh
 Metro Cross		Unknown	Atari ST	Unknown_Composer/Metrocross.sndh
 Mewilo - Title		Unknown	Atari ST	Unknown_Composer/Mewhilo-Title.sndh
+Mission Impossible		Unknown	Atari ST	Unknown_Composer/Mission_Impossible.sndh
 12 Bar Blues-IRK		Unknown	Atari ST	Unknown_Composer/Music_Studio/12_Bar_Blues.sndh
 76 Trombones		Unknown	Atari ST	Unknown_Composer/Music_Studio/76_Trombones.sndh
 Away in a Manger		Unknown	Atari ST	Unknown_Composer/Music_Studio/Away_in_a_Manger.sndh
 Ben Hur Chariot Race March		Unknown	Atari ST	Unknown_Composer/Music_Studio/Ben_Hur_Chariot_Race_March.sndh
 Both Sides Now		Unknown	Atari ST	Unknown_Composer/Music_Studio/Both_Sides_Now.sndh
-		Unknown	Atari ST	Unknown_Composer/Music_Studio/California_Girls.sndh
-		Unknown	Atari ST	Unknown_Composer/Music_Studio/Carry_On.sndh
-		Unknown	Atari ST	Unknown_Composer/Music_Studio/Cavlary.sndh
+California Girls		Unknown	Atari ST	Unknown_Composer/Music_Studio/California_Girls.sndh
+Carry On		Unknown	Atari ST	Unknown_Composer/Music_Studio/Carry_On.sndh
+Cavlary		Unknown	Atari ST	Unknown_Composer/Music_Studio/Cavlary.sndh
 Children's Corner # 1		Unknown	Atari ST	Unknown_Composer/Music_Studio/Childrens_Corner_1.sndh
 Children's Corner # 2		Unknown	Atari ST	Unknown_Composer/Music_Studio/Childrens_Corner_2.sndh
-		Unknown	Atari ST	Unknown_Composer/Music_Studio/Childrens_Corner_3.sndh
+Children's Corner # 3		Unknown	Atari ST	Unknown_Composer/Music_Studio/Childrens_Corner_3.sndh
 Children's Corner # 4		Unknown	Atari ST	Unknown_Composer/Music_Studio/Childrens_Corner_4.sndh
 Children's Corner # 5		Unknown	Atari ST	Unknown_Composer/Music_Studio/Childrens_Corner_5.sndh
 Children's Corner # 6		Unknown	Atari ST	Unknown_Composer/Music_Studio/Childrens_Corner_6.sndh
@@ -3927,12 +4071,12 @@ Daybreaker-ELO		Unknown	Atari ST	Unknown_Composer/Music_Studio/Daybreaker_ELO.sn
 Don't Stop Believing,"Journey"		Unknown	Atari ST	Unknown_Composer/Music_Studio/Dont_Stop_Believing.sndh
 Eastenders - May/Osborne		Unknown	Atari ST	Unknown_Composer/Music_Studio/Eastenders.sndh
 Entry of the Gladiators		Unknown	Atari ST	Unknown_Composer/Music_Studio/Entry_of_the_Gladiators.sndh
-		Unknown	Atari ST	Unknown_Composer/Music_Studio/Estrel.sndh
+Estrel		Unknown	Atari ST	Unknown_Composer/Music_Studio/Estrel.sndh
 Every Breath You Take - Sting		Unknown	Atari ST	Unknown_Composer/Music_Studio/Every_Breath_You_Take.sndh
-		Unknown	Atari ST	Unknown_Composer/Music_Studio/Eye_Sky.sndh
+Eye Sky		Unknown	Atari ST	Unknown_Composer/Music_Studio/Eye_Sky.sndh
 Flashdance...What A Feeling		Unknown	Atari ST	Unknown_Composer/Music_Studio/Flashdance_What_A_Feeling.sndh
 FUR ELISE by L. V. Beethoven		Unknown	Atari ST	Unknown_Composer/Music_Studio/Fur_Elise_LV_Beethoven.sndh
-		Unknown	Atari ST	Unknown_Composer/Music_Studio/God_Father.sndh
+God Father		Unknown	Atari ST	Unknown_Composer/Music_Studio/God_Father.sndh
 Good Time Charlie		Unknown	Atari ST	Unknown_Composer/Music_Studio/Good_Time_Charlie.sndh
 Goodbye Yellow Brick Road		Unknown	Atari ST	Unknown_Composer/Music_Studio/Goodbye_Yellow_Brick_Road.sndh
 Goodnight Saigon by B. Joel		Unknown	Atari ST	Unknown_Composer/Music_Studio/Goodnight_Saigon.sndh
@@ -3941,7 +4085,7 @@ Have Yourself/Merry Christmas		Unknown	Atari ST	Unknown_Composer/Music_Studio/Ha
 He Played Real Good For Free		Unknown	Atari ST	Unknown_Composer/Music_Studio/He_Played_RealGood_ForFree.sndh
 Hey Hey,My My - Neil Young		Unknown	Atari ST	Unknown_Composer/Music_Studio/Hey_Hey_My_My.sndh
 Homage to ANDRES SEGOVIA		Unknown	Atari ST	Unknown_Composer/Music_Studio/Homage.sndh
-		Unknown	Atari ST	Unknown_Composer/Music_Studio/Honkitnk.sndh
+Honkitnk		Unknown	Atari ST	Unknown_Composer/Music_Studio/Honkitnk.sndh
 I Am A Rock        P.Simon		Unknown	Atari ST	Unknown_Composer/Music_Studio/I_am_a_Rock.sndh
 I Can See Clearly Now		Unknown	Atari ST	Unknown_Composer/Music_Studio/I_Can_See_Clearly_Now.sndh
 I Heard the Bells		Unknown	Atari ST	Unknown_Composer/Music_Studio/I_Heard_the_Bells.sndh
@@ -3966,16 +4110,14 @@ OLD JOE CLARK'S BOOGIE		Unknown	Atari ST	Unknown_Composer/Music_Studio/Old_Joe_C
 Orange Blossom Special		Unknown	Atari ST	Unknown_Composer/Music_Studio/Orange_Blossom_Special.sndh
 Pachelbel's Canon in D		Unknown	Atari ST	Unknown_Composer/Music_Studio/Pachelbels_Canon_in_D.sndh
 Peter Gunn by JFS		Unknown	Atari ST	Unknown_Composer/Music_Studio/Peter_Gunn.sndh
-Rainbows by Davidow		Unknown	Atari ST	Unknown_Composer/Music_Studio/Rainbows.sndh
-		Unknown	Atari ST	Unknown_Composer/Music_Studio/Rest Life.sndh
+Rest Life		Unknown	Atari ST	Unknown_Composer/Music_Studio/Rest Life.sndh
 Believe It or Not!    Mancini		Unknown	Atari ST	Unknown_Composer/Music_Studio/Ripleys_Believe_It.sndh
 THE ROCK ISLAND LINE		Unknown	Atari ST	Unknown_Composer/Music_Studio/Rock_Island_Line.sndh
-		Unknown	Atari ST	Unknown_Composer/Music_Studio/Russian.sndh
+Russian		Unknown	Atari ST	Unknown_Composer/Music_Studio/Russian.sndh
 SAILORS' BOOGIE		Unknown	Atari ST	Unknown_Composer/Music_Studio/Sailors_Boogie.sndh
 Santa Claus is comin' to town!		Unknown	Atari ST	Unknown_Composer/Music_Studio/Santa_Clause_is_Coming.sndh
-		Unknown	Atari ST	Unknown_Composer/Music_Studio/Sensation.sndh
+Sensation		Unknown	Atari ST	Unknown_Composer/Music_Studio/Sensation.sndh
 She's Always A Woman		Unknown	Atari ST	Unknown_Composer/Music_Studio/Shes_Always_A_Woman.sndh
-Sidestep by Davidow		Unknown	Atari ST	Unknown_Composer/Music_Studio/Sidestep.sndh
 Silent Night - Franz Gruber		Unknown	Atari ST	Unknown_Composer/Music_Studio/Silent_Night.sndh
 Somewhere, My Love		Unknown	Atari ST	Unknown_Composer/Music_Studio/Somewhere_My_Love.sndh
 Soon It's Gonna Rain		Unknown	Atari ST	Unknown_Composer/Music_Studio/Soon_Its_Gonna_Rain.sndh
@@ -3987,7 +4129,6 @@ Star-Spangled Banner / F.S.Key		Unknown	Atari ST	Unknown_Composer/Music_Studio/S
 Theme From "Star Trek"		Unknown	Atari ST	Unknown_Composer/Music_Studio/Star_Trek.sndh
 Star Wars -- Main Theme		Unknown	Atari ST	Unknown_Composer/Music_Studio/Starwars.sndh
 Stealing the Enterprise		Unknown	Atari ST	Unknown_Composer/Music_Studio/Stealing_the_Enterprise.sndh
-Studio Music by Davidow		Unknown	Atari ST	Unknown_Composer/Music_Studio/Studio_Music.sndh
 Talk To Me - by Stevie Nicks		Unknown	Atari ST	Unknown_Composer/Music_Studio/Talk_To-Me.sndh
 The Entertainer-Scott Joplin		Unknown	Atari ST	Unknown_Composer/Music_Studio/The_Entertainer.sndh
 The First Noel the Angel ...		Unknown	Atari ST	Unknown_Composer/Music_Studio/The_First_Noel_the_Angel.sndh
@@ -3995,19 +4136,22 @@ The Imperial Death March		Unknown	Atari ST	Unknown_Composer/Music_Studio/The_Imp
 The Spider Dance - Tarantelle		Unknown	Atari ST	Unknown_Composer/Music_Studio/The_Spider_Dance.sndh
 The Windmills of Your Mind		Unknown	Atari ST	Unknown_Composer/Music_Studio/The_Windmills_of_Your_Mind.sndh
 They Call It The Blues		Unknown	Atari ST	Unknown_Composer/Music_Studio/They_Call_It_The_Blues.sndh
-       Today   Randy Sparks		Unknown	Atari ST	Unknown_Composer/Music_Studio/Today.sndh
+Today   Randy Sparks		Unknown	Atari ST	Unknown_Composer/Music_Studio/Today.sndh
 Two Part Invention by J. Bach		Unknown	Atari ST	Unknown_Composer/Music_Studio/Two_Part_Invention.sndh
 Two Part Invention #13 by Bach		Unknown	Atari ST	Unknown_Composer/Music_Studio/Two_Part_Invention_13.sndh
 Up on the House Top		Unknown	Atari ST	Unknown_Composer/Music_Studio/Up_on_the_House_Top.sndh
-		Unknown	Atari ST	Unknown_Composer/Music_Studio/Watch_Girl.sndh
+Watch Girl		Unknown	Atari ST	Unknown_Composer/Music_Studio/Watch_Girl.sndh
 WE ARE THE WORLD		Unknown	Atari ST	Unknown_Composer/Music_Studio/We_Are_The_World.sndh
-WhatChildIsThis		Unknown	Atari ST	Unknown_Composer/Music_Studio/What_Child_is_This.sndh
+What Child Is This		Unknown	Atari ST	Unknown_Composer/Music_Studio/What_Child_is_This.sndh
 Where Have All th Flowers Gone		Unknown	Atari ST	Unknown_Composer/Music_Studio/Where_Have_Flowers_Gone.sndh
 William Tell Overture		Unknown	Atari ST	Unknown_Composer/Music_Studio/William_Tell_Overture.sndh
 YANKEE DOODLE BOY		Unknown	Atari ST	Unknown_Composer/Music_Studio/Yankee_Doodle_Boy.sndh
 Yoda's Theme		Unknown	Atari ST	Unknown_Composer/Music_Studio/Yodas_Theme.sndh
 Nightdawn		Carsten Neubauer	Atari ST	Unknown_Composer/Night_Dawn.sndh
 Noddy's Playtime		Unknown	Atari ST	Unknown_Composer/Noddys_Playtime.sndh
+Oh No		Unknown	Atari ST	Unknown_Composer/Oh_No.sndh
+Oh Yeah		Unknown	Atari ST	Unknown_Composer/Oh_Yeah.sndh
+Outside		Unknown	Atari ST	Unknown_Composer/Outside.sndh
 Postman Pat 3		Unknown	Atari ST	Unknown_Composer/Postman_Pat_3.sndh
 Prehistorik		Unknown	Atari ST	Unknown_Composer/Prehistorik.sndh
 Prelude		Unknown	Atari ST	Unknown_Composer/Prelude.sndh
@@ -4034,7 +4178,7 @@ Sailor		Unknown	Atari ST	Unknown_Composer/Sailor.sndh
 Sleeping Gods Lie		Unknown	Atari ST	Unknown_Composer/Sleeping_Gods_Lie.sndh
 Sommarhack 2011 Unknown		Unknown	Atari ST	Unknown_Composer/Sommarhack_2011_Unknown.sndh
 Space Harrier		Unknown	Atari ST	Unknown_Composer/Space_Harrier.sndh
-Spider Ship		Unknown	Atari ST	Unknown_Composer/Spider_Ship.sndh
+Spr		Unknown	Atari ST	Unknown_Composer/Spr.sndh
 Anti matter		Unknown	Atari ST	Unknown_Composer/STOS/Anti_Matter.sndh
 Bubblefield screen		Unknown	Atari ST	Unknown_Composer/STOS/Bubblefield.sndh
 Bullys Sporting Darts		Unknown	Atari ST	Unknown_Composer/STOS/Bullys_Sporting_Darts.sndh
@@ -4049,71 +4193,119 @@ Play and Read - Learn to Read with Prof		Unknown	Atari ST	Unknown_Composer/STOS/
 The Big STOS demo		Unknown	Atari ST	Unknown_Composer/STOS/The_Big_STOS_Demo.sndh
 Super Space Invaders		Unknown	Atari ST	Unknown_Composer/Super_Space_Invaders.sndh
 Tango		Unknown	Atari ST	Unknown_Composer/Tango.sndh
+Tear Drop		Unknown	Atari ST	Unknown_Composer/Tear_Drop.sndh
 Tiger Road		Unknown	Atari ST	Unknown_Composer/Tiger_Road.sndh
+Tin		Unknown	Atari ST	Unknown_Composer/Tin.sndh
 Trailblazer		Unknown	Atari ST	Unknown_Composer/Trailblazer.sndh
 Vampire's Empire		Unknown Composer	Atari ST	Unknown_Composer/Vampires_Empire.sndh
 Veteran		Unknown	Atari ST	Unknown_Composer/Veteran.sndh
 Victory - Title		Unknown	Atari ST	Unknown_Composer/Victory-Title.sndh
+Vincent		Unknown	Atari ST	Unknown_Composer/Vincent.sndh
 Wanderer 3D		Unknown	Atari ST	Unknown_Composer/Wanderer_3D.sndh
 Wolf Pack		Unknown	Atari ST	Unknown_Composer/Wolf_Pack.sndh
 World Trophy Soccer		Unknown	Atari ST	Unknown_Composer/World_Trophy_Soccer.sndh
+Air on a G-String		Unknown	Atari ST	Unknown_Composer/X32/Air_on_a_G_String.sndh
 Alture		Unknown	Atari ST	Unknown_Composer/X32/Alture.sndh
+America		Unknown	Atari ST	Unknown_Composer/X32/America.sndh
 Andalusa		Unknown	Atari ST	Unknown_Composer/X32/Andalusa.sndh
 Andante 6		Unknown	Atari ST	Unknown_Composer/X32/Andante6.sndh
 Atahym		Unknown	Atari ST	Unknown_Composer/X32/Atahym.sndh
+Axel F		Unknown	Atari ST	Unknown_Composer/X32/Axel_F_v2.sndh
 Baall2		Unknown	Atari ST	Unknown_Composer/X32/Baall2.sndh
-Blueberry Hill		Unknown	Atari ST	Unknown_Composer/X32/Blueberry Hill.sndh
+Big Spender		Unknown	Atari ST	Unknown_Composer/X32/Big_Spender.sndh
+Blueberry Hill		Unknown	Atari ST	Unknown_Composer/X32/Blueberry_Hill.sndh
+Blues		Unknown	Atari ST	Unknown_Composer/X32/Blues.sndh
+Boxer		Unknown	Atari ST	Unknown_Composer/X32/Boxer.sndh
+Brasil		Unknown	Atari ST	Unknown_Composer/X32/Brasil.sndh
 Bumerang		Unknown	Atari ST	Unknown_Composer/X32/Bumerang_2.sndh
+California		Unknown	Atari ST	Unknown_Composer/X32/California.sndh
 Carry All		Unknown	Atari ST	Unknown_Composer/X32/Carry_All.sndh
+Change		Unknown	Atari ST	Unknown_Composer/X32/Change.sndh
+Circus Renz		Unknown	Atari ST	Unknown_Composer/X32/Circus_Renz.sndh
 City Roads		Unknown	Atari ST	Unknown_Composer/X32/City_Road.sndh
+Cockles and Mussels		Unknown	Atari ST	Unknown_Composer/X32/Cockles_and_Mussels.sndh
+Coming Bach		Unknown	Atari ST	Unknown_Composer/X32/Coming_Bach.sndh
+Country Boy		Unknown	Atari ST	Unknown_Composer/X32/Country_Boy.sndh
+Cucaracha		Unknown	Atari ST	Unknown_Composer/X32/Cucaracha.sndh
 D1 MLike		Unknown	Atari ST	Unknown_Composer/X32/D1_M_Like.sndh
+Dallas Theme		Unknown	Atari ST	Unknown_Composer/X32/Dallas_Theme.sndh
 Dampf		Unknown	Atari ST	Unknown_Composer/X32/Dampf.sndh
+Dampfoot		Unknown	Atari ST	Unknown_Composer/X32/Dampfoot.sndh
+Danube		Unknown	Atari ST	Unknown_Composer/X32/Danube.sndh
 Danza		Unknown	Atari ST	Unknown_Composer/X32/Danza.sndh
 Dobru Noc		Unknown	Atari ST	Unknown_Composer/X32/Dobru_Noc.sndh
+Dynasty Theme		Unknown	Atari ST	Unknown_Composer/X32/Dynasty_Theme.sndh
 E1		Unknown	Atari ST	Unknown_Composer/X32/E1.sndh
 England		Unknown	Atari ST	Unknown_Composer/X32/England.sndh
+Entertainer		Unknown	Atari ST	Unknown_Composer/X32/Entertainer.sndh
 Falsch1		Unknown	Atari ST	Unknown_Composer/X32/Falsch1.sndh
 Fantastic World		Unknown	Atari ST	Unknown_Composer/X32/Fantastic_World.sndh
 Fantastic World 2		Thomas Huth	Atari ST	Unknown_Composer/X32/Fantastic_World_2.sndh
 Finnland		Unknown	Atari ST	Unknown_Composer/X32/Finnland.sndh
+French National Anthem		Unknown	Atari ST	Unknown_Composer/X32/French _National_Anthem.sndh
+FÅr Elize		Unknown	Atari ST	Unknown_Composer/X32/Fur_Elize.sndh
 GGGra125		Unknown	Atari ST	Unknown_Composer/X32/Gggra125.sndh
+Ghostbuster		Unknown	Atari ST	Unknown_Composer/X32/Ghostbusters.sndh
 Holland		Unknown	Atari ST	Unknown_Composer/X32/Holland.sndh
 Hommage		Unknown	Atari ST	Unknown_Composer/X32/Hommage.sndh
+Ilsezlen		Unknown	Atari ST	Unknown_Composer/X32/Ilsezlen.sndh
 Infanzia		Unknown	Atari ST	Unknown_Composer/X32/Infanzia.sndh
+Irritate		Unknown	Atari ST	Unknown_Composer/X32/Irritate.sndh
+Jukebox		Unknown	Atari ST	Unknown_Composer/X32/Jukebox.sndh
 Kampf		Unknown	Atari ST	Unknown_Composer/X32/Kampf.sndh
 Karlchen		Unknown	Atari ST	Unknown_Composer/X32/Karlchen.sndh
 Klassik1		Unknown	Atari ST	Unknown_Composer/X32/Klassik1.sndh
+Kleine Nachtmusik		Unknown	Atari ST	Unknown_Composer/X32/Kleine_Nachtmusik.sndh
 Kobyly		Unknown	Atari ST	Unknown_Composer/X32/Kobyly.sndh
+Larry Laffer		Unknown	Atari ST	Unknown_Composer/X32/Larry_Laffer.sndh
 Lauderbilder		Unknown	Atari ST	Unknown_Composer/X32/Lauderbilder.sndh
+Magnetic Field		Unknown	Atari ST	Unknown_Composer/X32/Magnetic_Field.sndh
 Marseill		Unknown	Atari ST	Unknown_Composer/X32/Marseill.sndh
+Mash		Unknown	Atari ST	Unknown_Composer/X32/Mash.sndh
 Menuet		Unknown	Atari ST	Unknown_Composer/X32/Menuet.sndh
 Menuett		Unknown	Atari ST	Unknown_Composer/X32/Menuett.sndh
-Michelle		Unknown	Atari ST	Unknown_Composer/X32/Michelle.sndh
+Mini		Unknown	Atari ST	Unknown_Composer/X32/Mini.sndh
+Monty Python		Unknown	Atari ST	Unknown_Composer/X32/Monty_Python.sndh
+Muppet Show		Unknown	Atari ST	Unknown_Composer/X32/Muppet_Show.sndh
 Musik		Unknown	Atari ST	Unknown_Composer/X32/Musik.sndh
 Musik 001		Unknown	Atari ST	Unknown_Composer/X32/Musik001.sndh
 Musik 002		Unknown	Atari ST	Unknown_Composer/X32/Musik002.sndh
+Nommage		Unknown	Atari ST	Unknown_Composer/X32/Nommage.sndh
 Orfana		Unknown	Atari ST	Unknown_Composer/X32/Orfana.sndh
 Pompom		Unknown	Atari ST	Unknown_Composer/X32/Pompom.sndh
+Popcorn v2 correct		Unknown	Atari ST	Unknown_Composer/X32/Popcorn_v2.sndh
+Prelude		Unknown	Atari ST	Unknown_Composer/X32/Prelude.sndh
 Richtig1		Unknown	Atari ST	Unknown_Composer/X32/Richrig1.sndh
 Risvegli		Unknown	Atari ST	Unknown_Composer/X32/Risvegli.sndh
 Risvegli		Unknown	Atari ST	Unknown_Composer/X32/Risvegli2.sndh
 Rumores		Unknown	Atari ST	Unknown_Composer/X32/Rumores.sndh
 Rumores		Unknown	Atari ST	Unknown_Composer/X32/Rumores2.sndh
+Sailors		Unknown	Atari ST	Unknown_Composer/X32/Sailors.sndh
 Sevilla		Unknown	Atari ST	Unknown_Composer/X32/Sevilla.sndh
+Sonata		Unknown	Atari ST	Unknown_Composer/X32/Sonata.sndh
 Sound1		Unknown	Atari ST	Unknown_Composer/X32/Sound1.sndh
 Sound 1		Unknown	Atari ST	Unknown_Composer/X32/Sound_1.sndh
 Sound 2		Unknown	Atari ST	Unknown_Composer/X32/Sound_2.sndh
 Sound 3		Unknown	Atari ST	Unknown_Composer/X32/Sound_3.sndh
+Star Trek		Unknown	Atari ST	Unknown_Composer/X32/Star_Trek.sndh
+Star Wars		Unknown	Atari ST	Unknown_Composer/X32/Star_Wars.sndh
 Sterrei		Unknown	Atari ST	Unknown_Composer/X32/Sterrei.sndh
 Studie 9		Unknown	Atari ST	Unknown_Composer/X32/Studie_9.sndh
+Swanee		Unknown	Atari ST	Unknown_Composer/X32/Swanee.sndh
 Tango		Unknown	Atari ST	Unknown_Composer/X32/Tango.sndh
 Tango 001		Unknown	Atari ST	Unknown_Composer/X32/Tango001.sndh
+Thank You		Unknown	Atari ST	Unknown_Composer/X32/Thank_You.sndh
 Titel		Unknown	Atari ST	Unknown_Composer/X32/Titel.sndh
 Title Designer		Unknown	Atari ST	Unknown_Composer/X32/Title_Designer.sndh
+Top of the World		Unknown	Atari ST	Unknown_Composer/X32/Top_of_the_World.sndh
+Tubular Bells		Unknown	Atari ST	Unknown_Composer/X32/Tubular_Bells.sndh
 Udssr		Unknown	Atari ST	Unknown_Composer/X32/udssr.sndh
+Ultmusic		Unknown	Atari ST	Unknown_Composer/X32/Ultmusic.sndh
 Ungarn		Unknown	Atari ST	Unknown_Composer/X32/ungarn.sndh
+USA National Anthem		Unknown	Atari ST	Unknown_Composer/X32/USA_National_Anthem.sndh
 Volkslied		Unknown	Atari ST	Unknown_Composer/X32/Volkslied.sndh
-Zwaqwam		Unknown	Atari ST	Unknown_Composer/Zwaqwam.sndh
+Yankee Doodle		Unknown	Atari ST	Unknown_Composer/X32/Yankee_Doodle.sndh
+Yellow Rose of Texas		Unknown	Atari ST	Unknown_Composer/X32/Yellow_Rose_of_Texas.sndh
 Boobswatch theme		V0yager	Atari ST	V0yager/Boobswatch_theme.sndh
 Cartridge Generation		V0yager/Lamers	Atari ST	V0yager/Cartridge_Generation.sndh
 One Day Wonder		V0yager/Lamers	Atari ST	V0yager/DMA/One_Day_Wonder.sndh
@@ -4324,7 +4516,7 @@ Jaws		David Whittaker	Atari ST	Whittaker_David/Jaws.sndh
 Jupiter Master Drive		David Whittaker	Atari ST	Whittaker_David/Jupiter_Master_Drive.sndh
 David Whittaker		Kid Gloves	Atari ST	Whittaker_David/Kid_Gloves.sndh
 Knightmare		David Whittaker	Atari ST	Whittaker_David/Knightmare.sndh
-Leathernecks		David Whittaker	Atari ST	Whittaker_David/Leathernecks.sndh
+Leatherneck		David Whittaker	Atari ST	Whittaker_David/Leatherneck.sndh
 Licence to Kill		David Whittaker	Atari ST	Whittaker_David/Licence_to_Kill.sndh
 Loopz		David Whittaker	Atari ST	Whittaker_David/Loopz.sndh
 Menace		David Whittaker	Atari ST	Whittaker_David/Menace.sndh
@@ -4381,6 +4573,7 @@ Xenon		David Whittaker	Atari ST	Whittaker_David/Xenon.sndh
 Xenon 2		David Whittaker	Atari ST	Whittaker_David/Xenon_2.sndh
 Xenon 2 Title		David Whittaker	Atari ST	Whittaker_David/Xenon_2_digi.sndh
 Zombi		David Whittaker	Atari ST	Whittaker_David/Zombi.sndh
+Square Wars I: Assault YM		wiecz0r	Atari ST	Wiecz0r/Square_Wars_I-Assault.sndh
 Chuckie Egg		Tony Williams	Atari ST	Williams_Tony/Chuckie_Egg.sndh
 Chuckie Egg 2		Tony Williams	Atari ST	Williams_Tony/Chuckie_Egg_2.sndh
 Edd the Duck!		Tony Williams	Atari ST	Williams_Tony/Edd_The_Duck.sndh
@@ -4410,6 +4603,9 @@ Bonaza Brothers		Mark Wilson	Atari ST	Wilson_Mark/Bonanza_Brothers.sndh
 Cloud Kingdom Dizzy		Mark Wilson	Atari ST	Wilson_Mark/Cloud_Kingdom_Dizzy.sndh
 Round The Bend		Mark Wilson	Atari ST	Wilson_Mark/Round_the_Bend.sndh
 Builder Land		Michel Winogradoff	Atari ST	Winogradoff_Michel/Builder_Land.sndh
+Bumpy		Michel Winogradoff	Atari ST	Winogradoff_Michel/Bumpy.sndh
+Disc		Michel Winogradoff	Atari ST	Winogradoff_Michel/Disc.sndh
+Turbo Cup		Michel Winogradoff	Atari ST	Winogradoff_Michel/Turbo_Cup.sndh
 Blaxx		Christian Wirsig	Atari ST	Wirsig_Christian/Blaxx.sndh
 Bilinski		Robert Wolf	Atari ST	Wolf_Robert/Bilinski.sndh
 ICS Intro		Wolfgang	Atari ST	Wolfgang/ICS_Intro.sndh
@@ -4425,7 +4621,17 @@ Next		X The Beermat	Atari ST	X_The_Beermat/Next.sndh
 Night		X The Beermat	Atari ST	X_The_Beermat/Night.sndh
 Now		X The Beermat	Atari ST	X_The_Beermat/Now.sndh
 Yours		X The Beermat	Atari ST	X_The_Beermat/Yours.sndh
+BRASIPOP		xFalcon / Christian Bunge	Atari ST	Xfalcon/Brasipop.sndh
+CHILLOUT		xFalcon / Christian Bunge	Atari ST	Xfalcon/Chillout.sndh
+DEEP THOUGHT    		xFalcon	Atari ST	Xfalcon/Deep_Thoughts.sndh
+HAPPY CHIP 		xFalcon / Christian Bunge	Atari ST	Xfalcon/Happy_Chip.sndh
+HURRY UP		xFalcon	Atari ST	Xfalcon/Hurry_Up.sndh
+In'a country style		xFalcon / Christian Bunge	Atari ST	Xfalcon/I_A_Country_Style.sndh
+LASER CHIP TALK 		xFalcon	Atari ST	Xfalcon/Laser_Chip_Talk.sndh
 xFalcon		Laserball 2014	Atari ST	Xfalcon/Laserball_2014.sndh
+Maria durch ein Dornwald ging		xFalcon / christian bunge	Atari ST	Xfalcon/Maria_durch_ein_Dorwnwald.sndh
+MOVE TO TRANCE  		xFalcon	Atari ST	Xfalcon/Move_To_Trance.sndh
+WöSTENSCHIFF /XF		xFalcon	Atari ST	Xfalcon/Wustenschiff.sndh
 Dentro		Xrwwr	Atari ST	Xrwwr/Dentro.sndh
 SOS (2015 Remix)		Xrwwr	Atari ST	Xrwwr/SOS_(2015_Remix).sndh
 WINGS OF LIFE		xrwwr	Atari ST	Xrwwr/Wings_Of_Life.sndh
@@ -4465,9 +4671,12 @@ Sommarhack 2014 Invite		Yerzmyey	Atari ST	Yerzmyey/Sommarhack_2014_Invite.sndh
 STandard Crap		YERZMYEY/AY-RIDERS	Atari ST	Yerzmyey/STandard_Crap.sndh
 *WAKE UP!* YERZ		YERZMYEY/AY-RIDERS	Atari ST	Yerzmyey/Wake_Up.sndh
 Hop		Iain Young	Atari ST	Young_Iain/Hop.sndh
+last attempt		YQN	Atari ST	YQN/Last_Attempt.sndh
+Sidisord		yqn	Atari ST	YQN/Sidisord.sndh
 DRUMNBICE		ZABUTOM UNT DUBMOOD	Atari ST	Zabutom/Drumnbice.sndh
 Pampradion livebeat		Dubmood & Zabutom	Atari ST	Zabutom/Pampradion_livebeat.sndh
 SpaceJourney		Dubmood & Zabutom ! ! !	Atari ST	Zabutom/Space_Journey_(extended).sndh
+Zabutoms Space Journey (D-Bug remix)		Dubmood & Zabutom ! ! !	Atari ST	Zabutom/Space_Journey_DBug remix.sndh
 2006 Concrt Intro - Zabutom - Kenny Star		Dubmood & Zabutom	Atari ST	Zabutom/Starfighter.sndh
 ym2149 oh sexy thing edit		dubmood & Zabutom	Atari ST	Zabutom/ym2149_oh_sexy_thing_edit.sndh
 Bob Dylan		Zbyhoo & Kijop	Atari ST	Zbyhoo/Bob_Dylan.sndh

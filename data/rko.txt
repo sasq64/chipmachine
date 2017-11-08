@@ -81,7 +81,7 @@
 121	MUSICIANS/H/Hubbard_Rob/Sanxion.sid	1	Sanxion Loader (new version)	Peter Morck	4
 123	MUSICIANS/G/Gray_Matt/Last_Ninja_2.sid	2	Last Ninja 2 (Central Park)	Dr Doom &amp; Komatr:ohn	5
 125	MUSICIANS/H/Huelsbeck_Chris/R-Type.sid	1	R-Type (Smooth Acid Mix)	Putzi	5
-127	GAMES/A-F/Fairlight.sid	1	Paradise (Mellow Fairlight Ganga-Bung Rmx)	DHS	5
+127	MUSICIANS/C/Clever_Music/Fairlight.sid	1	Paradise (Mellow Fairlight Ganga-Bung Rmx)	DHS	5
 129	MUSICIANS/M/Mixer/SurSumTheme.sid	1	Sursum Corda	Mixer	4
 131	MUSICIANS/T/Turner_Steve/Uridium.sid	1	Uridium	Boz	5
 132	MUSICIANS/D/Daglish_Ben/Bulldog.sid	1	Bulldog	Boz	5
@@ -165,7 +165,7 @@
 246	MUSICIANS/H/Hubbard_Rob/Delta.sid	1	Delta	Terminal Storm	4
 249	MUSICIANS/T/Tel_Jeroen/Eliminator.sid	1	Eliminator (edit)	Oedipus	4
 251	MUSICIANS/D/DRAX/Why_Me.sid	1	Why Me	Oedipus	4
-253	MUSICIANS/B/Bjerregaard_Johannes/DMC_Demo_IV_tune_2.sid	4	DMC Demo IV	Oedipus	3
+253	MUSICIANS/B/Bjerregaard_Johannes/DMC_Demo_IV_tune_2.sid	4	DMC Demo IV	Oedipus	4
 254	MUSICIANS/W/Whittaker_David/Panther.sid	1	Panther	Boz	5
 255	MUSICIANS/T/Tel_Jeroen/Cybernoid_II.sid	1	Cybernoid 2	DHS	4
 256	MUSICIANS/T/Tel_Jeroen/Cybernoid_II.sid	1	Cybernoid 2 (Pede Cyber Mix)	DHS	5
@@ -187,7 +187,7 @@
 279	MUSICIANS/H/Hubbard_Rob/Skate_or_Die_intro.sid	1	Skate or Die (Subcrunch mix)	Subliminal Labs	3
 280	MUSICIANS/D/Daglish_Ben/Deflektor.sid	1	Deflektor (LaserDance)	Chuck Dodgers	5
 281	MUSICIANS/G/Galway_Martin/Yie_Ar_Kung_Fu.sid	19	Yie Ar Kung Fu	Aurasil	5
-282	MUSICIANS/B/Bak_Steve/Cuthbert_in_the_Jungle.sid	1	Cuthbert In The Jungle	Plough	3
+282	MUSICIANS/B/Bak_Steve/Cuthbert_in_the_Jungle.sid	1	Cuthbert In The Jungle	Plough	4
 283	MUSICIANS/B/Brennan_Neil/Castle_of_Terror.sid	7	Castle Of Terror (Main Title Theme)	Plough	4
 286	MUSICIANS/L/Lisney_James/Hover_Bovver.sid	2	Hover Bovver	Plough	3
 288	MUSICIANS/R/Rock/Vertigo.sid	1	Vertigo	THC FlatLine	5
@@ -360,7 +360,7 @@
 635	MUSICIANS/R/Rock/Vertigo.sid	1	Vertigo (green agent mix)	Axeman	5
 636	MUSICIANS/H/Hubbard_Rob/Ninja.sid	1	Ninja	Paco	4
 640	MUSICIANS/H/Hubbard_Rob/Human_Race.sid	1	Human Race Level 1 Summer Mix	Graeme Norgate	5
-642	GAMES/G-L/Gyroscope.sid	1	Gyroscope (Smooth Mix)	MistaDistah	5
+642	MUSICIANS/C/Clever_Music/Gyroscope.sid	1	Gyroscope (Smooth Mix)	MistaDistah	5
 643	MUSICIANS/G/Gray_Fred/Enigma_Force.sid	1	Enigma Force	LMan &amp; Sunflower	5
 646	MUSICIANS/H/Hubbard_Rob/Thrust.sid	1	Thrust (found on c-tape)	Mixer	5
 647	MUSICIANS/B/Bjerregaard_Johannes/Eagles.sid	1	Eagles (found on c-tape)	Mixer	5
@@ -379,7 +379,7 @@
 666	MUSICIANS/H/Hubbard_Rob/Sanxion.sid	1	Sanxion (Spandau Ballet mix)	Mahoney	5
 668	MUSICIANS/H/Hubbard_Rob/Monty_on_the_Run.sid	3	MOTR Hiscore (1980's Pop Ballad)	Darren Izzard and Alex Aris	4
 670	GAMES/A-F/Dragonriders_of_Pern.sid	0	Dragonriders Of Pern	Plough	3
-671	GAMES/S-Z/Wizardry.sid	2	Wizardry (Tune 2)	Plough	4
+671	MUSICIANS/C/Clever_Music/Wizardry.sid	2	Wizardry (Tune 2)	Plough	4
 674	MUSICIANS/H/Hubbard_Rob/Crazy_Comets.sid	1	Crazy Comets Theme (SoFlaBreaks)	djrawb	4
 675	MUSICIANS/T/Trident/Pill-Box.sid	1	Pill-box (Synthor remix)	Synthor	3
 677	GAMES/S-Z/Skier.sid	3	Skier 64	Plough	4
@@ -388,7 +388,7 @@
 681	MUSICIANS/H/Hubbard_Rob/One_Man_and_His_Droid.sid	1	One Man and His Droid (Respect Rob Mix)	Max Hall	4
 683	MUSICIANS/D/Daglish_Ben/Krakout.sid	1	Krakout (Kocmoc Mix)	Slumgud	5
 684	MUSICIANS/M/Mataga_William/Shamus.sid	1	Shamus (83' Original Remix)	Plough	3
-686	GAMES/S-Z/Wizardry.sid	6	Wizardry Tune 6	Plough	3
+686	MUSICIANS/C/Clever_Music/Wizardry.sid	6	Wizardry Tune 6	Plough	3
 687	MUSICIANS/G/Gilmore_Adam/Ball_Blasta.sid	1	Ball Blasta	Sonic Wanderer	5
 696	MUSICIANS/D/Daglish_Ben/Way_of_the_Tiger.sid	1	Way Of The Tiger	Glyn R Brown	5
 699	MUSICIANS/T/Tel_Jeroen/Remark_Intro.sid	1	Remark Intro	Terminal Storm	4
@@ -405,7 +405,7 @@
 719	MUSICIANS/V/Vaca_Ramiro/Rock_n_Roll.sid	3	Rock'n Roll Level 1 (Special CZ Tunes Remix)	CZ Tunes	5
 721	MUSICIANS/H/Hubbard_Rob/Commando.sid	1	Commando (2001 mix)	Jarno Beumer	5
 722	MUSICIANS/D/Dunn_Jonathan/Operation_Wolf.sid	5	Operation Wolf (Touched By The 80s Remix)	Sonic Wanderer	5
-723	GAMES/S-Z/Wizardry.sid	1	Wizardry	Amp	5
+723	MUSICIANS/C/Clever_Music/Wizardry.sid	1	Wizardry	Amp	5
 724	MUSICIANS/H/Hubbard_Rob/Master_of_Magic.sid	1	Master of Magic (OJ Osc's medieval mix)	OJ Oscillation	5
 725	MUSICIANS/H/Hanlon_David/Druid.sid	1	Druid (Synthy-dubby mix)	A0d+BST+Tron	4
 726	MUSICIANS/T/Tel_Jeroen/Cybernoid_II.sid	1	Cybernoid II - Jarresque 2001 Mix	Jarno Beumer	5
@@ -473,7 +473,7 @@
 842	MUSICIANS/H/Hubbard_Rob/Commando.sid	2	Commando Hiscore (bounce me this, bounce me that)	Wobbler	5
 843	MUSICIANS/B/Bjerregaard_Johannes/Fourth_Dimension.sid	1	Fourth Dimension	THC FlatLine	4
 844	MUSICIANS/H/Hubbard_Rob/Lightforce.sid	1	Lightforce (Motorhead-mix à la Ollas)	Mahoney	6
-847	GAMES/S-Z/Wizardry.sid	1	Wizardry	G.o.D	3
+847	MUSICIANS/C/Clever_Music/Wizardry.sid	1	Wizardry	G.o.D	3
 849	MUSICIANS/D/Daglish_Ben/Cobra.sid	1	Cobra (Pass-by-cs5 mix)	J Lof	4
 852	MUSICIANS/D/Daglish_Ben/Cobra.sid	1	Cobra	Wolk	4
 853	MUSICIANS/G/Galway_Martin/Yie_Ar_Kung_Fu_II.sid	3	Yie are Kung Fu II	Wolk	4
@@ -516,19 +516,19 @@
 921	MUSICIANS/D/Detert_Thomas/Gordian_Tomb.sid	1	Gordian Tomb (Orchestral)	Thomas Detert	5
 922	MUSICIANS/T/Tel_Jeroen/Myth.sid	1	Myth	G.o.D	3
 926	MUSICIANS/B/Brennan_Neil/Way_of_the_Exploding_Fist.sid	1	Way of the Exploding Fist	Rob Steptoe	4
-927	GAMES/G-L/Gyroscope.sid	1	Gyroscope (brass in the ass version)	Wobbler	4
+927	MUSICIANS/C/Clever_Music/Gyroscope.sid	1	Gyroscope (brass in the ass version)	Wobbler	4
 928	MUSICIANS/H/Hubbard_Rob/International_Karate.sid	1	International Karate	Chris Abbott	5
 930	MUSICIANS/D/Detert_Thomas/Clystron.sid	2	Clystron (Title Theme)	Thomas Detert	5
-931	GAMES/S-Z/Wizardry.sid	1	Wizardry	-=[ampel]gelb=-	5
+931	MUSICIANS/C/Clever_Music/Wizardry.sid	1	Wizardry	-=[ampel]gelb=-	5
 932	MUSICIANS/D/Detert_Thomas/Eon.sid	2	EON ( Title Theme )	Thomas Detert	5
 933	MUSICIANS/T/Tel_Jeroen/Cybernoid_II.sid	1	Cybernoid 2	Preben Vindholmen	4
 934	MUSICIANS/V/Vaca_Ramiro/Turrican.sid	6	Turrican I End Titles	LMan	6
 935	MUSICIANS/H/Hubbard_Rob/Lightforce.sid	1	Lightforce 99	Isamu	4
 936	MUSICIANS/D/Detert_Thomas/Another_World.sid	5	Another World (Closing Title)	Thomas Detert	5
 938	MUSICIANS/C/Cooksey_Mark/Space_Harrier.sid	1	Space Harrier (BIT Live Arcade Mix)	Slow Poison	5
-939	GAMES/S-Z/Wizardry.sid	1	Wizardry (97 XG Mix)	Chris Abbott	4
+939	MUSICIANS/C/Clever_Music/Wizardry.sid	1	Wizardry (97 XG Mix)	Chris Abbott	4
 940	MUSICIANS/H/Hubbard_Rob/Final_Synth_Sample_I.sid	2	Final Synth Sample medley(97 XG Mix)	Chris Abbott	4
-941	GAMES/A-F/Fairlight.sid	1	Fairlight (97 XG Mix)	Chris Abbott	4
+941	MUSICIANS/C/Clever_Music/Fairlight.sid	1	Fairlight (97 XG Mix)	Chris Abbott	4
 942	MUSICIANS/H/Hubbard_Rob/Warhawk.sid	1	Warhawk (97 Mix)	Dany Carpentier	4
 944	MUSICIANS/C/Cooksey_Mark/1942.sid	2	1942 Highscore Theme	Tom Roger Skauen	4
 947	MUSICIANS/G/Gray_Fred/West_Bank.sid	1	West Bank (testicular cancer mix)	Axeman	4
@@ -543,7 +543,7 @@
 963	MUSICIANS/H/Hubbard_Rob/Delta.sid	12	Delta	o2	5
 964	MUSICIANS/O/Ouwehand_Reyn/Last_Ninja_3.sid	6	Last Ninja 3 (My Last Ninja mix)	Florian 'sirflo' Landerl	5
 965	MUSICIANS/G/Grieve_Nigel/Starglider.sid	1	Starglider 2001	Rasmussen	3
-968	MUSICIANS/D/Detert_Thomas/Artists_of_Time.sid	1	The Switch ( Artists of Time-Subtune 1)	Thomas Detert	5
+968	MUSICIANS/D/Detert_Thomas/Artists_of_Time_tune_1.sid	1	The Switch ( Artists of Time-Subtune 1)	Thomas Detert	5
 969	MUSICIANS/G/Galway_Martin/Arkanoid.sid	1	Arkanoid ('99 Mix)	Chris Abbott	5
 970	MUSICIANS/D/Dunn_David/Finders_Keepers.sid	1	Finder's Keepers ('97 Title XG Mix)	Chris Abbott	4
 971	MUSICIANS/H/Hodgson_Paul/Super_Pipeline_II.sid	0	Super Pipeline 2 Medley ('97 XG Circus Mix)	Chris Abbott	4
@@ -622,7 +622,7 @@
 1064	MUSICIANS/T/Tel_Jeroen/Cybernoid_II.sid	1	Cybernoid 2	Rubbish	3
 1068	MUSICIANS/D/Daglish_Ben/Cobra.sid	1	Cobra (skyline remix)	Thomas Detert	6
 1072	MUSICIANS/T/Tel_Jeroen/Tomcat.sid	3	Tomcat ('97 Mix)	Chris Abbott	4
-1073	MUSICIANS/C/Cooksey_Mark/Ghosts_n_Goblins.sid	2	Ghosts and Goblins ('97 mix)	Chris Abbott	4
+1073	MUSICIANS/C/Cooksey_Mark/Ghosts_n_Goblins.sid	2	Ghosts and Goblins ('97 mix)	Chris Abbott	5
 1074	MUSICIANS/D/Daglish_Ben/Last_Ninja.sid	3	Last Ninja Tune 3	Chris Abbott	4
 1075	MUSICIANS/H/Hubbard_Rob/Master_of_Magic.sid	1	Master of Magic ('97 XG Mix)	Chris Abbott	5
 1076	MUSICIANS/H/Hubbard_Rob/Lightforce.sid	1	Lightforce V1 ('97 XG Mix)	Chris Abbott	4
@@ -811,7 +811,7 @@
 1418	MUSICIANS/G/Gray_Matt/Last_Ninja_2.sid	2	Last Ninja 2 (minimal)	Wobbler	5
 1419	MUSICIANS/H/Hubbard_Rob/Dragons_Lair_Part_II.sid	2	Dragons Lair II - The River Caves	Dan Tootill	4
 1420	MUSICIANS/H/Hubbard_Rob/Sigma_Seven.sid	1	Sigma Seven (Trinity Effect mix)	The Wingless	4
-1422	GAMES/A-F/Fairlight.sid	1	Fairlight	Dasse	4
+1422	MUSICIANS/C/Clever_Music/Fairlight.sid	1	Fairlight	Dasse	4
 1424	MUSICIANS/N/Necrophobic/We_Are_Not_Your_Pal.sid	1	We are not your PAL (Slain)	Ruiner	4
 1425	MUSICIANS/H/Hubbard_Rob/Human_Race.sid	4	Human Race (seismic hazard remix)	SEPPOMANE	4
 1426	MUSICIANS/V/Vaca_Ramiro/Turrican.sid	1	Turrican I Loader (The Machine Is Back)	LMan	5
@@ -843,7 +843,7 @@
 1480	MUSICIANS/D/DRAX/Osteria.sid	1	Osteria (Dreamdance short edit)	Biber Zsolt	4
 1481	MUSICIANS/H/Hubbard_Rob/Commando.sid	2	We'll never be apart (Commando Highscore)	N-JOY	6
 1484	MUSICIANS/G/Galway_Martin/Yie_Ar_Kung_Fu_II.sid	3	Yie Ar Kung-Fu 2	Sidicium	4
-1485	GAMES/G-L/Gyroscope.sid	1	Gyroscope (NewAgeOfBaroqueInTheChamberOfIntimacy)	Sidicium	4
+1485	MUSICIANS/C/Clever_Music/Gyroscope.sid	1	Gyroscope (NewAgeOfBaroqueInTheChamberOfIntimacy)	Sidicium	4
 1486	GAMES/S-Z/Zak_McKracken.sid	1	Zak McKracken (55-cycle)	plasm303	4
 1487	MUSICIANS/H/Hubbard_Rob/Auf_Wiedersehen_Monty.sid	1	Auf Wiedersehen Monty	RBT	5
 1489	MUSICIANS/W/Whittaker_David/Armageddon_Man.sid	1	Armageddon man (Re-Remixed)	Kent Walldén	6
@@ -852,7 +852,7 @@
 1494	MUSICIANS/H/Hubbard_Rob/Sanxion.sid	1	Sanxion 2000 (BIT++ Moog Mix)	Chris Abbott	5
 1495	MUSICIANS/H/Hubbard_Rob/Thing_on_a_Spring.sid	1	Thing on a Spring (99 Mix)	Chris Abbott	4
 1497	MUSICIANS/R/Red_Kimmel_Jeroen/Watch_It.sid	1	Watch It (CD Reject Remix)	Marcel Donné	5
-1498	GAMES/S-Z/Wizardry.sid	1	Wizardry	Mark Vera	5
+1498	MUSICIANS/C/Clever_Music/Wizardry.sid	1	Wizardry	Mark Vera	5
 1500	MUSICIANS/A/Audial_Arts/Timmy-Boy.sid	1	Jason - Timmy Boy (Soft Porn Mix)	Anders Sundstedt	4
 1501	MUSICIANS/H/Huelsbeck_Chris/R-Type.sid	1	R-Type (Dancing with the Alien-mix)	Putzi	4
 1518	MUSICIANS/D/Detert_Thomas/B-Bobs.sid	5	B-Bobs	Gerd Bahl	4
@@ -862,12 +862,12 @@
 1522	MUSICIANS/Z/Zardax/Anglia_Spirit.sid	1	Anglia Spirit	GRG	3
 1523	MUSICIANS/B/Bjerregaard_Johannes/Shape.sid	1	Shape	GRG	3
 1526	GAMES/G-L/Kung-Fu_Master.sid	2	Kung Fu Master	dor-x	3
-1527	GAMES/G-L/Gyroscope.sid	1	Gyroscope (Eels Driving the Hovercraft)	Rauli &amp; Wobbler	5
+1527	MUSICIANS/C/Clever_Music/Gyroscope.sid	1	Gyroscope (Eels Driving the Hovercraft)	Rauli &amp; Wobbler	5
 1528	MUSICIANS/G/Galway_Martin/Wizball.sid	4	Wizball (Juno 106 remix)	ocean	5
 1529	MUSICIANS/G/Galway_Martin/Comic_Bakery.sid	1	Comic Bakery (Renoise mix)	chosc	4
 1531	MUSICIANS/T/Tel_Jeroen/Cybernoid_II.sid	1	Cybernoid II (Fantasia Cybernetica Remix)	XOR	5
 1533	MUSICIANS/G/Galway_Martin/Arkanoid.sid	1	Arkanoid (Title Screen)	Richard Westall	5
-1536	GAMES/S-Z/Wizardry.sid	1	Wizardry (Meets Bach)	Peacemaker	4
+1536	MUSICIANS/C/Clever_Music/Wizardry.sid	1	Wizardry (Meets Bach)	Peacemaker	4
 1537	MUSICIANS/G/Galway_Martin/Comic_Bakery.sid	1	Comic Backery (Larger than NO Remix)	DHS	6
 1538	MUSICIANS/O/Ouwehand_Reyn/Last_Ninja_3.sid	10	The Last Ninja 3 (Sensitive Remix)	Gerd Bahl	4
 1539	MUSICIANS/H/Huelsbeck_Chris/R-Type.sid	1	R-Type (X-filish dreamy clubmix)	Putzi	4
@@ -932,7 +932,7 @@
 1668	MUSICIANS/G/Gray_Matt/Last_Ninja_2.sid	3	Last Ninja 2 (The Street Loader Remix)	Alexander Theodossiadis	4
 1669	MUSICIANS/P/PRI/Other_Side_of_the_Cloud.sid	1	Other Side Of The Cloud Remix	Jurek Raben	5
 1671	MUSICIANS/D/Daglish_Ben/Cobra.sid	1	Cobra (jazzed up mix)	Cytex	4
-1672	GAMES/A-F/Faery_Tale.sid	1	Faery Tale Adventure - In The town	chosc	4
+1672	GAMES/A-F/Faery_Tale_Adventure.sid	1	Faery Tale Adventure - In The town	chosc	4
 1676	MUSICIANS/R/Red_Kimmel_Jeroen/Think_Twice_III.sid	1	Think Twice III (santa's got a new knob to tweak)	Wobbler	5
 1677	MUSICIANS/F/Future_Freak/3_Chn_Gametune.sid	1	3 Channel Game tune (Tracexperiment)	Kent Walldén	5
 1678	MUSICIANS/F/FAME/Hendriks_Michael/Paranoimia.sid	1	Paranoimia (X-mas mix)	Sonic Wanderer	5
@@ -1313,7 +1313,7 @@
 2554	MUSICIANS/D/Daglish_Ben/Deflektor.sid	1	Deflektor (softer version)	MRT	4
 2555	MUSICIANS/F/Follin_Tim/Gauntlet_III.sid	2	Blue Wizard Is About To Die	Binster	4
 2556	MUSICIANS/H/Hubbard_Rob/Commando.sid	2	Commando Highscore Theme	Mark Pullman (maX)	2
-2558	GAMES/A-F/Faery_Tale.sid	2	Faery Tale Adventure - Fighting Enemies	chosc	4
+2558	GAMES/A-F/Faery_Tale_Adventure.sid	2	Faery Tale Adventure - Fighting Enemies	chosc	4
 2559	MUSICIANS/D/Deenen_Charles/Zamzara.sid	1	Zamzara (Herb Mix)	DJ Skitz	5
 2561	MUSICIANS/C/Cooksey_Mark/Ramparts.sid	1	Ramparts	Amp	5
 2562	MUSICIANS/D/Deenen_Charles/Lord_of_the_Rings.sid	1	Lord of the Rings	Markus Schneider	5
@@ -1362,7 +1362,7 @@
 2643	MUSICIANS/S/Southern_Shaun/Kikstart_II.sid	1	Kikstart II (Kik-It Mix)	Sonic Wanderer	6
 2644	MUSICIANS/B/Bjerregaard_Johannes/Street_Cred_Boxing.sid	3	Street Cred Boxing	Gorm Jensen	4
 2645	MUSICIANS/N/Norman_Paul/Super_Huey.sid	1	Super Huey (Chopper Mix)	DJ Skitz	4
-2647	GAMES/G-L/Gyroscope.sid	1	Gyroscope (Give me some groove mix)	Jarno Beumer	4
+2647	MUSICIANS/C/Clever_Music/Gyroscope.sid	1	Gyroscope (Give me some groove mix)	Jarno Beumer	4
 2649	MUSICIANS/L/Laxity/Syncopated.sid	1	Syncopated (by Laxity)	Vernest	4
 2651	MUSICIANS/T/Tel_Jeroen/Savage.sid	2	Savage (sub 2 from 80ies 2 now)	Putzi	5
 2652	MUSICIANS/H/Hubbard_Rob/Delta.sid	12	Delta (Smells Like Alien)	Aki Kivela	4
@@ -1625,12 +1625,12 @@
 3101	MUSICIANS/F/FAME/Hendriks_Michael/X-Out.sid	1	X Out (global takeover)	Solo	4
 3102	MUSICIANS/O/Ouwehand_Reyn/Primary_Star.sid	1	Primary Star	Dafunk	6
 3103	MUSICIANS/B/Britelite/Shortmenutune5.sid	1	Shortmenutune5	gol	4
-3105	GAMES/A-F/Fairlight.sid	1	Fairlight (Wild wild west version)	XeNoMoRpH	4
+3105	MUSICIANS/C/Clever_Music/Fairlight.sid	1	Fairlight (Wild wild west version)	XeNoMoRpH	4
 3110	MUSICIANS/S/Sonic/Flat-Rate_Enjoy_Domination.sid	1	Flat Rate	Dafunk	6
 3111	MUSICIANS/O/Ouwehand_Reyn/Dutch_Breeze_KrameR.sid	1	Reyn TV Station	moog (Sebastian Bachliñski)	6
 3112	MUSICIANS/B/Biasillo_Gary/Target_Renegade.sid	1	Target Renegade	Funk Reflex	5
 3114	MUSICIANS/T/The_Dungeon_Master/Metal_Generation.sid	1	Metal Generation	Emre Bulsat	4
-3115	GAMES/S-Z/Wizardry.sid	1	Wizardry - Bright'n Shiny version	Chronberg	6
+3115	MUSICIANS/C/Clever_Music/Wizardry.sid	1	Wizardry - Bright'n Shiny version	Chronberg	6
 3116	MUSICIANS/T/Thomas_Dave/Entombed.sid	1	Entombed (Cold tomb)	Doron Deutsch	4
 3117	MUSICIANS/H/Huelsbeck_Chris/R-Type.sid	1	R-Type Title (Re-make)	Tn-1	4
 3120	MUSICIANS/F/Follin_Tim/Bionic_Commando.sid	5	Bionic Commando (Tune 5)	Romeo Knight	6
@@ -1654,7 +1654,7 @@
 3146	MUSICIANS/H/Hubbard_Rob/International_Karate.sid	1	Take it Easy (International Karate) - House Remake	SiLeX	4
 3148	MUSICIANS/H/Hubbard_Rob/Lightforce.sid	1	Lightforce (Tripforce mix)	Shielder (Robert Pankanin)	5
 3150	MUSICIANS/A/AMJ/Problemchild_part_7.sid	1	Problemchild Part 7 (unz 4 da slayers)	Dafunk	5
-3151	GAMES/G-L/Gyroscope.sid	1	Gyroscope - Unzalicious version	Chronberg	6
+3151	MUSICIANS/C/Clever_Music/Gyroscope.sid	1	Gyroscope - Unzalicious version	Chronberg	6
 3153	MUSICIANS/J/Jeff/Celestielle_Remix.sid	1	Celestielle Remix (twat unz rmx)	Dafunk	5
 3154	MUSICIANS/L/Laxity/2000_A_D.sid	1	2000 A.D.	Juha Kaunisto	6
 3155	MUSICIANS/S/Simon_Laszlo/Techno-Col.sid	1	Bandpass Tech rance	Emre Bulsat	4
@@ -1800,7 +1800,7 @@
 3357	MUSICIANS/D/Dunn_Jonathan/Dragon_Ninja.sid	1	Dragon Ninja Title Remix	CZ Tunes	5
 3358	MUSICIANS/W/Whittaker_David/Lazy_Jones.sid	1	Lazy Jones (Nuclear Medley)	Defiance	4
 3360	MUSICIANS/G/Gray_Matt/Last_Ninja_2.sid	1	Last Ninja 2 (Central Park Loader)	Alexander Theodossiadis	4
-3362	GAMES/S-Z/Wizardry.sid	1	Wizardry (Orchestra Pop)	sebuko	4
+3362	MUSICIANS/C/Clever_Music/Wizardry.sid	1	Wizardry (Orchestra Pop)	sebuko	4
 3363	MUSICIANS/R/Randy/Techno_Vibes.sid	1	Techno Vibes	Defiance	3
 3364	MUSICIANS/C/Cooksey_Mark/Starforce_Nova.sid	1	Starforce Nova (late Night Mix)	Novaload	5
 3365	MUSICIANS/D/Doussis_Stello/Druid-titlemusic_Remix.sid	1	Druid II	daXX	5
@@ -1808,7 +1808,7 @@
 3368	MUSICIANS/H/Hubbard_Rob/Last_V8.sid	1	Last V8	Xenobioz	3
 3369	MUSICIANS/J/Joseph_Richard/Stifflip_and_Co.sid	1	Stifflip &amp; Co	Reyn Ouwehand	6
 3370	MUSICIANS/0-9/4wd-soft/Speedway.sid	1	Speedway Intro (Subpop Mix)	Martin Dodd	4
-3371	GAMES/S-Z/Wizardry.sid	1	Wizardry (Happy Clappy)	Defiance	4
+3371	MUSICIANS/C/Clever_Music/Wizardry.sid	1	Wizardry (Happy Clappy)	Defiance	4
 3372	MUSICIANS/G/Galway_Martin/Street_Hawk_Prototype.sid	1	Street Hawk	moog (Sebastian Bachliñski)	6
 3373	MUSICIANS/D/Detert_Thomas/Magic_Disk_64_1990_01.sid	1	Magic Disk 64 (Tranced)	Emre Bulsat	5
 3374	MUSICIANS/G/Galway_Martin/Wizball.sid	7	Wizball (the remix without a name-remix)	Wobbler	4
@@ -1821,7 +1821,7 @@
 3392	MUSICIANS/B/Bjerregaard_Johannes/Sweet.sid	1	Sweet Roses (Remastered Version)	Intensity	4
 3398	MUSICIANS/G/Gray_Matt/Last_Ninja_2.sid	12	LastNinja 2 The Mansion - remastered Type 4	TmX	6
 3399	MUSICIANS/D/Daglish_Ben/Last_Ninja.sid	11	Last Ninja Inner Sanctum - Death Before Dishonour	TmX	5
-3400	GAMES/A-F/Fairlight.sid	1	Fairlight (thrash version)	The Cosmic Gerbil	2
+3400	MUSICIANS/C/Clever_Music/Fairlight.sid	1	Fairlight (thrash version)	The Cosmic Gerbil	2
 3401	MUSICIANS/G/Gray_Matt/Professional_BMX_Simulator.sid	2	Pro Bmx Simulator	Infamous	6
 3402	MUSICIANS/T/Tel_Jeroen/Outrun_Europe_levels.sid	1	Splash Out on Outrun	Coteque	3
 3403	MUSICIANS/A/A-Man/Cyberware.sid	1	Cyberware (Cosmos Kid)	mikka	5
@@ -1921,7 +1921,7 @@
 3527	MUSICIANS/W/Whittaker_David/Glider_Rider.sid	1	Glider Rider (Gliding into a Sunset mix)	Terminal Storm	5
 3528	MUSICIANS/T/Tel_Jeroen/Noisy_Pillars_tune_1.sid	1	Noisy Bakery (A sonic pastry)	Dimmignatt	4
 3530	MUSICIANS/G/Gilmore_Adam/Mission_Jupiter.sid	1	Mission Jupiter	HavocS	4
-3531	GAMES/S-Z/Wizardry.sid	1	Wizardry (Magical Beats mix)	Nick Seybert	4
+3531	MUSICIANS/C/Clever_Music/Wizardry.sid	1	Wizardry (Magical Beats mix)	Nick Seybert	4
 3532	MUSICIANS/J/Jammer/Floatee.sid	1	Floatee	BeeZerk	6
 3534	MUSICIANS/S/Sonic/2nd_Moment_Beergarden_Dub.sid	1	The 2nd Moment	Dafunk	6
 3535	MUSICIANS/H/Hydrogen/Drey.sid	1	Drey Orchestrated	Emir Diril (Drey)	6
@@ -2032,7 +2032,7 @@
 3661	MUSICIANS/T/Tel_Jeroen/Turbo_Outrun.sid	1	Turbo Outrun	Toni Ferris	5
 3663	MUSICIANS/S/Scarim_Nick/Spy_vs_Spy.sid	1	Spy VS Spy (Knurd Rock Remix)	donskeeto	4
 3664	MUSICIANS/B/Bakewell_Dwayne/Fallen.sid	1	The Fallen [Imphenzia Remix]	Imphenzia	5
-3665	GAMES/A-F/Fairlight.sid	1	Fairlight (East Sussex remix)	Chronberg	5
+3665	MUSICIANS/C/Clever_Music/Fairlight.sid	1	Fairlight (East Sussex remix)	Chronberg	5
 3666	MUSICIANS/P/Phobos/Worktunes/Episode.sid	1	Episode1 (Episode)	Katz	5
 3667	MUSICIANS/T/TBB/Meanwhile_the_Planet.sid	1	I Can't Get No Sleep (Meanwhile The Planet )	Dafunk	5
 3668	MUSICIANS/T/Tel_Jeroen/Golden_Axe.sid	1	Golden Axe rmx	KeysersozeH	5
@@ -2493,7 +2493,7 @@
 4207	MUSICIANS/A/Agemixer/Last_Wader.sid	1	Last Wader Part I (Romance Edition)	Dees	5
 4208	MUSICIANS/D/Daglish_Ben/Cobra.sid	1	Cobra Minuet	lemmy101	5
 4209	MUSICIANS/G/Galway_Martin/Ocean_Loader_2.sid	1	Ocean Loader 2 (Airplay Mix)	André Müller (Crefelder)	5
-4210	GAMES/G-L/Gyroscope.sid	1	Gyroscope	Mongo Erectus	4
+4210	MUSICIANS/C/Clever_Music/Gyroscope.sid	1	Gyroscope	Mongo Erectus	4
 4211	MUSICIANS/D/Danko_Tomas/Caracas.sid	1	Caraccas	Dumper	4
 4215	MUSICIANS/F/Feil_Georg/Synth_Sample.sid	1	Synth Sample - The Stationary Ark	Jogeir Liljedahl	6
 4216	MUSICIANS/G/Galway_Martin/Times_of_Lore.sid	9	Times Of Lore 9 (Japanese Whispers)	vurtX	5
@@ -2586,7 +2586,7 @@
 4328	MUSICIANS/G/Galway_Martin/Arkanoid.sid	1	Arkanoid - Techhouse RMX	daXX	6
 4329	MUSICIANS/R/Reed/Boogie_Factor_2.sid	1	Boogie Factor 2	Chabee	6
 4331	MUSICIANS/B/Brimble_Allister/Dizzy_Down_the_Rapids.sid	1	Dizzy Down The Rapids	Lord Nikon	5
-4332	GAMES/A-F/Fairlight.sid	1	Fairlight	Doctorrus Petrixuss	4
+4332	MUSICIANS/C/Clever_Music/Fairlight.sid	1	Fairlight	Doctorrus Petrixuss	4
 4333	MUSICIANS/O/Ouwehand_Reyn/Dignified.sid	1	Dignified	DensityArt	5
 4334	MUSICIANS/O/Ouwehand_Reyn/Flimbos_Quest.sid	1	Flimbos Quest	Doctorrus Petrixuss	3
 4335	MUSICIANS/P/PRI/Rainbow_Shuffle.sid	1	Rainbow Shuffle	moog (Sebastian Bachliñski)	6
@@ -2600,7 +2600,7 @@
 4344	MUSICIANS/H/Hubbard_Rob/Monty_on_the_Run.sid	1	Monty on the run 	Sieroy	5
 4345	MUSICIANS/Z/Ziphoid/Sword_of_Honour.sid	1	Sword of Honour	MRT	6
 4346	MUSICIANS/P/Psycho/Unstoppable.sid	1	Unstoppable (Aurora Nova Remix)	Dees	5
-4347	MUSICIANS/D/Dunn_Jonathan/Revenge_of_Doh.sid	6	Arkanoid Revenge of Doh (QuickSynthRMX)	Buzzer	5
+4347	MUSICIANS/D/Dunn_Jonathan/Arkanoid-Revenge_of_Doh.sid	6	Arkanoid Revenge of Doh (QuickSynthRMX)	Buzzer	5
 4349	MUSICIANS/A/Avalon/Tower.sid	1	Tower (Relaxing Ambiance)	C64toBit64	4
 4350	MUSICIANS/B/Bayliss_Richard/Vice_from_Miami.sid	1	Vice From Miami (Jan Hammer Edit)	CZ Tunes	5
 4351	MUSICIANS/H/Hubbard_Rob/Commando.sid	1	Commando	Doctorrus Petrixuss	4
@@ -2680,7 +2680,7 @@
 4438	MUSICIANS/J/Jeff/Euro-Dance.sid	1	Euro Dance	Emre Bulsat	5
 4440	MUSICIANS/D/Dr_Piotr/Scout.sid	1	Scout	Doctorrus Petrixuss	5
 4441	GAMES/G-L/Kopido.sid	1	Kopido	FatherJack	3
-4442	GAMES/S-Z/Wizardry.sid	1	Wizardry (Marco Polo Edit)	Dr Future	5
+4442	MUSICIANS/C/Clever_Music/Wizardry.sid	1	Wizardry (Marco Polo Edit)	Dr Future	5
 4443	MUSICIANS/C/Cooksey_Mark/Jackal.sid	1	Jackal	hermitsoft	5
 4444	MUSICIANS/D/DRAX/Clarencio_v2.sid	1	Clarencio	Mordi	6
 4445	MUSICIANS/S/Shogoon/Intrigue.sid	1	Intrigue acoustica	hermitsoft	6
@@ -2696,7 +2696,7 @@
 4456	MUSICIANS/M/MHD/Constellation_Betha.sid	1	Constellation Betha	Happy HC64	5
 4457	MUSICIANS/D/DRAX/Beyond.sid	1	Beyond - Tears Of My Heart (Cloudy Mix)	lemonade	5
 4460	GAMES/A-F/Break_Dance.sid	4	Break Dance (My Name Is Blitz Mix)	dr.blitzen	4
-4461	MUSICIANS/H/Hubbard_Rob/Delta.sid	1	Delta	Obscuresounds	5
+4461	MUSICIANS/H/Hubbard_Rob/Delta.sid	1	Delta	Obscuresounds	6
 4462	MUSICIANS/T/Tel_Jeroen/Looking_Around.sid	1	Looking Around	PowerTrace	4
 4463	MUSICIANS/L/Laxity/On_One.sid	1	On One (featuring. Moog)	PowerTrace	6
 4464	MUSICIANS/G/Gray_Matt/Hunters_Moon.sid	2	Hunters Moon (DrumAndNoBass)	PowerTrace	5
@@ -2717,7 +2717,7 @@
 4479	MUSICIANS/T/Tel_Jeroen/Noisy_Pillars_tune_2.sid	2	Noisy Pillars sub.2  (in mono mix)	MRT	5
 4480	MUSICIANS/D/Dunn_Jonathan/Platoon.sid	1	Platoon 2010	Steve Erickson	5
 4481	MUSICIANS/G/Gray_Fred/Break_Thru.sid	1	Breakthru (To The Other SiD)	vurtX	5
-4482	MUSICIANS/T/Tel_Jeroen/Jeroen.sid	1	Jeroen (Dreamed By Carlos)	Dr Future	4
+4482	MUSICIANS/T/Tel_Jeroen/Jeroen.sid	1	Jeroen (Dreamed By Carlos)	Dr Future	5
 4483	MUSICIANS/D/Dunn_Jonathan/Renegade_3-The_Final_Chapter.sid	3	Renegade 3 (Mummy gonna getcha mix)	K8-bit	5
 4484	MUSICIANS/J/Jeff/Celestielle_Remix.sid	1	Celestielle	Todi	4
 4485	GAMES/A-F/Advanced_Tactical_Fighter.sid	1	ATF Remix	Teo	4
@@ -2743,7 +2743,7 @@
 4506	MUSICIANS/D/Dr_Piotr/Remembrance.sid	1	Remembrance (Toxic Lov mix)	Doctorrus Petrixuss	5
 4507	MUSICIANS/O/Ouwehand_Reyn/Last_Ninja_3.sid	4	Last Ninja 3 (Set by One Doctor &amp; Andrea mix)	Doctorrus Petrixuss	4
 4508	MUSICIANS/H/Huelsbeck_Chris/Great_Giana_Sisters.sid	1	Giana Sisters (Remix2010)	Plasmoide	3
-4509	GAMES/S-Z/Wizardry.sid	1	Wizardry	Razmo	4
+4509	MUSICIANS/C/Clever_Music/Wizardry.sid	1	Wizardry	Razmo	4
 4510	MUSICIANS/H/Hubbard_Rob/Human_Race.sid	4	The Human Race (Goldrunner)	Darryl Sloan	4
 4511	MUSICIANS/H/Huelsbeck_Chris/R-Type.sid	1	R-Type	BuZZarD	3
 4512	MUSICIANS/H/Hubbard_Rob/Delta.sid	1	Delta (Foot in the door mix)	pie vs pie	3
@@ -2834,7 +2834,7 @@
 4621	MUSICIANS/J/Joseph_Richard/Cauldron_II.sid	7	Cauldron II (The Witch Who Stepped in Dub)	Hazel	6
 4622	MUSICIANS/B/Barrett_Steve/Professional_Ski_Simulator.sid	1	ProSkiSim (Somebody Asked For It)	WORR	5
 4623	MUSICIANS/H/Huelsbeck_Chris/R-Type.sid	1	American Type Rye (R-Type)	Rune-Bertil's	6
-4624	GAMES/A-F/Fairlight.sid	1	Fairlight (ZnL Mix)	ZnL	4
+4624	MUSICIANS/C/Clever_Music/Fairlight.sid	1	Fairlight (ZnL Mix)	ZnL	4
 4625	MUSICIANS/G/Gray_Matt/Last_Ninja_2.sid	2	Last Ninja 2 (Central Park Guitar Remix)	Richard Braithwaite	6
 4626	MUSICIANS/M/Moon/Alone_in_Space.sid	1	Alone in Space (Uplifting Mix)	AcidBlock	4
 4627	MUSICIANS/L/Link/Comic_Frame.sid	1	Comic Frame	Hazel	6
@@ -2863,7 +2863,7 @@
 4654	MUSICIANS/D/Dr_Piotr/Cold_Dream_1.sid	1	Cold Dreams	Doctorrus Petrixuss	4
 4655	MUSICIANS/G/Galway_Martin/Parallax.sid	1	Parallax (Space Edit)	Hazel	5
 4656	MUSICIANS/B/Bjerregaard_Johannes/Sweet.sid	1	Sweet	Rune-Bertil's	6
-4657	MUSICIANS/D/Daglish_Ben/Mountie_Micks_Death_Ride.sid	1	Mountie Mick's Deathride (Basstrail remix)	Wobbler	4
+4657	MUSICIANS/D/Daglish_Ben/Mountie_Micks_Death_Ride.sid	1	Mountie Mick's Deathride (Basstrail remix)	Wobbler	5
 4658	MUSICIANS/L/Laxity/Alibi.sid	1	The Alibi (No Time To Sleep)	7EVEN SINS	5
 4659	MUSICIANS/H/Hubbard_Rob/Commando.sid	1	Commando (Vicces1212 Remix)	Vicces1212	3
 4660	MUSICIANS/D/Dunn_Jonathan/Darkman.sid	4	Darkman	Ferrara	5
@@ -3117,7 +3117,7 @@
 4943	MUSICIANS/G/Gray_Fred/Firefly.sid	1	Firefly (Electrowing Remix)	Dees	5
 4944	MUSICIANS/T/Tel_Jeroen/Powerhouse.sid	1	Powerhouse (Omnidextrous Remake)	Omnidextrous	5
 4945	MUSICIANS/W/Warhol_Dave/Skyfox_II.sid	15	SkyFox II (Darkside Of The MOS Remix)	Martin Dodd	5
-4946	MUSICIANS/B/Bjerregaard_Johannes/Stormlord.sid	3	Stormlord (Cinematic RMX)	Nicklas Schmidt	6
+4946	MUSICIANS/B/Bjerregaard_Johannes/Stormlord.sid	3	Stormlord (Cinematic RMX)	Nicklas Schmidt	5
 4947	MUSICIANS/G/Gray_Matt/Last_Ninja_2.sid	1	Last Ninja 2 Central Park	dh2k 	3
 4948	MUSICIANS/H/Hubbard_Rob/Commando.sid	2	Commando Hi-Score theme (Analog style)	Hoylander	5
 4949	MUSICIANS/H/Huelsbeck_Chris/Great_Giana_Sisters.sid	1	Great Giana Sisters (piano interlude)	Vred	5
@@ -3232,7 +3232,7 @@
 5079	MUSICIANS/G/Gray_Matt/Last_Ninja_2.sid	8	Last Ninja 2 - 4th Floor Firestorm	ionbladez	5
 5080	MUSICIANS/H/Hubbard_Rob/International_Karate.sid	1	International Karate (Part II) [Re-Sync]	Dr Future	6
 5081	MUSICIANS/H/Hubbard_Rob/Action_Biker.sid	1	Action Biker	Johan Andersson	5
-5082	MUSICIANS/G/Gray_Matt/Last_Ninja_2.sid	12	Last Ninja 2 (the mansion) guitar rock cover	timmya4000	5
+5082	MUSICIANS/G/Gray_Matt/Last_Ninja_2.sid	12	Last Ninja 2 (the mansion) guitar rock cover	timmya4000	6
 5083	MUSICIANS/J/Jeff/Blowing.sid	1	Dance on Blowing	Todi	5
 5084	MUSICIANS/H/Hubbard_Rob/Warhawk.sid	1	Warhawk (Back To The 80's Remix)	dr.blitzen	5
 5085	MUSICIANS/D/Daglish_Ben/Trap.sid	1	Trap (Gently Classical)	WORR	3
@@ -3289,7 +3289,7 @@
 5140	MUSICIANS/D/DRAX/Gemini.sid	1	Gemini (Electro Glide Remix)	Dees	5
 5141	MUSICIANS/T/Tel_Jeroen/Looking_Around.sid	1	Looking Around	Rune-Bertil's	6
 5142	MUSICIANS/H/Hubbard_Rob/Delta.sid	12	Delta - Voyage of Discovery mix	AndyUK	5
-5143	GAMES/S-Z/Wizardry.sid	1	Wizardry (Are you ready)	druu	6
+5143	MUSICIANS/C/Clever_Music/Wizardry.sid	1	Wizardry (Are you ready)	druu	6
 5144	MUSICIANS/H/Huelsbeck_Chris/Great_Giana_Sisters.sid	3	Giana Wailers	LMan feat. Marcel Donné	6
 5145	MUSICIANS/C/Cooksey_Mark/Bomb_Jack.sid	6	Bomb Jack	Johan Andersson	6
 5146	MUSICIANS/G/Galway_Martin/Comic_Bakery.sid	1	Comic Bakery (Romkugle Remix)	Aknotronic	4
@@ -3446,7 +3446,7 @@
 5308	MUSICIANS/H/Huelsbeck_Chris/Antics.sid	1	Antics (Back From The Dead)	Sonic Wanderer	6
 5309	MUSICIANS/H/Hanlon_David/Enlightenment_Druid_II.sid	3	Enlightenment - Druid II	Markus Schneider	6
 5310	GAMES/S-Z/Seven_Cities_of_Gold.sid	1	Seven Cities of gold (Where do we go now)	druu	5
-5311	GAMES/G-L/Gyroscope.sid	1	Gyroscope (GyroChip mix)	Anders Hesselbom	4
+5311	MUSICIANS/C/Clever_Music/Gyroscope.sid	1	Gyroscope (GyroChip mix)	Anders Hesselbom	4
 5312	MUSICIANS/G/Galway_Martin/Rambo_First_Blood_Part_II.sid	2	Rambo First Blood Part II (title theme)	Johan Andersson	6
 5313	MUSICIANS/T/Tel_Jeroen/Ice_Age.sid	1	Ice Age (.com  Unity)	Dr Future	6
 5314	MUSICIANS/T/Tel_Jeroen/Savage.sid	4	Savage (Funky 4)	Ahriakin	5
@@ -3487,7 +3487,7 @@
 5356	MUSICIANS/C/Clarke_Peter/Tai-Pan_disk_version.sid	4	Tai-Pan sub. 4 dubstep	MRT	5
 5357	MUSICIANS/D/Daglish_Ben/Bombo.sid	1	Bombo	Johan Andersson	6
 5358	MUSICIANS/M/Mitch_and_Dane/Dose_of_D.sid	1	Dose of D	Mordi	6
-5359	MUSICIANS/D/DRAX/Beyond.sid	1	Beyond - Tears of my Heart (ft Lea)	Mordi	6
+5359	MUSICIANS/D/DRAX/Beyond.sid	1	Beyond - Tears of my Heart (ft Lea)	Mordi	5
 5360	MUSICIANS/H/Hubbard_Rob/Lightforce.sid	1	Lightforce	V. Kaufmann	5
 5361	MUSICIANS/S/Scarim_Nick/Spy_vs_Spy.sid	1	Spy vs Spy	FZN	6
 5362	MUSICIANS/H/Hubbard_Rob/Commando.sid	1	Commando (dZ-Mix)	d-Zire	4
@@ -3585,7 +3585,7 @@
 5468	MUSICIANS/B/Brennan_Neil/Fist_II-The_Legend_Continues.sid	1	Fist II - The Legend Continues	Dr Future	6
 5469	MUSICIANS/K/Krolzig_Jan/X-Out_Level_8.sid	1	X-Out Level 8	LordHannu	4
 5470	MUSICIANS/S/Siebold_Markus/Turrican_2-The_Final_Fight.sid	1	Turrican II The Final Fight (Intro Remix)	CZ Tunes	5
-5471	MUSICIANS/L/Lee_Dave/Falcon_Patrol_II.sid	1	Falcon Patrol 2 (Rock Mix)	LPChip	4
+5471	MUSICIANS/L/Lee_Dave/Falcon_Patrol_II.sid	1	Falcon Patrol 2 (Rock Mix)	LPChip	5
 5472	MUSICIANS/B/Bayliss_Richard/Christmas_Cheer.sid	1	Christmas Cheer	Orlando	4
 5473	MUSICIANS/T/Taxim/Utopia_Theme_V2.sid	1	Utopia Theme (Heroes and Cowards mix)	Roland Kaiser Wilhelm	5
 5474	MUSICIANS/T/Tel_Jeroen/Mon_Demo_1991.sid	1	MON Demo 1991 (Stroke My Big One Little Woman)	ScareCrow	4
@@ -3649,7 +3649,7 @@
 5541	MUSICIANS/H/Hubbard_Rob/Delta.sid	12	Delta (Main Menu)	Written in Wind	4
 5542	MUSICIANS/H/Hubbard_Rob/Sanxion.sid	1	Sanxion Loading Music	Philip Bak	5
 5543	MUSICIANS/T/Tel_Jeroen/Golden_Axe.sid	1	Golden Axe	MRT	6
-5544	GAMES/A-F/Fairlight.sid	1	Fairlight remix	Teo	5
+5544	MUSICIANS/C/Clever_Music/Fairlight.sid	1	Fairlight remix	Teo	5
 5545	MUSICIANS/J/Jeff/Cyberworld.sid	1	Cyberworld remix	Teo	5
 5546	MUSICIANS/D/Daglish_Ben/Deflektor.sid	1	Deflektor	ziona	5
 5547	MUSICIANS/G/Galway_Martin/Rambo_First_Blood_Part_II.sid	1	Rambo (We lost it)	sumppi &amp; Slaygon	4
@@ -3710,7 +3710,7 @@
 5622	MUSICIANS/F/Follin_Tim/Ghouls_n_Ghosts.sid	8	Ghouls n Ghosts (subtune 8)	OJ Oscillation	4
 5623	MUSICIANS/C/Connolly_Sean/Turbocharge.sid	1	Turbo Charge (The Local Farthest Mix)	lclhstr	5
 5624	MUSICIANS/G/Galway_Martin/Comic_Bakery.sid	1	Comic Bakery (rockdance mix)	Johan Andersson	5
-5625	MUSICIANS/D/Daglish_Ben/Bombo.sid	2	Bombo (Suicide mix)	Sanjo Ride	4
+5625	MUSICIANS/D/Daglish_Ben/Bombo.sid	2	Bombo (Suicide mix)	Sanjo Ride	5
 5626	GAMES/S-Z/Zak_McKracken.sid	1	Zak McBoulder (The Local Speakers Burn-In Mix)	lclhstr	4
 5627	MUSICIANS/D/DRAX/Tristesse.sid	1	Tristessed Variations on a harder (undulled) piano	Vred	6
 5628	MUSICIANS/H/Hubbard_Rob/Human_Race.sid	4	Human Race	Mano	6
@@ -3731,3 +3731,75 @@
 5645	GAMES/G-L/Impossible_Mission_II.sid	1	Impossible mission 2 (stealth mix)	Colmarr	3
 5646	MUSICIANS/W/Whittaker_David/Stormbringer.sid	1	Stormbringer (Quasi-Classical Remix)	Martin Dodd	5
 5648	MUSICIANS/T/Tel_Jeroen/Hawkeye.sid	1	Hawkeye [Trance Remix 2017]	Sascha Michael Theel	5
+5649	MUSICIANS/S/Scortia/Hard_Glide.sid	1	Hard Glide	BeeZerk	5
+5650	MUSICIANS/D/Daglish_Ben/Last_Ninja.sid	7	The Wilderness (The Last Ninja Level 2)	SoundLogic	4
+5651	MUSICIANS/D/Daglish_Ben/Bombo.sid	1	Bombo (industrial mix)	Sanjo Ride	5
+5652	MUSICIANS/C/Cooksey_Mark/Paperboy.sid	1	Paperboy Wingroov Remix	Mac_Svenni	4
+5653	MUSICIANS/H/Hubbard_Rob/Commando.sid	2	Commando (Bitrunner Blues Remix)	Martin Dodd	6
+5655	MUSICIANS/H/Hubbard_Rob/Last_V8.sid	1	The Last V8	SoundLogic	4
+5659	MUSICIANS/G/Galway_Martin/Green_Beret.sid	10	Green Beret vs Comic Bakery (rock salsa mix)	Johan Andersson	6
+5660	MUSICIANS/H/Hubbard_Rob/Sanxion.sid	1	Sanxion (Get To Tha Choppa Remix)	Wobbler	6
+5661	MUSICIANS/H/Hubbard_Rob/Crazy_Comets.sid	1	Crazy Comets (A Slow Walk In The Park)	Wobbler	5
+5662	MUSICIANS/C/Cannon_Matthew/Batman_the_Movie.sid	9	Batman The Movie (Cathedral Remix)	Colmarr	4
+5663	MUSICIANS/T/Tel_Jeroen/Turbo_Outrun.sid	1	Turbo Outrun (Oh No It's A Trap)	Wobbler	5
+5664	MUSICIANS/B/Bjerregaard_Johannes/Special_Agent.sid	1	Special Agent (Bits And Pieces)	Wobbler	5
+5665	MUSICIANS/S/Slaygon/Absence_of_Faith.sid	1	Absence Of Faith (Pitch Black Remix)	Wobbler	5
+5666	MUSICIANS/T/Tjelta_Geir/Artillery.sid	1	Artillery (demo music)	MRT	6
+5667	MUSICIANS/C/Cooksey_Mark/Ghosts_n_Goblins.sid	2	Ghosts and Goblins (surf mix)	Johan Andersson	6
+5669	MUSICIANS/H/Huelsbeck_Chris/Great_Giana_Sisters.sid	1	The Great Giana Sisters (Italia 90 Mix)	Phillip Gross	4
+5670	GAMES/M-R/M_U_L_E.sid	1	M.U.L.E. (Mexico 86 Mix)	Phillip Gross	3
+5672	MUSICIANS/C/Cooksey_Mark/Paperboy.sid	1	Paperboy (Titus Mix)	Phillip Gross	4
+5674	MUSICIANS/Q/Q-Man/Deep_Waters.sid	1	Deep Waters	Colmarr	4
+5675	MUSICIANS/H/Huelsbeck_Chris/Compilation_I.sid	2	Compilation 1 (Time)	Colmarr	3
+5676	MUSICIANS/G/Galway_Martin/Times_of_Lore.sid	1	Times of Lore (Subtune 1)	Seaweed	4
+5677	GAMES/S-Z/Strangeloop.sid	1	Strangeloop (Lost Spaceship)	Colmarr	4
+5680	MUSICIANS/J/Jeff/Turrican_3_Shooter.sid	1	Turrican 3 shooter	Madija	5
+5681	MUSICIANS/G/Gray_Matt/Tusker.sid	3	Metal Tusker (Subtune 03)	XxDUSTYxX	6
+5682	MUSICIANS/H/Hubbard_Rob/Thrust.sid	1	Thrust	Johan Andersson	6
+5685	MUSICIANS/H/Huelsbeck_Chris/R-Type.sid	1	R-Type Intro (AiO's Sunset Cruise Mix)	AiO	4
+5686	MUSICIANS/C/Cannon_Matthew/Batman_the_Movie.sid	2	Batman The Movie (Chemical Factory Remix)	Colmarr	3
+5687	MUSICIANS/M/Mitch_and_Dane/Dane/Nine_Lives.sid	1	Nine Lives	MRT	6
+5688	MUSICIANS/T/Tinman_Keith/Hypa-Ball.sid	1	Hypaball (Arok remix)	Teo	5
+5689	MUSICIANS/T/Tinman_Keith/Hypa-Ball.sid	1	Hypa-Ball [Ausfahrt ist fuer alle da]	Vincenzo	6
+5690	MUSICIANS/W/Walker_Martin/Armalyte.sid	1	Armalyte	Colmarr	4
+5691	GAMES/S-Z/Shiftrix.sid	1	Shiftrix	Colmarr	5
+5692	GAMES/G-L/Hercules_Slayer_of_the_Damned.sid	1	Hercules Slayer of the Damned	Colmarr	4
+5693	MUSICIANS/O/Ouwehand_Reyn/Dutch_Breeze_Soft_and_Wet.sid	1	Soft and Wet	Chabee	6
+5694	MUSICIANS/B/Brennan_Neil/Samurai_Warrior.sid	1	Usagi Yojimbo (Symphonic)	Seaweed	4
+5695	MUSICIANS/D/Daglish_Ben/Deflektor.sid	1	Deflektor (Symphonic)	Seaweed	3
+5697	MUSICIANS/F/Follin_Tim/Ghouls_n_Ghosts.sid	7	Ghouls 'n Ghosts (Prog 'n Ghosts mix)	Riccardo Amabili	4
+5698	MUSICIANS/H/Hubbard_Rob/Monty_on_the_Run.sid	3	Monty On The Run (Oliver Maass TV RMX)	Dr Future	5
+5703	MUSICIANS/D/Dunn_David/Zeta_7.sid	1	Zeta 7 (Symphonic)	Seaweed	3
+5704	MUSICIANS/D/Dunn_David/Elite.sid	1	Elite Theme (Symphonic)	Seaweed	3
+5705	MUSICIANS/M/MovieMovies1/Chronos.sid	1	Chronos (ZX) - Title - A Tapestry of Time	Darkman007	6
+5706	MUSICIANS/H/Hubbard_Rob/Human_Race.sid	4	The Human Race	Mordi	6
+5707	MUSICIANS/Z/Ziphoid/Sword_of_Honour.sid	1	The Chase (Sword of Honour)	DHS	6
+5708	MUSICIANS/H/Huelsbeck_Chris/R-Type.sid	1	R-TYPE Title	daXX	6
+5709	MUSICIANS/G/Galway_Martin/Parallax.sid	1	Parallax Fantasy	SHEN LON	5
+5710	MUSICIANS/H/Hubbard_Rob/Human_Race.sid	1	Human Race Vision	SHEN LON	6
+5711	MUSICIANS/S/Simmons_Jim/Rocket_Ranger.sid	2	Rocket Ranger (Medley)	Seaweed	4
+5712	MUSICIANS/H/Hubbard_Rob/Crazy_Comets.sid	1	Crazy Comets (cops and robbers mix)	Johan Andersson	6
+5713	MUSICIANS/D/Daglish_Ben/Last_Ninja.sid	1	The Last Ninja Wilderness	SHEN LON	6
+5714	MUSICIANS/M/Mad_Donne_Marcel/Hawkeye.sid	1	Hawkeye	Colmarr	3
+5715	MUSICIANS/D/Dunn_Jonathan/Platoon.sid	3	Platoon Level 1 Combat Zone Jungle Remix	Space Infaders	4
+5716	MUSICIANS/G/Gray_Matt/Tusker.sid	1	Tusker Desert Tune - Metal Version	Matteo Bosi	5
+5717	MUSICIANS/O/Omoroca/Amidor.sid	1	Amidor	omoroca	3
+5718	MUSICIANS/H/Hubbard_Rob/Monty_on_the_Run.sid	1	Monty on the Run	OJ Oscillation	5
+5719	MUSICIANS/S/Scortia/Nebulas.sid	1	Nebulas	Xandra	6
+5720	MUSICIANS/J/Jeff/Complex_Title.sid	1	Complex Title	Xandra	5
+5721	MUSICIANS/H/Hubbard_Rob/Sigma_Seven.sid	1	Sigma 7	MRT	6
+5722	MUSICIANS/W/Walker_Martin/Armalyte.sid	1	Armalyte (Marmite Rock Mix)	DJ Czyszy	5
+5723	MUSICIANS/D/Daglish_Ben/Last_Ninja.sid	1	Last Ninja Inner Sanctum (Loader)	SHEN LON	5
+5724	MUSICIANS/V/Vaca_Ramiro/Robotdreams.sid	1	Robotdreams (Piratedreams mix)	Drunktards	5
+5725	MUSICIANS/D/Daglish_Ben/Cobra.sid	1	Cobra Dancing snake remix	Sanjo Ride	4
+5726	MUSICIANS/O/Omoroca/2_Kidz_in_da_Hood.sid	1	Kidz In Da Hood	omoroca	3
+5727	MUSICIANS/T/Tel_Jeroen/Afterburner.sid	1	Afterburner	Johan Andersson	5
+5728	MUSICIANS/G/Galway_Martin/Times_of_Lore.sid	1	Times of Lore	Colmarr	4
+5729	MUSICIANS/L/LMan/Vortex.sid	1	Vortex	LMan	6
+5730	GAMES/M-R/Project_Firestart.sid	1	Project Firestart	Colmarr	4
+5731	MUSICIANS/O/Omoroca/6_Krypton.sid	1	Krypton	omoroca	3
+5732	MUSICIANS/C/Clever_Music/Gyroscope.sid	1	Gyroscope (Scare-o-scope Halloween Mix)	LaLa	5
+5733	MUSICIANS/H/Huelsbeck_Chris/R-Type.sid	1	R-type (fegolhuzz synthwave remix)	fegolhuzz	5
+5734	MUSICIANS/D/Daglish_Ben/Future_Knight.sid	1	Future Knight	Jarle H. Olsen	5
+5735	MUSICIANS/B/Brimble_Allister/Spellbound_Dizzy.sid	2	Spellbound Dizzy - Main Theme	Peter Gantar	3
+5736	MUSICIANS/G/Gray_Matt/Last_Ninja_2.sid	7	Last Ninja 2 - Basement Loader (SID Overdrive mix)	LPChip	5
