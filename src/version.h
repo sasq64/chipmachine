@@ -1,3 +1,3 @@
 #pragma once
-#define VERSION_STR "1.3b"
-#define VERSION_NO 1032
+#define VERSION_STR "1.3d"
+#define VERSION_NO 1034
