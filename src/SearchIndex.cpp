@@ -192,10 +192,15 @@ void IncrementalQuery::search() {
 	lastStart = -1;
 	newRes = true;
 
+    if(query.size() == 0) {
+        finalResult.resize(0);
+        return;
+    }
+
 	string q = string(&query[0], query.size());
 
 	auto words = split(q);
-	
+
 	// Words : IRON LORD -> 3L= "IRO"
 
 	// Remove empty strings
@@ -326,7 +331,7 @@ unsigned int SearchIndex::tlcode(const char *s) {
 
 int SearchIndex::search(const string &q, vector<int> &result, unsigned int searchLimit) {
 
-	
+
 	// result.resize(0);
 	// if(q.size() < 3)
 	//	return 0;
