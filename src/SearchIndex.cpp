@@ -161,6 +161,8 @@ void IncrementalQuery::clear() {
 }
 
 const string IncrementalQuery::getString() {
+	if(query.size() == 0)
+		return "";
 	return string(&query[0], query.size());
 }
 

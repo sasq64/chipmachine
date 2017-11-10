@@ -543,11 +543,11 @@ void ChipMachine::update() {
 		auto spectrum = player.getSpectrum();
 		for(auto i : count_to(player.spectrumSize())) {
 			if(spectrum[i] > 5) {
-				unsigned f = static_cast<uint8_t>(logf(spectrum[i]) * 64);
+				auto f = static_cast<unsigned>(logf(spectrum[i]) * 64);
 				if(f > 255)
 					f = 255;
 				if(f > eq[i])
-					eq[i] = f;
+					eq[i] = static_cast<uint8_t>(f);
 			}
 		}
 	}

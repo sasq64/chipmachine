@@ -20,7 +20,7 @@ public:
 
 template <class T> class EQCondition : public BaseCondition {
 public:
-	EQCondition(const T &watch, T val) : watch(watch), val(val) { LOGD("EQCond %p", &watch); }
+	EQCondition(const T &watch, T val) : watch(watch), val(val) {}
 
 	bool check() const override { return watch == val; }
 

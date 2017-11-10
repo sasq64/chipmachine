@@ -5,14 +5,16 @@
 
 class LineEdit : public TextField {
 public:
+
+
 	LineEdit() {
-		cursorColor = grappix::Color::WHITE;
+		cursorColor = grappix::Color(0xffffffff);
 	}
 
 	LineEdit(const grappix::Font &font, const std::string &text = "", float x = 0.F, float y = 0.F,
 	         float sc = 1.0F, uint32_t col = 0xffffffff)
 	    : TextField(font, text, x, y, sc, col), prompt(font, "", x, y, sc, col) {
-		cursorColor = grappix::Color::WHITE; // grappix::Color(col)/2.0F;
+		cursorColor = grappix::Color(0xffffffff); // grappix::Color(col)/2.0F;
 		std::tie(cursorW, cursorH) = font.get_size("o", scale).to_tuple();
 		xpos = getWidth();
 		tpos = text.length();

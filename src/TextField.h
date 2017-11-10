@@ -61,19 +61,18 @@ public:
 	}
 
 	struct iterator {
-		iterator(TextField *field, int index) : field(field), index(index) {}
-		iterator(const iterator &rhs) : field(rhs.field), index(rhs.index) {}
+		iterator(TextField *field, int index) : data(&field->color[0]), index(index) {}
+		iterator(const iterator &rhs) : data(rhs.data), index(rhs.index) {}
 
 		bool operator!=(const iterator &other) const { return index != other.index; }
 
-		float &operator*() { return field->color[index]; }
+		float &operator*() { return data[index]; }
 
 		const iterator &operator++() {
 			++index;
 			return *this;
 		}
-
-		TextField *field;
+		float* data;
 		int index;
 	};
 

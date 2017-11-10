@@ -132,6 +132,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	if(textMode || telnetServer) {
+
 		ChipInterface ci(workDir);
 		if(textMode) {
 #ifndef _WIN32
