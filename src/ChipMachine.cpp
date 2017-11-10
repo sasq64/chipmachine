@@ -153,11 +153,6 @@ ChipMachine::ChipMachine(const std::string &wd)
 	mainScreen.add(&netIcon);
 	netIcon.visible(false);
 	
-	auto bm = image::load_image(workDir / "data" / "types.png");
-	
-	screenShotIcon = Icon(bm, 100, 100);
-	mainScreen.add(&screenShotIcon);
-
 	showVolume = 0;
 
 	musicBars.setup(spectrumWidth, spectrumHeight, 24);

@@ -199,7 +199,7 @@ private:
 	Icon favIcon;
 	Icon netIcon;
 	Icon volumeIcon;
-	Icon screenShotIcon;
+	//Icon screenShotIcon;
 
 	// MAINSCREEN AND ITS RENDERABLES
 	RenderSet mainScreen;
