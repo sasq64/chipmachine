@@ -5,7 +5,7 @@ import subprocess
 import argparse
 import platform
 
-osname = platform.system()
+os_name = platform.system()
 
 def which(program):
     import os
@@ -27,13 +27,13 @@ def which(program):
 
 
 parser = argparse.ArgumentParser(description='Build chipmachine')
-parser.add_argument('actions', choices=['build', 'clean', 'run'], default='build',
+parser.add_argument('actions', choices=['build', 'clean', 'run', 'config'], default='build',
                    nargs='*', help='Actions to perform')
 
 parser.add_argument('--buildsystem', choices=['ninja', 'make', 'xcode'], default='ninja',
                    help='Build system to use')
 
-parser.add_argument('--config', choices=['release', 'debug'], default='release',
+parser.add_argument('--config', choices=['release', 'debug', 'usan', 'asan', 'tsan'], default='release',
                    help='Release or Debug config')
 
 parser.add_argument('--output', default='builds',
@@ -44,24 +44,25 @@ parser.add_argument('--target', choices=['native', 'raspberry', 'windows', 'andr
 
 args = parser.parse_args()
 
-configs = { 'release' : [ 'release', '-DCMAKE_BUILD_TYPE=Release' ],
-            'debug' : [ 'debug', '-DCMAKE_BUILD_TYPE=Debug' ]
+configs = { 'release' : [ 'release', ['-DCMAKE_BUILD_TYPE=Release'] ],
+            'debug' : [ 'debug', ['-DCMAKE_BUILD_TYPE=Debug'] ],
+            'usan' : [ 'usan', ['-DCMAKE_BUILD_TYPE=Debug', '-DSAN=undefined'] ]
           }
 buildsystems = { 'make' : ['-GUnix Makefiles'],
-                 'ninja' : [ '-GNinja',  ] 
+                 'ninja' : [ '-GNinja',  ]
                }
 
 buildTool = args.buildsystem;
 buildArgs = []
-buildArgs.append(configs[args.config][1])
+buildArgs += configs[args.config][1]
 buildArgs.append(buildsystems[args.buildsystem][0])
-
+#buildArgs.append('-DCMAKE_TOOLCHAIN_FILE=clang.cmake')
 outputDir = os.path.join(args.output, configs[args.config][0])
 
 try :
-	os.makedirs(outputDir)
+    os.makedirs(outputDir)
 except :
-	pass
+    pass
 
 if args.actions == 'build' :
     args.actions = [ 'build' ]
@@ -75,6 +76,8 @@ for a in args.actions :
         if buildTool == 'make' :
             args.append('-j8')
         subprocess.call(args)
+    elif a == 'config' :
+        subprocess.call(['cmake', '-B' + outputDir, '-H.'] + buildArgs)
     elif a == 'clean' :
         subprocess.call([buildTool, '-C', outputDir, 'clean'])
     elif a == 'run' :
