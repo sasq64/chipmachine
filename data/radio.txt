@@ -1,4 +1,4 @@
-Scenesat		Shoutcast	M3U	http://www.scenesat.com/listen/normal/mid.m3u
+Scenesat		Shoutcast	M3U	https://scenesat.com/listen/normal/mid.m3u
 SLAY Radio		Shoutcast	M3U	https://www.slayradio.org/tune_in.php/128kbps/slayradio.128.m3u
 Nectarine		Shoutcast	M3U	http://pmaster.no:9000/necta.m3u
 VGM Radio		Shoutcast	M3U	https://vgmradio.com/vgmradio.m3u
