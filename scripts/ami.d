@@ -106,9 +106,8 @@ void main() {
 		auto fileName = format("bitworld.%s.html", id);
 		char[] data;
 		if(!exists(fileName)) {
-			break;
-			//data = get(format("http://janeway.exotica.org.uk/release.php?id=%s", id));
-			//std.file.write(fileName, data);
+			data = get(format("http://janeway.exotica.org.uk/release.php?id=%s", id));
+			std.file.write(fileName, data);
 		} else
 			data = cast(char[])read(fileName);
 

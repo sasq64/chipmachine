@@ -39,7 +39,7 @@ bool MusicDatabase::parseBitworld(Variables &vars, const std::string &listFile,
 		//LOGD("ID: %s", parts[0]);
 		prod.title = parts[1];
 		prod.creator = parts[2];
-		prod.type = parts[3];
+		prod.type = "Amiga " + parts[3];
 		prod.screenshots = parts[5];
 		for(const auto &s : split(parts[4], ";")) {
 			if(endsWith(s, ".smpl"))

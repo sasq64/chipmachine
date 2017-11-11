@@ -240,7 +240,10 @@ void ChipMachine::updateKeys() {
 		SongInfo song = MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
 		auto ext = path_extension(song.path);
 		bool isoffline = RemoteLoader::getInstance().isOffline(song.path);
-		topStatus.setText(format("Format: %s (%s)%s", song.format, ext, isoffline ? "*" : ""));
+		if(ext != "")
+			topStatus.setText(format("Format: %s (%s)%s", song.format, ext, isoffline ? "*" : ""));
+		else
+			topStatus.setText(format("Format: %s %s", song.format, isoffline ? "*" : ""));
 		searchField.visible(false);
 		filterField.visible(false);
 		topStatus.visible(true);
