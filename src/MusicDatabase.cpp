@@ -401,10 +401,9 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 		auto query2 = db.query("INSERT INTO prod2song (prodid, songid) "
 					 "VALUES (?, ?)");
 	
-		unordered_map<string, MemFun> parsers = {
-		    {"pouet", &MusicDatabase::parseStandard},       {"csdb", &MusicDatabase::parseCsdb},
-		    {"modland", &MusicDatabase::parseModland},   {"podcast", &MusicDatabase::parseRss},
-		    {"standard", &MusicDatabase::parseStandard},
+		unordered_map<string, ParseProdFun> parsers = {
+			{"csdb", &MusicDatabase::parseCsdb},
+		    {"bitworld", &MusicDatabase::parseBitworld},
 		};
 
 			auto parser = parsers[type];
