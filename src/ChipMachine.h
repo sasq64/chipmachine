@@ -56,7 +56,7 @@ public:
 	}
 	
 	void setBitmap(const image::bitmap &bm, bool filter = false) {
-		texture = make_shared<grappix::Texture>(bm);
+		texture = std::make_shared<grappix::Texture>(bm);
 		rec.w = bm.width();
 		rec.h = bm.height();
 		glBindTexture(GL_TEXTURE_2D, texture->id());
@@ -203,7 +203,7 @@ private:
 	Icon favIcon;
 	Icon netIcon;
 	Icon volumeIcon;
-	//Icon screenShotIcon;
+	Icon screenShotIcon;
 
 	// MAINSCREEN AND ITS RENDERABLES
 	RenderSet mainScreen;
