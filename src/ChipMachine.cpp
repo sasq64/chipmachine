@@ -10,11 +10,80 @@
 #ifdef _WIN32
 #include <ShellApi.h>
 #endif
-
 using namespace std;
 using namespace utils;
 using namespace grappix;
 using namespace tween;
+
+//
+// Execute a command and get the results. (Only standard output)
+//
+std::string ExecCmd( const std::string &cmd)
+{
+	std::string strResult;
+    HANDLE hPipeRead, hPipeWrite;
+
+    SECURITY_ATTRIBUTES saAttr = { sizeof(SECURITY_ATTRIBUTES) };
+    saAttr.bInheritHandle = TRUE;   //Pipe handles are inherited by child process.
+    saAttr.lpSecurityDescriptor = NULL;
+
+    // Create a pipe to get results from child's stdout.
+    if ( !CreatePipe(&hPipeRead, &hPipeWrite, &saAttr, 0) )
+        return strResult;
+
+    STARTUPINFO si = { sizeof(STARTUPINFO) };
+    si.dwFlags     = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+    si.hStdOutput  = hPipeWrite;
+    si.hStdError   = hPipeWrite;
+    si.wShowWindow = SW_HIDE;       // Prevents cmd window from flashing. Requires STARTF_USESHOWWINDOW in dwFlags.
+
+    PROCESS_INFORMATION pi  = { 0 };
+
+    BOOL fSuccess = CreateProcessA( NULL, (LPSTR)cmd.c_str(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
+    if (! fSuccess)
+    {
+		LOGD("FAILED %d", GetLastError());
+        CloseHandle( hPipeWrite );
+        CloseHandle( hPipeRead );
+        return strResult;
+    }
+
+    bool bProcessEnded = false;
+    for (; !bProcessEnded ;)
+    {
+        // Give some timeslice (50ms), so we won't waste 100% cpu.
+        bProcessEnded = WaitForSingleObject( pi.hProcess, 50) == WAIT_OBJECT_0;
+
+        // Even if process exited - we continue reading, if there is some data available over pipe.
+        for (;;)
+        {
+            char buf[1024];
+            DWORD dwRead = 0;
+            DWORD dwAvail = 0;
+
+            if (!::PeekNamedPipe(hPipeRead, NULL, 0, NULL, &dwAvail, NULL))
+                break;
+
+            if (!dwAvail) // no data available, return
+                break;
+			if(dwAvail > sizeof(buf))
+				dwAvail = sizeof(buf);
+
+            if (!::ReadFile(hPipeRead, buf, dwAvail, &dwRead, NULL) || !dwRead)
+                // error, the child process might ended
+                break;
+
+            buf[dwRead] = 0;
+            strResult += std::string(buf);
+        }
+    } //for
+
+    CloseHandle( hPipeWrite );
+    CloseHandle( hPipeRead );
+    CloseHandle( pi.hProcess );
+    CloseHandle( pi.hThread );
+    return strResult;
+} //ExecCmd
 
 std::string compressWhitespace(std::string &&m) {
 	// Turn linefeeds into spaces
@@ -81,6 +150,7 @@ public:
 	virtual ChipPlayer *fromFile(const std::string &fileName) override {
 		LOGD("Youtube plugin %s", fileName);
 		string x = lua.call<string>(string("on_parse_youtube"), fileName);
+		LOGD("LUA reports %s", x);
 		if(x == "")
 			return nullptr;
 		auto player = plugin->fromFile(x);
@@ -117,22 +187,14 @@ ChipMachine::ChipMachine(const std::string &wd)
 	              );
 
 	string binDir = (workDir / "bin").getName();
-	lua.registerFunction("cm_execute", [binDir](std::string cmd) {
+	lua.registerFunction("cm_execute", [binDir](std::string cmd) -> std::string {
 		LOGD("BINDIR:%s", binDir);
 #ifdef _WIN32
-		auto cmdLine = utils::format("/C %s", cmd);
-		SHELLEXECUTEINFO ShExecInfo = {0};
-		ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-		ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-		ShExecInfo.hwnd = NULL;
-		ShExecInfo.lpVerb = NULL;
-		ShExecInfo.lpFile = "cmd.exe";
-		ShExecInfo.lpParameters = cmdLine.c_str();
-		ShExecInfo.lpDirectory = binDir.c_str();
-		ShExecInfo.nShow = SW_HIDE;
-		ShExecInfo.hInstApp = NULL;
-		ShellExecuteEx(&ShExecInfo);
-		WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
+		//auto cmdLine = utils::format("/C %s", cmd);
+		LOGD("CMD:'%s'", cmd);
+		auto result = ExecCmd(cmd);
+		LOGD("RES '%s'", result);
+		return result;
 #else
 			if(cmd[0] != '/')
 				cmd = binDir + "/" + cmd; 

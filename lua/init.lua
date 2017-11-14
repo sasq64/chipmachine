@@ -1,17 +1,11 @@
 
 -- Given the link to a youtube URL, return an URL to an audio stream
 function on_parse_youtube (url)
-	if WINDOWS then
-	  name = os.getenv("TMP") .. "/ydlout.txt"
-	else
-	  name = os.tmpname()
-	end
-	os.remove(name)
-	cm_execute(string.format('youtube-dl --skip-download -g "%s" > %s', url, name))
-
+	result = cm_execute(string.format('youtube-dl --skip-download -g "%s"', url))
 	url = ''
 
-	for l in io.lines(name) do
+	-- for l in io.lines(name) do
+	for l in result:gmatch("[^\r\n]+") do
 		if string.find(l, 'mime=audio',1 , true) then
 			url = l
 			break
@@ -21,14 +15,13 @@ function on_parse_youtube (url)
 		end
 	end
 	
-	os.remove(name)
 	return url
 	
 end
 
 -- Called when screen needs layout
 function on_layout (width, height, ppi)
-	print("LUA LAYOUT");
+	-- print("LUA LAYOUT");
 end
 
 
