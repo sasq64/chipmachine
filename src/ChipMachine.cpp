@@ -18,6 +18,7 @@ using namespace tween;
 //
 // Execute a command and get the results. (Only standard output)
 //
+#ifdef WIN32
 std::string ExecCmd( const std::string &cmd)
 {
 	std::string strResult;
@@ -84,6 +85,7 @@ std::string ExecCmd( const std::string &cmd)
     CloseHandle( pi.hThread );
     return strResult;
 } //ExecCmd
+#endif
 
 std::string compressWhitespace(std::string &&m) {
 	// Turn linefeeds into spaces

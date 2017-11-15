@@ -29,6 +29,7 @@ if(SAN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=${SAN}")
 endif()
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 link_directories(/usr/local/lib)
 include_directories(${AP1_ROOT}/mods /usr/local/include)
 
@@ -131,7 +132,6 @@ add_subdirectory(${AP1_ROOT}/mods/musicplayer/plugins plugins)
 
 include_directories(${AP1_ROOT}/mods/grappix ${AP1_ROOT}/mods/musicplayer/plugins)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 if(WIN32)
     set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -mwindows)
