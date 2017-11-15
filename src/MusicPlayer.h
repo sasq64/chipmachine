@@ -173,7 +173,7 @@ private:
 	// Fifo fifo;
 	SpectrumAnalyzer fft;
 	//std::vector<std::shared_ptr<ChipPlugin>> plugins;
-	bool paused = false;
+	std::atomic<bool> paused{false};
 	std::array<uint16_t, SpectrumAnalyzer::eq_slots> spectrum;
 
 	// Should be held when accessing FFT data
@@ -182,8 +182,8 @@ private:
 	SafePointer<ChipPlayer> player;
 	std::string message;
 	std::string sub_title;
-    int pos = 0;
-    int length = 0;
+	std::atomic<int> pos{0};
+	std::atomic<int> length{0};
     int fadeLength = 0;
     int fadeOutPos = 0;
     int silentFrames = 0;
