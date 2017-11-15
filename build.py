@@ -46,7 +46,9 @@ args = parser.parse_args()
 
 configs = { 'release' : [ 'release', ['-DCMAKE_BUILD_TYPE=Release'] ],
             'debug' : [ 'debug', ['-DCMAKE_BUILD_TYPE=Debug'] ],
-            'usan' : [ 'usan', ['-DCMAKE_BUILD_TYPE=Debug', '-DSAN=undefined'] ]
+            'usan' : [ 'usan', ['-DCMAKE_BUILD_TYPE=Debug', '-DSAN=undefined'] ],
+            'asan' : [ 'asan', ['-DCMAKE_BUILD_TYPE=Debug', '-DSAN=address'] ],
+            'tsan' : [ 'tsan', ['-DCMAKE_BUILD_TYPE=Debug', '-DSAN=thread'] ]
           }
 buildsystems = { 'make' : ['-GUnix Makefiles'],
                  'ninja' : [ '-GNinja',  ]
