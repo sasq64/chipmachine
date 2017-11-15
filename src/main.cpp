@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 	bool textMode = false;
 #endif
 
-    CLI::App opts{"Chipmachine 1.3"};
+    static CLI::App opts{"Chipmachine 1.3"};
 
 #ifndef TEXTMODE_ONLY
     opts.add_option("--width", w, "Width of window");
@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
 #ifdef ENABLE_CONSOLE
 		Console *c = Console::createLocalConsole();
 #endif
-		MusicPlayer pl(workDir);
+		static MusicPlayer pl(workDir);
 		while(true) {
 			if(pos >= songs.size())
 				return 0;
@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
 
 	if(textMode || telnetServer) {
 
-		ChipInterface ci(workDir);
+		static ChipInterface ci(workDir);
 		if(textMode) {
 #ifndef _WIN32
 			logging::setLevel(logging::ERROR);
