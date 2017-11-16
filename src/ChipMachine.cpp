@@ -156,6 +156,7 @@ public:
 		if(x == "")
 			return nullptr;
 		auto player = plugin->fromFile(x);
+		LOGD("OK");
 		auto dpos = x.find("dur=");
 		if(dpos != string::npos) {
 			int length = atoi(x.substr(dpos + 4).c_str());
@@ -180,28 +181,20 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 	screen.setTitle("Chipmachine " VERSION_STR);
 	
-		lua.setGlobal("WINDOWS",
 #ifdef _WIN32
-	              true
+	lua.setGlobal("WINDOWS", true);
 #else
-	              false
+	lua.setGlobal("WINDOWS", false);
 #endif
-	              );
 
 	string binDir = (workDir / "bin").getName();
 	lua.registerFunction("cm_execute", [binDir](std::string cmd) -> std::string {
 		LOGD("BINDIR:%s", binDir);
-#ifdef _WIN32
-		//auto cmdLine = utils::format("/C %s", cmd);
-		LOGD("CMD:'%s'", cmd);
-		auto result = ExecCmd(cmd);
-		LOGD("RES '%s'", result);
-		return result;
-#else
-			if(cmd[0] != '/')
-				cmd = binDir + "/" + cmd; 
-			system(cmd.c_str());
-#endif
+		if(!File::isAbsolutePath(cmd))
+			cmd = binDir + File::DIR_SEPARATOR + cmd; 
+		std::string output = execPipe(cmd);
+		LOGD("OUTPUT: %s", output);
+		return output;
 	});
 
 	lua.loadFile(workDir / "lua" / "init.lua");
