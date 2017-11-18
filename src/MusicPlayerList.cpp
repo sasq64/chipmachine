@@ -29,7 +29,7 @@ MusicPlayerList::MusicPlayerList(const std::string &workDir) : mp(workDir) {
 			} else
 				plMutex.unlock();
 			update();
-			sleepms(100);
+			sleepms(50);
 		}
 	});
 }
