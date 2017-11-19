@@ -298,7 +298,6 @@ bool MusicDatabase::parseStandard(Variables &vars, const std::string &listFile,
 			i++;
 		}
 		columns = i;
-		LOGD("TEMPLATE '%s' -> %d %d %d", templ, pi, ti, ci);
 	}
 
 	bool isUtf8 = vars["utf8"] == "no" ? false : true;
@@ -323,8 +322,10 @@ bool MusicDatabase::parseStandard(Variables &vars, const std::string &listFile,
 			if(ci > 0)
 				parts[ci] = htmldecode(parts[ci]);
 
-			if(parts.size() > mi)
+			if (parts.size() > mi) {
 				metadata = parts[mi];
+				LOGD("Metadata: %s", metadata);
+			}
 
 			song = SongInfo(parts[pi], gi >= 0 ? parts[gi] : "", parts[ti],
 			                ci >= 0 ? parts[ci] : composer, fi <= 0 ? format : parts[fi], metadata);
@@ -649,7 +650,7 @@ SongInfo MusicDatabase::getSongInfo(int id) const {
 			string collection;
 			tie(song.title, song.game, song.composer, song.format, song.path, collection,
 			    song.metadata[SongInfo::INFO]) = q.get_tuple();
-			if(collection == "pouet") {
+			if(collection == "pouet" && song.metadata[SongInfo::INFO] != "") {
 				song.metadata[SongInfo::SCREENSHOT] =
 				    string("http://content.pouet.net/files/screenshots/") +
 				    song.metadata[SongInfo::INFO];
@@ -691,7 +692,8 @@ std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
 				prefix = "http://kestra.exotica.org.uk/files/screenies/";
 			auto parts = split(shot, ";");
 			for(auto &p : parts) {
-				p = prefix + p;
+				if(p != "")
+					p = prefix + p;
 			}
 			shot = join(parts, ";");
 		}

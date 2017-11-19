@@ -33,7 +33,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 link_directories(/usr/local/lib)
 include_directories(${AP1_ROOT}/mods /usr/local/include)
 
-
 set(SOURCE_FILES
 	src/ChipMachine.cpp
 	src/MusicBars.cpp
@@ -148,6 +147,9 @@ if(APPLE)
 else()
 	add_executable(chipmachine ${SOURCE_FILES})
 endif()
+
+set_property(TARGET chipmachine PROPERTY CXX_STANDARD 14)
+set_property(TARGET chipmachine PROPERTY CXX_STANDARD_REQUIRED ON)
 
 target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
 
