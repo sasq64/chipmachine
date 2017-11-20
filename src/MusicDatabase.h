@@ -169,8 +169,9 @@ public:
 	SongInfo& lookup(SongInfo &song);
 	
 	std::vector<SongInfo> getProductSongs(uint32_t id);
-	
+private:
 	std::string getProductScreenshots(uint32_t id);
+public:
 	std::string getSongScreenshots(SongInfo &s);
 
 	static MusicDatabase &getInstance() {

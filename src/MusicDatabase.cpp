@@ -614,6 +614,17 @@ SongInfo &MusicDatabase::lookup(SongInfo &song) {
 	return song;
 }
 
+std::string getScreenshotURL(const std::string &collection) {
+	string prefix = "";
+	if(collection == "pouet")
+		prefix = "http://content.pouet.net/files/screenshots/";
+	else if(collection == "bitworld")
+		prefix = "http://kestra.exotica.org.uk/files/screenies/";
+	else if(collection == "gb64")
+		prefix = "";
+	return prefix;
+}
+
 SongInfo MusicDatabase::getSongInfo(int id) const {
 
 	if(id >= PLAYLIST_INDEX) {
@@ -652,12 +663,6 @@ SongInfo MusicDatabase::getSongInfo(int id) const {
 			string collection;
 			tie(song.title, song.game, song.composer, song.format, song.path, collection,
 			    song.metadata[SongInfo::INFO]) = q.get_tuple();
-			if(collection == "pouet" && song.metadata[SongInfo::INFO] != "") {
-				song.metadata[SongInfo::SCREENSHOT] =
-				    string("http://content.pouet.net/files/screenshots/") +
-				    song.metadata[SongInfo::INFO];
-				song.metadata[SongInfo::INFO] = "";
-			}
 			song.path = collection + "::" + song.path;
 			return song;
 		}
@@ -668,10 +673,14 @@ std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
 
 	lookup(s);
 	auto parts = split(s.path, "::");
+	string collection = parts[0];
 	string shot;
-	LOGD("Collection '%s'", parts[0]);
+	LOGD("Get screenhots / Path %s Collection '%s'", parts[1], parts[0]);
 	if(s.metadata[SongInfo::SCREENSHOT] != "") {
 		shot = s.metadata[SongInfo::SCREENSHOT];
+	} else if(collection == "pouet") {
+		shot = s.metadata[SongInfo::INFO];
+		LOGD("Got pouet shot %s", shot);
 	} else {
 		auto q = db.query<string, string, string>(
 		    "SELECT product.screenshots, product.type, collection.id "
@@ -679,26 +688,22 @@ std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
 		    "WHERE product.rowid = prod2song.prodid AND prod2song.songid = song.ROWID AND "
 		    "product.collection = collection.ROWID AND song.path = ?",
 		    parts[1]);
-		string collection, format;
+		string format;
 		while(q.step()) {
 			tie(shot, format, collection) = q.get_tuple();
 			LOGD("Collection %s Format %s", collection, format);
 			if(format.find("Demo") != string::npos || format.find("Trackmo") != string::npos)
 				break;
 		}
-		if(shot != "") {
-			string prefix = "";
-			if(collection == "pouet")
-				prefix = "http://content.pouet.net/files/screenshots/";
-			else if(collection == "bitworld")
-				prefix = "http://kestra.exotica.org.uk/files/screenies/";
-			auto parts = split(shot, ";");
-			for(auto &p : parts) {
-				if(p != "")
-					p = prefix + p;
-			}
-			shot = join(parts, ";");
+	}
+	if(shot != "") {
+		auto prefix = getScreenshotURL(collection); 
+		auto parts = split(shot, ";");
+		for(auto &p : parts) {
+			if(p != "")
+				p = prefix + p;
 		}
+		shot = join(parts, ";");
 	}
 	return shot;
 }
@@ -716,11 +721,7 @@ std::string MusicDatabase::getProductScreenshots(uint32_t id) {
 
 	if(q.step()) {
 		tie(collection, screenshot) = q.get_tuple();
-		string prefix = "";
-		if(collection == "pouet")
-			prefix = "http://content.pouet.net/files/screenshots/";
-		else if(collection == "bitworld")
-			prefix = "http://kestra.exotica.org.uk/files/screenies/";
+		auto prefix = getScreenshotURL(collection); 
 		auto parts = split(screenshot, ";");
 		for(auto &p : parts) {
 			p = prefix + p;

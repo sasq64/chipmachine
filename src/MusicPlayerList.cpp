@@ -17,7 +17,7 @@ MusicPlayerList::MusicPlayerList(const std::string &workDir) : mp(workDir) {
 	wasAllowed = true;
 	permissions = 0xff;
 	quitThread = false;
-	playerThread = thread([=]() {
+	playerThread = thread([=] {
 		while(!quitThread) {
 			plMutex.lock();
 			if(funcs.size()) {
@@ -55,7 +55,7 @@ void MusicPlayerList::clearSongs() {
 
 void MusicPlayerList::nextSong() {
 	//LOCK_GUARD(plMutex);
-	onThisThread( [=] {
+	onThisThread([=] {
 		if(playList.size() > 0) {
 			// mp.stop();
 			SET_STATE(WAITING);
@@ -368,9 +368,8 @@ void MusicPlayerList::playCurrent() {
 		}
     	if(playList.psongs.size() == 0)
         	return;
-	/*	
-		screenshot = MusicDatabase::getInstance().getProductScreenshots(id);
-		LOGD("Got screenshot: %s", screenshot); */
+
+		// Check that the first song is working
 		MusicDatabase::getInstance().lookup(playList.psongs.front());
 		if(playList.psongs.front().path == "") {
 			LOGD("Could not lookup '%s'",playList.psongs.front().path);
