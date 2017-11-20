@@ -276,32 +276,36 @@ bool MusicDatabase::parseStandard(Variables &vars, const std::string &listFile,
                                   std::function<void(const SongInfo &)> callback) {
 
 	const char *metadata = nullptr;
-	int pi = 4, gi = 1, ti = 0, ci = 2, fi = 3, mi = 5;
+	int pathIndex = 4, gameIndex = 1, titleIndex = 0, composerIndex = 2, formatIndex = 3, metaIndex = 5;
 	auto templ = vars["song_template"];
+	//if(temp == "")
+	//	templ = "title game composer format path meta";
 	auto format = vars["format"];
 	auto composer = vars["composer"];
 	int columns = 2;
 	if(templ != "") {
-		fi = gi = ci = -1;
+		formatIndex = gameIndex = composerIndex = -1;
 		int i = 0;
 		for(const auto &p : split(templ)) {
 			if(p == "title")
-				ti = i;
+				titleIndex = i;
 			else if(p == "composer")
-				ci = i;
+				composerIndex = i;
 			else if(p == "path")
-				pi = i;
+				pathIndex = i;
 			else if(p == "format")
-				fi = i;
+				formatIndex = i;
 			else if(p == "game")
-				gi = i;
+				gameIndex = i;
 			i++;
 		}
 		columns = i;
 	}
 
 	bool isUtf8 = vars["utf8"] == "no" ? false : true;
+	bool htmlDec = vars["html_decode"] == "no" ? false : true;
 	auto source = vars["source"];
+
 
 	File f{listFile};
 
@@ -309,26 +313,24 @@ bool MusicDatabase::parseStandard(Variables &vars, const std::string &listFile,
 		auto parts = isUtf8 ? split(s, "\t") : split(utf8_encode(s), "\t");
 		if(parts.size() >= columns) {
 
+			if(htmlDec) {
+				for(auto& p : parts)
+					p = htmldecode(p);
+			}
+
 			SongInfo song;
 			string metadata;
 
 			// Strip sorce from path if necessary
-			if(source != "" && parts[pi].find(source) == 0)
-				parts[pi] = parts[pi].substr(source.length());
-			if(ti > 0)
-				parts[ti] = htmldecode(parts[ti]);
-			if(gi > 0)
-				parts[gi] = htmldecode(parts[gi]);
-			if(ci > 0)
-				parts[ci] = htmldecode(parts[ci]);
+			if(source != "" && parts[pathIndex].find(source) == 0)
+				parts[pathIndex] = parts[pathIndex].substr(source.length());
 
-			if (parts.size() > mi) {
-				metadata = parts[mi];
-				LOGD("Metadata: %s", metadata);
-			}
+			if(parts.size() > metaIndex)
+				metadata = parts[metaIndex];
 
-			song = SongInfo(parts[pi], gi >= 0 ? parts[gi] : "", parts[ti],
-			                ci >= 0 ? parts[ci] : composer, fi <= 0 ? format : parts[fi], metadata);
+			song = SongInfo(parts[pathIndex], gameIndex >= 0 ? parts[gameIndex] : "", parts[titleIndex],
+			                composerIndex >= 0 ? parts[composerIndex] : composer, 
+							formatIndex <= 0 ? format : parts[formatIndex], metadata);
 			callback(song);
 		}
 	}
