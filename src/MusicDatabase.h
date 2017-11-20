@@ -235,6 +235,8 @@ private:
 	               std::function<void(const Product &)> callback);
 	bool parseBitworld(Variables &vars, const std::string &listFile,
 	               std::function<void(const Product &)> callback);
+	bool parseGamebase(Variables &vars, const std::string &listFile,
+	               std::function<void(const Product &)> callback);
 	bool parsePouet(Variables &vars, const std::string &listFile,
 	                std::function<void(const SongInfo &)> callback);
 	bool parseRss(Variables &vars, const std::string &listFile,

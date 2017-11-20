@@ -81,7 +81,7 @@ class ChipMachine {
 public:
 	using Color = grappix::Color;
 
-	void renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
+	void renderSong(const grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
 	void renderCommand(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
 
 	ChipMachine(const std::string &workDir);

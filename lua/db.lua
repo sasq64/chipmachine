@@ -25,6 +25,13 @@ DB = {
 	color = 0xfffff
 },
 {
+	name = "Gamebase64",
+	id =  "gb64",
+	prod_list = "data/Games.csv",
+	screen_source = "http://www.gb64.com/Screenshots/",
+	color = 0xfffff
+},
+{
 	name = "CSDb",
 	id =  "csdb",
 	local_dir = "",
@@ -53,6 +60,7 @@ DB = {
 	name = "Bitworld",
 	id =  "bitworld",
 	prod_list = "data/bitworld.txt",
+	screen_source = "http://kestra.exotica.org.uk/files/screenies/",
 	color = 0xfffff
 },
 {
@@ -216,6 +224,7 @@ DB = {
 	id =  "pouet",
 	source = "",
 	song_list = "data/pouet.txt",
+	screen_source = "http://content.pouet.net/files/screenshots/",
 	color = 0xfffff
 }
 };

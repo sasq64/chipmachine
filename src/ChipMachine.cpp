@@ -30,7 +30,7 @@ std::string compressWhitespace(const std::string &text) {
 
 namespace chipmachine {
 
-void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
+void ChipMachine::renderSong(const grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
 
 	static const map<uint32_t, uint32_t> colors = {
 	    {NOT_SET, 0xffff00ff}, {PLAYLIST, 0xffffff88}, {CONSOLE, 0xffdd3355}, {C64, 0xffcc8844},

@@ -13,6 +13,8 @@
 #include <chrono>
 #include <algorithm>
 
+#include "csv.h"
+
 using namespace std;
 using namespace utils;
 
@@ -54,6 +56,30 @@ bool MusicDatabase::parseBitworld(Variables &vars, const std::string &listFile,
 	return true;
 }
 
+
+bool MusicDatabase::parseGamebase(Variables &vars, const std::string &listFile,
+                                  std::function<void(const Product &)> callback) {
+
+	using namespace io;
+	CSVReader<3, trim_chars<' '>, double_quote_escape<',','\"'>> in(listFile);
+	in.read_header(io::ignore_extra_column, "Name", "ScrnshotFilename", "SidFilename");
+	std::string name, screenshot, sid;
+	while(in.read_row(name, screenshot, sid)) {
+		// do stuff with the data
+		replace(screenshot.begin(), screenshot.end(), '\\', '/');
+		replace(sid.begin(), sid.end(), '\\', '/');
+		if(sid != "") {
+			Product prod;
+			prod.title = name;
+			prod.type = "C64 Game";
+			prod.screenshots = screenshot;
+			prod.songs.push_back(sid);
+			callback(prod);
+		}
+	}
+	return true;
+}
+
 bool MusicDatabase::parseCsdb(Variables &vars, const std::string &listFile,
                               std::function<void(const Product &)> callback) {
 
@@ -78,7 +104,7 @@ bool MusicDatabase::parseCsdb(Variables &vars, const std::string &listFile,
 		auto shot = i["Screenshot"];
 		if(shot.valid()) {
 			prod.screenshots = shot.text();
-			LOGD("Screenshot %s", prod.screenshots);
+			//LOGD("Screenshot %s", prod.screenshots);
 		}
 		prod.creator = group;
 		if((endsWith(prod.type, "Music Collection") || endsWith(prod.type, "Diskmag") ||
@@ -275,7 +301,6 @@ bool MusicDatabase::parseModland(Variables &vars, const std::string &listFile,
 bool MusicDatabase::parseStandard(Variables &vars, const std::string &listFile,
                                   std::function<void(const SongInfo &)> callback) {
 
-	const char *metadata = nullptr;
 	int pathIndex = 4, gameIndex = 1, titleIndex = 0, composerIndex = 2, formatIndex = 3, metaIndex = 5;
 	auto templ = vars["song_template"];
 	//if(temp == "")
@@ -345,6 +370,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 		type = id;
 	auto name = vars["name"];
 	auto source = vars["source"];
+	auto screen_source = vars["screen_source"];
 	auto local_dir = vars["local_dir"];
 	auto song_list = vars["song_list"];
 	auto prod_list = vars["prod_list"];
@@ -370,6 +396,9 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 	}
 
 	print_fmt("Creating '%s' database\n", name);
+
+	if(source == "")
+		source = screen_source;
 
 	db.exec("BEGIN TRANSACTION");
 	db.exec("INSERT INTO collection (name, id, url, localdir, description) VALUES (?, ?, ?, ?, ?)",
@@ -415,14 +444,16 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 	
 		unordered_map<string, ParseProdFun> parsers = {
 			{"csdb", &MusicDatabase::parseCsdb},
+			{"gb64", &MusicDatabase::parseGamebase},
 		    {"bitworld", &MusicDatabase::parseBitworld},
 		};
 
 			auto parser = parsers[type];
 			//if(!parser)
 				//parser = &MusicDatabase::parseStandard;
+			LOGD("Parsing %s from %s", type, listFile.getName());
 	
-			(this->*parser)(vars, listFile, [&](const Product &prod) {
+			(this->*parser)(vars, listFile.getName(), [&](const Product &prod) {
 				query.bind(prod.title, prod.creator, prod.type, prod.screenshots, collection_id).step();
 				auto prodrow = db.last_rowid();
 				for(string path : prod.songs) {
@@ -430,7 +461,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 					auto pos = path.find("Zombie (FI)");
 					if(pos != string::npos)
 						path = path.substr(0,pos) + "Naksahtaja" + path.substr(pos + 11);
-					uint64_t hash = MD5::hash(path);
+					uint64_t hash = MD5::hash(toLower(path));
 					auto it = pathMap.find(hash);
 					if(it == pathMap.end()) {
 						LOGD("PATH '%s' not found", path);
@@ -464,7 +495,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 				                              : nullptr)
 				    .step();
 				auto last = db.last_rowid();
-				auto hash = MD5::hash(song.path);
+				auto hash = MD5::hash(utils::toLower(song.path));
 				pathMap[hash] = last;
 
 			});
@@ -621,7 +652,7 @@ std::string getScreenshotURL(const std::string &collection) {
 	else if(collection == "bitworld")
 		prefix = "http://kestra.exotica.org.uk/files/screenies/";
 	else if(collection == "gb64")
-		prefix = "";
+		prefix = "http://www.gb64.com/Screenshots/";
 	return prefix;
 }
 
@@ -692,7 +723,7 @@ std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
 		while(q.step()) {
 			tie(shot, format, collection) = q.get_tuple();
 			LOGD("Collection %s Format %s", collection, format);
-			if(format.find("Demo") != string::npos || format.find("Trackmo") != string::npos)
+			if(format.find("Game") != string::npos || format.find("Demo") != string::npos || format.find("Trackmo") != string::npos)
 				break;
 		}
 	}
