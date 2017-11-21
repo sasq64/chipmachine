@@ -171,6 +171,7 @@ public:
 	std::vector<SongInfo> getProductSongs(uint32_t id);
 private:
 	std::string getProductScreenshots(uint32_t id);
+	std::string getScreenshotURL(const std::string &collection);
 public:
 	std::string getSongScreenshots(SongInfo &s);
 

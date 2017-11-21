@@ -366,8 +366,12 @@ void MusicPlayerList::playCurrent() {
 		for(const auto &song : MusicDatabase::getInstance().getProductSongs(id)) {
 			playList.psongs.push_back(song);
 		}
-    	if(playList.psongs.size() == 0)
+    	if(playList.psongs.size() == 0) {
+			LOGD("No songs in product");
+			errors.push_back("No songs in product");
+			SET_STATE(ERROR);
         	return;
+		}
 
 		// Check that the first song is working
 		MusicDatabase::getInstance().lookup(playList.psongs.front());

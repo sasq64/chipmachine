@@ -4,7 +4,7 @@
 -- local_dir : If exists, will be checked first for files before downloading.
 -- If song_list or or source can not be found, database will not be added
 
-VERSION = 13;
+VERSION = 14;
 
 DB = {
 {
@@ -16,8 +16,6 @@ DB = {
 {
 	name = "HVSC",
 	id =  "hvsc",
-	-- source = "http://www.prg.dtu.dk/HVSC/C64Music/",
-	-- source = "http://hvsc.etv.cx/C64Music/",
 	source = "https://www.sannic.nl/hvsc/C64Music/",
 	song_list = "data/hvsc.txt",
 	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/hvsc.txt",
@@ -29,6 +27,7 @@ DB = {
 	id =  "gb64",
 	prod_list = "data/Games.csv",
 	screen_source = "http://www.gb64.com/Screenshots/",
+	index = "no",
 	color = 0xfffff
 },
 {

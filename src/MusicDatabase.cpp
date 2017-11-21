@@ -18,6 +18,48 @@
 using namespace std;
 using namespace utils;
 
+// From Rosetta stone
+// Compute Levenshtein Distance
+// Martin Ettl, 2012-10-05
+size_t levenshteinDistance(const std::string &s1, const std::string &s2) {
+	const size_t m(s1.size());
+	const size_t n(s2.size());
+
+	if(m == 0)
+		return n;
+	if(n == 0)
+		return m;
+
+	size_t *costs = new size_t[n + 1];
+
+	for(size_t k = 0; k <= n; k++)
+		costs[k] = k;
+
+	size_t i = 0;
+	for(std::string::const_iterator it1 = s1.begin(); it1 != s1.end(); ++it1, ++i) {
+		costs[0] = i + 1;
+		size_t corner = i;
+
+		size_t j = 0;
+		for(std::string::const_iterator it2 = s2.begin(); it2 != s2.end(); ++it2, ++j) {
+			size_t upper = costs[j + 1];
+			if(*it1 == *it2) {
+				costs[j + 1] = corner;
+			} else {
+				size_t t(upper < corner ? upper : corner);
+				costs[j + 1] = (costs[j] < t ? costs[j] : t) + 1;
+			}
+
+			corner = upper;
+		}
+	}
+
+	size_t result = costs[n];
+	delete[] costs;
+
+	return result;
+}
+
 namespace chipmachine {
 
 void MusicDatabase::createTables() {
@@ -109,7 +151,7 @@ bool MusicDatabase::parseCsdb(Variables &vars, const std::string &listFile,
 		prod.creator = group;
 		if((endsWith(prod.type, "Music Collection") || endsWith(prod.type, "Diskmag") ||
 		    endsWith(prod.type, "Demo")) &&
-		   rt > 0) {
+		   rt >= 0) {
 			for(const auto &s : i["Sids"].all("HVSCPath")) {
 				prod.songs.push_back(s.text().substr(1));
 			}
@@ -645,14 +687,11 @@ SongInfo &MusicDatabase::lookup(SongInfo &song) {
 	return song;
 }
 
-std::string getScreenshotURL(const std::string &collection) {
+std::string MusicDatabase::getScreenshotURL(const std::string &collection) {
 	string prefix = "";
-	if(collection == "pouet")
-		prefix = "http://content.pouet.net/files/screenshots/";
-	else if(collection == "bitworld")
-		prefix = "http://kestra.exotica.org.uk/files/screenies/";
-	else if(collection == "gb64")
-		prefix = "http://www.gb64.com/Screenshots/";
+	auto q = db.query<string>("SELECT url FROM collection WHERE id = ?", collection);
+	if(q.step())
+		prefix = q.get();
 	return prefix;
 }
 
@@ -665,7 +704,7 @@ SongInfo MusicDatabase::getSongInfo(int id) const {
 	}
 
 	id++;
-	LOGD("ID %d vs PROD %d", id, productStartIndex);
+	//LOGD("ID %d vs PROD %d", id, productStartIndex);
 	if(id >= productStartIndex) {
 		id -= productStartIndex;
 		auto q = db.query<string, string, string, string, string>(
@@ -706,6 +745,8 @@ std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
 	auto parts = split(s.path, "::");
 	string collection = parts[0];
 	string shot;
+	string title;
+	string baseName = path_basename(parts[1]);
 	LOGD("Get screenhots / Path %s Collection '%s'", parts[1], parts[0]);
 	if(s.metadata[SongInfo::SCREENSHOT] != "") {
 		shot = s.metadata[SongInfo::SCREENSHOT];
@@ -713,23 +754,37 @@ std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
 		shot = s.metadata[SongInfo::INFO];
 		LOGD("Got pouet shot %s", shot);
 	} else {
-		auto q = db.query<string, string, string>(
-		    "SELECT product.screenshots, product.type, collection.id "
+		auto q = db.query<string, string, string, string>(
+		    "SELECT product.title, product.screenshots, product.type, collection.id "
 		    "FROM product, prod2song, song, collection "
 		    "WHERE product.rowid = prod2song.prodid AND prod2song.songid = song.ROWID AND "
 		    "product.collection = collection.ROWID AND song.path = ?",
 		    parts[1]);
 		string format;
+		int lowestDist = 999999;
+		collection = "";
 		while(q.step()) {
-			tie(shot, format, collection) = q.get_tuple();
-			LOGD("Collection %s Format %s", collection, format);
-			if(format.find("Game") != string::npos || format.find("Demo") != string::npos || format.find("Trackmo") != string::npos)
-				break;
+			string s, c;
+			tie(title, s, format, c) = q.get_tuple();
+			LOGD("%s Collection %s Format %s", title, c, format);
+			auto ld = levenshteinDistance(title, baseName);
+			if(collection == "gb64" && c == "csdb")
+				ld += 7;
+			LOGD("%s <=> %s : %d", title, baseName, ld);
+			if(ld < lowestDist) {
+				shot = s;
+				collection = c;
+				lowestDist = ld;
+			}
+			//if(format.find("Game") != string::npos || format.find("Demo") != string::npos || format.find("Trackmo") != string::npos)
+			//	break;
 		}
 	}
 	if(shot != "") {
 		auto prefix = getScreenshotURL(collection); 
 		auto parts = split(shot, ";");
+		if(collection == "gb64")
+			parts.insert(parts.begin(), path_directory(parts[0]) + "/" + path_basename(parts[0]) + "_1." + path_extension(parts[0]));
 		for(auto &p : parts) {
 			if(p != "")
 				p = prefix + p;
@@ -754,6 +809,8 @@ std::string MusicDatabase::getProductScreenshots(uint32_t id) {
 		tie(collection, screenshot) = q.get_tuple();
 		auto prefix = getScreenshotURL(collection); 
 		auto parts = split(screenshot, ";");
+		if(collection == "gb64")
+			parts.push_back(path_basename(parts[0]) + "_1." + path_extension(parts[0]));
 		for(auto &p : parts) {
 			p = prefix + p;
 		}
@@ -1003,6 +1060,11 @@ void MusicDatabase::generateIndex() {
 
 		uint8_t b = PRODUCT;
 		formats.push_back(b | (collection << 8));
+
+		if(dontIndex[collection]) {
+			title = "";
+			composer = "";
+		}
 
 		// The title index maps one-to-one with the database
 		int tindex = titleIndex.add(title);
