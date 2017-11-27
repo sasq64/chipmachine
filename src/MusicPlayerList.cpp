@@ -482,7 +482,8 @@ void MusicPlayerList::playCurrent() {
 	    {"sng", "ins"},     // Richard Joseph
 	    {"jpn", "smp"},     // Jason Page PREFIX
 	    {"dum", "ins"},     // Rob Hubbard 2
-	    {"adsc", "adsc.as"} // Audio Sculpture
+	    {"adsc", "adsc.as"}, // Audio Sculpture
+	    {"sdata", "ip"} // Audio Sculpture
 	};
 	string ext2;
 	if(fmt_2files.count(ext) > 0)
