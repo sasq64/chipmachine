@@ -116,11 +116,19 @@ public:
 	MusicPlayer(const std::string &workDir);
 	~MusicPlayer();
 	bool playFile(const std::string &fileName);
-	SafePointer<ChipPlayer> streamFile(const std::string &fileName);
+	bool streamFile(const std::string &fileName);
 	bool playing() { return !playEnded && player != nullptr; }
 	void stop() { player = nullptr; }
 	uint32_t getPosition() { return pos / 44100; };
 	uint32_t getLength() { return length; }
+
+	void putStream(const uint8_t* ptr, int size);
+	void clearStreamFifo() {
+		LOGD("Clearing stream fifo");
+		streamFifo.clear();
+	}
+
+	void setParameter(const std::string &what, int v);
 
 	// void addStreamData(uint8_t *ptr, int size);
 
@@ -165,7 +173,7 @@ public:
 	
 private:
 	std::shared_ptr<ChipPlayer> fromFile(const std::string &fileName);
-	std::shared_ptr<ChipPlayer> fromStream(const std::string &fileName);
+	//std::shared_ptr<ChipPlayer> fromStream(const std::string &fileName);
 	void updatePlayingInfo();
 
 	AudioFifo<int16_t> fifo;
@@ -193,6 +201,8 @@ private:
 	std::atomic<bool> dontPlay;
 	std::atomic<bool> playEnded;
 	bool checkSilence = true;
+
+	utils::Fifo<uint8_t> streamFifo;
 };
 }
 

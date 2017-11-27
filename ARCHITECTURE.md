@@ -1,11 +1,15 @@
 
-Each song is part of exactly one _collection_. The collection has a root path where
-all songs are fetched from.
+SONGS
 
-Any song paths received from the song database should be a `RemotePath`. A RemotePath is
+Each song is part of exactly one _collection_. The collection has a root path where
+all songs are fetched from, it's _url_.
+
+Any song paths received from `MusicDatabase` should be a `RemotePath`. A RemotePath is
 formed as <collection_id>::<song_path>
 
-A product is a demo or a game.
+PRODUCTS
+
+A `Product` is a demo or a game.
 A Product contains a set of songs, and songs can be part of many products.
 
 Products and songs are similarly indexed for searching.
@@ -29,5 +33,34 @@ getSongScreenshots() tries to find a product that contains ths current song, and
 screenshots from that product.
 
 Each song in a product will get the same set screenshots from the product info.
+
+
+THREADING
+
+IN GENERAL
+
+Use threads for background work but report result on originating thread. Makes for nice
+async design through labdas such as;
+
+```c++
+getUrl("http://some.thing", [=](const std::string &result) {
+	// Lambda is called on same thread that called getUrl()
+	doSomething(result); // <- Safe
+});
+```
+
+
+SPECIFICS
+
+The MusicPlayer runs it's own thread, and all calls to MusicPlayerList must be thread
+safe. The player reads files or gets binary data, and plays audio.
+
+FFT data is calculated in the musicplayer thread by the `SpectrumAnalyzer` class and
+fetched through `getSpetrum()` and the `fftMutex` makes sure the analyzer is not accessed
+simultaniously.
+
+The `infoMutex` is used to make sure the SongInfo struct is updated atomically.
+
+MusicPlayerList -> MusicPlayer
 
 

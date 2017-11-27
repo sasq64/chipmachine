@@ -9,7 +9,6 @@
 #include "RemoteLoader.h"
 #include "MusicDatabase.h"
 #include "CueSheet.h"
-//#include <webutils/webgetter.h>
 
 #include <coreutils/thread.h>
 #include <cstdint>
@@ -24,18 +23,6 @@ class ChipMachine;
 #ifdef _WIN32
 #undef ERROR
 #endif
-
-/*
-
-Thread model
-
-* Commands in through queued callbacks
-* State out needs to be mutexed on writing and reading
-
-  
-  
-*/
-
 
 class MusicPlayerList {
 public:
@@ -85,7 +72,10 @@ public:
 			return;
 		mp.pause(dopause);
 	}
-	bool isPaused() { return mp.isPaused(); }
+
+	bool isPaused() { 
+		return mp.isPaused(); 
+	}
 
 	void seek(int song, int seconds = -1);
 
@@ -157,7 +147,7 @@ private:
 	
 	std::vector<std::function<void()>> funcs;
 	
-	
+	void cancelStreaming();
 	bool handlePlaylist(const std::string &fileName);
 	void playCurrent();
 	bool playFile(const std::string &fileName);
@@ -207,7 +197,7 @@ private:
 	std::atomic<int> files;
 	std::string loadedFile;
 
-	std::atomic<State> state; // = STOPPED;
+	std::atomic<State> state;
 	SongInfo currentInfo;
 	SongInfo dbInfo;
 
@@ -231,15 +221,10 @@ private:
 
 	int multiSongNo;
 	std::vector<std::string> multiSongs;
-	//std::deque<SongInfo> productSongs;
 	bool changedMulti = false;
-	// RemoteLists &tracker;
 	bool playedNext;
 	
 	std::vector<utils::File> songFiles;
-	
-	//std::string screenshot;
-	
 };
 
 } // namespace chipmachine

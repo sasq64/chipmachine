@@ -18,12 +18,12 @@ using namespace utils;
 
 namespace chipmachine {
 
-void Streamer::put(const uint8_t *ptr, int size) {
-	LOCK_GUARD(*playerMutex);
-	player->putStream(ptr, size);
-}
+/* void Streamer::put(const uint8_t *ptr, int size) { */
+/* 	LOCK_GUARD(*playerMutex); */
+/* 	player->putStream(ptr, size); */
+/* } */
 
-MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4) {
+MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4), streamFifo(32768 * 8) {
 
 	AudioPlayer::set_volume(80);
 	volume = 0.8;
@@ -127,7 +127,17 @@ void MusicPlayer::fadeOut(float secs) {
 	fadeOutPos = pos + fadeLength;
 }
 
-SafePointer<ChipPlayer> MusicPlayer::streamFile(const string &fileName) {
+void MusicPlayer::putStream(const uint8_t* ptr, int size) {
+	LOGD("Writing %d bytes to stream", size);
+	streamFifo.put(ptr, size);
+}
+
+void MusicPlayer::setParameter(const std::string &what, int v) {
+	if(player)
+		player->setParameter(what, v);
+}
+
+bool MusicPlayer::streamFile(const string &fileName) {
 	dontPlay = true;
 	silentFrames = 0;
 
@@ -140,13 +150,26 @@ SafePointer<ChipPlayer> MusicPlayer::streamFile(const string &fileName) {
 
 	// LOCK_GUARD(*playerMutex);
 	player = nullptr;
-	player = make_safepointer(fromStream(fileName));
+
+	utils::makeLower(name);
+	checkSilence = true;
+	for(auto &plugin : ChipPlugin::getPlugins()) {
+		if(plugin->canHandle(name)) {
+			LOGD("Playing with %s\n", plugin->name());
+			auto newPlayer = shared_ptr<ChipPlayer>(plugin->fromStream(&streamFifo));
+			if(newPlayer)
+				player = make_safepointer(newPlayer);
+			checkSilence = plugin->checkSilence();
+			break;
+		}
+	}
 
 	dontPlay = false;
 	playEnded = false;
 
 	if(player) {
 
+		clearStreamFifo();
 		fifo.clear();
 		fadeOutPos = 0;
 		pause(false);
@@ -157,9 +180,9 @@ SafePointer<ChipPlayer> MusicPlayer::streamFile(const string &fileName) {
 		sub_title = "";
 		currentTune = playingInfo.starttune;
 		// return make_shared<Streamer>(playerMutex, player);
-		return player;
+		return true;
 	}
-	return nullptr;
+	return false;
 }
 
 bool MusicPlayer::playFile(const string &fileName) {
@@ -333,19 +356,4 @@ shared_ptr<ChipPlayer> MusicPlayer::fromFile(const string &fileName) {
 	return player;
 }
 
-shared_ptr<ChipPlayer> MusicPlayer::fromStream(const string &fileName) {
-	shared_ptr<ChipPlayer> player;
-	string name = fileName;
-	utils::makeLower(name);
-	checkSilence = true;
-	for(auto &plugin : ChipPlugin::getPlugins()) {
-		if(plugin->canHandle(name)) {
-			LOGD("Playing with %s\n", plugin->name());
-			player = shared_ptr<ChipPlayer>(plugin->fromStream());
-			checkSilence = plugin->checkSilence();
-			break;
-		}
-	}
-	return player;
-}
 }

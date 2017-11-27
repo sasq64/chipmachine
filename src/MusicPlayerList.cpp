@@ -234,6 +234,10 @@ void MusicPlayerList::setPartyMode(bool on, int lockSec, int graceSec) {
 	graceSeconds = graceSec;
 }
 
+void MusicPlayerList::cancelStreaming() {
+	RemoteLoader::getInstance().cancel();
+	mp.clearStreamFifo();
+}
 void MusicPlayerList::update() {
 
 	LOCK_GUARD(plMutex);
@@ -316,7 +320,7 @@ void MusicPlayerList::update() {
 
 	if(state == LOADING) {
 		if(files == 0) {
-			RemoteLoader::getInstance().cancel();
+			cancelStreaming();
 			playFile(loadedFile);
 		}
 	}
@@ -425,6 +429,8 @@ void MusicPlayerList::playCurrent() {
 	cueSheet = nullptr;
 	cueTitle = "";
 
+	cancelStreaming();
+
 	if(File::exists(currentInfo.path)) {
 		LOGD("PLAYING LOCAL FILE %s", currentInfo.path);
 		songFiles = { File(currentInfo.path) };
@@ -436,7 +442,6 @@ void MusicPlayerList::playCurrent() {
 	loadedFile = "";
 	files = 0;
 	RemoteLoader &loader = RemoteLoader::getInstance();
-	loader.cancel();
 
 	string cueName = "";
 	if(prefix == "bitjam")
@@ -459,15 +464,17 @@ void MusicPlayerList::playCurrent() {
 
 	if(currentInfo.format != "M3U" && (ext == "mp3" || toLower(currentInfo.format) == "mp3")) {
 
-		auto streamer = mp.streamFile("dummy.mp3");
-
-		if(streamer) {
+		if(mp.streamFile("dummy.mp3")) {
 			SET_STATE(PLAY_STARTED);
+			LOGD("Stream start");
+			string name = currentInfo.path;
 			loader.stream(currentInfo.path, [=](int what, const uint8_t *ptr, int n) -> bool {
-				if(what == RemoteLoader::PARAMETER)
-					streamer->setParameter((char *)ptr, n);
-				else
-					streamer->putStream(ptr, n);
+				if(what == RemoteLoader::PARAMETER) {
+					mp.setParameter((char *)ptr, n);
+				} else {
+					LOGD("Writing to %s", name);
+					mp.putStream(ptr, n);
+				}
 				return true;
 			});
 		}
