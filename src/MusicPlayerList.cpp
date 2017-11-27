@@ -64,9 +64,10 @@ void MusicPlayerList::nextSong() {
 }
 
 void MusicPlayerList::playSong(const SongInfo &si) {
-	LOCK_GUARD(plMutex);
-	dbInfo = currentInfo = si;
-	SET_STATE(PLAY_NOW);
+	onThisThread([=] {
+		dbInfo = currentInfo = si;
+		SET_STATE(PLAY_NOW);
+	});
 }
 
 void MusicPlayerList::seek(int song, int seconds) {
@@ -84,10 +85,12 @@ void MusicPlayerList::seek(int song, int seconds) {
 }
 
 uint16_t *MusicPlayerList::getSpectrum() {
+	LOCK_GUARD(plMutex);
 	return mp.getSpectrum();
 }
 
 int MusicPlayerList::spectrumSize() {
+	LOCK_GUARD(plMutex);
 	return mp.spectrumSize();
 }
 
@@ -104,14 +107,17 @@ SongInfo MusicPlayerList::getDBInfo() {
 }
 
 int MusicPlayerList::getLength() {
+	LOCK_GUARD(plMutex);
 	return mp.getLength(); // currentInfo.length;
 }
 
 int MusicPlayerList::getPosition() {
+	LOCK_GUARD(plMutex);
 	return mp.getPosition();
 }
 
 int MusicPlayerList::listSize() {
+	LOCK_GUARD(plMutex);
 	return playList.size();
 }
 

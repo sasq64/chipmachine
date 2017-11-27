@@ -14,6 +14,10 @@
 #include <cstdint>
 #include <deque>
 
+//#define LOCK_GUARD(x) if(x.try_lock()) x.unlock(); else LOGE("WAITING FOR LOCK"); \
+//std::lock_guard<std::mutex> guard(x)
+#define LOCK_GUARD(x) std::lock_guard<std::mutex> guard(x)
+
 #define SET_STATE(x) (LOGD("STATE: " #x), state = x)
 
 namespace chipmachine {
@@ -125,13 +129,20 @@ public:
 
 	void setReportSongs(bool on) { reportSongs = on; }
 
-	void setVolume(float volume) { mp.setVolume(volume); }
+	void setVolume(float volume) {
+		mp.setVolume(volume);
+	}
 
-	float getVolume() const { return mp.getVolume(); }
+	float getVolume() const {
+
+		return mp.getVolume();
+	}
 
 	void stop() {
-		SET_STATE(STOPPED);
-		mp.stop();
+		onThisThread([=] {
+			SET_STATE(STOPPED);
+			mp.stop();
+		});
 	}
 
 	bool wasFromQueue() const { return playedNext; }
@@ -160,6 +171,8 @@ private:
 	std::deque<std::string> errors;
 
 	MusicPlayer mp;
+
+	// Lock when accessing MusicPlayer
 	std::mutex plMutex;
 	
 	struct PlayQueue {

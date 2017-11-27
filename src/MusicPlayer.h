@@ -10,107 +10,12 @@
 #include <atomic>
 #include <memory>
 #include <vector>
-#include <coreutils/thread.h>
-
-//#define LOCK_GUARD(x) if(x.try_lock()) x.unlock(); else LOGE("WAITING FOR LOCK"); \
-//std::lock_guard<std::mutex> guard(x)
-#define LOCK_GUARD(x) std::lock_guard<std::mutex> guard(x)
 
 namespace chipmachine {
 
 class ChipPlugin;
 class ChipPlayer;
 
-template <typename T> class SafePointer {
-public:
-	struct LockHolder {
-		LockHolder(T *ptr, std::unique_lock<std::mutex> &&g) : ptr(ptr), guard(std::move(g)) {}
-
-		LockHolder(LockHolder &&l) : guard(std::move(l.guard)), ptr(std::move(l.ptr)) {}
-
-		T *operator->() const { return ptr; }
-
-		T *get() const { return ptr; }
-
-		explicit operator bool() { return ptr != nullptr; }
-
-		void unlock() { guard.unlock(); }
-
-		std::unique_lock<std::mutex> guard;
-		T *ptr;
-	};
-
-	LockHolder operator->() const {
-		std::unique_lock<std::mutex> guard(*m);
-		return LockHolder(ptr.get(), std::move(guard));
-	}
-
-	LockHolder aquire() const {
-		std::unique_lock<std::mutex> guard(*m);
-		return LockHolder(ptr.get(), std::move(guard));
-	}
-
-	SafePointer() : m(std::make_shared<std::mutex>()) {}
-	SafePointer(std::shared_ptr<T> ptr) : ptr(ptr), m(std::make_shared<std::mutex>()) {}
-	SafePointer(T *ptr) : ptr(std::shared_ptr<T>(ptr)), m(std::make_shared<std::mutex>()) {}
-
-	template <typename P> SafePointer<T> operator=(P t) {
-		std::unique_lock<std::mutex> guard(*m);
-		ptr = t;
-		return *this;
-	}
-
-	SafePointer<T> operator=(SafePointer<T> p) {
-		auto m2 = m;
-		std::unique_lock<std::mutex> guard(*m);
-		// TODO: Lock other mutex?
-		ptr = p.ptr;
-		m = p.m;
-		return *this;
-	}
-
-	SafePointer<T> operator=(std::shared_ptr<T> p) {
-		std::unique_lock<std::mutex> guard(*m);
-		ptr = p;
-		return *this;
-	}
-
-	bool operator==(T *t) const {
-		std::unique_lock<std::mutex> guard(*m);
-		return ptr.get() == t;
-	}
-
-	bool operator!=(T *t) const {
-		std::unique_lock<std::mutex> guard(*m);
-		return ptr.get() != t;
-	}
-
-	explicit operator bool() const {
-		std::unique_lock<std::mutex> guard(*m);
-		return ptr.get() != nullptr;
-	}
-
-private:
-	std::shared_ptr<T> ptr;
-	std::shared_ptr<std::mutex> m;
-};
-
-template <typename T> SafePointer<T> make_safepointer(std::shared_ptr<T> ptr) {
-	return SafePointer<T>(ptr);
-}
-
-class Streamer {
-public:
-	Streamer(std::shared_ptr<std::mutex> m, std::shared_ptr<ChipPlayer> pl)
-	    : playerMutex(m), player(pl) {}
-	void put(const uint8_t *ptr, int size);
-
-private:
-	std::shared_ptr<std::mutex> playerMutex;
-	std::shared_ptr<ChipPlayer> player;
-};
-
-// MUST BE THREAD SAFE
 class MusicPlayer {
 public:
 	MusicPlayer(const std::string &workDir);
@@ -130,8 +35,6 @@ public:
 
 	void setParameter(const std::string &what, int v);
 
-	// void addStreamData(uint8_t *ptr, int size);
-
 	// Asks the plugin if the given file requires secondary files.
 	// Can be called several times, normally first with non-existing
 	// file, and later with the loaded file
@@ -146,7 +49,6 @@ public:
 	int getTune() { return currentTune; }
 
 	SongInfo getPlayingInfo() {
-		LOCK_GUARD(infoMutex);
 		return playingInfo;
 	}
 
@@ -155,7 +57,6 @@ public:
 	std::string getMeta(const std::string &what);
 
 	int spectrumSize() {
-		LOCK_GUARD(fftMutex);
 		return fft.eq_slots;
 	}
 
@@ -185,9 +86,7 @@ private:
 	std::array<uint16_t, SpectrumAnalyzer::eq_slots> spectrum;
 
 	// Should be held when accessing FFT data
-	std::mutex fftMutex;
-	std::mutex infoMutex;
-	SafePointer<ChipPlayer> player;
+	std::shared_ptr<ChipPlayer> player;
 	std::string message;
 	std::string sub_title;
 	std::atomic<int> pos{0};

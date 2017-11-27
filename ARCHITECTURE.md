@@ -64,3 +64,12 @@ The `infoMutex` is used to make sure the SongInfo struct is updated atomically.
 MusicPlayerList -> MusicPlayer
 
 
+
+
+THREADING CHANGES
+
+MusicPlayer have no threading operations.
+
+MusicPlayerList takes care of all sync since it runs the thread
+
+

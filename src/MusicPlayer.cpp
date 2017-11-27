@@ -18,11 +18,6 @@ using namespace utils;
 
 namespace chipmachine {
 
-/* void Streamer::put(const uint8_t *ptr, int size) { */
-/* 	LOCK_GUARD(*playerMutex); */
-/* 	player->putStream(ptr, size); */
-/* } */
-
 MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4), streamFifo(32768 * 8) {
 
 	AudioPlayer::set_volume(80);
@@ -31,7 +26,7 @@ MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4), streamFi
 	ChipPlugin::createPlugins(workDir);
 	ChipPlugin::addPlugin(make_shared<RSNPlugin>(ChipPlugin::getPlugins()));
 	ChipPlugin::addPlugin(make_shared<GZPlugin>(ChipPlugin::getPlugins()));
-	
+
 	dontPlay = playEnded = false;
 	AudioPlayer::play([=](int16_t *ptr, int size) mutable {
 
@@ -40,10 +35,8 @@ MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4), streamFi
 			return;
 		}
 
-		lock_guard<mutex> guard(fftMutex);
 		if(fifo.filled() >= size) {
 			fifo.get(ptr, size);
-
 			pos += size / 2;
 			fft.addAudio(ptr, size);
 		} else
@@ -58,14 +51,9 @@ void MusicPlayer::update() {
 
 	if(!paused && player) {
 
-        {
-			auto p = player.aquire();
-			if(p) {
-				sub_title = p->getMeta("sub_title");
-				length = p->getMetaInt("length");
-				message = p->getMeta("message");
-			}
-		}
+		sub_title = player->getMeta("sub_title");
+		length = player->getMetaInt("length");
+		message = player->getMeta("message");
 		silentFrames = checkSilence ? fifo.getSilence() : 0;
 
 		while(true) {
@@ -101,19 +89,15 @@ MusicPlayer::~MusicPlayer() {
 }
 
 void MusicPlayer::seek(int song, int seconds) {
-	auto ptr = player.aquire();
-	if(ptr) {
-		if(ptr->seekTo(song, seconds)) {
-			if(seconds < 0)
-				pos = 0;
-			else
-				pos = seconds * 44100;
-			fifo.clear();
-			// length = player->getMetaInt("length");
-			ptr.unlock();
-			updatePlayingInfo();
-			currentTune = song;
-		}
+	if(player->seekTo(song, seconds)) {
+		if(seconds < 0)
+			pos = 0;
+		else
+			pos = seconds * 44100;
+		fifo.clear();
+		// length = player->getMetaInt("length");
+		updatePlayingInfo();
+		currentTune = song;
 	}
 }
 
@@ -141,14 +125,8 @@ bool MusicPlayer::streamFile(const string &fileName) {
 	dontPlay = true;
 	silentFrames = 0;
 
-	{
-		LOCK_GUARD(infoMutex);
-		playingInfo = SongInfo();
-	}
-
+	playingInfo = SongInfo();
 	string name = fileName;
-
-	// LOCK_GUARD(*playerMutex);
 	player = nullptr;
 
 	utils::makeLower(name);
@@ -158,7 +136,7 @@ bool MusicPlayer::streamFile(const string &fileName) {
 			LOGD("Playing with %s\n", plugin->name());
 			auto newPlayer = shared_ptr<ChipPlayer>(plugin->fromStream(&streamFifo));
 			if(newPlayer)
-				player = make_safepointer(newPlayer);
+				player = newPlayer;
 			checkSilence = plugin->checkSilence();
 			break;
 		}
@@ -179,7 +157,6 @@ bool MusicPlayer::streamFile(const string &fileName) {
 		length = 0;
 		sub_title = "";
 		currentTune = playingInfo.starttune;
-		// return make_shared<Streamer>(playerMutex, player);
 		return true;
 	}
 	return false;
@@ -189,12 +166,7 @@ bool MusicPlayer::playFile(const string &fileName) {
 
 	dontPlay = true;
 	silentFrames = 0;
-
-	{
-		LOCK_GUARD(infoMutex);
-		playingInfo = SongInfo();
-	}
-
+	playingInfo = SongInfo();
 	string name = fileName;
 
 	if(endsWith(name, ".rar")) {
@@ -212,9 +184,8 @@ bool MusicPlayer::playFile(const string &fileName) {
 		}
 	}
 
-	// LOCK_GUARD(*playerMutex);
 	player = nullptr;
-	player = make_safepointer(fromFile(name));
+	player = fromFile(name);
 
 	dontPlay = false;
 	playEnded = false;
@@ -234,32 +205,25 @@ bool MusicPlayer::playFile(const string &fileName) {
 
 void MusicPlayer::updatePlayingInfo() {
 	SongInfo si;
-	auto ptr = player.aquire();
-	if(ptr) {
-
-		auto game = ptr->getMeta("game");
-		si.title = ptr->getMeta("title");
-		if(game != "") {
-			if(si.title != "") {
-				si.title = format("%s (%s)", game, si.title);
-			} else
-				si.title = game;
-		}
-
-		si.composer = ptr->getMeta("composer");
-		si.format = ptr->getMeta("format");
-		si.numtunes = ptr->getMetaInt("songs");
-		si.starttune = ptr->getMetaInt("startSong");
-		if(si.starttune == -1) si.starttune = 0;
-
-		length = ptr->getMetaInt("length");
-		message = ptr->getMeta("message");
-		sub_title = ptr->getMeta("sub_title");
+	auto game = player->getMeta("game");
+	si.title = player->getMeta("title");
+	if(game != "") {
+		if(si.title != "") {
+			si.title = format("%s (%s)", game, si.title);
+		} else
+			si.title = game;
 	}
-	{
-		LOCK_GUARD(infoMutex);
-		playingInfo = si;
-	}
+
+	si.composer = player->getMeta("composer");
+	si.format = player->getMeta("format");
+	si.numtunes = player->getMetaInt("songs");
+	si.starttune = player->getMetaInt("startSong");
+	if(si.starttune == -1) si.starttune = 0;
+
+	length = player->getMetaInt("length");
+	message = player->getMeta("message");
+	sub_title = player->getMeta("sub_title");
+	playingInfo = si;
 }
 
 void MusicPlayer::pause(bool dopause) {
@@ -272,22 +236,14 @@ void MusicPlayer::pause(bool dopause) {
 
 string MusicPlayer::getMeta(const string &what) {
 	if(what == "message") {
-		LOCK_GUARD(infoMutex);
 		return message;
 	} else if(what == "sub_title") {
-		LOCK_GUARD(infoMutex);
 		return sub_title;
 	}
-
-	auto p = player.aquire();
-	if(p.get())
-		return p->getMeta(what);
-	else
-		return "";
+	return player->getMeta(what);
 }
 
 uint16_t *MusicPlayer::getSpectrum() {
-	LOCK_GUARD(fftMutex);
 	auto delay = AudioPlayer::get_delay();
 	if(fft.size() > delay) {
 		while(fft.size() > delay + 4) {
