@@ -24,7 +24,6 @@ struct SongInfo {
 	enum { INFO, SCREENSHOT };
 
 	bool operator==(const SongInfo &other) {
-		LOGD("%s %d vs %s %d", path, starttune, other.path, other.starttune);
 		return path == other.path && starttune == other.starttune; 
 	}
 

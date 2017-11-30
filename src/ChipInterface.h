@@ -44,7 +44,7 @@ public:
 		player.seek(t);
 	}
 	
-	bool playing() { return player.playing(); }
+	bool playing() { return player.isPlaying(); }
 	void pause(bool p) { return player.pause(p); }
 
 	void update() {

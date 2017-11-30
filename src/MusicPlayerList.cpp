@@ -64,9 +64,10 @@ void MusicPlayerList::nextSong() {
 }
 
 void MusicPlayerList::playSong(const SongInfo &si) {
-	LOCK_GUARD(plMutex);
-	dbInfo = currentInfo = si;
-	SET_STATE(PLAY_NOW);
+	onThisThread([=] {
+		dbInfo = currentInfo = si;
+		SET_STATE(PLAY_NOW);
+	});
 }
 
 void MusicPlayerList::seek(int song, int seconds) {
@@ -104,14 +105,16 @@ SongInfo MusicPlayerList::getDBInfo() {
 }
 
 int MusicPlayerList::getLength() {
-	return mp.getLength(); // currentInfo.length;
+	return playerLength;
 }
 
 int MusicPlayerList::getPosition() {
-	return mp.getPosition();
+	return playerPosition;
 }
 
+
 int MusicPlayerList::listSize() {
+	LOCK_GUARD(plMutex);
 	return playList.size();
 }
 
@@ -217,6 +220,8 @@ bool MusicPlayerList::playFile(const std::string &fn) {
 		} else
 			SET_STATE(PLAYING);
 
+		bitRate = 0;
+
 		changedMulti = false;
 		return true;
 	} else {
@@ -234,6 +239,10 @@ void MusicPlayerList::setPartyMode(bool on, int lockSec, int graceSec) {
 	graceSeconds = graceSec;
 }
 
+void MusicPlayerList::cancelStreaming() {
+	RemoteLoader::getInstance().cancel();
+	mp.clearStreamFifo();
+}
 void MusicPlayerList::update() {
 
 	LOCK_GUARD(plMutex);
@@ -278,7 +287,8 @@ void MusicPlayerList::update() {
 		auto length = mp.getLength();
 
 		if(cueSheet) {
-			cueTitle = cueSheet->getTitle(pos);
+			subtitle = cueSheet->getTitle(pos);
+			subtitlePtr = subtitle.c_str();
 		}
 
 		if(!changedSong && playList.size() > 0) {
@@ -316,7 +326,7 @@ void MusicPlayerList::update() {
 
 	if(state == LOADING) {
 		if(files == 0) {
-			RemoteLoader::getInstance().cancel();
+			cancelStreaming();
 			playFile(loadedFile);
 		}
 	}
@@ -340,6 +350,28 @@ void MusicPlayerList::update() {
 		}
 		multiSongs.clear();
 		playCurrent();
+	}
+
+	// Cache values for outside access
+
+	playerPosition = mp.getPosition();
+	playerLength = mp.getLength(); // currentInfo.length;
+
+	if(multiSongs.size())
+		currentTune = multiSongNo;
+	else
+		currentTune = mp.getTune();
+
+	playing = mp.playing();
+	paused = mp.isPaused();
+	auto br = mp.getMeta("bitrate");
+	if(br != "") {
+		bitRate = std::stol(br);
+	}
+
+	if(!cueSheet) {
+		subtitle = mp.getMeta("sub_title");
+		subtitlePtr = subtitle.c_str();
 	}
 }
 
@@ -423,7 +455,15 @@ void MusicPlayerList::playCurrent() {
 		detectSilence = false;
 
 	cueSheet = nullptr;
-	cueTitle = "";
+	subtitle = "";
+	subtitlePtr = subtitle.c_str();
+
+	playerPosition = 0;
+	playerLength = 0;
+	bitRate = 0;
+	currentTune = 0;
+
+	cancelStreaming();
 
 	if(File::exists(currentInfo.path)) {
 		LOGD("PLAYING LOCAL FILE %s", currentInfo.path);
@@ -436,7 +476,6 @@ void MusicPlayerList::playCurrent() {
 	loadedFile = "";
 	files = 0;
 	RemoteLoader &loader = RemoteLoader::getInstance();
-	loader.cancel();
 
 	string cueName = "";
 	if(prefix == "bitjam")
@@ -459,15 +498,17 @@ void MusicPlayerList::playCurrent() {
 
 	if(currentInfo.format != "M3U" && (ext == "mp3" || toLower(currentInfo.format) == "mp3")) {
 
-		auto streamer = mp.streamFile("dummy.mp3");
-
-		if(streamer) {
+		if(mp.streamFile("dummy.mp3")) {
 			SET_STATE(PLAY_STARTED);
+			LOGD("Stream start");
+			string name = currentInfo.path;
 			loader.stream(currentInfo.path, [=](int what, const uint8_t *ptr, int n) -> bool {
-				if(what == RemoteLoader::PARAMETER)
-					streamer->setParameter((char *)ptr, n);
-				else
-					streamer->putStream(ptr, n);
+				if(what == RemoteLoader::PARAMETER) {
+					mp.setParameter((char *)ptr, n);
+				} else {
+					//LOGD("Writing to %s", name);
+					mp.putStream(ptr, n);
+				}
 				return true;
 			});
 		}

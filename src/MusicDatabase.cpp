@@ -695,29 +695,30 @@ std::string MusicDatabase::getScreenshotURL(const std::string &collection) {
 	return prefix;
 }
 
-SongInfo MusicDatabase::getSongInfo(int id) const {
+// Get SongInfo from the search result
+SongInfo MusicDatabase::getSongInfo(int index) const {
 
-	if(id >= PLAYLIST_INDEX) {
-		string p = playLists[id - PLAYLIST_INDEX].name;
+	if(index >= PLAYLIST_INDEX) {
+		string p = playLists[index - PLAYLIST_INDEX].name;
 		File path = File::getConfigDir() / "playlists" / p;
 		return SongInfo("playlist::" + path.getName(), "", p, "", "Local playlist");
 	}
 
-	id++;
-	//LOGD("ID %d vs PROD %d", id, productStartIndex);
-	if(id >= productStartIndex) {
-		id -= productStartIndex;
+	index++;
+	//LOGD("ID %d vs PROD %d", index, productStartIndex);
+	if(index >= productStartIndex) {
+		index -= productStartIndex;
 		auto q = db.query<string, string, string, string, string>(
 		    "SELECT title, creator, type, collection.id, metadata "
 		    "FROM  product, collection "
 		    "WHERE product.ROWID = ? AND product.collection = collection.ROWID",
-		    id);
+		    index);
 		if(q.step()) {
 			SongInfo song;
 			string collection;
 			tie(song.title, song.composer, song.format, collection, song.metadata[SongInfo::INFO]) =
 			    q.get_tuple();
-			song.path = "product::" + to_string(id);
+			song.path = "product::" + to_string(index);
 			return song;
 		}
 
@@ -727,7 +728,7 @@ SongInfo MusicDatabase::getSongInfo(int id) const {
 		    "SELECT title, game, composer, format, song.path, collection.id, metadata "
 		    "FROM song, collection "
 		    "WHERE song.ROWID = ? AND song.collection = collection.ROWID",
-		    id);
+		    index);
 		if(q.step()) {
 			SongInfo song;
 			string collection;
@@ -752,6 +753,8 @@ std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
 		shot = s.metadata[SongInfo::SCREENSHOT];
 	} else if(collection == "pouet") {
 		shot = s.metadata[SongInfo::INFO];
+		s.metadata[SongInfo::SCREENSHOT] = shot;
+		s.metadata[SongInfo::INFO] = "";
 		LOGD("Got pouet shot %s", shot);
 	} else {
 		auto q = db.query<string, string, string, string>(
