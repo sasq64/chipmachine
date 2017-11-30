@@ -18,7 +18,7 @@ using namespace utils;
 
 namespace chipmachine {
 
-MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4), streamFifo(32768 * 8) {
+MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4), streamFifo(std::make_shared<utils::Fifo<uint8_t>>(32768 * 8)) {
 
 	AudioPlayer::set_volume(80);
 	volume = 0.8;
@@ -85,6 +85,7 @@ void MusicPlayer::update() {
 }
 
 MusicPlayer::~MusicPlayer() {
+	streamFifo->quit();
 	AudioPlayer::close();
 }
 
@@ -113,7 +114,7 @@ void MusicPlayer::fadeOut(float secs) {
 
 void MusicPlayer::putStream(const uint8_t* ptr, int size) {
 	//LOGD("Writing %d bytes to stream", size);
-	streamFifo.put(ptr, size);
+	streamFifo->put(ptr, size);
 }
 
 void MusicPlayer::setParameter(const std::string &what, int v) {
@@ -134,7 +135,7 @@ bool MusicPlayer::streamFile(const string &fileName) {
 	for(auto &plugin : ChipPlugin::getPlugins()) {
 		if(plugin->canHandle(name)) {
 			LOGD("Playing with %s\n", plugin->name());
-			auto newPlayer = shared_ptr<ChipPlayer>(plugin->fromStream(&streamFifo));
+			auto newPlayer = shared_ptr<ChipPlayer>(plugin->fromStream(streamFifo));
 			if(newPlayer)
 				player = newPlayer;
 			checkSilence = plugin->checkSilence();

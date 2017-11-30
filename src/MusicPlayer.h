@@ -30,7 +30,7 @@ public:
 	void putStream(const uint8_t* ptr, int size);
 	void clearStreamFifo() {
 		LOGD("Clearing stream fifo");
-		streamFifo.clear();
+		streamFifo->clear();
 	}
 
 	void setParameter(const std::string &what, int v);
@@ -101,7 +101,7 @@ private:
 	std::atomic<bool> playEnded;
 	bool checkSilence = true;
 
-	utils::Fifo<uint8_t> streamFifo;
+	std::shared_ptr<utils::Fifo<uint8_t>> streamFifo;
 };
 }
 
