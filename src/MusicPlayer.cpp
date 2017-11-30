@@ -112,7 +112,7 @@ void MusicPlayer::fadeOut(float secs) {
 }
 
 void MusicPlayer::putStream(const uint8_t* ptr, int size) {
-	LOGD("Writing %d bytes to stream", size);
+	//LOGD("Writing %d bytes to stream", size);
 	streamFifo.put(ptr, size);
 }
 
@@ -240,7 +240,9 @@ string MusicPlayer::getMeta(const string &what) {
 	} else if(what == "sub_title") {
 		return sub_title;
 	}
-	return player->getMeta(what);
+	if(player)
+		return player->getMeta(what);
+	return "";
 }
 
 uint16_t *MusicPlayer::getSpectrum() {

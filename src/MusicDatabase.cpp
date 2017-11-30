@@ -753,6 +753,8 @@ std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
 		shot = s.metadata[SongInfo::SCREENSHOT];
 	} else if(collection == "pouet") {
 		shot = s.metadata[SongInfo::INFO];
+		s.metadata[SongInfo::SCREENSHOT] = shot;
+		s.metadata[SongInfo::INFO] = "";
 		LOGD("Got pouet shot %s", shot);
 	} else {
 		auto q = db.query<string, string, string, string>(

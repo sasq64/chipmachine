@@ -77,7 +77,7 @@ private:
 	//std::shared_ptr<ChipPlayer> fromStream(const std::string &fileName);
 	void updatePlayingInfo();
 
-	AudioFifo<int16_t> fifo;
+	utils::AudioFifo<int16_t> fifo;
 	SongInfo playingInfo;
 	// Fifo fifo;
 	SpectrumAnalyzer fft;

@@ -85,12 +85,10 @@ void MusicPlayerList::seek(int song, int seconds) {
 }
 
 uint16_t *MusicPlayerList::getSpectrum() {
-	LOCK_GUARD(plMutex);
 	return mp.getSpectrum();
 }
 
 int MusicPlayerList::spectrumSize() {
-	LOCK_GUARD(plMutex);
 	return mp.spectrumSize();
 }
 
@@ -107,14 +105,13 @@ SongInfo MusicPlayerList::getDBInfo() {
 }
 
 int MusicPlayerList::getLength() {
-	LOCK_GUARD(plMutex);
-	return mp.getLength(); // currentInfo.length;
+	return playerLength;
 }
 
 int MusicPlayerList::getPosition() {
-	LOCK_GUARD(plMutex);
-	return mp.getPosition();
+	return playerPosition;
 }
+
 
 int MusicPlayerList::listSize() {
 	LOCK_GUARD(plMutex);
@@ -223,6 +220,8 @@ bool MusicPlayerList::playFile(const std::string &fn) {
 		} else
 			SET_STATE(PLAYING);
 
+		bitRate = 0;
+
 		changedMulti = false;
 		return true;
 	} else {
@@ -288,7 +287,8 @@ void MusicPlayerList::update() {
 		auto length = mp.getLength();
 
 		if(cueSheet) {
-			cueTitle = cueSheet->getTitle(pos);
+			subtitle = cueSheet->getTitle(pos);
+			subtitlePtr = subtitle.c_str();
 		}
 
 		if(!changedSong && playList.size() > 0) {
@@ -350,6 +350,28 @@ void MusicPlayerList::update() {
 		}
 		multiSongs.clear();
 		playCurrent();
+	}
+
+	// Cache values for outside access
+
+	playerPosition = mp.getPosition();
+	playerLength = mp.getLength(); // currentInfo.length;
+
+	if(multiSongs.size())
+		currentTune = multiSongNo;
+	else
+		currentTune = mp.getTune();
+
+	playing = mp.playing();
+	paused = mp.isPaused();
+	auto br = mp.getMeta("bitrate");
+	if(br != "") {
+		bitRate = std::stol(br);
+	}
+
+	if(!cueSheet) {
+		subtitle = mp.getMeta("sub_title");
+		subtitlePtr = subtitle.c_str();
 	}
 }
 
@@ -433,7 +455,13 @@ void MusicPlayerList::playCurrent() {
 		detectSilence = false;
 
 	cueSheet = nullptr;
-	cueTitle = "";
+	subtitle = "";
+	subtitlePtr = subtitle.c_str();
+
+	playerPosition = 0;
+	playerLength = 0;
+	bitRate = 0;
+	currentTune = 0;
 
 	cancelStreaming();
 
@@ -478,7 +506,7 @@ void MusicPlayerList::playCurrent() {
 				if(what == RemoteLoader::PARAMETER) {
 					mp.setParameter((char *)ptr, n);
 				} else {
-					LOGD("Writing to %s", name);
+					//LOGD("Writing to %s", name);
 					mp.putStream(ptr, n);
 				}
 				return true;

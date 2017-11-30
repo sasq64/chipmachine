@@ -8,7 +8,7 @@ add_definitions(-DAPP_NAME=chipmachine)
 
 # set(CMAKE_OSX_SYSROOT /Users/jonasm/MacOSX10.9.sdk)
 # set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9")
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 # set(SAN "thread")
 
 if(RASPBERRYPI)

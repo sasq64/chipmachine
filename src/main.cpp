@@ -187,5 +187,8 @@ int main(int argc, char *argv[]) {
 		app.render(delta);
 	}, 20);
 #endif
+
+	LOGD("Controlled exit");
+
 	return 0;
 }

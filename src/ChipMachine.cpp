@@ -583,25 +583,30 @@ void ChipMachine::update() {
 	}
 
 	if(playerState == MusicPlayerList::PLAYING || playerState == MusicPlayerList::STOPPED) {
-		auto psz = player.listSize();
-		if(psz > 0) {
-			auto info = player.getInfo(1);
-			if(info.path != "")
-				RemoteLoader::getInstance().preCache(info.path);
-			if(info.path != currentNextPath) {
 
-				LOGD("## SETTING NEXT INFO");
+		if(player.playlistUpdated()) {
+			auto psz = player.listSize();
+			LOGD("####### PLAYLIST UPDATED WITH %d entries", psz);
+			if(psz > 0) {
+				auto info = player.getInfo(1);
+				LOGD("####### NEXT PATH %s", info.path);
+				if(info.path != "")
+					RemoteLoader::getInstance().preCache(info.path);
+				if(info.path != currentNextPath) {
 
-				if(psz == 1)
-					nextField.setText("Next");
-				else
-					nextField.setText(format("Next (%d)", psz));
-				nextInfoField.setInfo(info);
-				currentNextPath = info.path;
+					LOGD("## SETTING NEXT INFO");
+
+					if(psz == 1)
+						nextField.setText("Next");
+					else
+						nextField.setText(format("Next (%d)", psz));
+					nextInfoField.setInfo(info);
+					currentNextPath = info.path;
+				}
+			} else if(nextField.getText() != "") {
+				nextInfoField.setInfo(SongInfo());
+				nextField.setText("");
 			}
-		} else if(nextField.getText() != "") {
-			nextInfoField.setInfo(SongInfo());
-			nextField.setText("");
 		}
 	}
 
@@ -623,7 +628,7 @@ void ChipMachine::update() {
 		updateFavorite();
 	}
 
-	if(player.playing()) {
+	if(player.isPlaying()) {
 
 		bool party = (player.getPermissions() & MusicPlayerList::PARTYMODE) != 0;
 		if(!lockDown && party) {
@@ -634,9 +639,9 @@ void ChipMachine::update() {
 			Tween::make().to(timeField.color, timeColor).seconds(2.0);
 		}
 		
-		auto br = player.getMeta("bitrate");
-		if(br != "") {
-			songField.setText(format("%s KBit", br));
+		auto br = player.getBitrate();
+		if(br > 0) {
+			songField.setText(format("%d KBit", br));
 		}
 
 		auto p = player.getPosition();
@@ -651,6 +656,7 @@ void ChipMachine::update() {
 		if(sub_title != xinfoField.getText())
 			xinfoField.setText(sub_title);
 
+#ifdef DO_WE_NEED_THIS
 		if(scrollText == "") {
 			auto m = player.getMeta("message");
 			if(m != "") {
@@ -661,6 +667,7 @@ void ChipMachine::update() {
 				}
 			}
 		}
+#endif
 	}
 
 	if(!player.getAllowed()) {
@@ -678,7 +685,7 @@ void ChipMachine::update() {
 		}
 	}
 
-	if(player.playing()) {
+	if(player.isPlaying()) {
 		auto spectrum = player.getSpectrum();
 		for(auto i : count_to(player.spectrumSize())) {
 			if(spectrum[i] > 5) {
