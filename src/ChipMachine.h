@@ -126,6 +126,7 @@ private:
 	void setupCommands();
 	void updateKeys();
 	void updateFavorite();
+	void updateNextField();
 	void updateLists() {
 
 		int y = resultFieldTemplate.pos.y + 5;

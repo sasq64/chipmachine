@@ -393,6 +393,26 @@ void ChipMachine::nextScreenshot() {
 		});
 }
 
+void ChipMachine::updateNextField() {
+	auto psz = player.listSize();
+	LOGD("####### PLAYLIST UPDATED WITH %d entries", psz);
+	if(psz > 0) {
+		auto info = player.getInfo(1);
+		if(info.path != "")
+			RemoteLoader::getInstance().preCache(info.path);
+		if(info.path != currentNextPath) {
+			if(psz == 1)
+				nextField.setText("Next");
+			else
+				nextField.setText(format("Next (%d)", psz));
+			nextInfoField.setInfo(info);
+			currentNextPath = info.path;
+		}
+	} else if(nextField.getText() != "") {
+		nextInfoField.setInfo(SongInfo());
+		nextField.setText("");
+	}
+}
 void ChipMachine::update() {
 
 	if(indexingDatabase) {
@@ -545,6 +565,8 @@ void ChipMachine::update() {
 
 		updateFavorite();
 		// Start tweening
+		updateNextField();
+		player.playlistUpdated();
 		LOGD("## TWEENING INFO FIELDS");
 
 		if(player.wasFromQueue()) {
@@ -585,28 +607,7 @@ void ChipMachine::update() {
 	if(playerState == MusicPlayerList::PLAYING || playerState == MusicPlayerList::STOPPED) {
 
 		if(player.playlistUpdated()) {
-			auto psz = player.listSize();
-			LOGD("####### PLAYLIST UPDATED WITH %d entries", psz);
-			if(psz > 0) {
-				auto info = player.getInfo(1);
-				LOGD("####### NEXT PATH %s", info.path);
-				if(info.path != "")
-					RemoteLoader::getInstance().preCache(info.path);
-				if(info.path != currentNextPath) {
-
-					LOGD("## SETTING NEXT INFO");
-
-					if(psz == 1)
-						nextField.setText("Next");
-					else
-						nextField.setText(format("Next (%d)", psz));
-					nextInfoField.setInfo(info);
-					currentNextPath = info.path;
-				}
-			} else if(nextField.getText() != "") {
-				nextInfoField.setInfo(SongInfo());
-				nextField.setText("");
-			}
+			updateNextField();
 		}
 	}
 

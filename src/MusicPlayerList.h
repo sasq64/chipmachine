@@ -116,9 +116,7 @@ public:
 		// LOCK_GUARD(plMutex);
 		State rc = state;
 		if(rc == PLAY_STARTED) {
-			onThisThread([=] {
-				SET_STATE(PLAYING);
-			});
+			SET_STATE(PLAYING);
 		}
 		return rc;
 	}
