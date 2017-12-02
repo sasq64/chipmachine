@@ -13,7 +13,6 @@ struct SongInfo {
 		auto pos = path.find_last_of(';');
 		if(pos != std::string::npos) {
 			auto s = path.substr(pos+1);
-			LOGD("STARTTUNE %s", s);
 			if(s.size() < 3) {
 				starttune = stol(s);
 				this->path = path.substr(0, pos);

@@ -208,7 +208,6 @@ bool MusicPlayerList::playFile(const std::string &fn) {
 		if(reportSongs)
 			RemoteLists::getInstance().songPlayed(currentInfo.path);
 #endif
-		LOGD("STARRTUNE %d", currentInfo.starttune);
 		if(currentInfo.starttune >= 0)
 			mp.seek(currentInfo.starttune);
 		changedSong = false;

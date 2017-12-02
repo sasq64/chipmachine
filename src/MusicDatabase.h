@@ -82,6 +82,7 @@ enum Formats {
 
 	AMIGA,
 	PROTRACKER,
+	SOUNDTRACKER,
 
 	UADE,
 	
@@ -184,7 +185,6 @@ public:
 		Playlist(utils::File f) : fileName(f.getName()) {
 			if(f.exists()) {
 				for(const auto &l : f.getLines()) {
-					LOGD("SONG:'%s'", l);
 					if(l != "")
 						songs.emplace_back(l);
 				}

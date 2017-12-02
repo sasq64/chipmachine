@@ -49,6 +49,7 @@ set(SOURCE_FILES
 	src/state_machine.cpp
 	src/textmode.cpp
 	src/main.cpp
+	src/youtube.cpp
 )
 
 set(TEXTMODE_FILES
@@ -62,6 +63,7 @@ set(TEXTMODE_FILES
 	src/state_machine.cpp
 	src/textmode.cpp
 	src/main.cpp
+	src/youtube.cpp
 )
 
 set(SOURCE_FILES ${SOURCE_FILES} src/version.h src/TextField.h src/TextListView.h src/CueSheet.h
@@ -165,6 +167,7 @@ if(APPLE)
 	install(CODE "
 	   file(COPY \"${CMAKE_SOURCE_DIR}/lua\" DESTINATION Chipmachine.app/Contents/Resources/)
 	   file(COPY \"${CMAKE_SOURCE_DIR}/data\" DESTINATION Chipmachine.app/Contents/Resources/)
+	   file(COPY \"${CMAKE_SOURCE_DIR}/bin/ffmpeg\" DESTINATION Chipmachine.app/Contents/MacOS/)
 	   file(COPY \"${CMAKE_SOURCE_DIR}/note.png\" DESTINATION Chipmachine.app/Contents/)
 	   file(COPY \"${CMAKE_SOURCE_DIR}/Info.plist\" DESTINATION Chipmachine.app/Contents/)
 	   include(BundleUtilities)

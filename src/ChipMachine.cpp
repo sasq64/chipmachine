@@ -3,8 +3,7 @@
 #include "version.h"
 #include <grappix/window.h>
 #include <coreutils/format.h>
-#include <musicplayer/chipplugin.h>
-#include <musicplayer/plugins/ffmpegplugin/FFMPEGPlugin.h>
+#include <luainterpreter/luainterpreter.h>
 #include <cctype>
 #include <map>
 #ifdef _WIN32
@@ -14,6 +13,8 @@ using namespace std;
 using namespace utils;
 using namespace grappix;
 using namespace tween;
+
+void initYoutube(LuaInterpreter&);
 
 std::string compressWhitespace(std::string &&m) {
 	// Turn linefeeds into spaces
@@ -73,36 +74,6 @@ void ChipMachine::renderSong(const grappix::Rectangle &rec, int y, uint32_t inde
 	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate.scale);
 }
 
-class YoutubePlugin : public ChipPlugin {
-public:
-	YoutubePlugin(LuaInterpreter &lua) : lua(lua) { plugin = ChipPlugin::getPlugin("ffmpeg"); }
-
-	virtual ChipPlayer *fromFile(const std::string &fileName) override {
-		LOGD("Youtube plugin %s", fileName);
-		string x = lua.call<string>(string("on_parse_youtube"), fileName);
-		LOGD("LUA reports %s", x);
-		if(x == "")
-			return nullptr;
-		auto player = plugin->fromFile(x);
-		LOGD("OK");
-		auto dpos = x.find("dur=");
-		if(dpos != string::npos) {
-			int length = atoi(x.substr(dpos + 4).c_str());
-			player->setMeta("length", length);
-		}
-		return player;
-	}
-
-	virtual bool canHandle(const string &name) override {
-		return startsWith(name, "http") && name.find("youtu") != string::npos;
-	}
-
-	virtual std::string name() const override { return "youtube"; }
-
-	LuaInterpreter &lua;
-	std::shared_ptr<ChipPlugin> plugin;
-};
-
 ChipMachine::ChipMachine(const std::string &wd)
     : workDir(wd), player(wd), currentScreen(MAIN_SCREEN), eq(SpectrumAnalyzer::eq_slots),
       starEffect(screen), scrollEffect(screen) {
@@ -117,17 +88,15 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 	string binDir = (workDir / "bin").getName();
 	lua.registerFunction("cm_execute", [binDir](std::string cmd) -> std::string {
-		LOGD("BINDIR:%s", binDir);
 		if(!File::isAbsolutePath(cmd))
 			cmd = binDir + File::DIR_SEPARATOR + cmd; 
 		std::string output = execPipe(cmd);
-		LOGD("OUTPUT: %s", output);
 		return output;
 	});
 
 	lua.loadFile(workDir / "lua" / "init.lua");
 
-	ChipPlugin::addPlugin(make_shared<YoutubePlugin>(lua));
+	initYoutube(lua);
 
 #ifdef USE_REMOTELISTS
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
@@ -384,8 +353,6 @@ void ChipMachine::nextScreenshot() {
 		    auto h = scrollEffect.scrolly - y;
 		    auto x = xinfoField.pos.x;
 
-		    LOGD("HEIGHT %d", h);
-
 		    float d = (float)h / bm.height();
 		    int w = bm.width() * d;
 		    screenShotIcon.setArea(Rectangle(x, y, w, h));
@@ -481,7 +448,6 @@ void ChipMachine::update() {
 		}
 
 		auto shot = currentInfo.metadata[SongInfo::SCREENSHOT]; //player.getMeta("screenshot");
-		LOGD("SCREENSHOT: %s", shot);
 	
 		if(shot != currentScreenshot) {
 			screenShotIcon.clear();
@@ -501,23 +467,27 @@ void ChipMachine::update() {
 					} else {	
 						//LOCK_GUARD(multiLoadLock);
 						
-						if(toLower(path_extension(f.getName())) == "gif") {
-							t--;
-							for(auto &bm : image::load_gifs(f.getName())) {
+						try {
+							if(toLower(path_extension(f.getName())) == "gif") {
+								t--;
+								for(auto &bm : image::load_gifs(f.getName())) {
+									for(auto &px : bm) {
+										if((px & 0xffffff) == 0)
+											px &= 0xffffff;
+									}
+									screenshots.emplace_back(f.getFileName(), bm);
+									t++;
+								}
+							} else {
+								auto bm = image::load_image(f.getName());
 								for(auto &px : bm) {
 									if((px & 0xffffff) == 0)
 										px &= 0xffffff;
 								}
 								screenshots.emplace_back(f.getFileName(), bm);
-								t++;
 							}
-						} else {
-							auto bm = image::load_image(f.getName());
-							for(auto &px : bm) {
-								if((px & 0xffffff) == 0)
-									px &= 0xffffff;
-							}
-							screenshots.emplace_back(f.getFileName(), bm);
+						} catch(image::image_exception &e) {
+							LOGD("Failed to load image");
 						}
 					}
 	

@@ -896,7 +896,9 @@ static uint8_t formatToByte(const std::string &fmt, const std::string &path, int
 
 		if(endsWith(f, "tracker"))
 			l = TRACKER;
-		if(startsWith(f, "protracker"))
+		if(startsWith(f, "soundtracker"))
+			l = SOUNDTRACKER;
+		else if(startsWith(f, "protracker"))
 			l = PROTRACKER;
 		else if(startsWith(f, "fasttracker"))
 			l = FASTTRACKER;
