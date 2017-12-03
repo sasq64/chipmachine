@@ -136,7 +136,8 @@ DB = {
 	type = "podcast",
 	source = "http://malus.exotica.org.uk/pub/",
 	remote_list = "http://www.bitfellas.org/podcast/podcast.xml",
-	color = 0xfffff
+	color = 0xfffff,
+	screenshot = "http://www.bitfellas.org/e107_plugins/radio/images/bj_newlogo.jpg"
 },
 {
 	name = "Demovibes",

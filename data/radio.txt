@@ -1,12 +1,12 @@
-Scenesat		Shoutcast	M3U	https://scenesat.com/listen/normal/mid.m3u
-SLAY Radio		Shoutcast	M3U	https://www.slayradio.org/tune_in.php/128kbps/slayradio.128.m3u
-Nectarine		Shoutcast	M3U	http://pmaster.no:9000/necta.m3u
-VGM Radio		Shoutcast	M3U	https://vgmradio.com/vgmradio.m3u
-NoLife-Radio		Shoutcast	M3U	http://nolife-radio.com/radio/NoLife-radio.m3u
-Rainwave		Shoutcast	M3U	http://chiptune.rainwave.cc/tune_in/5.mp3
-ChipBit		Shoutcast	M3U	http://stream.chipbit.net:8000/autodj.m3u
-The Sid Station		Shoutcast	PLS	http://185.80.220.12:2199/tunein/jotayl00.pls
-Radio Parallax		Shoutcast	PLS	http://www.radio-paralax.de/listen.pls
-CGM UKScene Radio		Shoutcast	PLS	http://www.lmp.d2g.com:8003/listen.pls
+Scenesat		Shoutcast	M3U	https://scenesat.com/listen/normal/mid.m3u	https://scenesat.com/static/img/ssr_logo_288.png
+SLAY Radio		Shoutcast	M3U	https://www.slayradio.org/tune_in.php/128kbps/slayradio.128.m3u	https://www.slayradio.org/images/fb_icon.jpg
+Nectarine		Shoutcast	M3U	http://pmaster.no:9000/necta.m3u	http://static.radio.net/images/broadcasts/8c/5b/9360/c175.png
+VGM Radio		Shoutcast	M3U	https://vgmradio.com/vgmradio.m3u	https://pbs.twimg.com/profile_images/1800051507/vgmradio-icon_400x400.png
+NoLife-Radio		Shoutcast	M3U	http://nolife-radio.com/radio/NoLife-radio.m3u	https://lh5.ggpht.com/EtGXhsOUrTZctNdR8Q8E6dRu60C-oc2QvRoSJ5i4kBA4BYHJbYC0jDbMrQf-kK6sDNx9=w300
+Rainwave		Shoutcast	M3U	http://chiptune.rainwave.cc/tune_in/5.mp3	https://lh3.ggpht.com/D_Sgp-4MLjLEH1gJbyQCTbsoC40wQ2zAYMtujxwawsdnz1G55zvHHj9fGrVsSK1OEQ=w300
+ChipBit		Shoutcast	M3U	http://stream.chipbit.net:8000/autodj.m3u	http://chipbit.net/sites/all/themes/chipbit/images/logos/logo_png_chipbit_main_light_nosub_comp.png
+The Sid Station		Shoutcast	PLS	http://185.80.220.12:2199/tunein/jotayl00.pls	http://c64radio.com/images/img0001.png
+Radio Parallax		Shoutcast	PLS	http://www.radio-paralax.de/listen.pls	https://i3.radionomy.com/radios/400/53ce7a7d-ff16-4da1-a48d-394b927ba5dc.gif
+CGM UKScene Radio		Shoutcast	PLS	http://www.lmp.d2g.com:8003/listen.pls	http://www.atarimania.com/8bit/screens/cgm_uk_scene_radio.gif
 Retro PC Game Music Streaming Radio		Shoutcast	PLS	http://gyusyabu.ddo.jp:8000/listen.pls
 

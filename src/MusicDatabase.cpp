@@ -744,6 +744,9 @@ std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
 
 	lookup(s);
 	auto parts = split(s.path, "::");
+	LOGD(s.path);
+	if(parts.size() < 2)
+		return "";
 	string collection = parts[0];
 	string shot;
 	string title;
@@ -751,7 +754,12 @@ std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
 	LOGD("Get screenhots / Path %s Collection '%s'", parts[1], parts[0]);
 	if(s.metadata[SongInfo::SCREENSHOT] != "") {
 		shot = s.metadata[SongInfo::SCREENSHOT];
-	} else if(collection == "pouet") {
+	} else if(collection == "rsn") {
+		auto base = path_basename(parts[1]);
+		shot = std::string("http://snesmusic.org/v2/images/screenshots/") + base + ".png";
+		s.metadata[SongInfo::SCREENSHOT] = shot;
+		LOGD("Got rsn shot %s", shot);
+	} else if(collection == "pouet" || collection == "radio" || collection == "demovibes") {
 		shot = s.metadata[SongInfo::INFO];
 		s.metadata[SongInfo::SCREENSHOT] = shot;
 		s.metadata[SongInfo::INFO] = "";
@@ -784,7 +792,9 @@ std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
 		}
 	}
 	if(shot != "") {
-		auto prefix = getScreenshotURL(collection); 
+		std::string prefix;
+		if(!startsWith(shot, "http"))
+			prefix = getScreenshotURL(collection); 
 		auto parts = split(shot, ";");
 		if(collection == "gb64")
 			parts.insert(parts.begin(), path_directory(parts[0]) + "/" + path_basename(parts[0]) + "_1." + path_extension(parts[0]));

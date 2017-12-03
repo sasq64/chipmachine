@@ -391,6 +391,17 @@ void MusicPlayerList::playCurrent() {
 		path = currentInfo.path;
 	
 	
+	if(prefix == "index") {
+		int index = stol(path);
+		dbInfo = currentInfo = MusicDatabase::getInstance().getSongInfo(index);
+		auto parts = split(currentInfo.path, "::", 2);
+		if(parts.size() == 2) {
+			prefix = parts[0];
+			path = parts[1];
+		} else
+			path = currentInfo.path;
+	}
+
 	if(prefix == "product") {
 		auto id = stol(path);
 		playList.psongs.clear();
@@ -441,10 +452,6 @@ void MusicPlayerList::playCurrent() {
 		return;
 	}
 
-	if(prefix == "index") {
-		int index = stol(path);
-		dbInfo = currentInfo = MusicDatabase::getInstance().getSongInfo(index);
-	}
 
 	auto ext = path_extension(path);
 	makeLower(ext);

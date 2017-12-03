@@ -346,16 +346,25 @@ void ChipMachine::nextScreenshot() {
 	    .to(screenShotIcon.color, Color(0x00000000))
 	    .seconds(1.0)
 	    .onComplete([=]() {
+			if(screenshots.size() <= currentShot) {
+				LOGD("Shot went away!");
+				return;
+			}
 		    auto &bm = screenshots[currentShot].bm;
+			LOGD("BITMAP IS %dx%d", bm.width(), bm.height());
 		    screenShotIcon.setBitmap(bm, true);
 
-		    auto y = xinfoField.pos.y + xinfoField.getHeight() + 10;
-		    auto h = scrollEffect.scrolly - y;
 		    auto x = xinfoField.pos.x;
+		    auto y = xinfoField.pos.y + xinfoField.getHeight() + 10;
+
+			// Available space
+		    auto h = scrollEffect.scrolly - y;
+		    auto w = screen.width()/2;
 
 		    float d = (float)h / bm.height();
-		    int w = bm.width() * d;
-		    screenShotIcon.setArea(Rectangle(x, y, w, h));
+		    float d2 = (float)w / bm.width();
+			if(d2 < d) d = d2;
+		    screenShotIcon.setArea(Rectangle(x, y, bm.width() * d, bm.height() * d));
 		    Tween::make().to(screenShotIcon.color, Color(0xffffffff)).seconds(1.0);
 		});
 }
@@ -463,7 +472,8 @@ void ChipMachine::update() {
 						return; // We probably got a new screenshot while loading
 					int t = total;
 					if(!f) {
-						screenshots.emplace_back();
+						LOGD("Empty file");
+						//screenshots.emplace_back();
 					} else {	
 						//LOCK_GUARD(multiLoadLock);
 						
