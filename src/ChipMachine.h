@@ -50,19 +50,25 @@ public:
 	}
 
 	void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
-		if((color >> 24) == 0)
+		if(!texture || (color >> 24) == 0)
 			return;
 		target->draw(*texture, rec.x, rec.y, rec.w, rec.h, nullptr, color);
 	}
 	
-	void setBitmap(const image::bitmap &bm) {
+	void setBitmap(const image::bitmap &bm, bool filter = false) {
 		texture = std::make_shared<grappix::Texture>(bm);
+		rec.w = bm.width();
+		rec.h = bm.height();
 		glBindTexture(GL_TEXTURE_2D, texture->id());
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter ? GL_LINEAR : GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter ? GL_LINEAR : GL_NEAREST);
+	}
+	
+	void clear() {
+		texture = nullptr;
 	}
 
-	void set(const grappix::Rectangle &r) { rec = r; }
+	void setArea(const grappix::Rectangle &r) { rec = r; }
 
 	grappix::Color color{0xffffffff};
 	grappix::Rectangle rec;
@@ -75,7 +81,7 @@ class ChipMachine {
 public:
 	using Color = grappix::Color;
 
-	void renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
+	void renderSong(const grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
 	void renderCommand(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
 
 	ChipMachine(const std::string &workDir);
@@ -120,6 +126,7 @@ private:
 	void setupCommands();
 	void updateKeys();
 	void updateFavorite();
+	void updateNextField();
 	void updateLists() {
 
 		int y = resultFieldTemplate.pos.y + 5;
@@ -162,6 +169,8 @@ private:
 		return songList.selected() >= 0 && (songList.selected() < songList.size());
 	}
 	
+	void nextScreenshot();
+	
 	utils::File workDir;
 
 	MusicPlayerList player;
@@ -199,7 +208,7 @@ private:
 	Icon favIcon;
 	Icon netIcon;
 	Icon volumeIcon;
-	//Icon screenShotIcon;
+	Icon screenShotIcon;
 
 	// MAINSCREEN AND ITS RENDERABLES
 	RenderSet mainScreen;
@@ -297,13 +306,25 @@ private:
 
 	std::vector<Command> commands;
 	std::vector<Command *> matchingCommands;
-
+	std::mutex multiLoadLock;
 	int lastKey = 0;
 	bool searchUpdated = false;
 	std::string filter;
 	uint32_t favColor = 0x884444;
 
 	std::string namedToPlay;
+	int currentShot = -1;
+	struct NamedBitmap {
+		NamedBitmap() {}
+		NamedBitmap(const std::string &name, const image::bitmap &bm) : name(name), bm(bm) {}
+		std::string name;
+		image::bitmap bm;
+		bool operator==(const char *n) const { return strcmp(name.c_str(), n) == 0; }
+		bool operator<(const NamedBitmap &other) const { return name < other.name; }
+	};
+	std::vector<NamedBitmap> screenshots;
+	uint64_t setShotAt = 0;
+	std::string currentScreenshot;
 };
 }
 

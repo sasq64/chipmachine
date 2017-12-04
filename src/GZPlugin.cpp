@@ -21,7 +21,6 @@ int static inflate(const char *infile, const char *outfile) {
 	        return ret;
 		FILE *fp = fopen(infile, "rb");
 		FILE *fpo = fopen(outfile, "wb");
-		LOGD("LOOP");
 		/* decompriiiess until deflate stream ends or end of file */
 		do {
 			strm.avail_in = fread(in, 1, sizeof(in), fp);

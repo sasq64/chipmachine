@@ -84,6 +84,7 @@ void ChipMachine::setupRules() {
 	addKey(Window::F4 | ALT, "quit");
 	
 	addKey('d' | CTRL, "download_current");
+	addKey('z' | CTRL, "next_screenshot");
 	
 	addKey('r' | CTRL, "random_shuffle");
 	addKey('f' | CTRL, "format_shuffle");
@@ -230,7 +231,6 @@ void ChipMachine::updateKeys() {
 		}
 		while(smac.actionsLeft() > 0) {
 			auto action = smac.next_action();
-			LOGD("ACTION %d", action.id);
 			commands[action.id].fn();
 		}
 	}
@@ -276,7 +276,6 @@ void ChipMachine::updateKeys() {
 		searchField.visible(true);
 		filterField.visible(true);
 		searchField.pos.x = filterField.pos.x + filterField.getWidth() + 5;
-		LOGD("X NOW %d", songField.pos.x);
 		topStatus.visible(false);
 		songList.setTotal(iquery->numHits());
 		searchUpdated = false;

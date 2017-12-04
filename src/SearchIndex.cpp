@@ -361,7 +361,6 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 		} else {
 			for(int index : tv) {
 				if(filter(index)) {
-					LOGD("SKIP");
 					continue;
 				}
 				string s = strings[index];

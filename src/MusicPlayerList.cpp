@@ -17,94 +17,71 @@ MusicPlayerList::MusicPlayerList(const std::string &workDir) : mp(workDir) {
 	wasAllowed = true;
 	permissions = 0xff;
 	quitThread = false;
-	playerThread = thread([=]() {
+	playerThread = thread([=] {
 		while(!quitThread) {
+			plMutex.lock();
+			if(funcs.size()) {
+				auto q = funcs;
+				funcs.clear();
+				plMutex.unlock();
+				for(auto &f : q)
+					f();
+			} else
+				plMutex.unlock();
 			update();
-			sleepms(100);
+			sleepms(50);
 		}
 	});
 }
 
-bool MusicPlayerList::checkPermission(int flags) {
-	if(!(permissions & flags)) {
-		wasAllowed = false;
-		return false;
-	}
-	return true;
-}
+void MusicPlayerList::addSong(const SongInfo &si, bool shuffle) {
 
-bool MusicPlayerList::addSong(const SongInfo &si, bool shuffle) {
-
-	if(!checkPermission(CAN_ADD_SONG))
-		return false;
-	LOCK_GUARD(plMutex);
-
-	if(partyMode || shuffle) {
-		if(partyMode && playList.size() >= 50) {
-			wasAllowed = false;
-			return false;
+	//LOCK_GUARD(plMutex);
+	onThisThread([=] {
+		if(shuffle) {
+			playList.insertAt(rand() % (playList.size() + 1), si);
+		} else {
+			LOGD("PUSH %s/%s (%s)", si.title, si.composer, si.path);
+			playList.push_back(si);
 		}
-		playList.insert(playList.begin() + (rand() % (playList.size() + 1)), si);
-	} else {
-		LOGD("PUSH %s/%s (%s)", si.title, si.composer, si.path);
-		playList.push_back(si);
-	}
-	return true;
+	});
+	//return true;
 }
 
 void MusicPlayerList::clearSongs() {
-	if(!checkPermission(CAN_CLEAR_SONGS))
-		return;
-	LOCK_GUARD(plMutex);
-	playList.clear();
+	//LOCK_GUARD(plMutex);
+	onThisThread( [=] { playList.clear(); });
 }
 
 void MusicPlayerList::nextSong() {
-	if(!checkPermission(CAN_SWITCH_SONG))
-		return;
-	LOCK_GUARD(plMutex);
-	if(playList.size() > 0) {
-		// mp.stop();
-		SET_STATE(WAITING);
-	}
+	//LOCK_GUARD(plMutex);
+	onThisThread([=] {
+		if(playList.size() > 0) {
+			// mp.stop();
+			SET_STATE(WAITING);
+		}
+	});
 }
 
 void MusicPlayerList::playSong(const SongInfo &si) {
-	if(!checkPermission(CAN_SWITCH_SONG))
-		return;
-	LOCK_GUARD(plMutex);
-	dbInfo = currentInfo = si;
-	SET_STATE(PLAY_NOW);
-}
-
-void MusicPlayerList::updateInfo() {
-	auto si = mp.getPlayingInfo();
-	/* if(si.title != "")
-	    currentInfo.title = si.title;
-	if(si.composer != "")
-	    currentInfo.composer = si.composer; */
-	if(si.format != "")
-		currentInfo.format = si.format;
-	// if(si.length > 0)
-	//	currentInfo.length = si.length;
-	if(!multiSongs.size()) {
-		currentInfo.numtunes = si.numtunes;
-		currentInfo.starttune = si.starttune;
-	}
+	onThisThread([=] {
+		dbInfo = currentInfo = si;
+		SET_STATE(PLAY_NOW);
+	});
 }
 
 void MusicPlayerList::seek(int song, int seconds) {
-	if(!checkPermission(CAN_SEEK))
-		return;
-	if(multiSongs.size()) {
-		LOGD("CHANGED MULTI");
-		state = PLAY_MULTI;
-		multiSongNo = song;
-		return;
-	}
-	mp.seek(song, seconds);
-	if(song >= 0)
-		changedSong = true;
+	onThisThread([=] {
+		if(multiSongs.size()) {
+			LOGD("CHANGED MULTI");
+			state = PLAY_MULTI;
+			multiSongNo = song;
+			return;
+		}
+		mp.seek(song, seconds);
+		if(song >= 0)
+			changedSong = true;
+	});
 }
 
 uint16_t *MusicPlayerList::getSpectrum() {
@@ -119,8 +96,7 @@ SongInfo MusicPlayerList::getInfo(int index) {
 	LOCK_GUARD(plMutex);
 	if(index == 0)
 		return currentInfo;
-	else
-		return playList[index - 1];
+	return playList.getSong(index - 1);
 }
 
 SongInfo MusicPlayerList::getDBInfo() {
@@ -129,18 +105,30 @@ SongInfo MusicPlayerList::getDBInfo() {
 }
 
 int MusicPlayerList::getLength() {
-	return mp.getLength(); // currentInfo.length;
+	return playerLength;
 }
 
 int MusicPlayerList::getPosition() {
-	return mp.getPosition();
+	return playerPosition;
 }
 
+
 int MusicPlayerList::listSize() {
+	LOCK_GUARD(plMutex);
 	return playList.size();
 }
 
 /// PRIVATE
+
+void MusicPlayerList::updateInfo() {
+	auto si = mp.getPlayingInfo();
+	if(si.format != "")
+		currentInfo.format = si.format;
+	if(!multiSongs.size()) {
+		currentInfo.numtunes = si.numtunes;
+		currentInfo.starttune = si.starttune;
+	}
+}
 
 bool MusicPlayerList::handlePlaylist(const string &fileName) {
 
@@ -220,7 +208,6 @@ bool MusicPlayerList::playFile(const std::string &fn) {
 		if(reportSongs)
 			RemoteLists::getInstance().songPlayed(currentInfo.path);
 #endif
-		LOGD("STARRTUNE %d", currentInfo.starttune);
 		if(currentInfo.starttune >= 0)
 			mp.seek(currentInfo.starttune);
 		changedSong = false;
@@ -231,6 +218,8 @@ bool MusicPlayerList::playFile(const std::string &fn) {
 			SET_STATE(PLAY_STARTED);
 		} else
 			SET_STATE(PLAYING);
+
+		bitRate = 0;
 
 		changedMulti = false;
 		return true;
@@ -249,6 +238,10 @@ void MusicPlayerList::setPartyMode(bool on, int lockSec, int graceSec) {
 	graceSeconds = graceSec;
 }
 
+void MusicPlayerList::cancelStreaming() {
+	RemoteLoader::getInstance().cancel();
+	mp.clearStreamFifo();
+}
 void MusicPlayerList::update() {
 
 	LOCK_GUARD(plMutex);
@@ -293,7 +286,8 @@ void MusicPlayerList::update() {
 		auto length = mp.getLength();
 
 		if(cueSheet) {
-			cueTitle = cueSheet->getTitle(pos);
+			subtitle = cueSheet->getTitle(pos);
+			subtitlePtr = subtitle.c_str();
 		}
 
 		if(!changedSong && playList.size() > 0) {
@@ -331,23 +325,22 @@ void MusicPlayerList::update() {
 
 	if(state == LOADING) {
 		if(files == 0) {
-			RemoteLoader::getInstance().cancel();
+			cancelStreaming();
 			playFile(loadedFile);
 		}
 	}
 
-	if(state == WAITING && playList.size() > 0) {
+	if(state == WAITING && (playList.size() > 0)) {
 		SET_STATE(STARTED);
+		playedNext = true;
 		dbInfo = currentInfo = playList.front();
 		playList.pop_front();
-
-		playedNext = true;
 
 		if(playList.size() > 0) {
 			// Update info for next song from
 			MusicDatabase::getInstance().lookup(playList.front());
 		}
-
+			
 		// pos = 0;
 		LOGD("Next song from queue : %s (%d)", currentInfo.path, currentInfo.starttune);
 		if(partyMode) {
@@ -357,6 +350,28 @@ void MusicPlayerList::update() {
 		multiSongs.clear();
 		playCurrent();
 	}
+
+	// Cache values for outside access
+
+	playerPosition = mp.getPosition();
+	playerLength = mp.getLength(); // currentInfo.length;
+
+	if(multiSongs.size())
+		currentTune = multiSongNo;
+	else
+		currentTune = mp.getTune();
+
+	playing = mp.playing();
+	paused = mp.isPaused();
+	auto br = mp.getMeta("bitrate");
+	if(br != "") {
+		bitRate = std::stol(br);
+	}
+
+	if(!cueSheet) {
+		subtitle = mp.getMeta("sub_title");
+		subtitlePtr = subtitle.c_str();
+	}
 }
 
 void MusicPlayerList::playCurrent() {
@@ -364,6 +379,7 @@ void MusicPlayerList::playCurrent() {
 	SET_STATE(LOADING);
 	
 	songFiles.clear();
+	//screenshot = "";
 	
 	LOGD("PLAY PATH:%s", currentInfo.path);
 	string prefix, path;
@@ -375,26 +391,45 @@ void MusicPlayerList::playCurrent() {
 		path = currentInfo.path;
 	
 	
+	if(prefix == "index") {
+		int index = stol(path);
+		dbInfo = currentInfo = MusicDatabase::getInstance().getSongInfo(index);
+		auto parts = split(currentInfo.path, "::", 2);
+		if(parts.size() == 2) {
+			prefix = parts[0];
+			path = parts[1];
+		} else
+			path = currentInfo.path;
+	}
+
 	if(prefix == "product") {
-		playList.clear();
 		auto id = stol(path);
-		vector<SongInfo> songs = MusicDatabase::getInstance().getProductSongs(id);
-		for(const auto &song : songs) {
-			playList.push_back(song);
+		playList.psongs.clear();
+		for(const auto &song : MusicDatabase::getInstance().getProductSongs(id)) {
+			playList.psongs.push_back(song);
 		}
-    	if(playList.size() == 0)
+    	if(playList.psongs.size() == 0) {
+			LOGD("No songs in product");
+			errors.push_back("No songs in product");
+			SET_STATE(ERROR);
         	return;
-		
-		//screenshot = MusicDatabase::getInstance().getProductScreenshots(id);
-		MusicDatabase::getInstance().lookup(playList.front());
-		if(playList.front().path == "") {
-			LOGD("Could not lookup '%s'", playList.front().path);
+		}
+
+		// Check that the first song is working
+		MusicDatabase::getInstance().lookup(playList.psongs.front());
+		if(playList.psongs.front().path == "") {
+			LOGD("Could not lookup '%s'",playList.psongs.front().path);
 			errors.push_back("Bad song in product");
 			SET_STATE(ERROR);
 			return;
 		}
 		SET_STATE(WAITING);
 		return;
+	} else {
+		if(currentInfo.metadata[SongInfo::SCREENSHOT] == "") {
+			auto s = MusicDatabase::getInstance().getSongScreenshots(currentInfo);
+			currentInfo.metadata[SongInfo::SCREENSHOT] = s;
+		}
 	}
 
 	if(prefix == "playlist") {
@@ -417,10 +452,6 @@ void MusicPlayerList::playCurrent() {
 		return;
 	}
 
-	if(prefix == "index") {
-		int index = stol(path);
-		dbInfo = currentInfo = MusicDatabase::getInstance().getSongInfo(index);
-	}
 
 	auto ext = path_extension(path);
 	makeLower(ext);
@@ -430,7 +461,15 @@ void MusicPlayerList::playCurrent() {
 		detectSilence = false;
 
 	cueSheet = nullptr;
-	cueTitle = "";
+	subtitle = "";
+	subtitlePtr = subtitle.c_str();
+
+	playerPosition = 0;
+	playerLength = 0;
+	bitRate = 0;
+	currentTune = 0;
+
+	cancelStreaming();
 
 	if(File::exists(currentInfo.path)) {
 		LOGD("PLAYING LOCAL FILE %s", currentInfo.path);
@@ -443,7 +482,6 @@ void MusicPlayerList::playCurrent() {
 	loadedFile = "";
 	files = 0;
 	RemoteLoader &loader = RemoteLoader::getInstance();
-	loader.cancel();
 
 	string cueName = "";
 	if(prefix == "bitjam")
@@ -466,15 +504,17 @@ void MusicPlayerList::playCurrent() {
 
 	if(currentInfo.format != "M3U" && (ext == "mp3" || toLower(currentInfo.format) == "mp3")) {
 
-		auto streamer = mp.streamFile("dummy.mp3");
-
-		if(streamer) {
+		if(mp.streamFile("dummy.mp3")) {
 			SET_STATE(PLAY_STARTED);
+			LOGD("Stream start");
+			string name = currentInfo.path;
 			loader.stream(currentInfo.path, [=](int what, const uint8_t *ptr, int n) -> bool {
-				if(what == RemoteLoader::PARAMETER)
-					streamer->setParameter((char *)ptr, n);
-				else
-					streamer->putStream(ptr, n);
+				if(what == RemoteLoader::PARAMETER) {
+					mp.setParameter((char *)ptr, n);
+				} else {
+					//LOGD("Writing to %s", name);
+					mp.putStream(ptr, n);
+				}
 				return true;
 			});
 		}
@@ -489,7 +529,8 @@ void MusicPlayerList::playCurrent() {
 	    {"sng", "ins"},     // Richard Joseph
 	    {"jpn", "smp"},     // Jason Page PREFIX
 	    {"dum", "ins"},     // Rob Hubbard 2
-	    {"adsc", "adsc.as"} // Audio Sculpture
+	    {"adsc", "adsc.as"}, // Audio Sculpture
+	    {"sdata", "ip"} // Audio Sculpture
 	};
 	string ext2;
 	if(fmt_2files.count(ext) > 0)

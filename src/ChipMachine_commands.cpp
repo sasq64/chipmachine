@@ -13,7 +13,7 @@ void ChipMachine::setupCommands() {
 		commands.emplace_back(name, f);
 	};
 
-	cmd("show_main", [=]() { showScreen(MAIN_SCREEN); });
+	cmd("show_main", [=] { showScreen(MAIN_SCREEN); });
 
 	cmd("show_search", [=]() {
 		if(currentScreen != SEARCH_SCREEN) {
@@ -25,13 +25,13 @@ void ChipMachine::setupCommands() {
 		searchUpdated = true;
 	});
 
-	cmd("show_command", [=]() {
+	cmd("show_command", [=] {
 		if(currentScreen != COMMAND_SCREEN)
 			lastScreen = currentScreen;
 		showScreen(COMMAND_SCREEN);
 	});
 
-	cmd("toggle_command", [=]() {
+	cmd("toggle_command", [=] {
 		if(currentScreen != COMMAND_SCREEN) {
 			lastScreen = currentScreen;
 			showScreen(COMMAND_SCREEN);
@@ -39,7 +39,7 @@ void ChipMachine::setupCommands() {
 			showScreen(lastScreen);
 	});
 
-	cmd("download_current", [=]() {
+	cmd("download_current", [=] {
 		auto target = File::getHomeDir() / "Downloads";
 		makedir(target);
 
@@ -70,7 +70,7 @@ void ChipMachine::setupCommands() {
 		toast("Downloaded file");
 	});
 
-	cmd("play_pause", [=]() {
+	cmd("play_pause", [=] {
 		player.pause(!player.isPaused());
 		if(player.isPaused()) {
 			Tween::make().sine().repeating().to(timeField.add, 1.0).seconds(0.5);
@@ -78,12 +78,18 @@ void ChipMachine::setupCommands() {
 			Tween::make().to(timeField.add, 0.0).seconds(0.5);
 	});
 
-	cmd("enque_song", [=]() {
-		if(haveSelection() && player.addSong(getSelectedSong()))
+	cmd("enque_song", [=] {
+		if(haveSelection()) {
+			player.addSong(getSelectedSong());
 			songList.select(songList.selected() + 1);
+		}
 	});
 
-	cmd("add_current_favorite", [=]() {
+	cmd("next_screenshot", [=] {
+		nextScreenshot();
+	});
+	
+	cmd("add_current_favorite", [=] {
 		auto song = dbInfo;
 		//if(currentTune != song.starttune)
 			song.starttune = currentTune;
@@ -100,17 +106,17 @@ void ChipMachine::setupCommands() {
 		// favIcon.visible(isFavorite);
 	});
 
-	cmd("add_list_favorite", [=]() {
+	cmd("add_list_favorite", [=] {
 		if(haveSelection())
 			MusicDatabase::getInstance().addToPlaylist(currentPlaylistName, getSelectedSong());
 	});
 
-	cmd("clear_filter", [=]() {
+	cmd("clear_filter", [=] {
 		filter = "";
 		searchUpdated = true;
 	});
 
-	cmd("set_collection_filter", [=]() {
+	cmd("set_collection_filter", [=] {
 
 		const auto &song = getSelectedSong();
 		auto p = split(song.path, "::");
@@ -121,14 +127,14 @@ void ChipMachine::setupCommands() {
 
 	});
 
-	cmd("play_song", [=]() {
+	cmd("play_song", [=] {
 		if(haveSelection()) {
 			player.playSong(getSelectedSong());
 			showScreen(MAIN_SCREEN);
 		}
 	});
 
-	cmd("next_composer", [=]() {
+	cmd("next_composer", [=] {
 		string composer;
 		int index = songList.selected();
 		while(index < songList.size()) {
@@ -143,12 +149,12 @@ void ChipMachine::setupCommands() {
 		songList.select(index);
 	});
 
-	cmd("next_song", [=]() {
+	cmd("next_song", [=] {
 		showScreen(MAIN_SCREEN);
 		player.nextSong();
 	});
 
-	cmd("clear_search", [=]() {
+	cmd("clear_search", [=] {
 		if(searchField.getText() == "")
 			showScreen(MAIN_SCREEN);
 		else {
@@ -157,7 +163,7 @@ void ChipMachine::setupCommands() {
 		}
 	});
 
-	cmd("clear_command", [=]() {
+	cmd("clear_command", [=] {
 		LOGD("CMD %s", commandField.getText());
 		if(commandField.getText() == "")
 			showScreen(MAIN_SCREEN);
@@ -168,7 +174,7 @@ void ChipMachine::setupCommands() {
 		}
 	});
 	
-	cmd("execute_selected_command", [=]() {
+	cmd("execute_selected_command", [=] {
 		int i = commandList.selected();
 		if(matchingCommands.size() == 0)
 			return;
@@ -179,60 +185,60 @@ void ChipMachine::setupCommands() {
 			it->fn();
 	});
 
-	cmd("next_subtune", [=]() {
+	cmd("next_subtune", [=] {
 		if(currentInfo.numtunes == 0)
 			player.seek(-1, player.getPosition() + 10);
 		else if(currentTune < currentInfo.numtunes - 1)
 			player.seek(currentTune + 1);
 	});
 
-	cmd("prev_subtune", [=]() {
+	cmd("prev_subtune", [=] {
 		if(currentInfo.numtunes == 0)
 			player.seek(-1, player.getPosition() - 10);
 		else if(currentTune > 0)
 			player.seek(currentTune - 1);
 	});
 
-	cmd("clear_songs", [=]() {
+	cmd("clear_songs", [=] {
 		player.clearSongs();
 		toast("Playlist cleared");
 	});
 
-	cmd("volume_up", [=]() {
+	cmd("volume_up", [=] {
 		player.setVolume(player.getVolume() + 0.1);
 		showVolume = 30;
 	});
 
-	cmd("volume_down", [=]() {
+	cmd("volume_down", [=] {
 		player.setVolume(player.getVolume() - 0.1);
 		showVolume = 30;
 	});
 
-	cmd("layout_screen", [=]() { layoutScreen(); });
+	cmd("layout_screen", [=] { layoutScreen(); });
 
-	cmd("quit", [=]() { screen.close(); });
+	cmd("quit", [=] { screen.close(); });
 
-	cmd("random_shuffle", [=]() {
+	cmd("random_shuffle", [=] {
 		toast("Random shuffle!");
 		shuffleSongs(false, false, false, 100);
 	});
 
-	cmd("composer_shuffle", [=]() {
+	cmd("composer_shuffle", [=] {
 		toast("Composer shuffle!");
 		shuffleSongs(false, true, false, 1000);
 	});
 
-	cmd("format_shuffle", [=]() {
+	cmd("format_shuffle", [=] {
 		toast("Format shuffle!");
 		shuffleSongs(true, false, false, 100);
 	});
 
-	cmd("collection_shuffle", [=]() {
+	cmd("collection_shuffle", [=] {
 		toast("Collection shuffle!");
 		shuffleSongs(false, false, true, 100);
 	});
 
-	cmd("result_shuffle", [=]() {
+	cmd("result_shuffle", [=] {
 		toast("Result shuffle!");
 		player.clearSongs();
 		for(int i = 0; i < iquery->numHits(); i++) {
@@ -254,13 +260,13 @@ void ChipMachine::setupCommands() {
 		player.nextSong();
 	});
 
-	cmd("close_dialog", [=]() {
+	cmd("close_dialog", [=] {
 		if(currentDialog)
 			currentDialog->remove();
 		currentDialog = nullptr;
 	});
 
-	cmd("test_dialog", [=]() {
+	cmd("test_dialog", [=] {
 		currentDialog = make_shared<Dialog>(screenptr, font, "Type something:");
 		overlay.add(currentDialog);
 	});
@@ -278,7 +284,7 @@ void ChipMachine::setupCommands() {
 				f.close();
 				auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
 				RemoteLists::getInstance().sendList(plist.songs, plist.name,
-				                                    [=]() { toast("Uploaded", 2); });
+				                                    [=] { toast("Uploaded", 2); });
 			});
 
 		});
@@ -286,7 +292,7 @@ void ChipMachine::setupCommands() {
 	} else {
 		auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
 		RemoteLists::getInstance().sendList(plist.songs, plist.name,
-		                                    [=]() { toast("Uploaded", 2); });
+		                                    [=] { toast("Uploaded", 2); });
 	}
 #endif
 }

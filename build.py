@@ -33,7 +33,7 @@ parser.add_argument('actions', choices=['build', 'clean', 'run', 'config'], defa
 parser.add_argument('--buildsystem', choices=['ninja', 'make', 'xcode'], default='ninja',
                    help='Build system to use')
 
-parser.add_argument('--config', choices=['release', 'debug', 'usan', 'asan', 'tsan'], default='release',
+parser.add_argument('--config', choices=['release', 'debug', 'usan', 'asan', 'tsan', 'msan'], default='release',
                    help='Release or Debug config')
 
 parser.add_argument('--output', default='builds',
@@ -46,7 +46,10 @@ args = parser.parse_args()
 
 configs = { 'release' : [ 'release', ['-DCMAKE_BUILD_TYPE=Release'] ],
             'debug' : [ 'debug', ['-DCMAKE_BUILD_TYPE=Debug'] ],
-            'usan' : [ 'usan', ['-DCMAKE_BUILD_TYPE=Debug', '-DSAN=undefined'] ]
+            'usan' : [ 'usan', ['-DCMAKE_BUILD_TYPE=Debug', '-DSAN=undefined'] ],
+            'asan' : [ 'asan', ['-DCMAKE_BUILD_TYPE=Debug', '-DSAN=address'] ],
+            'msan' : [ 'msan', ['-DCMAKE_BUILD_TYPE=Debug', '-DSAN=memory'] ],
+            'tsan' : [ 'tsan', ['-DCMAKE_BUILD_TYPE=Debug', '-DSAN=thread'] ]
           }
 buildsystems = { 'make' : ['-GUnix Makefiles'],
                  'ninja' : [ '-GNinja',  ]

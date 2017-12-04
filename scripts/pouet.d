@@ -1,7 +1,7 @@
 import std.net.curl, std.stdio, std.json, std.format, std.file, std.string;
 
 void main() {
-
+	auto cntUrl = "http://content.pouet.net/files/screenshots/";
 	auto outFile = File("pouet.txt", "w");
 	foreach(id ; 1 .. 67268) {
 		auto fileName = format("pouet.%s", id);
@@ -52,10 +52,17 @@ void main() {
 				break;
 			}
 
+			auto screenshot = "";
+			if("screenshot" in prod) {
+				screenshot = prod["screenshot"].str();
+				if(startsWith(screenshot, cntUrl))
+					screenshot = screenshot[cntUrl.length .. $];
+			}
+					
 			if(composer != "")
 				groupName ~= (" (" ~ composer ~ ")");
 
-			outFile.writefln("%s\t%s\t%s\tYoutube (%s)\t%s", name, "", groupName, platform, link);
+			outFile.writefln("%s\t%s\t%s\tYoutube (%s)\t%s\t%s", name, "", groupName, platform, link, screenshot);
 		}
 	}
 	outFile.close();

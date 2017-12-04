@@ -3,18 +3,18 @@
 #include "version.h"
 #include <grappix/window.h>
 #include <coreutils/format.h>
-#include <musicplayer/chipplugin.h>
-#include <musicplayer/plugins/ffmpegplugin/FFMPEGPlugin.h>
+#include <luainterpreter/luainterpreter.h>
 #include <cctype>
 #include <map>
 #ifdef _WIN32
 #include <ShellApi.h>
 #endif
-
 using namespace std;
 using namespace utils;
 using namespace grappix;
 using namespace tween;
+
+void initYoutube(LuaInterpreter&);
 
 std::string compressWhitespace(std::string &&m) {
 	// Turn linefeeds into spaces
@@ -31,7 +31,7 @@ std::string compressWhitespace(const std::string &text) {
 
 namespace chipmachine {
 
-void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
+void ChipMachine::renderSong(const grappix::Rectangle &rec, int y, uint32_t index, bool hilight) {
 
 	static const map<uint32_t, uint32_t> colors = {
 	    {NOT_SET, 0xffff00ff}, {PLAYLIST, 0xffffff88}, {CONSOLE, 0xffdd3355}, {C64, 0xffcc8844},
@@ -74,79 +74,30 @@ void ChipMachine::renderSong(grappix::Rectangle &rec, int y, uint32_t index, boo
 	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate.scale);
 }
 
-
-class YoutubePlugin : public ChipPlugin {
-public:
-	YoutubePlugin(LuaInterpreter &lua) : lua(lua) {
-		plugin = ChipPlugin::getPlugin("ffmpeg");
-	}
-	
-	virtual ChipPlayer *fromFile(const std::string &fileName) override {
-		LOGD("Youtube plugin %s", fileName);
-		string x = lua.call<string>(string("on_parse_youtube"), fileName);
-		if(x == "")
-			return nullptr;
-		auto player = plugin->fromFile(x);
-		auto dpos = x.find("dur=");
-		if(dpos != string::npos) {
-			int length = atoi(x.substr(dpos+4).c_str());
-			player->setMeta("length",  length);
-		}
-		return player;	
-	}
-	
-	virtual bool canHandle(const string &name) override {
-		return startsWith(name, "http") && name.find("youtu") != string::npos;	
-	}
-	
-	virtual std::string name() const override { return "youtube"; }
-	
-	LuaInterpreter &lua;
-	std::shared_ptr<ChipPlugin> plugin;
-};
-
 ChipMachine::ChipMachine(const std::string &wd)
     : workDir(wd), player(wd), currentScreen(MAIN_SCREEN), eq(SpectrumAnalyzer::eq_slots),
       starEffect(screen), scrollEffect(screen) {
 
 	screen.setTitle("Chipmachine " VERSION_STR);
 	
-		lua.setGlobal("WINDOWS",
 #ifdef _WIN32
-		true
+	lua.setGlobal("WINDOWS", true);
 #else
-		false
+	lua.setGlobal("WINDOWS", false);
 #endif
-		);
 
-		string binDir = (workDir / "bin").getName();
-		lua.registerFunction("cm_execute", [binDir](std::string cmd) {
-			LOGD("BINDIR:%s", binDir);
-#ifdef _WIN32
- 			auto cmdLine = utils::format("/C %s", cmd);
-			SHELLEXECUTEINFO ShExecInfo = {0};
-			ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
-			ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-			ShExecInfo.hwnd = NULL;
-			ShExecInfo.lpVerb = NULL;
-			ShExecInfo.lpFile = "cmd.exe";        
-			ShExecInfo.lpParameters = cmdLine.c_str(); 
-			ShExecInfo.lpDirectory = binDir.c_str();
-			ShExecInfo.nShow = SW_HIDE;
-			ShExecInfo.hInstApp = NULL; 
-			ShellExecuteEx(&ShExecInfo);
-			WaitForSingleObject(ShExecInfo.hProcess, INFINITE);
-#else
-			if(cmd[0] != '/')
-				cmd = binDir + "/" + cmd; 
-			system(cmd.c_str());
-#endif
-		});
+	string binDir = (workDir / "bin").getName();
+	lua.registerFunction("cm_execute", [binDir](std::string cmd) -> std::string {
+		if(!File::isAbsolutePath(cmd))
+			cmd = binDir + File::DIR_SEPARATOR + cmd; 
+		std::string output = execPipe(cmd);
+		return output;
+	});
 
-		lua.loadFile(workDir / "lua" / "init.lua");
-		
-		ChipPlugin::addPlugin(make_shared<YoutubePlugin>(lua));
-		
+	lua.loadFile(workDir / "lua" / "init.lua");
+
+	initYoutube(lua);
+
 #ifdef USE_REMOTELISTS
 	RemoteLists::getInstance().onError([=](int rc, const std::string &error) {
 		string e = error;
@@ -166,6 +117,9 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 	nextInfoField.setAlign(1.0);
 	nextField.align = 1.0;
+
+	screenShotIcon = Icon(image::bitmap(8, 8), 100, 100);
+	mainScreen.add(&screenShotIcon);
 
 	// SongInfo fields
 	mainScreen.add(&prevInfoField);
@@ -223,7 +177,6 @@ ChipMachine::ChipMachine(const std::string &wd)
 	netIcon = Icon(net_icon, 2, 2, 8 * 3, 5 * 3);
 	mainScreen.add(&netIcon);
 	netIcon.visible(false);
-	
 	showVolume = 0;
 
 	musicBars.setup(spectrumWidth, spectrumHeight, 24);
@@ -318,7 +271,8 @@ void ChipMachine::layoutScreen() {
 	currentTween.finish();
 	currentTween = Tween();
 
-	lua.call<void>("on_layout", screen.width(), screen.height(), screen.getPPI() < 0 ? 100 : screen.getPPI()); 
+	lua.call<void>("on_layout", screen.width(), screen.height(),
+	               screen.getPPI() < 0 ? 100 : screen.getPPI());
 
 	File f(workDir / "lua" / "screen.lua");
 
@@ -352,12 +306,12 @@ void ChipMachine::layoutScreen() {
 	commandField.cursorH = searchField.cursorH;
 	commandField.cursorW = searchField.cursorW;
 
-	favIcon.set(favPos);
+	favIcon.setArea(favPos);
 
 	float ww = volume_icon.width() * 15;
 	float hh = volume_icon.height() * 10;
 	volPos = {((float)screen.width() - ww) / 2.0f, ((float)screen.height() - hh) / 2.0f, ww, hh};
-	volumeIcon.set(volPos);
+	volumeIcon.setArea(volPos);
 }
 
 void ChipMachine::play(const SongInfo &si) {
@@ -379,6 +333,62 @@ void ChipMachine::updateFavorite() {
 	// favIcon.visible(isFavorite);
 }
 
+void ChipMachine::nextScreenshot() {
+	setShotAt = utils::getms();
+	if(screenshots.size() == 0)
+		return;
+
+	currentShot++;
+	if(currentShot >= screenshots.size())
+		currentShot = 0;
+
+	Tween::make()
+	    .to(screenShotIcon.color, Color(0x00000000))
+	    .seconds(1.0)
+	    .onComplete([=]() {
+			if(screenshots.size() <= currentShot) {
+				LOGD("Shot went away!");
+				return;
+			}
+		    auto &bm = screenshots[currentShot].bm;
+			LOGD("BITMAP IS %dx%d", bm.width(), bm.height());
+		    screenShotIcon.setBitmap(bm, true);
+
+		    auto x = xinfoField.pos.x;
+		    auto y = xinfoField.pos.y + xinfoField.getHeight() + 10;
+
+			// Available space
+		    auto h = scrollEffect.scrolly - y;
+		    auto w = screen.width()/2;
+
+		    float d = (float)h / bm.height();
+		    float d2 = (float)w / bm.width();
+			if(d2 < d) d = d2;
+		    screenShotIcon.setArea(Rectangle(x, y, bm.width() * d, bm.height() * d));
+		    Tween::make().to(screenShotIcon.color, Color(0xffffffff)).seconds(1.0);
+		});
+}
+
+void ChipMachine::updateNextField() {
+	auto psz = player.listSize();
+	LOGD("####### PLAYLIST UPDATED WITH %d entries", psz);
+	if(psz > 0) {
+		auto info = player.getInfo(1);
+		if(info.path != "")
+			RemoteLoader::getInstance().preCache(info.path);
+		if(info.path != currentNextPath) {
+			if(psz == 1)
+				nextField.setText("Next");
+			else
+				nextField.setText(format("Next (%d)", psz));
+			nextInfoField.setInfo(info);
+			currentNextPath = info.path;
+		}
+	} else if(nextField.getText() != "") {
+		nextInfoField.setInfo(SongInfo());
+		nextField.setText("");
+	}
+}
 void ChipMachine::update() {
 
 	if(indexingDatabase) {
@@ -436,8 +446,8 @@ void ChipMachine::update() {
 		LOGD("MUSIC STARTING %s", currentInfo.title);
 		screen.setTitle(format("%s / %s (Chipmachine " VERSION_STR ")", currentInfo.title, currentInfo.composer));
 		string m;
-		if(currentInfo.metadata != "") {
-			m = compressWhitespace(currentInfo.metadata);
+		if(currentInfo.metadata[SongInfo::INFO] != "") {
+			m = compressWhitespace(currentInfo.metadata[SongInfo::INFO]);
 		} else {
 			m = compressWhitespace(player.getMeta("message"));
 		}
@@ -445,6 +455,63 @@ void ChipMachine::update() {
 			scrollEffect.set("scrolltext", m);
 			scrollText = m;
 		}
+
+		auto shot = currentInfo.metadata[SongInfo::SCREENSHOT]; //player.getMeta("screenshot");
+	
+		if(shot != currentScreenshot) {
+			screenShotIcon.clear();
+			screenshots.clear();
+			currentScreenshot = shot;
+			
+		
+			if(shot != "") {
+				auto parts = split(shot, ";");
+				int total = parts.size();
+				auto cb = [=](File f) {
+					if(currentScreenshot == "")
+						return; // We probably got a new screenshot while loading
+					int t = total;
+					if(!f) {
+						LOGD("Empty file");
+						//screenshots.emplace_back();
+					} else {	
+						//LOCK_GUARD(multiLoadLock);
+						
+						try {
+							if(toLower(path_extension(f.getName())) == "gif") {
+								t--;
+								for(auto &bm : image::load_gifs(f.getName())) {
+									for(auto &px : bm) {
+										if((px & 0xffffff) == 0)
+											px &= 0xffffff;
+									}
+									screenshots.emplace_back(f.getFileName(), bm);
+									t++;
+								}
+							} else {
+								auto bm = image::load_image(f.getName());
+								for(auto &px : bm) {
+									if((px & 0xffffff) == 0)
+										px &= 0xffffff;
+								}
+								screenshots.emplace_back(f.getFileName(), bm);
+							}
+						} catch(image::image_exception &e) {
+							LOGD("Failed to load image");
+						}
+					}
+	
+					if(screenshots.size() >= t) {
+						screenshots.erase(std::remove(screenshots.begin(), screenshots.end(), ""), screenshots.end());
+						sort(screenshots.begin(), screenshots.end());
+						nextScreenshot();
+					}
+				};
+				for(auto &p : parts)
+					webutils::Web::getInstance().getFile(p, cb);
+			}
+		} else
+			nextScreenshot();
 
 		// Make sure any previous tween is complete
 		currentTween.finish();
@@ -455,7 +522,7 @@ void ChipMachine::update() {
 		currentInfoField.setInfo(currentInfo);
 		// currentTune = currentInfo.starttune;
 		currentTune = player.getTune();
-
+		
 		if(currentInfo.numtunes > 0)
 			songField.setText(format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
 		else
@@ -478,13 +545,9 @@ void ChipMachine::update() {
 
 		updateFavorite();
 		// Start tweening
+		updateNextField();
+		player.playlistUpdated();
 		LOGD("## TWEENING INFO FIELDS");
-
-		// Setting next field here to get correct alignment
-		// if(player.listSize() > 0) {
-		// auto info = player.getInfo(1);
-		// nextInfoField.setInfo(info);
-		//}
 
 		if(player.wasFromQueue()) {
 			currentTween = Tween::make() // target , source  <------
@@ -522,25 +585,9 @@ void ChipMachine::update() {
 	}
 
 	if(playerState == MusicPlayerList::PLAYING || playerState == MusicPlayerList::STOPPED) {
-		auto psz = player.listSize();
-		if(psz > 0) {
-			auto info = player.getInfo(1);
-			if(info.path != "")
-				RemoteLoader::getInstance().preCache(info.path);
-			if(info.path != currentNextPath) {
 
-				LOGD("## SETTING NEXT INFO");
-
-				if(psz == 1)
-					nextField.setText("Next");
-				else
-					nextField.setText(format("Next (%d)", psz));
-				nextInfoField.setInfo(info);
-				currentNextPath = info.path;
-			}
-		} else if(nextField.getText() != "") {
-			nextInfoField.setInfo(SongInfo());
-			nextField.setText("");
+		if(player.playlistUpdated()) {
+			updateNextField();
 		}
 	}
 
@@ -562,7 +609,7 @@ void ChipMachine::update() {
 		updateFavorite();
 	}
 
-	if(player.playing()) {
+	if(player.isPlaying()) {
 
 		bool party = (player.getPermissions() & MusicPlayerList::PARTYMODE) != 0;
 		if(!lockDown && party) {
@@ -571,6 +618,11 @@ void ChipMachine::update() {
 		} else if(lockDown && !party) {
 			lockDown = false;
 			Tween::make().to(timeField.color, timeColor).seconds(2.0);
+		}
+		
+		auto br = player.getBitrate();
+		if(br > 0) {
+			songField.setText(format("%d KBit", br));
 		}
 
 		auto p = player.getPosition();
@@ -585,6 +637,7 @@ void ChipMachine::update() {
 		if(sub_title != xinfoField.getText())
 			xinfoField.setText(sub_title);
 
+#ifdef DO_WE_NEED_THIS
 		if(scrollText == "") {
 			auto m = player.getMeta("message");
 			if(m != "") {
@@ -595,6 +648,7 @@ void ChipMachine::update() {
 				}
 			}
 		}
+#endif
 	}
 
 	if(!player.getAllowed()) {
@@ -612,7 +666,7 @@ void ChipMachine::update() {
 		}
 	}
 
-	if(player.playing()) {
+	if(player.isPlaying()) {
 		auto spectrum = player.getSpectrum();
 		for(auto i : count_to(player.spectrumSize())) {
 			if(spectrum[i] > 5) {
@@ -631,6 +685,9 @@ void ChipMachine::update() {
 	    playerState == MusicPlayerList::LOADING || webutils::Web::inProgress() > 0);
 
 	netIcon.visible(busy);
+
+	if(setShotAt < utils::getms() - 10000)
+		nextScreenshot();
 }
 
 void fadeOut(float &alpha, float t = 0.25) {
@@ -709,5 +766,7 @@ void ChipMachine::render(uint32_t delta) {
 	listFont.update_cache();
 
 	screen.flip();
+
+	webutils::Web::pollAll();
 }
 }

@@ -13,8 +13,52 @@
 #include <chrono>
 #include <algorithm>
 
+#include "csv.h"
+
 using namespace std;
 using namespace utils;
+
+// From Rosetta stone
+// Compute Levenshtein Distance
+// Martin Ettl, 2012-10-05
+size_t levenshteinDistance(const std::string &s1, const std::string &s2) {
+	const size_t m(s1.size());
+	const size_t n(s2.size());
+
+	if(m == 0)
+		return n;
+	if(n == 0)
+		return m;
+
+	size_t *costs = new size_t[n + 1];
+
+	for(size_t k = 0; k <= n; k++)
+		costs[k] = k;
+
+	size_t i = 0;
+	for(std::string::const_iterator it1 = s1.begin(); it1 != s1.end(); ++it1, ++i) {
+		costs[0] = i + 1;
+		size_t corner = i;
+
+		size_t j = 0;
+		for(std::string::const_iterator it2 = s2.begin(); it2 != s2.end(); ++it2, ++j) {
+			size_t upper = costs[j + 1];
+			if(*it1 == *it2) {
+				costs[j + 1] = corner;
+			} else {
+				size_t t(upper < corner ? upper : corner);
+				costs[j + 1] = (costs[j] < t ? costs[j] : t) + 1;
+			}
+
+			corner = upper;
+		}
+	}
+
+	size_t result = costs[n];
+	delete[] costs;
+
+	return result;
+}
 
 namespace chipmachine {
 
@@ -29,14 +73,14 @@ void MusicDatabase::createTables() {
 }
 
 bool MusicDatabase::parseBitworld(Variables &vars, const std::string &listFile,
-                              std::function<void(const Product &)> callback) {
+                                  std::function<void(const Product &)> callback) {
 
 	File f{listFile};
 
 	for(const auto &s : f.getLines()) {
 		auto parts = split(s, "\t");
 		Product prod;
-		//LOGD("ID: %s", parts[0]);
+		// LOGD("ID: %s", parts[0]);
 		prod.title = parts[1];
 		prod.creator = parts[2];
 		prod.type = "Amiga " + parts[3];
@@ -50,7 +94,30 @@ bool MusicDatabase::parseBitworld(Variables &vars, const std::string &listFile,
 				prod.songs.push_back(s.substr(2));
 		}
 		callback(prod);
-		
+	}
+	return true;
+}
+
+
+bool MusicDatabase::parseGamebase(Variables &vars, const std::string &listFile,
+                                  std::function<void(const Product &)> callback) {
+
+	using namespace io;
+	CSVReader<3, trim_chars<' '>, double_quote_escape<',','\"'>> in(listFile);
+	in.read_header(io::ignore_extra_column, "Name", "ScrnshotFilename", "SidFilename");
+	std::string name, screenshot, sid;
+	while(in.read_row(name, screenshot, sid)) {
+		// do stuff with the data
+		replace(screenshot.begin(), screenshot.end(), '\\', '/');
+		replace(sid.begin(), sid.end(), '\\', '/');
+		if(sid != "") {
+			Product prod;
+			prod.title = name;
+			prod.type = "C64 Game";
+			prod.screenshots = screenshot;
+			prod.songs.push_back(sid);
+			callback(prod);
+		}
 	}
 	return true;
 }
@@ -76,9 +143,15 @@ bool MusicDatabase::parseCsdb(Variables &vars, const std::string &listFile,
 				group += gn;
 			}
 		}
+		auto shot = i["Screenshot"];
+		if(shot.valid()) {
+			prod.screenshots = shot.text();
+			//LOGD("Screenshot %s", prod.screenshots);
+		}
 		prod.creator = group;
 		if((endsWith(prod.type, "Music Collection") || endsWith(prod.type, "Diskmag") ||
-		    endsWith(prod.type, "Demo")) && rt > 0) {
+		    endsWith(prod.type, "Demo")) &&
+		   rt >= 0) {
 			for(const auto &s : i["Sids"].all("HVSCPath")) {
 				prod.songs.push_back(s.text().substr(1));
 			}
@@ -102,7 +175,7 @@ bool MusicDatabase::parsePouet(Variables &vars, const std::string &listFile,
 }
 
 bool MusicDatabase::parseAmp(Variables &vars, const std::string &listFile,
-                               std::function<void(const SongInfo &)> callback) {
+                             std::function<void(const SongInfo &)> callback) {
 	File f{listFile};
 
 	for(const auto &s : f.getLines()) {
@@ -114,16 +187,16 @@ bool MusicDatabase::parseAmp(Variables &vars, const std::string &listFile,
 			continue;
 		}
 		int l = parts.size();
-		auto titleParts = split(parts[l-1], ".");
+		auto titleParts = split(parts[l - 1], ".");
 		if(titleParts.size() < 2) {
 			LOGD("%s broken", s);
 			continue;
 		}
 		titleParts[1][0] = toupper(titleParts[1][0]);
 		song.path = s;
-		song.composer = parts[l-2];
+		song.composer = parts[l - 2];
 		song.title = titleParts[1];
-		song.format = titleParts[0] == "STK" ? "Soundtracker" : "Protracker" ;
+		song.format = titleParts[0] == "STK" ? "Soundtracker" : "Protracker";
 		callback(song);
 	}
 	return true;
@@ -145,7 +218,7 @@ bool MusicDatabase::parseRss(Variables &vars, const std::string &listFile,
 		if(!e.valid())
 			continue;
 		auto enclosure = e.attr("url");
-		//LOGD("Title %s", title);
+		// LOGD("Title %s", title);
 		string description = "";
 		auto summary = i["itunes:summary"];
 		auto sub_title = i["itunes:subtitle"];
@@ -165,11 +238,11 @@ bool MusicDatabase::parseRss(Variables &vars, const std::string &listFile,
 		if(c.valid())
 			composer = c.text();
 		/*if(composer == "") {
-			auto dash = title.rfind(" - ");
-			if(dash != string::npos) {
-				composer = title.substr(dash + 2);
-				title = title.substr(0, dash);
-			}
+		    auto dash = title.rfind(" - ");
+		    if(dash != string::npos) {
+		        composer = title.substr(dash + 2);
+		        title = title.substr(0, dash);
+		    }
 		}*/
 
 		auto pos = enclosure.find("file=");
@@ -270,34 +343,36 @@ bool MusicDatabase::parseModland(Variables &vars, const std::string &listFile,
 bool MusicDatabase::parseStandard(Variables &vars, const std::string &listFile,
                                   std::function<void(const SongInfo &)> callback) {
 
-	const char *metadata = nullptr;
-	int pi = 4, gi = 1, ti = 0, ci = 2, fi = 3;
+	int pathIndex = 4, gameIndex = 1, titleIndex = 0, composerIndex = 2, formatIndex = 3, metaIndex = 5;
 	auto templ = vars["song_template"];
+	//if(temp == "")
+	//	templ = "title game composer format path meta";
 	auto format = vars["format"];
 	auto composer = vars["composer"];
 	int columns = 2;
 	if(templ != "") {
-		fi = gi = ci = -1;
+		formatIndex = gameIndex = composerIndex = -1;
 		int i = 0;
 		for(const auto &p : split(templ)) {
 			if(p == "title")
-				ti = i;
+				titleIndex = i;
 			else if(p == "composer")
-				ci = i;
+				composerIndex = i;
 			else if(p == "path")
-				pi = i;
+				pathIndex = i;
 			else if(p == "format")
-				fi = i;
+				formatIndex = i;
 			else if(p == "game")
-				gi = i;
+				gameIndex = i;
 			i++;
 		}
 		columns = i;
-		LOGD("TEMPLATE '%s' -> %d %d %d", templ, pi, ti, ci);
 	}
 
 	bool isUtf8 = vars["utf8"] == "no" ? false : true;
+	bool htmlDec = vars["html_decode"] == "no" ? false : true;
 	auto source = vars["source"];
+
 
 	File f{listFile};
 
@@ -305,19 +380,24 @@ bool MusicDatabase::parseStandard(Variables &vars, const std::string &listFile,
 		auto parts = isUtf8 ? split(s, "\t") : split(utf8_encode(s), "\t");
 		if(parts.size() >= columns) {
 
+			if(htmlDec) {
+				for(auto& p : parts)
+					p = htmldecode(p);
+			}
+
 			SongInfo song;
+			string metadata;
 
 			// Strip sorce from path if necessary
-			if(source != "" && parts[pi].find(source) == 0)
-				parts[pi] = parts[pi].substr(source.length());
-			if(ti > 0)
-				parts[ti] = htmldecode(parts[ti]);
-			if(gi > 0)
-				parts[gi] = htmldecode(parts[gi]);
-			if(ci > 0)
-				parts[ci] = htmldecode(parts[ci]);
-			song = SongInfo(parts[pi], gi >= 0 ? parts[gi] : "", parts[ti],
-			                ci >= 0 ? parts[ci] : composer, fi <= 0 ? format : parts[fi]);
+			if(source != "" && parts[pathIndex].find(source) == 0)
+				parts[pathIndex] = parts[pathIndex].substr(source.length());
+
+			if(parts.size() > metaIndex)
+				metadata = parts[metaIndex];
+
+			song = SongInfo(parts[pathIndex], gameIndex >= 0 ? parts[gameIndex] : "", parts[titleIndex],
+			                composerIndex >= 0 ? parts[composerIndex] : composer, 
+							formatIndex <= 0 ? format : parts[formatIndex], metadata);
 			callback(song);
 		}
 	}
@@ -328,9 +408,11 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 
 	auto id = vars["id"];
 	auto type = vars["type"];
-	if(type == "") type = id;
+	if(type == "")
+		type = id;
 	auto name = vars["name"];
 	auto source = vars["source"];
+	auto screen_source = vars["screen_source"];
 	auto local_dir = vars["local_dir"];
 	auto song_list = vars["song_list"];
 	auto prod_list = vars["prod_list"];
@@ -348,38 +430,40 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 
 	reindexNeeded = true;
 
-    if(local_dir != "") {
-        if(endsWith(local_dir, "/"))
-            local_dir += "/";
-        if(local_dir[0] != '/')
-            local_dir = workDir + "/" + local_dir;
-    }
+	if(local_dir != "") {
+		if(endsWith(local_dir, "/"))
+			local_dir += "/";
+		if(local_dir[0] != '/')
+			local_dir = workDir + "/" + local_dir;
+	}
 
 	print_fmt("Creating '%s' database\n", name);
+
+	if(source == "")
+		source = screen_source;
 
 	db.exec("BEGIN TRANSACTION");
 	db.exec("INSERT INTO collection (name, id, url, localdir, description) VALUES (?, ?, ?, ?, ?)",
 	        name, id, source, local_dir, description);
 	auto collection_id = db.last_rowid();
-	dontIndex.resize(collection_id+1);
+	dontIndex.resize(collection_id + 1);
 	dontIndex[collection_id] = 0;
-	
+
 	if(vars["index"] == "no") {
 		LOGD("Not indexing %s/%d", id, collection_id);
 		dontIndex[collection_id] = 1;
 	}
-	
 
 	LOGD("Workdir:%s", workDir);
 	File listFile;
 	bool writeListFile = false;
 	webutils::Web web{File::getCacheDir() / "_webfiles"};
-	
+
 	bool prodCollection = false;
-	
+
 	if(prod_list != "") {
-        song_list = prod_list;
-	    prodCollection = true;
+		song_list = prod_list;
+		prodCollection = true;
 	}
 
 	if(song_list == "")
@@ -394,23 +478,24 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 
 	if(prodCollection) {
 
-		auto query =		    
-			db.query("INSERT INTO product (title, creator, type, screenshots, collection) "
-					 "VALUES (?, ?, ?, ?, ?)");
-	
+		auto query = db.query("INSERT INTO product (title, creator, type, screenshots, collection) "
+		                      "VALUES (?, ?, ?, ?, ?)");
+
 		auto query2 = db.query("INSERT INTO prod2song (prodid, songid) "
 					 "VALUES (?, ?)");
 	
 		unordered_map<string, ParseProdFun> parsers = {
 			{"csdb", &MusicDatabase::parseCsdb},
+			{"gb64", &MusicDatabase::parseGamebase},
 		    {"bitworld", &MusicDatabase::parseBitworld},
 		};
 
 			auto parser = parsers[type];
 			//if(!parser)
 				//parser = &MusicDatabase::parseStandard;
+			LOGD("Parsing %s from %s", type, listFile.getName());
 	
-			(this->*parser)(vars, listFile, [&](const Product &prod) {
+			(this->*parser)(vars, listFile.getName(), [&](const Product &prod) {
 				query.bind(prod.title, prod.creator, prod.type, prod.screenshots, collection_id).step();
 				auto prodrow = db.last_rowid();
 				for(string path : prod.songs) {
@@ -418,7 +503,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 					auto pos = path.find("Zombie (FI)");
 					if(pos != string::npos)
 						path = path.substr(0,pos) + "Naksahtaja" + path.substr(pos + 11);
-					uint64_t hash = MD5::hash(path);
+					uint64_t hash = MD5::hash(toLower(path));
 					auto it = pathMap.find(hash);
 					if(it == pathMap.end()) {
 						LOGD("PATH '%s' not found", path);
@@ -430,54 +515,53 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 			});
 	} else {
 		auto query =
-			db.query("INSERT INTO song (title, game, composer, format, path, collection, metadata) "
-					 "VALUES (?, ?, ?, ?, ?, ?, ?)");
-	
-		
+		    db.query("INSERT INTO song (title, game, composer, format, path, collection, metadata) "
+		             "VALUES (?, ?, ?, ?, ?, ?, ?)");
+
 		if(File::exists(listFile)) {
-	
+
 			unordered_map<string, ParseSongFun> parsers = {
-				{"pouet", &MusicDatabase::parseStandard},
-				{"amp", &MusicDatabase::parseAmp}, 
-				{"modland", &MusicDatabase::parseModland}, 
-			    {"podcast", &MusicDatabase::parseRss},
-				{"standard", &MusicDatabase::parseStandard},
+			    {"pouet", &MusicDatabase::parseStandard},    {"amp", &MusicDatabase::parseAmp},
+			    {"modland", &MusicDatabase::parseModland},   {"podcast", &MusicDatabase::parseRss},
+			    {"standard", &MusicDatabase::parseStandard},
 			};
-	
+
 			auto parser = parsers[type];
 			if(!parser)
 				parser = &MusicDatabase::parseStandard;
-	
+
 			(this->*parser)(vars, listFile, [&](const SongInfo &song) {
-				query.bind(song.title, song.game, song.composer, song.format, song.path, collection_id,
-						   song.metadata != "" ? song.metadata.c_str() : nullptr)
-					.step();
+				query.bind(song.title, song.game, song.composer, song.format, song.path,
+				           collection_id, song.metadata[SongInfo::INFO] != ""
+				                              ? song.metadata[SongInfo::INFO].c_str()
+				                              : nullptr)
+				    .step();
 				auto last = db.last_rowid();
-				auto hash = MD5::hash(song.path);
+				auto hash = MD5::hash(utils::toLower(song.path));
 				pathMap[hash] = last;
-	
+
 			});
 
 		} else if(File::exists(local_dir)) {
-	
-			File root{ local_dir };
+
+			File root{local_dir};
 			LOGD("Checking local dir '%s'", root.getName());
 			for(auto &rf : root.listRecursive()) {
 				auto name = rf.getName();
 				SongInfo songInfo(name);
 				if(identify_song(songInfo)) {
-	
+
 					auto pos = name.find(local_dir);
 					if(pos != string::npos) {
 						name = name.substr(pos + local_dir.length());
 					}
-	
-					query.bind(songInfo.title, songInfo.game, songInfo.composer,
-							   songInfo.format, name, collection_id, (char *)nullptr)
-						.step();
+
+					query.bind(songInfo.title, songInfo.game, songInfo.composer, songInfo.format,
+					           name, collection_id, (char *)nullptr)
+					    .step();
 					if(writeListFile)
-						listFile.writeln(join("\t", songInfo.title, songInfo.game, songInfo.composer,
-											  songInfo.format, name));
+						listFile.writeln(join("\t", songInfo.title, songInfo.game,
+						                      songInfo.composer, songInfo.format, name));
 				}
 			}
 		}
@@ -487,9 +571,8 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 	db.exec("COMMIT");
 }
 
-
 void MusicDatabase::setFilter(const std::string &collection, int type) {
-	
+
 	if(collection == "") {
 		titleIndex.setFilter();
 		collectionFilter = -1;
@@ -499,7 +582,7 @@ void MusicDatabase::setFilter(const std::string &collection, int type) {
 		if(cq.step()) {
 			collectionFilter = cq.get();
 			LOGD("ID %d from %s", collectionFilter, collection);
-			//collectionFilter = 2;
+			// collectionFilter = 2;
 			titleIndex.setFilter([=](int index) {
 				auto f = formats[index];
 				if(type == 1 && (f & 0xff) == PRODUCT)
@@ -554,7 +637,7 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 			if(result.size() >= searchLimit)
 				break;
 			int songindex = composerToTitle[offset++];
-			
+
 			if(collectionFilter == -1 || (formats[songindex] >> 8) == collectionFilter)
 				result.push_back(songindex);
 		}
@@ -566,7 +649,7 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 }
 
 // Lookup the given path in the database
-SongInfo& MusicDatabase::lookup(SongInfo &song) {
+SongInfo &MusicDatabase::lookup(SongInfo &song) {
 
 	lock_guard<mutex>{dbMutex};
 	auto path = song.path;
@@ -593,8 +676,8 @@ SongInfo& MusicDatabase::lookup(SongInfo &song) {
 
 	if(q.step()) {
 		string coll;
-		tie(song.path, song.title, song.game, song.composer, song.format, coll, song.metadata) =
-		    q.get_tuple();
+		tie(song.path, song.title, song.game, song.composer, song.format, coll,
+		    song.metadata[SongInfo::INFO]) = q.get_tuple();
 		song.path = coll + "::" + song.path;
 		LOGD("LOOKUP '%s' became '%s'", path, song.path);
 	} else {
@@ -604,80 +687,167 @@ SongInfo& MusicDatabase::lookup(SongInfo &song) {
 	return song;
 }
 
-SongInfo MusicDatabase::getSongInfo(int id) const {
+std::string MusicDatabase::getScreenshotURL(const std::string &collection) {
+	string prefix = "";
+	auto q = db.query<string>("SELECT url FROM collection WHERE id = ?", collection);
+	if(q.step())
+		prefix = q.get();
+	return prefix;
+}
 
-	if(id >= PLAYLIST_INDEX) {
-		string p = playLists[id - PLAYLIST_INDEX].name;
+// Get SongInfo from the search result
+SongInfo MusicDatabase::getSongInfo(int index) const {
+
+	if(index >= PLAYLIST_INDEX) {
+		string p = playLists[index - PLAYLIST_INDEX].name;
 		File path = File::getConfigDir() / "playlists" / p;
 		return SongInfo("playlist::" + path.getName(), "", p, "", "Local playlist");
 	}
 
-	id++;
-	LOGD("ID %d vs PROD %d", id, productStartIndex);
-	if(id >= productStartIndex) {
-		id -= productStartIndex;
+	index++;
+	//LOGD("ID %d vs PROD %d", index, productStartIndex);
+	if(index >= productStartIndex) {
+		index -= productStartIndex;
 		auto q = db.query<string, string, string, string, string>(
-			"SELECT title, creator, type, collection.id, metadata "
-			"FROM  product, collection "
-			"WHERE product.ROWID = ? AND product.collection = collection.ROWID",
-			id);
+		    "SELECT title, creator, type, collection.id, metadata "
+		    "FROM  product, collection "
+		    "WHERE product.ROWID = ? AND product.collection = collection.ROWID",
+		    index);
 		if(q.step()) {
 			SongInfo song;
 			string collection;
-			tie(song.title, song.composer, song.format, collection,
-				song.metadata) = q.get_tuple();
-			song.path = "product::" + to_string(id);
+			tie(song.title, song.composer, song.format, collection, song.metadata[SongInfo::INFO]) =
+			    q.get_tuple();
+			song.path = "product::" + to_string(index);
 			return song;
 		}
-	
+
 	} else {
-	
+
 		auto q = db.query<string, string, string, string, string, string, string>(
-			"SELECT title, game, composer, format, song.path, collection.id, metadata "
-			"FROM song, collection "
-			"WHERE song.ROWID = ? AND song.collection = collection.ROWID",
-			id);
+		    "SELECT title, game, composer, format, song.path, collection.id, metadata "
+		    "FROM song, collection "
+		    "WHERE song.ROWID = ? AND song.collection = collection.ROWID",
+		    index);
 		if(q.step()) {
 			SongInfo song;
 			string collection;
 			tie(song.title, song.game, song.composer, song.format, song.path, collection,
-				song.metadata) = q.get_tuple();
+			    song.metadata[SongInfo::INFO]) = q.get_tuple();
 			song.path = collection + "::" + song.path;
 			return song;
 		}
 	}
 	throw not_found_exception();
 }
+std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
+
+	lookup(s);
+	auto parts = split(s.path, "::");
+	LOGD(s.path);
+	if(parts.size() < 2)
+		return "";
+	string collection = parts[0];
+	string shot;
+	string title;
+	string baseName = path_basename(parts[1]);
+	LOGD("Get screenhots / Path %s Collection '%s'", parts[1], parts[0]);
+	if(s.metadata[SongInfo::SCREENSHOT] != "") {
+		shot = s.metadata[SongInfo::SCREENSHOT];
+	} else if(collection == "rsn") {
+		auto base = path_basename(parts[1]);
+		shot = std::string("http://snesmusic.org/v2/images/screenshots/") + base + ".png";
+		s.metadata[SongInfo::SCREENSHOT] = shot;
+		LOGD("Got rsn shot %s", shot);
+	} else if(collection == "pouet" || collection == "radio" || collection == "demovibes") {
+		shot = s.metadata[SongInfo::INFO];
+		s.metadata[SongInfo::SCREENSHOT] = shot;
+		s.metadata[SongInfo::INFO] = "";
+		LOGD("Got pouet shot %s", shot);
+	} else {
+		auto q = db.query<string, string, string, string>(
+		    "SELECT product.title, product.screenshots, product.type, collection.id "
+		    "FROM product, prod2song, song, collection "
+		    "WHERE product.rowid = prod2song.prodid AND prod2song.songid = song.ROWID AND "
+		    "product.collection = collection.ROWID AND song.path = ?",
+		    parts[1]);
+		string format;
+		int lowestDist = 999999;
+		collection = "";
+		while(q.step()) {
+			string s, c;
+			tie(title, s, format, c) = q.get_tuple();
+			LOGD("%s Collection %s Format %s", title, c, format);
+			auto ld = levenshteinDistance(title, baseName);
+			if(collection == "gb64" && c == "csdb")
+				ld += 7;
+			LOGD("%s <=> %s : %d", title, baseName, ld);
+			if(ld < lowestDist) {
+				shot = s;
+				collection = c;
+				lowestDist = ld;
+			}
+			//if(format.find("Game") != string::npos || format.find("Demo") != string::npos || format.find("Trackmo") != string::npos)
+			//	break;
+		}
+	}
+	if(shot != "") {
+		std::string prefix;
+		if(!startsWith(shot, "http"))
+			prefix = getScreenshotURL(collection); 
+		auto parts = split(shot, ";");
+		if(collection == "gb64")
+			parts.insert(parts.begin(), path_directory(parts[0]) + "/" + path_basename(parts[0]) + "_1." + path_extension(parts[0]));
+		for(auto &p : parts) {
+			if(p != "")
+				p = prefix + p;
+		}
+		shot = join(parts, ";");
+	}
+	return shot;
+}
 
 std::string MusicDatabase::getProductScreenshots(uint32_t id) {
 	std::vector<std::string> shots;
-	auto q = db.query<string>(		            
-		"SELECT screenshots "
-		"FROM product "
-		"WHERE prodid = ?",
-		id);
-	
+	auto q = db.query<string, string>(
+	    "SELECT collection.id,screenshots "
+	    "FROM product, collection "
+	    "WHERE product.rowid = ? AND collection.ROWID = product.collection",
+	    id);
+
+	string screenshot;
+	string collection;
+
 	if(q.step()) {
-		return q.get();
+		tie(collection, screenshot) = q.get_tuple();
+		auto prefix = getScreenshotURL(collection); 
+		auto parts = split(screenshot, ";");
+		if(collection == "gb64")
+			parts.push_back(path_basename(parts[0]) + "_1." + path_extension(parts[0]));
+		for(auto &p : parts) {
+			p = prefix + p;
+		}
+		return join(parts, ";");
 	}
 	return "";
 }
-	
 
 std::vector<SongInfo> MusicDatabase::getProductSongs(uint32_t id) {
 	std::vector<SongInfo> songs;
-	auto q = db.query<string, string, string, string, string, string, string>(		            
-		"SELECT title, game, composer, format, song.path, collection.id, metadata "
-		"FROM song, prod2song, collection "
-		"WHERE prodid = ? AND songid = song.ROWID AND song.collection = collection.ROWID",
-		id);
-	
+	auto screenshot = getProductScreenshots(id);
+	auto q = db.query<string, string, string, string, string, string, string>(
+	    "SELECT title, game, composer, format, song.path, collection.id, metadata "
+	    "FROM song, prod2song, collection "
+	    "WHERE prodid = ? AND songid = song.ROWID AND song.collection = collection.ROWID",
+	    id);
+
 	while(q.step()) {
 		SongInfo song;
 		string collection;
 		tie(song.title, song.game, song.composer, song.format, song.path, collection,
-			song.metadata) = q.get_tuple();
+		    song.metadata[SongInfo::INFO]) = q.get_tuple();
 		song.path = collection + "::" + song.path;
+		song.metadata[SongInfo::SCREENSHOT] = screenshot;
 		songs.push_back(song);
 	}
 	return songs;
@@ -728,7 +898,6 @@ static uint8_t formatToByte(const std::string &fmt, const std::string &path, int
 	if(l == 0) {
 
 		l = UNKNOWN_FORMAT;
-	
 
 		if((path.find("youtube.com/") != string::npos) ||
 		   (path.find("youtu.be/") != string::npos)) {
@@ -737,7 +906,9 @@ static uint8_t formatToByte(const std::string &fmt, const std::string &path, int
 
 		if(endsWith(f, "tracker"))
 			l = TRACKER;
-		if(startsWith(f, "protracker"))
+		if(startsWith(f, "soundtracker"))
+			l = SOUNDTRACKER;
+		else if(startsWith(f, "protracker"))
 			l = PROTRACKER;
 		else if(startsWith(f, "fasttracker"))
 			l = FASTTRACKER;
@@ -865,7 +1036,7 @@ void MusicDatabase::generateIndex() {
 			else
 				title = game;
 		}
-		
+
 		if(dontIndex[collection]) {
 			title = "";
 			composer = "";
@@ -888,7 +1059,7 @@ void MusicDatabase::generateIndex() {
 	}
 
 	productStartIndex = titleIndex.size();
-	
+
 	auto prodQuery = db.query<string, string, string, int>(
 	    "SELECT title, type, creator, collection FROM product");
 	while(count < 1000000) {
@@ -904,6 +1075,11 @@ void MusicDatabase::generateIndex() {
 
 		uint8_t b = PRODUCT;
 		formats.push_back(b | (collection << 8));
+
+		if(dontIndex[collection]) {
+			title = "";
+			composer = "";
+		}
 
 		// The title index maps one-to-one with the database
 		int tindex = titleIndex.add(title);
@@ -1086,10 +1262,11 @@ void MusicDatabase::addToPlaylist(const std::string &plist, const SongInfo &song
 void MusicDatabase::removeFromPlaylist(const std::string &plist, const SongInfo &toRemove) {
 	for(auto &pl : playLists) {
 		if(pl.name == plist) {
-			pl.songs.erase(std::remove_if(pl.songs.begin(), pl.songs.end(), [&](const SongInfo &song) ->bool {
-				LOGD("%s;%d vs %s;%d", song.path, song.starttune, toRemove.path, toRemove.starttune);
-				return song.path == toRemove.path && (song.starttune == -1 || song.starttune == toRemove.starttune);
-			}), pl.songs.end());
+			pl.songs.erase(
+			    std::remove_if(pl.songs.begin(), pl.songs.end(), [&](const SongInfo &song) -> bool {
+				    return song.path == toRemove.path &&
+				           (song.starttune == -1 || song.starttune == toRemove.starttune);
+				}), pl.songs.end());
 			pl.save();
 			break;
 		}

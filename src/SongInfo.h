@@ -3,17 +3,16 @@
 
 #include <coreutils/log.h>
 #include <string>
+#include <unordered_map>
 
 struct SongInfo {
 	SongInfo(const std::string &path = "", const std::string &game = "",
 	         const std::string &title = "", const std::string &composer = "",
-	         const std::string &format = "", const std::string &metadata = "")
-	    : path(path), game(game), title(title), composer(composer), format(format),
-	      metadata(metadata) {
+	         const std::string &format = "", const std::string &info = "")
+	    : path(path), game(game), title(title), composer(composer), format(format), metadata { info, "" } {
 		auto pos = path.find_last_of(';');
 		if(pos != std::string::npos) {
 			auto s = path.substr(pos+1);
-			LOGD("STARTTUNE %s", s);
 			if(s.size() < 3) {
 				starttune = stol(s);
 				this->path = path.substr(0, pos);
@@ -21,9 +20,9 @@ struct SongInfo {
 		}
 	}
 	
+	enum { INFO, SCREENSHOT };
 
 	bool operator==(const SongInfo &other) {
-		LOGD("%s %d vs %s %d", path, starttune, other.path, other.starttune);
 		return path == other.path && starttune == other.starttune; 
 	}
 
@@ -32,7 +31,8 @@ struct SongInfo {
 	std::string title;
 	std::string composer;
     std::string format;
-	std::string metadata;
+	std::vector<std::string> metadata;
+	
 	int numtunes = 0;
 	int starttune = -1;
 };

@@ -2,9 +2,13 @@
 #include <bbsutils/petsciiconsole.h>
 #include <bbsutils/telnetserver.h>
 #include <bbsutils/editor.h>
+#include <luainterpreter/luainterpreter.h>
+
 #include <map>
 #include "ChipInterface.h"
 #include "TextListView.h"
+
+void initYoutube(LuaInterpreter&);
 
 namespace chipmachine {
 
@@ -13,6 +17,11 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface &ci) {
     int bgColor = Console::DARK_GREY;
 	
 	auto iquery = ci.createQuery();
+
+	LuaInterpreter lua;
+	//std::string workDir;
+	//lua.loadFile(workDir / "lua" / "init.lua");
+	initYoutube(lua);
 	
 	console->clear();
 	console->flush();
@@ -39,12 +48,15 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface &ci) {
 		console->put(0, height-2, utils::format("FORMAT: %s", si.format), Console::CURRENT_COLOR, bgColor);
 		console->flush();
 	});
-	
+
 	listView.setCallback([&](Console &c, int index, bool marked) {
 		static const std::map<uint32_t, int> colors = {
-			{NOT_SET, Console::PURPLE}, {PLAYLIST, Console::GREY},    {CONSOLE, Console::RED},    {C64, Console::BROWN},
-			{ATARI, Console::YELLOW},   {MP3, Console::GREEN},        {M3U, Console::LIGHT_GREEN}, {YOUTUBE, 0xffff0000},
-			{PC, Console::CYAN},  {AMIGA, Console::LIGHT_BLUE}, {255, Console::ORANGE}};
+		    {NOT_SET, Console::PURPLE},  {PLAYLIST, Console::GREY},
+		    {CONSOLE, Console::RED},     {C64, Console::BROWN},
+		    {ATARI, Console::YELLOW},    {MP3, Console::GREEN},
+		    {M3U, Console::LIGHT_GREEN}, {YOUTUBE, Console::RED},
+		    {PC, Console::CYAN},         {AMIGA, Console::LIGHT_BLUE},
+		    {255, Console::ORANGE}};
 
 		int color = 0;
 		auto parts = utils::split(iquery->getResult(index), "\t");

@@ -4,7 +4,7 @@
 -- local_dir : If exists, will be checked first for files before downloading.
 -- If song_list or or source can not be found, database will not be added
 
-VERSION = 12;
+VERSION = 15;
 
 DB = {
 {
@@ -16,12 +16,18 @@ DB = {
 {
 	name = "HVSC",
 	id =  "hvsc",
-	-- source = "http://www.prg.dtu.dk/HVSC/C64Music/",
-	-- source = "http://hvsc.etv.cx/C64Music/",
 	source = "https://www.sannic.nl/hvsc/C64Music/",
 	song_list = "data/hvsc.txt",
 	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/hvsc.txt",
 	local_dir = "/opt/Music/C64Music",
+	color = 0xfffff
+},
+{
+	name = "Gamebase64",
+	id =  "gb64",
+	prod_list = "data/Games.csv",
+	screen_source = "http://www.gb64.com/Screenshots/",
+	index = "no",
 	color = 0xfffff
 },
 {
@@ -53,6 +59,7 @@ DB = {
 	name = "Bitworld",
 	id =  "bitworld",
 	prod_list = "data/bitworld.txt",
+	screen_source = "http://kestra.exotica.org.uk/files/screenies/",
 	color = 0xfffff
 },
 {
@@ -129,7 +136,8 @@ DB = {
 	type = "podcast",
 	source = "http://malus.exotica.org.uk/pub/",
 	remote_list = "http://www.bitfellas.org/podcast/podcast.xml",
-	color = 0xfffff
+	color = 0xfffff,
+	screenshot = "http://www.bitfellas.org/e107_plugins/radio/images/bj_newlogo.jpg"
 },
 {
 	name = "Demovibes",
@@ -216,6 +224,7 @@ DB = {
 	id =  "pouet",
 	source = "",
 	song_list = "data/pouet.txt",
+	screen_source = "http://content.pouet.net/files/screenshots/",
 	color = 0xfffff
 }
 };

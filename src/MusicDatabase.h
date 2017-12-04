@@ -82,6 +82,7 @@ enum Formats {
 
 	AMIGA,
 	PROTRACKER,
+	SOUNDTRACKER,
 
 	UADE,
 	
@@ -169,8 +170,11 @@ public:
 	SongInfo& lookup(SongInfo &song);
 	
 	std::vector<SongInfo> getProductSongs(uint32_t id);
-	
+private:
 	std::string getProductScreenshots(uint32_t id);
+	std::string getScreenshotURL(const std::string &collection);
+public:
+	std::string getSongScreenshots(SongInfo &s);
 
 	static MusicDatabase &getInstance() {
 		static MusicDatabase mdb;
@@ -181,7 +185,6 @@ public:
 		Playlist(utils::File f) : fileName(f.getName()) {
 			if(f.exists()) {
 				for(const auto &l : f.getLines()) {
-					LOGD("SONG:'%s'", l);
 					if(l != "")
 						songs.emplace_back(l);
 				}
@@ -232,6 +235,8 @@ private:
 	bool parseCsdb(Variables &vars, const std::string &listFile,
 	               std::function<void(const Product &)> callback);
 	bool parseBitworld(Variables &vars, const std::string &listFile,
+	               std::function<void(const Product &)> callback);
+	bool parseGamebase(Variables &vars, const std::string &listFile,
 	               std::function<void(const Product &)> callback);
 	bool parsePouet(Variables &vars, const std::string &listFile,
 	                std::function<void(const SongInfo &)> callback);
