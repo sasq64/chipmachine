@@ -90,6 +90,8 @@ MusicPlayer::~MusicPlayer() {
 }
 
 void MusicPlayer::seek(int song, int seconds) {
+	if(!player)
+		return;
 	if(player->seekTo(song, seconds)) {
 		if(seconds < 0)
 			pos = 0;
