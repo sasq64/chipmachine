@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.4)
 project(chipmachine)
 
-set(AP1_ROOT apone)
+set(AP1_ROOT ../apone)
 include(${AP1_ROOT}/cmake/Utils.cmake)
 
 add_definitions(-DAPP_NAME=chipmachine)
@@ -37,7 +37,7 @@ endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 link_directories(/usr/local/lib)
-include_directories(${AP1_ROOT}/mods /usr/local/include)
+include_directories(${AP1_ROOT}/mods .. /usr/local/include)
 
 set(SOURCE_FILES
 	src/ChipMachine.cpp
@@ -98,6 +98,7 @@ set(APONE_MODULES
 #	net
 	xml
 	bbsutils
+	crypto
 )
 set(TEXT_MODULES
 	coreutils
@@ -135,10 +136,10 @@ set(MUSICPLAYER_PLUGINS
 	tedplugin
 	ffmpegplugin
 )
-add_subdirectory(${AP1_ROOT}/mods/musicplayer/plugins plugins)
 
-include_directories(${AP1_ROOT}/mods/grappix ${AP1_ROOT}/mods/musicplayer/plugins)
+add_subdirectory(../musicplayer/plugins plugins)
 
+include_directories(${AP1_ROOT}/mods/grappix ../musicplayer/plugins)
 
 if(WIN32)
     set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -mwindows)
