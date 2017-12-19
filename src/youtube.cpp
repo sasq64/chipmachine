@@ -3,13 +3,11 @@
 #include <string>
 #include <memory>
 
-using namespace chipmachine;
-
-class YoutubePlugin : public ChipPlugin {
+class YoutubePlugin : public musix::ChipPlugin {
 public:
-	YoutubePlugin(LuaInterpreter &lua) : lua(lua) { plugin = ChipPlugin::getPlugin("ffmpeg"); }
+	YoutubePlugin(LuaInterpreter &lua) : lua(lua) { plugin = musix::ChipPlugin::getPlugin("ffmpeg"); }
 
-	virtual ChipPlayer *fromFile(const std::string &fileName) override {
+	virtual musix::ChipPlayer *fromFile(const std::string &fileName) override {
 		LOGD("Youtube plugin %s", fileName);
 		std::string x = lua.call<std::string>(std::string("on_parse_youtube"), fileName);
 		LOGD("LUA reports %s", x);
@@ -32,10 +30,10 @@ public:
 	virtual std::string name() const override { return "youtube"; }
 
 	LuaInterpreter& lua;
-	std::shared_ptr<ChipPlugin> plugin;
+	std::shared_ptr<musix::ChipPlugin> plugin;
 };
 
 void initYoutube(LuaInterpreter& lua) {
-	ChipPlugin::addPlugin(std::make_shared<YoutubePlugin>(lua));
+	musix::ChipPlugin::addPlugin(std::make_shared<YoutubePlugin>(lua));
 }
 

@@ -23,9 +23,8 @@ MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4), streamFi
 	AudioPlayer::set_volume(80);
 	volume = 0.8;
 
-	ChipPlugin::createPlugins(workDir);
-	ChipPlugin::addPlugin(make_shared<RSNPlugin>(ChipPlugin::getPlugins()));
-	ChipPlugin::addPlugin(make_shared<GZPlugin>(ChipPlugin::getPlugins()));
+	musix::ChipPlugin::createPlugins(workDir + "/data");
+	musix::ChipPlugin::addPlugin(make_shared<GZPlugin>(musix::ChipPlugin::getPlugins()));
 
 	dontPlay = playEnded = false;
 	AudioPlayer::play([=](int16_t *ptr, int size) mutable {
@@ -134,10 +133,10 @@ bool MusicPlayer::streamFile(const string &fileName) {
 
 	utils::makeLower(name);
 	checkSilence = true;
-	for(auto &plugin : ChipPlugin::getPlugins()) {
+	for(auto &plugin : musix::ChipPlugin::getPlugins()) {
 		if(plugin->canHandle(name)) {
 			LOGD("Playing with %s\n", plugin->name());
-			auto newPlayer = shared_ptr<ChipPlayer>(plugin->fromStream(streamFifo));
+			auto newPlayer = shared_ptr<musix::ChipPlayer>(plugin->fromStream(streamFifo));
 			if(newPlayer)
 				player = newPlayer;
 			checkSilence = plugin->checkSilence();
@@ -288,7 +287,7 @@ vector<string> MusicPlayer::getSecondaryFiles(const string &name) {
 			return libFiles;
 		}
 
-		for(auto &plugin : ChipPlugin::getPlugins()) {
+		for(auto &plugin : musix::ChipPlugin::getPlugins()) {
 			if(plugin->canHandle(name)) {
 				return plugin->getSecondaryFiles(file);
 			}
@@ -299,15 +298,15 @@ vector<string> MusicPlayer::getSecondaryFiles(const string &name) {
 
 // PRIVATE
 
-shared_ptr<ChipPlayer> MusicPlayer::fromFile(const string &fileName) {
-	shared_ptr<ChipPlayer> player;
+shared_ptr<musix::ChipPlayer> MusicPlayer::fromFile(const string &fileName) {
+	shared_ptr<musix::ChipPlayer> player;
 	string name = fileName;
 	utils::makeLower(name);
 	checkSilence = true;
-	for(auto &plugin : ChipPlugin::getPlugins()) {
+	for(auto &plugin : musix::ChipPlugin::getPlugins()) {
 		if(plugin->canHandle(name)) {
 			LOGD("Playing with %s\n", plugin->name());
-			player = shared_ptr<ChipPlayer>(plugin->fromFile(fileName));
+			player = shared_ptr<musix::ChipPlayer>(plugin->fromFile(fileName));
 			if(!player)
 				continue;
 			checkSilence = plugin->checkSilence();

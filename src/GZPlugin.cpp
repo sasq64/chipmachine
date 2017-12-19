@@ -61,7 +61,7 @@ int static inflate(const char *infile, const char *outfile) {
 		return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }	
 
-ChipPlayer *GZPlugin::fromFile(const string &fileName) {
+musix::ChipPlayer *GZPlugin::fromFile(const string &fileName) {
 	/* done when inflate() says it's done */
 	auto outFile = fileName.substr(0, fileName.length() - 3);
 	int rc = inflate(fileName.c_str(), outFile.c_str());

@@ -51,7 +51,9 @@ $ pacman -S mingw32/mingw-w64-i686-cmake msys/git mingw32/mingw-w64-i686-gcc min
 
 ## Building
 
-	# git clone --recursive https://github.com/sasq64/chipmachine.git
+	# git clone https://github.com/sasq64/chipmachine.git
+	# git clone https://github.com/sasq64/apone.git
+	# git clone https://github.com/sasq64/musicplayer.git
 	# mkdir build ; cd build
 	# cmake ../chipmachine -GNinja -DCMAKE_BUILD_TYPE=Release
 	# ninja

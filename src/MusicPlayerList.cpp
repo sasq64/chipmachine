@@ -537,13 +537,13 @@ void MusicPlayerList::playCurrent() {
 		ext2 = fmt_2files.at(ext);
 	if(isStarTrekker)
 		ext2 = "mod.nt";
-	if(ext2 != "") {
+	if(!ext2.empty()) {
 		files++;
 		auto smpl_file = currentInfo.path.substr(0, currentInfo.path.find_last_of('.') + 1) + ext2;
 		LOGD("Loading secondary (sample) file '%s'", smpl_file);
 		loader.load(smpl_file, [=](File f) {
 			if(!f) {
-				errors.push_back("Could not load secondary file");
+				errors.emplace_back("Could not load secondary file");
 				SET_STATE(ERROR);
 			};
 			songFiles.push_back(f);
@@ -555,7 +555,7 @@ void MusicPlayerList::playCurrent() {
 	files++;
 	loader.load(currentInfo.path, [=](File f0) {
 		if(!f0) {
-			errors.push_back("Could not load file");
+			errors.emplace_back("Could not load file");
 			SET_STATE(ERROR);
 			files--;
 			return;
@@ -566,7 +566,7 @@ void MusicPlayerList::playCurrent() {
 		LOGD("Loaded file '%s'", loadedFile);
 		auto parentDir = File(path_directory(loadedFile));
 		auto fileList = mp.getSecondaryFiles(f0);
-		for(auto s : fileList) {
+		for(const auto &s : fileList) {
 			File target = parentDir / s;
 			if(!target.exists()) {
 				files++;
@@ -574,7 +574,7 @@ void MusicPlayerList::playCurrent() {
 				auto url = path_directory(currentInfo.path) + "/" + s;
 				loader.load(url, [=](File f) {
 					if(!f) {
-						errors.push_back("Could not load file");
+						errors.emplace_back("Could not load file");
 						SET_STATE(ERROR);
 					} else {
 						LOGD("Copying secondary file to %s", target.getName());
@@ -590,4 +590,5 @@ void MusicPlayerList::playCurrent() {
 		files--;
 	});
 }
-}
+
+} // namespace chipmachine

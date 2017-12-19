@@ -11,10 +11,13 @@
 #include <memory>
 #include <vector>
 
+namespace musix {
+    class ChipPlugin;
+    class ChipPlayer;
+}
+
 namespace chipmachine {
 
-class ChipPlugin;
-class ChipPlayer;
 
 class MusicPlayer {
 public:
@@ -73,20 +76,20 @@ public:
 	void update();
 	
 private:
-	std::shared_ptr<ChipPlayer> fromFile(const std::string &fileName);
-	//std::shared_ptr<ChipPlayer> fromStream(const std::string &fileName);
+	std::shared_ptr<musix::ChipPlayer> fromFile(const std::string &fileName);
+	//std::shared_ptr<musix::ChipPlayer> fromStream(const std::string &fileName);
 	void updatePlayingInfo();
 
 	utils::AudioFifo<int16_t> fifo;
 	SongInfo playingInfo;
 	// Fifo fifo;
 	SpectrumAnalyzer fft;
-	//std::vector<std::shared_ptr<ChipPlugin>> plugins;
+	//std::vector<std::shared_ptr<musix::ChipPlugin>> plugins;
 	std::atomic<bool> paused{false};
 	std::array<uint16_t, SpectrumAnalyzer::eq_slots> spectrum;
 
 	// Should be held when accessing FFT data
-	std::shared_ptr<ChipPlayer> player;
+	std::shared_ptr<musix::ChipPlayer> player;
 	std::string message;
 	std::string sub_title;
 	std::atomic<int> pos{0};

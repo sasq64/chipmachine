@@ -258,7 +258,7 @@ bool MusicDatabase::parseModland(Variables &vars, const std::string &listFile,
                                  std::function<void(const SongInfo &)> callback) {
 
 	static const std::set<std::string> secondary = {"smpl", "sam", "ins", "smp", "pdx", "nt", "as"};
-	static const unordered_set<string> hasSubFormats = {"Ad Lib", "Video Game Music"};
+	static const unordered_set<string> hasSubFormats = { "Spectrum", "Ad Lib", "Video Game Music"};
 
 	auto parts = split(vars["exclude_formats"], ";");
 	set<string> exclude(parts.begin(), parts.end());
