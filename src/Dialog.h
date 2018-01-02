@@ -2,6 +2,7 @@
 #define DIALOG_H
 
 #include "TextField.h"
+#include "LineEdit.h"
 
 class Dialog : public Renderable {
 public:
@@ -26,11 +27,11 @@ public:
 
 		LOGD("DIALOG: %d", key);
 		
-		if(key == grappix::Window::ENTER) {
+		if(key == keycodes::ENTER) {
 			if(onOk)
 				onOk(lineEdit.getText());
 			Renderable::remove();
-		} else if(key == grappix::Window::ESCAPE) {
+		} else if(key == keycodes::ESCAPE) {
 			Renderable::remove();
 		} else {
 			lineEdit.on_key(key);

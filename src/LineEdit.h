@@ -36,15 +36,15 @@ public:
 			text.insert(tpos++, 1, key);
 		} else {
 			switch(key) {
-			case Window::LEFT:
+			case keycodes::LEFT:
 				if(tpos > 0)
 					tpos--;
 				break;
-			case Window::RIGHT:
+			case keycodes::RIGHT:
 				if(tpos < text.size())
 					tpos++;
 				break;
-			case Window::BACKSPACE:
+			case keycodes::BACKSPACE:
 				if(tpos > 0) {
 					text.erase(--tpos, 1);
 				}

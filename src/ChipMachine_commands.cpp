@@ -18,7 +18,7 @@ void ChipMachine::setupCommands() {
 	cmd("show_search", [=]() {
 		if(currentScreen != SEARCH_SCREEN) {
 			showScreen(SEARCH_SCREEN);
-			songList.onKey((grappix::Window::key)lastKey);
+			songList.onKey(lastKey);
 		} else {
 			showScreen(SEARCH_SCREEN);
 		}
