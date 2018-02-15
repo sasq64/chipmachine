@@ -32,7 +32,7 @@ public:
 	void on_key(uint32_t key) {
 		using grappix::Window;
 		
-		if(key < 0x100) {
+		if(key < 0x80 && key >= 0x20) {
 			text.insert(tpos++, 1, key);
 		} else {
 			switch(key) {
