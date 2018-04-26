@@ -4,7 +4,7 @@
 -- local_dir : If exists, will be checked first for files before downloading.
 -- If song_list or or source can not be found, database will not be added
 
-VERSION = 16;
+VERSION = 17;
 
 DB = {
 {
@@ -40,7 +40,7 @@ DB = {
 {
 	name = "Modland",
 	id =  "modland",
-	source = "http://ftp.modland.com/pub/modules/",
+	source = "ftp://ftp.modland.com/pub/modules/",
 	song_list = "data/allmods.txt",
 	local_dir = "/opt/Music/MODLAND",
 	exclude_formats = "RealSID;PlaySID;Nintendo SPC;SNDH;Slight Atari Player;Super Nintendo Sound Format",
