@@ -7,7 +7,7 @@ namespace statemachine {
 shared_ptr<BaseCondition> ALWAYS_TRUE = make_shared<TrueCondition>();
 
 Condition if_true(const bool &watch) {
-	LOGD("if_true %p", &watch);
+	LOGD("if_true %p", (void*)&watch);
 	return make_condition<EQCondition<bool>>(watch, true);
 }
 
