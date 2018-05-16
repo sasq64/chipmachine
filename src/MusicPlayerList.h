@@ -69,8 +69,6 @@ public:
 	void clearSongs();
 	void nextSong();
 
-	uint16_t *getSpectrum();
-	int spectrumSize();
 	SongInfo getInfo(int index = 0);
 	SongInfo getDBInfo();
 	int getLength();
@@ -170,6 +168,8 @@ public:
 			mp.stop();
 		});
 	}
+
+	void setAudioCallback(const std::function<void(int16_t*, int)>& cb) { mp.setAudioCallback(cb); }
 
 	bool wasFromQueue() const { return playedNext; }
 	

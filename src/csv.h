@@ -111,11 +111,11 @@ namespace io{
                         with_errno{
                         void format_error_message()const{
                                 if(errno_value != 0)
-                                        std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                        snprintf(error_message_buffer, sizeof(error_message_buffer),
                                                 "Can not open file \"%s\" because \"%s\"."
                                                 , file_name, std::strerror(errno_value));
                                 else
-                                        std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                        snprintf(error_message_buffer, sizeof(error_message_buffer),
                                                 "Can not open file \"%s\"."
                                                 , file_name);
                         }
@@ -126,7 +126,7 @@ namespace io{
                         with_file_name,
                         with_file_line{
                         void format_error_message()const{
-                                std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                snprintf(error_message_buffer, sizeof(error_message_buffer),
                                         "Line number %d in file \"%s\" exceeds the maximum length of 2^24-1."
                                         , file_line, file_name);
                         }
@@ -527,7 +527,7 @@ namespace io{
                         with_file_name,
                         with_column_name{
                         void format_error_message()const{
-                                std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                snprintf(error_message_buffer, sizeof(error_message_buffer),
                                         "Extra column \"%s\" in header of file \"%s\"."
                                         , column_name, file_name);
                         }
@@ -538,7 +538,7 @@ namespace io{
                         with_file_name,
                         with_column_name{
                         void format_error_message()const{
-                                std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                snprintf(error_message_buffer, sizeof(error_message_buffer),
                                         "Missing column \"%s\" in header of file \"%s\"."
                                         , column_name, file_name);
                         }
@@ -549,7 +549,7 @@ namespace io{
                         with_file_name,
                         with_column_name{
                         void format_error_message()const{
-                                std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                snprintf(error_message_buffer, sizeof(error_message_buffer),
                                         "Duplicated column \"%s\" in header of file \"%s\"."
                                         , column_name, file_name);
                         }
@@ -559,7 +559,7 @@ namespace io{
                         base,
                         with_file_name{
                         void format_error_message()const{
-                                std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                snprintf(error_message_buffer, sizeof(error_message_buffer),
                                         "Header missing in file \"%s\"."
                                         , file_name);
                         }
@@ -570,7 +570,7 @@ namespace io{
                         with_file_name,
                         with_file_line{
                         void format_error_message()const{
-                                std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                snprintf(error_message_buffer, sizeof(error_message_buffer),
                                         "Too few columns in line %d in file \"%s\"."
                                         , file_line, file_name);
                         }
@@ -581,7 +581,7 @@ namespace io{
                         with_file_name,
                         with_file_line{
                         void format_error_message()const{
-                                std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                snprintf(error_message_buffer, sizeof(error_message_buffer),
                                         "Too many columns in line %d in file \"%s\"."
                                         , file_line, file_name);
                         }
@@ -592,7 +592,7 @@ namespace io{
                         with_file_name,
                         with_file_line{
                         void format_error_message()const{
-                                std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                snprintf(error_message_buffer, sizeof(error_message_buffer),
                                         "Escaped string was not closed in line %d in file \"%s\"."
                                         , file_line, file_name);
                         }
@@ -605,7 +605,7 @@ namespace io{
                         with_column_name,
                         with_column_content{
                         void format_error_message()const{
-                                std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                snprintf(error_message_buffer, sizeof(error_message_buffer),
                                         "The integer \"%s\" must be positive or 0 in column \"%s\" in file \"%s\" in line \"%d\"."
                                         , column_content, column_name, file_name, file_line);
                         }
@@ -618,7 +618,7 @@ namespace io{
                         with_column_name,
                         with_column_content{
                         void format_error_message()const{
-                                std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                snprintf(error_message_buffer, sizeof(error_message_buffer),
                                         "The integer \"%s\" contains an invalid digit in column \"%s\" in file \"%s\" in line \"%d\"."
                                         , column_content, column_name, file_name, file_line);
                         }
@@ -631,7 +631,7 @@ namespace io{
                         with_column_name,
                         with_column_content{
                         void format_error_message()const{
-                                std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                snprintf(error_message_buffer, sizeof(error_message_buffer),
                                         "The integer \"%s\" overflows in column \"%s\" in file \"%s\" in line \"%d\"."
                                         , column_content, column_name, file_name, file_line);
                         }
@@ -644,7 +644,7 @@ namespace io{
                         with_column_name,
                         with_column_content{
                         void format_error_message()const{
-                                std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                snprintf(error_message_buffer, sizeof(error_message_buffer),
                                         "The integer \"%s\" underflows in column \"%s\" in file \"%s\" in line \"%d\"."
                                         , column_content, column_name, file_name, file_line);
                         }
@@ -657,7 +657,7 @@ namespace io{
                         with_column_name,
                         with_column_content{
                         void format_error_message()const{
-                                std::snprintf(error_message_buffer, sizeof(error_message_buffer),
+                                snprintf(error_message_buffer, sizeof(error_message_buffer),
                                         "The content \"%s\" of column \"%s\" in file \"%s\" in line \"%d\" is not a single character."
                                         , column_content, column_name, file_name, file_line);
                         }

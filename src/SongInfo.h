@@ -2,6 +2,7 @@
 #define SONGINFO_H
 
 #include <coreutils/log.h>
+#include <coreutils/utils.h>
 #include <string>
 #include <unordered_map>
 
@@ -19,7 +20,7 @@ struct SongInfo {
 			}
 		}
 	}
-	
+
 	enum { INFO, SCREENSHOT };
 
 	bool operator==(const SongInfo &other) {

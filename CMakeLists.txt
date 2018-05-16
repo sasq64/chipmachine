@@ -28,14 +28,13 @@ else()
 
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer -DCM_DEBUG")
 	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -fno-omit-frame-pointer -DCM_DEBUG")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
 if(SAN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=${SAN}")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 link_directories(/usr/local/lib)
 include_directories(${AP1_ROOT}/mods .. /usr/local/include)
 
@@ -56,6 +55,7 @@ set(SOURCE_FILES
 	src/textmode.cpp
 	src/main.cpp
 	src/youtube.cpp
+	src/chiplib.cpp
 )
 
 set(TEXTMODE_FILES
@@ -103,7 +103,6 @@ set(APONE_MODULES
 set(TEXT_MODULES
 	coreutils
 	audioplayer
-	fft
 	archive
 	webutils
 	luainterpreter
@@ -157,10 +156,10 @@ else()
 	add_executable(chipmachine ${SOURCE_FILES})
 endif()
 
-set_property(TARGET chipmachine PROPERTY CXX_STANDARD 14)
+set_property(TARGET chipmachine PROPERTY CXX_STANDARD 17)
 set_property(TARGET chipmachine PROPERTY CXX_STANDARD_REQUIRED ON)
 
-target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS})
+target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} pthread)
 
 if(NOT WIN32)
 	add_executable(cm ${PLUGIN_EXTRA_FILES} ${TEXTMODE_FILES})

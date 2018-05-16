@@ -5,8 +5,6 @@
 
 #include <coreutils/fifo.h>
 
-#include <fft/spectrum.h>
-
 #include <atomic>
 #include <memory>
 #include <vector>
@@ -55,13 +53,8 @@ public:
 		return playingInfo;
 	}
 
-	uint16_t *getSpectrum();
 
 	std::string getMeta(const std::string &what);
-
-	int spectrumSize() {
-		return fft.eq_slots;
-	}
 
 	// Returns silence (from now) in seconds
 	int getSilence();
@@ -74,6 +67,8 @@ public:
 	float getFadeVolume() { return fifo.getVolume(); }
 
 	void update();
+
+	void setAudioCallback(const std::function<void(int16_t*, int)>& cb) { audioCb = cb; }
 	
 private:
 	std::shared_ptr<musix::ChipPlayer> fromFile(const std::string &fileName);
@@ -83,10 +78,9 @@ private:
 	utils::AudioFifo<int16_t> fifo;
 	SongInfo playingInfo;
 	// Fifo fifo;
-	SpectrumAnalyzer fft;
+	std::function<void(int16_t*, int)> audioCb;
 	//std::vector<std::shared_ptr<musix::ChipPlugin>> plugins;
 	std::atomic<bool> paused{false};
-	std::array<uint16_t, SpectrumAnalyzer::eq_slots> spectrum;
 
 	// Should be held when accessing FFT data
 	std::shared_ptr<musix::ChipPlayer> player;

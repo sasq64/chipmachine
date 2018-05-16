@@ -84,14 +84,6 @@ void MusicPlayerList::seek(int song, int seconds) {
 	});
 }
 
-uint16_t *MusicPlayerList::getSpectrum() {
-	return mp.getSpectrum();
-}
-
-int MusicPlayerList::spectrumSize() {
-	return mp.spectrumSize();
-}
-
 SongInfo MusicPlayerList::getInfo(int index) {
 	LOCK_GUARD(plMutex);
 	if(index == 0)

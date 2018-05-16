@@ -8,7 +8,7 @@
 #include <string>
 #include <algorithm>
 
-#define WITH_MPG123
+//#define WITH_MPG123
 
 #ifdef WITH_MPG123
 #include <mpg123.h>

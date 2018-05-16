@@ -14,6 +14,8 @@
 #include "state_machine.h"
 #include <grappix/gui/renderset.h>
 
+#include <fft/spectrum.h>
+
 #include "LineEdit.h"
 #include "Dialog.h"
 
@@ -191,6 +193,8 @@ private:
 	int spectrumWidth = 24;
 	utils::vec2i spectrumPos;
 	std::vector<uint8_t> eq;
+	SpectrumAnalyzer fft;
+	std::array<uint16_t, SpectrumAnalyzer::eq_slots> spectrum;
 
 	uint32_t bgcolor = 0;
 	bool starsOn = true;

@@ -37,7 +37,8 @@ MusicPlayer::MusicPlayer(const std::string &workDir) : fifo(32786 * 4), streamFi
 		if(fifo.filled() >= size) {
 			fifo.get(ptr, size);
 			pos += size / 2;
-			fft.addAudio(ptr, size);
+			if(audioCb)
+				audioCb(ptr, size);
 		} else
 			memset(ptr, 0, size * 2);
 	});
@@ -203,6 +204,7 @@ bool MusicPlayer::playFile(const string &fileName) {
 		return true;
 	}
 	return false;
+
 }
 
 void MusicPlayer::updatePlayingInfo() {
@@ -245,18 +247,6 @@ string MusicPlayer::getMeta(const string &what) {
 	if(player)
 		return player->getMeta(what);
 	return "";
-}
-
-uint16_t *MusicPlayer::getSpectrum() {
-	auto delay = AudioPlayer::get_delay();
-	if(fft.size() > delay) {
-		while(fft.size() > delay + 4) {
-			fft.popLevels();
-		}
-		spectrum = fft.getLevels();
-		fft.popLevels();
-	}
-	return &spectrum[0];
 }
 
 void MusicPlayer::setVolume(float v) {

@@ -179,6 +179,10 @@ ChipMachine::ChipMachine(const std::string &wd)
 	netIcon.visible(false);
 	showVolume = 0;
 
+	player.setAudioCallback([this](int16_t*ptr, int size) {
+		fft.addAudio(ptr, size);
+	});
+
 	musicBars.setup(spectrumWidth, spectrumHeight, 24);
 
 	LOGD("WORKDIR %s", workDir.getName());
@@ -667,8 +671,15 @@ void ChipMachine::update() {
 	}
 
 	if(player.isPlaying()) {
-		auto spectrum = player.getSpectrum();
-		for(auto i : count_to(player.spectrumSize())) {
+		auto delay = 1; //AudioPlayer::get_delay();
+		if(fft.size() > delay) {
+			while(fft.size() > delay + 4) {
+				fft.popLevels();
+			}
+			spectrum = fft.getLevels();
+			fft.popLevels();
+		}
+		for(auto i : count_to(fft.eq_slots)) {
 			if(spectrum[i] > 5) {
 				auto f = static_cast<unsigned>(logf(spectrum[i]) * 64);
 				if(f > 255)

@@ -131,7 +131,7 @@ bool MusicDatabase::parseCsdb(Variables &vars, const std::string &listFile,
 		prod.title = htmldecode(utf8_encode(i["Name"].text()));
 		prod.type = i["ReleaseType"].text();
 		auto rating = i["CSDbRating"];
-		float rt = rating.valid() ? stof(rating.text()) : 0.f;
+		float rt = rating.valid() ? stod(rating.text()) : 0.0;
 		// LOGD("Found %s (%s %d)", name, type, rt);
 		string group = "";
 		auto rb = i["ReleasedBy"];
