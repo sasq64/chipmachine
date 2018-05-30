@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.4)
+cmake_minimum_required(VERSION 3.1.0)
 project(chipmachine)
 
 set(AP1_ROOT ../apone)
@@ -8,8 +8,9 @@ add_definitions(-DAPP_NAME=chipmachine)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 if(APPLE)
-	set(CMAKE_OSX_SYSROOT "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk")
-	set(CMAKE_OSX_DEPLOYMENT_TARGET "10.10")
+	#set(CMAKE_OSX_SYSROOT "/Users/jonasminnberg/unity/repo/trunk/PlatformDependent/OSX/External/NonRedistributable/BuildEnvironment/builds/MacOSX10.12.sdk")
+	#set(CMAKE_OSX_SYSROOT "/Users/jonasminnberg/MacOSX10.10.sdk")
+	set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13")
 endif()
 
 if(RASPBERRYPI)
@@ -55,7 +56,6 @@ set(SOURCE_FILES
 	src/textmode.cpp
 	src/main.cpp
 	src/youtube.cpp
-	src/chiplib.cpp
 )
 
 set(TEXTMODE_FILES
@@ -140,6 +140,17 @@ add_subdirectory(../musicplayer/plugins plugins)
 
 include_directories(${AP1_ROOT}/mods/grappix ../musicplayer/plugins)
 
+if(MSVC) 
+	set(STDFLAG /std:c++17)
+	set(FSLIB "")
+elseif(APPLE)
+	set(STDFLAG -std=c++17)
+	set(FSLIB c++experimental)
+else()
+    set(STDFLAG -std=c++17)
+	set(FSLIB stdc++fs)
+endif()
+
 if(WIN32)
     set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -mwindows)
 endif()
@@ -159,12 +170,12 @@ endif()
 set_property(TARGET chipmachine PROPERTY CXX_STANDARD 17)
 set_property(TARGET chipmachine PROPERTY CXX_STANDARD_REQUIRED ON)
 
-target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} pthread)
+target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} ${FSLIB} pthread)
 
 if(NOT WIN32)
 	add_executable(cm ${PLUGIN_EXTRA_FILES} ${TEXTMODE_FILES})
 	target_compile_definitions(cm PUBLIC TEXTMODE_ONLY)
-	target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS})
+	target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS} ${FSLIB})
 endif()
 
 if(APPLE)

@@ -4,7 +4,7 @@
 -- local_dir : If exists, will be checked first for files before downloading.
 -- If song_list or or source can not be found, database will not be added
 
-VERSION = 17;
+VERSION = 18;
 
 DB = {
 {
@@ -124,7 +124,7 @@ DB = {
 {
 	name = "scenesat",
 	id =  "scenesat",
-	source = "http://sos.scenesat.com/play/",
+	source = "https://static.scenesat.com/",
 	song_list = "data/scenesat.txt",
 	song_template = "composer game title format path",
 	local_dir = "/opt/Music/scenesat",

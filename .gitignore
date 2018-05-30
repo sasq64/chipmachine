@@ -1,4 +1,5 @@
 *.a
+*.c.o
 obj/
 generated/
 builds/
