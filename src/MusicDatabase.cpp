@@ -258,6 +258,7 @@ bool MusicDatabase::parseModland(Variables &vars, const std::string &listFile,
                                  std::function<void(const SongInfo &)> callback) {
 
 	static const std::set<std::string> secondary = {"smpl", "sam", "ins", "smp", "pdx", "nt", "as"};
+	static const std::set<std::string> secondary_pref = {"smpl", "smp"};
 	static const unordered_set<string> hasSubFormats = { "Spectrum", "Ad Lib", "Video Game Music"};
 
 	auto parts = split(vars["exclude_formats"], ";");
@@ -273,8 +274,15 @@ bool MusicDatabase::parseModland(Variables &vars, const std::string &listFile,
 
 			SongInfo song(parts[1]);
 
+		    string base = path_basename(song.path);
 			string ext = path_extension(song.path);
-			if((secondary.count(ext) > 0) || endsWith(ext, "sflib")) {
+
+            if(base == "mdat" || base == "jpn") {
+                std::swap(base, ext);
+            }
+            
+
+			if((secondary.count(ext) > 0) || (secondary_pref.count(base) > 0) || endsWith(ext, "sflib")) {
 				continue;
 			}
 
@@ -315,7 +323,7 @@ bool MusicDatabase::parseModland(Variables &vars, const std::string &listFile,
 			if(endsWith(parts[i], ".rar"))
 				parts[i] = parts[i].substr(0, parts[i].length() - 4);
 
-			song.title = path_basename(parts[i++]);
+			song.title = base;
 			if(exclude.count(song.format) > 0)
 				continue;
 			if(song.game != "" && song.game == lastSong.game &&
@@ -1117,7 +1125,7 @@ void MusicDatabase::generateIndex() {
 	reindexNeeded = false;
 }
 
-void MusicDatabase::initFromLuaAsync(const File &workDir) {
+void MusicDatabase::initFromLuaAsync(const fs::path &workDir) {
 	indexing = true;
 	initFuture = std::async(std::launch::async, [=]() {
 		std::lock_guard<std::mutex>{dbMutex};
@@ -1128,7 +1136,7 @@ void MusicDatabase::initFromLuaAsync(const File &workDir) {
 	});
 }
 
-bool MusicDatabase::initFromLua(const File &workDir) {
+bool MusicDatabase::initFromLua(const fs::path &workDir) {
 
 	File playlistDir{File::getConfigDir() / "playlists"};
 	makedir(playlistDir);

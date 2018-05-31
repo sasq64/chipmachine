@@ -1,5 +1,7 @@
 #include "ChipMachine.h"
 
+#include <coreutils/searchpath.h>
+
 using namespace std;
 using namespace utils;
 using namespace grappix;
@@ -37,7 +39,7 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 	                                                    {"toast_field", &toastField},
 	                                                    {"result_field", &resultFieldTemplate}};
 
-	auto path = workDir;
+	auto path = makeSearchPath({workDir}, false);
 
 	if(fields.count(name) > 0) {
 		auto &f = (*fields[name]);
@@ -74,25 +76,19 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 			spectrumColorSearch = Color(stoll(val));
 	} else if(name == "font") {
 
-		File fontFile = File::findFile(path, val);
-
-		if(fontFile.exists()) {
-			font = Font(fontFile.getName(), 48, 512 | Font::DISTANCE_MAP);
-			for(auto &f : fields) {
+		if(auto fontFile = findFile(path, val)) {
+			font = Font(fontFile->string(), 48, 512 | Font::DISTANCE_MAP);
+			for(auto &f : fields)
 				f.second->setFont(font);
-			}
 		} else
-			throw file_not_found_exception(fontFile.getName());
+			throw file_not_found_exception(val);
 
 	} else if(name == "list_font") {
-		File fontFile = File::findFile(path, val);
-
-		if(fontFile.exists()) {
-			listFont = Font(fontFile.getName(), 32, 256); // | Font::DISTANCE_MAP);
+		if(auto fontFile = findFile(path, val)) {
+			listFont = Font(fontFile->string(), 32, 256); // | Font::DISTANCE_MAP);
 			resultFieldTemplate.setFont(listFont);
 		} else
-			throw file_not_found_exception(fontFile.getName());
-
+			throw file_not_found_exception(val);
 	} else if(name == "favicon") {
 		favPos[index - 1] = stol(val);
 	} else if(name == "background") {
@@ -117,9 +113,8 @@ void ChipMachine::setVariable(const std::string &name, int index, const std::str
 			scrollEffect.scrollspeed = stol(val);
 			break;
 		case 4: {
-			File fontFile = File::findFile(path, val);
-			if(fontFile.exists())
-				scrollEffect.set("font", fontFile.getName());
+			if(auto fontFile = findFile(path, val))
+				scrollEffect.set("font", fontFile->string());
 		} break;
 		}
 	} else if(name == "hilight_color") {

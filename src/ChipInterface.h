@@ -12,11 +12,14 @@
 #include <functional>
 #include <algorithm>
 
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+
 namespace chipmachine {
 
 class ChipInterface {
 public:
-	ChipInterface(const std::string &wd) : workDir(wd), player(wd) {
+	ChipInterface(const fs::path &wd) : workDir(wd), player(wd) {
 		MusicDatabase::getInstance().initFromLua(this->workDir);
 	}
 	
@@ -75,7 +78,7 @@ public:
 	}
 
 private:
-	utils::File workDir;
+    fs::path workDir;
 	std::mutex m;
 	MusicDatabase mdb;
 	SongInfo info;

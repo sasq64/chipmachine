@@ -1,5 +1,7 @@
 #include "ChipMachine.h"
 
+#include <coreutils/environment.h>
+
 using namespace std;
 using namespace utils;
 using namespace grappix;
@@ -40,13 +42,14 @@ void ChipMachine::setupCommands() {
 	});
 
 	cmd("download_current", [=] {
-		auto target = File::getHomeDir() / "Downloads";
+		auto target = Environment::getHomeDir() / "Downloads";
 		makedir(target);
 
 		auto files = player.getSongFiles();
 		if(files.size() == 0)
 			return;
-		for(const auto &from : files) {
+		for(const auto &fromFile : files) {
+            fs::path from = fromFile.getName();
 			string fileName;
 			string title = currentInfo.title;
 			string composer = currentInfo.composer;
@@ -56,15 +59,15 @@ void ChipMachine::setupCommands() {
 				title = currentInfo.game;
 			auto ext = path_extension(from);
 			if(title == "" || endsWith(ext, "lib"))
-				fileName = from.getFileName();
+				fileName = from.string();
 			else
 				fileName = format("%s - %s.%s", composer, title, ext);
 			auto to = target / fileName;
 			try {
-				File::copy(from, to);
+				fs::copy(from, to);
 			} catch (io_exception &e) {
-				to = target / from.getFileName();
-				File::copy(from, to);
+				to = target / from;
+				fs::copy(from, to);
 			}
 		}
 		toast("Downloaded file");
@@ -279,7 +282,7 @@ void ChipMachine::setupCommands() {
 				userName = text;
 				if(rc)
 					toast("Login successful", 2);
-				File f{File::getCacheDir() + "login"};
+				File f{Environment::getCacheDir() + "login"};
 				f.write(userName);
 				f.close();
 				auto plist = PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);

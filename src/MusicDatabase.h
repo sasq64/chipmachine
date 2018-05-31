@@ -15,6 +15,9 @@
 #include <future>
 #include <mutex>
 
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+
 namespace chipmachine {
 
 class not_found_exception : public std::exception {
@@ -106,8 +109,8 @@ public:
 		createTables();
 	}
 
-	bool initFromLua(const utils::File &workDir);
-	void initFromLuaAsync(const utils::File &workDir);
+	bool initFromLua(const fs::path &workDir);
+	void initFromLuaAsync(const fs::path &workDir);
 
 	int search(const std::string &query, std::vector<int> &result,
 	           unsigned int searchLimit) override;

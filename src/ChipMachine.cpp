@@ -3,6 +3,9 @@
 #include "version.h"
 #include <grappix/window.h>
 #include <coreutils/format.h>
+#include <coreutils/environment.h>
+#include <coreutils/searchpath.h>
+
 #include <luainterpreter/luainterpreter.h>
 #include <cctype>
 #include <map>
@@ -74,7 +77,7 @@ void ChipMachine::renderSong(const grappix::Rectangle &rec, int y, uint32_t inde
 	grappix::screen.text(listFont, text, rec.x, rec.y, c, resultFieldTemplate.scale);
 }
 
-ChipMachine::ChipMachine(const std::string &wd)
+ChipMachine::ChipMachine(fs::path const& wd)
     : workDir(wd), player(wd), currentScreen(MAIN_SCREEN), eq(SpectrumAnalyzer::eq_slots),
       starEffect(screen), scrollEffect(screen) {
 
@@ -86,11 +89,12 @@ ChipMachine::ChipMachine(const std::string &wd)
 	lua.setGlobal("WINDOWS", false);
 #endif
 
-	string binDir = (workDir / "bin").getName();
+    fs::path binDir = (workDir / "bin");
 	lua.registerFunction("cm_execute", [binDir](std::string cmd) -> std::string {
-		if(!File::isAbsolutePath(cmd))
-			cmd = binDir + File::DIR_SEPARATOR + cmd; 
-		std::string output = execPipe(cmd);
+        auto cmdPath = fs::path(cmd);
+		if(!cmdPath.is_absolute())
+			cmdPath = binDir / cmdPath; 
+		std::string output = execPipe(cmdPath.string());
 		return output;
 	});
 
@@ -107,8 +111,8 @@ ChipMachine::ChipMachine(const std::string &wd)
 	});
 #endif
 
-	File ff = File::findFile(workDir, "data/Bello.otf");
-	scrollEffect.set("font", ff.getName());
+	auto ff = workDir / "data" / "Bello.otf";
+    scrollEffect.set("font", ff.string());
 
 #ifdef ENABLE_TELNET
 	telnet = make_unique<TelnetInterface>(player);
@@ -149,7 +153,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 	overlay.add(&toastField);
 
 	Resources::getInstance().load<image::bitmap>(
-	    File::getCacheDir() / "favicon.png", [=](shared_ptr<image::bitmap> bitmap) {
+	    Environment::getCacheDir() / "favicon.png", [=](shared_ptr<image::bitmap> bitmap) {
 		    favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
 		}, heart_icon);
 	// favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
@@ -185,7 +189,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 
 	musicBars.setup(spectrumWidth, spectrumHeight, 24);
 
-	LOGD("WORKDIR %s", workDir.getName());
+	LOGD("WORKDIR %s", workDir.string());
 	MusicDatabase::getInstance().initFromLuaAsync(this->workDir);
 
 	if(MusicDatabase::getInstance().busy()) {
@@ -248,7 +252,7 @@ ChipMachine::ChipMachine(const std::string &wd)
 	                 "-- ENTER to play -- Press TAB to show all commands ---");
 	starEffect.fadeIn();
 
-	File f{File::getCacheDir() / "login"};
+	File f{Environment::getCacheDir() / "login"};
 	if(f.exists())
 		userName = f.read();
 }
