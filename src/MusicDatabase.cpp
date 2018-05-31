@@ -9,6 +9,8 @@
 #include <archive/archive.h>
 #include <xml/xml.h>
 
+#include <coreutils/environment.h>
+
 #include <set>
 #include <chrono>
 #include <algorithm>
@@ -465,7 +467,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 	LOGD("Workdir:%s", workDir);
 	File listFile;
 	bool writeListFile = false;
-	webutils::Web web{File::getCacheDir() / "_webfiles"};
+	webutils::Web web{Environment::getCacheDir() / "_webfiles"};
 
 	bool prodCollection = false;
 
@@ -708,8 +710,8 @@ SongInfo MusicDatabase::getSongInfo(int index) const {
 
 	if(index >= PLAYLIST_INDEX) {
 		string p = playLists[index - PLAYLIST_INDEX].name;
-		File path = File::getConfigDir() / "playlists" / p;
-		return SongInfo("playlist::" + path.getName(), "", p, "", "Local playlist");
+		auto path = Environment::getConfigDir() / "playlists" / p;
+		return SongInfo("playlist::" + path.string(), "", p, "", "Local playlist");
 	}
 
 	index++;
@@ -993,7 +995,7 @@ void MusicDatabase::generateIndex() {
 		loader.registerSource(c.name, c.url, c.local_dir);
 	}
 
-	File f{File::getCacheDir() / "index.dat"};
+	File f{Environment::getCacheDir() / "index.dat"};
 
 	if(!reindexNeeded && f.exists()) {
 		readIndex(f);
@@ -1138,7 +1140,7 @@ void MusicDatabase::initFromLuaAsync(const fs::path &workDir) {
 
 bool MusicDatabase::initFromLua(const fs::path &workDir) {
 
-	File playlistDir{File::getConfigDir() / "playlists"};
+	File playlistDir{Environment::getConfigDir() / "playlists"};
 	makedir(playlistDir);
 	bool favFound = false;
 	for(auto f : playlistDir.listFiles()) {
@@ -1153,7 +1155,7 @@ bool MusicDatabase::initFromLua(const fs::path &workDir) {
 
 	reindexNeeded = false;
 
-	File fi{File::getCacheDir() / "index.dat"};
+	File fi{Environment::getCacheDir() / "index.dat"};
 
 	indexVersion = 0;
 	if(fi.exists()) {

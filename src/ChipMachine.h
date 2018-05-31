@@ -3,12 +3,12 @@
 
 #include "MusicDatabase.h"
 #include "MusicPlayerList.h"
-#include "TextField.h"
 #include "SongInfoField.h"
+#include "TextField.h"
 
 #include "TelnetInterface.h"
 #ifdef USE_REMOTELISTS
-#include "RemoteLists.h"
+#    include "RemoteLists.h"
 #endif
 
 #include "state_machine.h"
@@ -16,323 +16,367 @@
 
 #include <fft/spectrum.h>
 
-#include "LineEdit.h"
 #include "Dialog.h"
+#include "LineEdit.h"
 
 #include "MusicBars.h"
 
-#include "../demofx/StarField.h"
 #include "../demofx/Scroller.h"
+#include "../demofx/StarField.h"
 
 #include <coreutils/utils.h>
-#include <tween/tween.h>
 #include <grappix/grappix.h>
 #include <grappix/gui/list.h>
 #include <luainterpreter/luainterpreter.h>
+#include <tween/tween.h>
 
 #include <cstdio>
-#include <vector>
-#include <string>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 
 namespace chipmachine {
 
-class Icon : public Renderable {
+class Icon : public Renderable
+{
 public:
-	Icon() {}
+    Icon() = default;
 
-	Icon(std::shared_ptr<grappix::Texture> tx, float x, float y, float w, float h) : texture(tx), rec(x, y, w, h) {}
+    Icon(std::shared_ptr<grappix::Texture> tx, float x, float y, float w,
+         float h)
+        : texture(tx), rec(x, y, w, h)
+    {}
 
-	Icon(const image::bitmap &bm, int x = 0, int y = 0) : rec(x, y, bm.width(), bm.height()) {
-		setBitmap(bm);
-	}
-	
-	Icon(const image::bitmap &bm, float x, float y, float w, float h) : rec(x, y, w, h) {
-		setBitmap(bm);
-	}
+    Icon(const image::bitmap& bm, int x = 0, int y = 0)
+        : rec(x, y, bm.width(), bm.height())
+    {
+        setBitmap(bm);
+    }
 
-	void render(std::shared_ptr<grappix::RenderTarget> target, uint32_t delta) override {
-		if(!texture || (color >> 24) == 0)
-			return;
-		target->draw(*texture, rec.x, rec.y, rec.w, rec.h, nullptr, color);
-	}
-	
-	void setBitmap(const image::bitmap &bm, bool filter = false) {
-		texture = std::make_shared<grappix::Texture>(bm);
-		rec.w = bm.width();
-		rec.h = bm.height();
-		glBindTexture(GL_TEXTURE_2D, texture->id());
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter ? GL_LINEAR : GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter ? GL_LINEAR : GL_NEAREST);
-	}
-	
-	void clear() {
-		texture = nullptr;
-	}
+    Icon(const image::bitmap& bm, float x, float y, float w, float h)
+        : rec(x, y, w, h)
+    {
+        setBitmap(bm);
+    }
 
-	void setArea(const grappix::Rectangle &r) { rec = r; }
+    void render(std::shared_ptr<grappix::RenderTarget> target,
+                uint32_t delta) override
+    {
+        if (!texture || (color >> 24) == 0) return;
+        target->draw(*texture, rec.x, rec.y, rec.w, rec.h, nullptr, color);
+    }
 
-	grappix::Color color{0xffffffff};
-	grappix::Rectangle rec;
+    void setBitmap(const image::bitmap& bm, bool filter = false)
+    {
+        texture = std::make_shared<grappix::Texture>(bm);
+        rec.w = bm.width();
+        rec.h = bm.height();
+        glBindTexture(GL_TEXTURE_2D, texture->id());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                        filter ? GL_LINEAR : GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                        filter ? GL_LINEAR : GL_NEAREST);
+    }
+
+    void clear() { texture = nullptr; }
+
+    void setArea(const grappix::Rectangle& r) { rec = r; }
+
+    grappix::Color color{0xffffffff};
+    grappix::Rectangle rec;
 
 private:
-	std::shared_ptr<grappix::Texture> texture;
+    std::shared_ptr<grappix::Texture> texture;
 };
 
-class ChipMachine {
+class ChipMachine
+{
 public:
-	using Color = grappix::Color;
+    using Color = grappix::Color;
 
-	void renderSong(const grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
-	void renderCommand(grappix::Rectangle &rec, int y, uint32_t index, bool hilight);
+    void renderSong(const grappix::Rectangle& rec, int y, uint32_t index,
+                    bool hilight);
+    void renderCommand(grappix::Rectangle& rec, int y, uint32_t index,
+                       bool hilight);
 
-	ChipMachine(fs::path const& workDir);
-	~ChipMachine();
+    ChipMachine(fs::path const& workDir);
+    ~ChipMachine();
 
-	void initLua();
-	void layoutScreen();
-	void play(const SongInfo &si);
-	void update();
-	void render(uint32_t delta);
+    void initLua();
+    void layoutScreen();
+    void play(const SongInfo& si);
+    void update();
+    void render(uint32_t delta);
 
-	enum ToastType { WHITE, ERROR, NORMAL, STICKY };
+    enum ToastType
+    {
+        WHITE,
+        ERROR,
+        NORMAL,
+        STICKY
+    };
 
-	void toast(const std::string &txt, ToastType type = NORMAL);
-	void removeToast();
+    void toast(const std::string& txt, ToastType type = NORMAL);
+    void removeToast();
 
-	void setScrolltext(const std::string &txt);
-	void shuffleSongs(bool format, bool composer, bool collection, int limit);
+    void setScrolltext(const std::string& txt);
+    void shuffleSongs(bool format, bool composer, bool collection, int limit);
 
-	MusicPlayerList &musicPlayer() { return player; }
+    MusicPlayerList& musicPlayer() { return player; }
 
-	void playNamed(const std::string &what) { namedToPlay = what; }
+    void playNamed(const std::string& what) { namedToPlay = what; }
 
 private:
-	enum Screen {
-		NO_SCREEN = -1,
-		MAIN_SCREEN = 0,
-		SEARCH_SCREEN = 1,
-		COMMAND_SCREEN = 2,
-	};
+    enum Screen
+    {
+        NO_SCREEN = -1,
+        MAIN_SCREEN = 0,
+        SEARCH_SCREEN = 1,
+        COMMAND_SCREEN = 2,
+    };
 
-	static const uint32_t SHIFT = 0x10000;
-	static const uint32_t CTRL = 0x20000;
-	static const uint32_t ALT = 0x40000;
+    static const uint32_t SHIFT = 0x10000;
+    static const uint32_t CTRL = 0x20000;
+    static const uint32_t ALT = 0x40000;
 
-	void setVariable(const std::string &name, int index, const std::string &val);
+    void setVariable(const std::string& name, int index,
+                     const std::string& val);
 
-	void showScreen(Screen screen);
-	SongInfo getSelectedSong();
+    void showScreen(Screen screen);
+    SongInfo getSelectedSong();
 
-	void setupRules();
-	void setupCommands();
-	void updateKeys();
-	void updateFavorite();
-	void updateNextField();
-	void updateLists() {
+    void setupRules();
+    void setupCommands();
+    void updateKeys();
+    void updateFavorite();
+    void updateNextField();
+    void updateLists()
+    {
 
-		int y = resultFieldTemplate.pos.y + 5;
+        int y = resultFieldTemplate.pos.y + 5;
 
-		songList.setArea(grappix::Rectangle(topLeft.x, y, grappix::screen.width() - topLeft.x,
-		                                    downRight.y - topLeft.y - y));
-		commandList.setArea(grappix::Rectangle(topLeft.x, y, grappix::screen.width() - topLeft.x,
-		                                       downRight.y - topLeft.y - y));
-	}
+        songList.setArea(grappix::Rectangle(topLeft.x, y,
+                                            grappix::screen.width() - topLeft.x,
+                                            downRight.y - topLeft.y - y));
+        commandList.setArea(grappix::Rectangle(
+            topLeft.x, y, grappix::screen.width() - topLeft.x,
+            downRight.y - topLeft.y - y));
+    }
 
-	const std::vector<std::string> key_names = {
-	    "UP",       "DOWN",   "LEFT", "RIGHT", "ENTER", "ESCAPE", "BACKSPACE", "TAB", "PAGEUP",
-	    "PAGEDOWN", "DELETE", "HOME", "END",   "F1",    "F2",     "F3",        "F4",  "F5",
-	    "F6",       "F7",     "F8",   "F9",    "F10",   "F11",    "F12"};
+    const std::vector<std::string> key_names = {
+        "UP",  "DOWN",   "LEFT",     "RIGHT",  "ENTER", "ESCAPE", "BACKSPACE",
+        "TAB", "PAGEUP", "PAGEDOWN", "DELETE", "HOME",  "END",    "F1",
+        "F2",  "F3",     "F4",       "F5",     "F6",    "F7",     "F8",
+        "F9",  "F10",    "F11",      "F12"};
 
-	void addKey(uint32_t key, statemachine::Condition cond, const std::string &cmd);
+    void addKey(uint32_t key, statemachine::Condition const& cond,
+                const std::string& cmd);
 
-	void addKey(std::vector<uint32_t> events, statemachine::Condition cond,
-	            const std::string &cmd) {
-		for(auto &e : events)
-			addKey(e, cond, cmd);
-	}
+    void addKey(std::vector<uint32_t> const& events,
+                statemachine::Condition const& cond, const std::string& cmd)
+    {
+        for (auto& e : events)
+            addKey(e, cond, cmd);
+    }
 
-	void addKey(std::vector<uint32_t> events, const std::string &cmd) {
-		addKey(events, statemachine::ALWAYS_TRUE, cmd);
-	}
+    void addKey(std::vector<uint32_t> const& events, const std::string& cmd)
+    {
+        addKey(events, statemachine::ALWAYS_TRUE, cmd);
+    }
 
-	void addKey(uint32_t key, const std::string &cmd) {
-		addKey(key, statemachine::ALWAYS_TRUE, cmd);
-	}
+    void addKey(uint32_t key, const std::string& cmd)
+    {
+        addKey(key, statemachine::ALWAYS_TRUE, cmd);
+    }
 
-	void clearCommand() {
-		matchingCommands.resize(commands.size());
-		int i = 0;
-		for(auto &c : commands)
-			matchingCommands[i++] = &c;
-	}
+    void clearCommand()
+    {
+        matchingCommands.resize(commands.size());
+        int i = 0;
+        for (auto& c : commands)
+            matchingCommands[i++] = &c;
+    }
 
-	bool haveSelection() {
-		return songList.selected() >= 0 && (songList.selected() < songList.size());
-	}
-	
-	void nextScreenshot();
-	
+    bool haveSelection()
+    {
+        return songList.selected() >= 0 &&
+               (songList.selected() < songList.size());
+    }
+
+    void nextScreenshot();
+
     fs::path workDir;
 
-	MusicPlayerList player;
+    MusicPlayerList player;
 
-	Screen lastScreen = MAIN_SCREEN;
-	Screen currentScreen = MAIN_SCREEN;
+    Screen lastScreen = MAIN_SCREEN;
+    Screen currentScreen = MAIN_SCREEN;
 
-	std::unique_ptr<TelnetInterface> telnet;
+    std::unique_ptr<TelnetInterface> telnet;
 
-	// Aera of screen used for UI (defaults are for TV with overscan)
-	utils::vec2i topLeft = {80, 54};
-	utils::vec2i downRight = {636, 520};
+    // Aera of screen used for UI (defaults are for TV with overscan)
+    utils::vec2i topLeft = {80, 54};
+    utils::vec2i downRight = {636, 520};
 
-	grappix::Font font;
-	grappix::Font listFont;
+    grappix::Font font;
+    grappix::Font listFont;
 
-	int spectrumHeight = 20;
-	int spectrumWidth = 24;
-	utils::vec2i spectrumPos;
-	std::vector<uint8_t> eq;
-	SpectrumAnalyzer fft;
-	std::array<uint16_t, SpectrumAnalyzer::eq_slots> spectrum;
+    int spectrumHeight = 20;
+    int spectrumWidth = 24;
+    utils::vec2i spectrumPos;
+    std::vector<uint8_t> eq;
+    SpectrumAnalyzer fft;
+    std::array<uint16_t, SpectrumAnalyzer::eq_slots> spectrum;
 
-	uint32_t bgcolor = 0;
-	bool starsOn = true;
+    uint32_t bgcolor = 0;
+    bool starsOn = true;
 
-	LuaInterpreter lua;
+    LuaInterpreter lua;
 
-	demofx::StarField starEffect;
-	demofx::Scroller scrollEffect;
+    demofx::StarField starEffect;
+    demofx::Scroller scrollEffect;
 
-	// OVERLAY AND ITS RENDERABLES
+    // OVERLAY AND ITS RENDERABLES
 
-	RenderSet overlay;
-	TextField toastField;
+    RenderSet overlay;
+    TextField toastField;
 
-	Icon favIcon;
-	Icon netIcon;
-	Icon volumeIcon;
-	Icon screenShotIcon;
+    Icon favIcon;
+    Icon netIcon;
+    Icon volumeIcon;
+    Icon screenShotIcon;
 
-	// MAINSCREEN AND ITS RENDERABLES
-	RenderSet mainScreen;
+    // MAINSCREEN AND ITS RENDERABLES
+    RenderSet mainScreen;
 
-	SongInfoField currentInfoField;
-	SongInfoField nextInfoField;
-	SongInfoField prevInfoField;
-	SongInfoField outsideInfoField;
+    SongInfoField currentInfoField;
+    SongInfoField nextInfoField;
+    SongInfoField prevInfoField;
+    SongInfoField outsideInfoField;
 
-	TextField timeField;
-	TextField lengthField;
-	TextField songField;
-	TextField nextField;
-	TextField xinfoField;
-	//TextField playlistField;
+    TextField timeField;
+    TextField lengthField;
+    TextField songField;
+    TextField nextField;
+    TextField xinfoField;
+    // TextField playlistField;
 
-	// SEARCHSCREEN AND ITS RENDERABLES
-	RenderSet searchScreen;
+    // SEARCHSCREEN AND ITS RENDERABLES
+    RenderSet searchScreen;
 
-	LineEdit searchField;
-	TextField filterField;
-	TextField topStatus;
-	grappix::VerticalList songList;
+    LineEdit searchField;
+    TextField filterField;
+    TextField topStatus;
+    grappix::VerticalList songList;
 
-	TextField resultFieldTemplate;
-	
-	// COMMANDSCREEN AND ITS RENDERABLES
+    TextField resultFieldTemplate;
 
-	RenderSet commandScreen;
-	LineEdit commandField;
-	grappix::VerticalList commandList;
+    // COMMANDSCREEN AND ITS RENDERABLES
 
-	//
+    RenderSet commandScreen;
+    LineEdit commandField;
+    grappix::VerticalList commandList;
 
-	std::string currentNextPath;
-	SongInfo currentInfo;
-	SongInfo dbInfo;
-	int currentTune = 0;
+    //
 
-	tween::Tween currentTween;
-	bool lockDown = false;
-	bool isFavorite = false;
+    std::string currentNextPath;
+    SongInfo currentInfo;
+    SongInfo dbInfo;
+    int currentTune = 0;
 
-	grappix::Rectangle favPos;
-	grappix::Rectangle volPos;
+    tween::Tween currentTween;
+    bool lockDown = false;
+    bool isFavorite = false;
 
-	int numLines = 20;
+    grappix::Rectangle favPos;
+    grappix::Rectangle volPos;
 
-	tween::Tween markTween;
+    int numLines = 20;
 
-	Color timeColor;
-	Color spectrumColor = 0xffffffff;
-	Color spectrumColorMain = 0xff00aaee;
-	Color spectrumColorSearch = 0xff111155;
-	Color markColor = 0xff00ff00;
-	Color hilightColor = 0xffffffff;
+    tween::Tween markTween;
 
-	std::shared_ptr<IncrementalQuery> iquery;
+    Color timeColor;
+    Color spectrumColor = 0xffffffff;
+    Color spectrumColorMain = 0xff00aaee;
+    Color spectrumColorSearch = 0xff111155;
+    Color markColor = 0xff00ff00;
+    Color hilightColor = 0xffffffff;
 
-	bool haveSearchChars = false;
+    std::shared_ptr<IncrementalQuery> iquery;
 
-	statemachine::StateMachine smac;
+    bool haveSearchChars = false;
 
-	std::string currentPlaylistName = "Favorites";
-	//std::string editPlaylistName;
+    statemachine::StateMachine smac;
 
-	//bool playlistEdit = false;
+    std::string currentPlaylistName = "Favorites";
+    // std::string editPlaylistName;
 
-	bool commandMode = false;
+    // bool playlistEdit = false;
 
-	std::shared_ptr<Dialog> currentDialog;
+    bool commandMode = false;
 
-	std::string userName;
+    std::shared_ptr<Dialog> currentDialog;
 
-	std::pair<float, float> screenSize;
-	int resizeDelay = 0;
-	int showVolume = 0;
+    std::string userName;
 
-	bool hasMoved = false;
+    std::pair<float, float> screenSize;
+    int resizeDelay = 0;
+    int showVolume = 0;
 
-	bool indexingDatabase = false;
+    bool hasMoved = false;
 
-	MusicBars musicBars;
-	MusicPlayerList::State playerState;
-	std::string scrollText;
+    bool indexingDatabase = false;
 
-	struct Command {
-		Command(const std::string &name, const std::function<void()> fn) : name(name), fn(fn) {}
-		std::string name;
-		std::function<void()> fn;
-		std::string shortcut;
-		bool operator==(const std::string &n) { return n == name; }
-		bool operator==(const Command &c) { return c.name == name; }
-	};
+    MusicBars musicBars;
+    MusicPlayerList::State playerState;
+    std::string scrollText;
 
-	std::vector<Command> commands;
-	std::vector<Command *> matchingCommands;
-	std::mutex multiLoadLock;
-	int lastKey = 0;
-	bool searchUpdated = false;
-	std::string filter;
-	uint32_t favColor = 0x884444;
+    struct Command
+    {
+        Command(const std::string& name, std::function<void()> const& fn)
+            : name(name), fn(fn)
+        {}
+        std::string name;
+        std::function<void()> fn;
+        std::string shortcut;
+        bool operator==(const std::string& n) { return n == name; }
+        bool operator==(const Command& c) { return c.name == name; }
+    };
 
-	std::string namedToPlay;
-	int currentShot = -1;
-	struct NamedBitmap {
-		NamedBitmap() {}
-		NamedBitmap(const std::string &name, const image::bitmap &bm) : name(name), bm(bm) {}
-		std::string name;
-		image::bitmap bm;
-		bool operator==(const char *n) const { return strcmp(name.c_str(), n) == 0; }
-		bool operator<(const NamedBitmap &other) const { return name < other.name; }
-	};
-	std::vector<NamedBitmap> screenshots;
-	uint64_t setShotAt = 0;
-	std::string currentScreenshot;
+    std::vector<Command> commands;
+    std::vector<Command*> matchingCommands;
+    std::mutex multiLoadLock;
+    int lastKey = 0;
+    bool searchUpdated = false;
+    std::string filter;
+    uint32_t favColor = 0x884444;
+
+    std::string namedToPlay;
+    int currentShot = -1;
+    struct NamedBitmap
+    {
+        NamedBitmap() {}
+        NamedBitmap(const std::string& name, const image::bitmap& bm)
+            : name(name), bm(bm)
+        {}
+        std::string name;
+        image::bitmap bm;
+        bool operator==(const char* n) const
+        {
+            return strcmp(name.c_str(), n) == 0;
+        }
+        bool operator<(const NamedBitmap& other) const
+        {
+            return name < other.name;
+        }
+    };
+    std::vector<NamedBitmap> screenshots;
+    uint64_t setShotAt = 0;
+    std::string currentScreenshot;
 };
-}
+} // namespace chipmachine
 
 #endif // CHIP_MACHINE_H

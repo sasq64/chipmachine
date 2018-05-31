@@ -7,10 +7,10 @@
 #include <bbsutils/ansiconsole.h>
 #include <bbsutils/petsciiconsole.h>
 #include <bbsutils/telnetserver.h>
-#include <coreutils/format.h>
-#include <coreutils/var.h>
 #include <coreutils/environment.h>
+#include <coreutils/format.h>
 #include <coreutils/searchpath.h>
+#include <coreutils/var.h>
 
 #include <musicplayer/PSFFile.h>
 
@@ -20,21 +20,18 @@
 #endif
 #include "CLI11.hpp"
 #include "version.h"
-#include <vector>
 #include <optional>
+#include <vector>
 
-using namespace std;
 using namespace chipmachine;
-using namespace bbs;
-using namespace utils;
 
 namespace chipmachine {
-void runConsole(shared_ptr<Console> console, ChipInterface& ci);
+void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface& ci);
 }
 
 int main(int argc, char* argv[])
 {
-	Environment::setAppName("chipmachine");
+    Environment::setAppName("chipmachine");
 
 #ifdef CM_DEBUG
     logging::setLevel(logging::DEBUG);
@@ -42,14 +39,14 @@ int main(int argc, char* argv[])
     logging::setLevel(logging::WARNING);
 #endif
 
-    vector<SongInfo> songs;
+    std::vector<SongInfo> songs;
     int w = 960;
     int h = 540;
     int port = 12345;
     bool fullScreen = false;
     bool telnetServer = false;
     bool onlyHeadless = false;
-    string playWhat;
+    std::string playWhat;
 #ifdef TEXTMODE_ONLY
     bool textMode = true;
 #else
@@ -72,7 +69,7 @@ int main(int argc, char* argv[])
                            "Debug output");
 
     opts.add_option("-T,--telnet", telnetServer, "Start telnet server");
-    opts.add_option("-p,--port", port, "Port for telnet server", 12345);
+    opts.add_option("-p,--port", port, "Port for telnet server", true);
     opts.add_flag("-K", onlyHeadless, "Only play if no keyboard is connected");
     opts.add_option("--play", playWhat,
                     "Shuffle a named collection (also 'all' or 'favorites')");
@@ -80,18 +77,18 @@ int main(int argc, char* argv[])
 
     CLI11_PARSE(opts, argc, argv)
 
-    string path = makeSearchPath({
+    auto path = makeSearchPath(
+        {
 #ifdef __APPLE__
-        Environment::getExeDir() / ".." / "Resources",
+            Environment::getExeDir() / ".." / "Resources",
 #else
-        Environment::getExeDir(),
+            Environment::getExeDir(),
 #endif
-        Environment::getExeDir() / ".." / "chipmachine",
-        Environment::getExeDir() / ".." / ".." / "chipmachine",
-        Environment::getExeDir() / "..",
-        Environment::getExeDir() / ".." / "..",
-		Environment::getAppDir()
-	}, true);
+            Environment::getExeDir() / ".." / "chipmachine",
+            Environment::getExeDir() / ".." / ".." / "chipmachine",
+            Environment::getExeDir() / "..",
+            Environment::getExeDir() / ".." / "..", Environment::getAppDir()},
+        true);
     LOGD("PATH:%s", path);
 
     auto d = findFile(path, "data");
@@ -101,39 +98,37 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
-	fs::path workDir = d->parent_path();
-
-
+    auto workDir = d->parent_path();
 
     LOGD("WorkDir:%s", workDir);
 
-    if (songs.size() > 0) {
+    if (!songs.empty()) {
         int pos = 0;
 #ifdef ENABLE_CONSOLE
-        Console* c = Console::createLocalConsole();
+        auto* c = bbs::Console::createLocalConsole();
 #endif
-        static MusicPlayer pl(workDir);
+        auto pl = std::make_unique<MusicPlayer>(workDir);
         while (true) {
             if (pos >= songs.size()) return 0;
-            pl.playFile(songs[pos++].path);
-            SongInfo info = pl.getPlayingInfo();
-            print_fmt("Playing: %s\n",
-                      info.title != ""
-                          ? info.title
-                          : utils::path_filename(songs[pos - 1].path));
+            pl->playFile(songs[pos++].path);
+            SongInfo info = pl->getPlayingInfo();
+            utils::print_fmt("Playing: %s\n",
+                             !info.title.empty()
+                                 ? info.title
+                                 : utils::path_filename(songs[pos - 1].path));
             int tune = 0;
-            while (pl.playing()) {
-                pl.update();
+            while (pl->playing()) {
+                pl->update();
 #ifdef ENABLE_CONSOLE
                 if (c) {
                     auto k = c->getKey(100);
-                    if (k != Console::KEY_TIMEOUT) {
+                    if (k != bbs::Console::KEY_TIMEOUT) {
                         switch (k) {
-                        case Console::KEY_RIGHT:
+                        case bbs::Console::KEY_RIGHT:
                             LOGD("SEEK");
-                            pl.seek(tune++);
+                            pl->seek(tune++);
                             break;
-                        case Console::KEY_ENTER: pl.stop(); break;
+                        case bbs::Console::KEY_ENTER: pl->stop(); break;
                         }
                     }
                 }
@@ -193,7 +188,7 @@ int main(int argc, char* argv[])
         grappix::screen.open(w, h, false);
 
     static chipmachine::ChipMachine app(workDir);
-    if (playWhat != "" && (!onlyHeadless || !grappix::screen.haveKeyboard()))
+    if (!playWhat.empty() && (!onlyHeadless || !grappix::screen.haveKeyboard()))
         app.playNamed(playWhat);
 
     grappix::screen.render_loop(

@@ -7,7 +7,7 @@ using namespace tween;
 
 namespace chipmachine {
 
-void ChipMachine::addKey(uint32_t key, statemachine::Condition cond, const std::string &cmd) {
+void ChipMachine::addKey(uint32_t key, statemachine::Condition const& cond, std::string const& cmd) {
 	
 	auto screen = currentScreen;
 	bool onMain = false;
