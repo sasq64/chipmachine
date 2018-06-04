@@ -6,6 +6,7 @@
 
 #include <coreutils/file.h>
 #include <coreutils/utils.h>
+#include <coreutils/environment.h>
 #include <sqlite3/database.h>
 
 #include <unordered_set>
@@ -105,7 +106,7 @@ class MusicDatabase : public SearchProvider {
 public:
 	using Variables = std::unordered_map<std::string, std::string>;
 
-	MusicDatabase() : db(utils::File::getCacheDir() / "music.db"), reindexNeeded(false) {
+	MusicDatabase() : db(Environment::getCacheDir() / "music.db"), reindexNeeded(false) {
 		createTables();
 	}
 

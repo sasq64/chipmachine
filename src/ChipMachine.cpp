@@ -482,7 +482,7 @@ void ChipMachine::update()
 
     playerState = player.getState();
 
-    if (playerState == MusicPlayerList::PLAY_STARTED) {
+    if (playerState == MusicPlayerList::Playstarted) {
         timeField.add = 0;
         currentInfo = player.getInfo();
         dbInfo = player.getDBInfo();
@@ -614,7 +614,7 @@ void ChipMachine::update()
         currentTween.start();
     }
 
-    if (playerState == MusicPlayerList::ERROR) {
+    if (playerState == MusicPlayerList::Error) {
         player.stop();
         currentTween.finish();
         currentInfoField[0].pos.x = currentInfoField[1].pos.x;
@@ -626,14 +626,14 @@ void ChipMachine::update()
                            .from(prevInfoField, nextInfoField)
                            .seconds(3.0)
                            .onComplete([=]() {
-                               if (playerState == MusicPlayerList::STOPPED)
+                               if (playerState == MusicPlayerList::Stopped)
                                    player.nextSong();
                            });
         currentTween.start();
     }
 
-    if (playerState == MusicPlayerList::PLAYING ||
-        playerState == MusicPlayerList::STOPPED) {
+    if (playerState == MusicPlayerList::Playing ||
+        playerState == MusicPlayerList::Stopped) {
 
         if (player.playlistUpdated()) {
             updateNextField();
@@ -662,7 +662,7 @@ void ChipMachine::update()
     if (player.isPlaying()) {
 
         bool party =
-            (player.getPermissions() & MusicPlayerList::PARTYMODE) != 0;
+            (player.getPermissions() & MusicPlayerList::Partymode) != 0;
         if (!lockDown && party) {
             lockDown = true;
             Tween::make().to(timeField.color, Color(0xffff0000)).seconds(0.5);
@@ -738,7 +738,7 @@ void ChipMachine::update()
 #ifdef ENABLE_TELNET
         WebRPC::inProgress() > 0 ||
 #endif
-        playerState == MusicPlayerList::LOADING ||
+        playerState == MusicPlayerList::Loading ||
         webutils::Web::inProgress() > 0);
 
     netIcon.visible(busy);

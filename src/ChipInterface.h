@@ -52,7 +52,7 @@ public:
 
 	void update() {
 		playerState = player.getState();
-		if(playerState == MusicPlayerList::PLAY_STARTED) {
+		if(playerState == MusicPlayerList::Playstarted) {
 			info = player.getInfo();
 			for(auto &cb : meta_callbacks)
 				(*cb)(info);

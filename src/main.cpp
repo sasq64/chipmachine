@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     Environment::setAppName("chipmachine");
 
 #ifdef CM_DEBUG
-    logging::setLevel(logging::DEBUG);
+    logging::setLevel(logging::Debug);
 #else
     logging::setLevel(logging::WARNING);
 #endif
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
     opts.add_flag_function("-d",
                            [&](size_t count) {
                                fullScreen = false;
-                               logging::setLevel(logging::DEBUG);
+                               logging::setLevel(logging::Debug);
                            },
                            "Debug output");
 
@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
         static ChipInterface ci(workDir);
         if (textMode) {
 #ifndef _WIN32
-            logging::setLevel(logging::ERROR);
+            logging::setLevel(logging::Error);
             auto console = std::shared_ptr<bbs::Console>(
                 bbs::Console::createLocalConsole());
             runConsole(console, ci);
