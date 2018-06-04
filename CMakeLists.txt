@@ -198,6 +198,6 @@ add_executable(mksonglist mksonglist/mksonglist.cpp src/SongFileIdentifier.cpp)
 target_link_libraries(mksonglist coreutils archive sc68plugin mp3plugin)
 
 
-add_executable(testing EXCLUDE_FROM_ALL testmain.cpp test.cpp)
+add_executable(testing  testmain.cpp test.cpp)
 target_include_directories(testing PRIVATE ${APONE}/mods)
 target_compile_definitions(testing PRIVATE -DTESTING)

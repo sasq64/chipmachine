@@ -1,3 +1,4 @@
+#include "modutils.h"
 #include "ChipMachine.h"
 
 #include <coreutils/environment.h>

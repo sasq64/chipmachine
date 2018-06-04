@@ -1,6 +1,7 @@
 
 #include "MusicPlayer.h"
 #include "GZPlugin.h"
+#include "modutils.h"
 
 #include <archive/archive.h>
 #include <audioplayer/audioplayer.h>
@@ -298,9 +299,11 @@ std::shared_ptr<musix::ChipPlayer>
 MusicPlayer::fromFile(const std::string& fileName)
 {
     std::shared_ptr<musix::ChipPlayer> player;
-    std::string name = fileName;
+	auto [ext, base] = getTypeAndBase(fileName);
+	auto name = base + "." + ext;
     utils::makeLower(name);
     checkSilence = true;
+	LOGD("Finding plugin for '%s' (%s)", fileName, name);
     for (auto& plugin : musix::ChipPlugin::getPlugins()) {
         if (plugin->canHandle(name)) {
             LOGD("Playing with %s\n", plugin->name());

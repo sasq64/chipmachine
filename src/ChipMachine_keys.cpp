@@ -1,4 +1,5 @@
 #include "ChipMachine.h"
+#include "modutils.h"
 
 using namespace std;
 using namespace utils;
@@ -238,7 +239,7 @@ void ChipMachine::updateKeys() {
 	if(songList.selected() != last_selection && iquery->numHits() > 0) {
 		int i = songList.selected();
 		SongInfo song = MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
-		auto ext = path_extension(song.path);
+		auto ext = getTypeFromName(song.path);
 		bool isoffline = RemoteLoader::getInstance().isOffline(song.path);
 		if(ext != "")
 			topStatus.setText(format("Format: %s (%s)%s", song.format, ext, isoffline ? "*" : ""));

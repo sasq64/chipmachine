@@ -525,37 +525,6 @@ void MusicPlayerList::playCurrent()
         return;
     }
 
-    bool isStarTrekker =
-        (currentInfo.path.find("Startrekker") != std::string::npos);
-
-    // Known music formats with 2 files
-    static const std::unordered_map<std::string, std::string> fmt_2files = {
-        {"mdat", "smpl"},    // TFMX
-        {"sng", "ins"},      // Richard Joseph
-        {"jpn", "smp"},      // Jason Page PREFIX
-        {"dum", "ins"},      // Rob Hubbard 2
-        {"adsc", "adsc.as"}, // Audio Sculpture
-        {"sdata", "ip"}      // Audio Sculpture
-    };
-    std::string ext2;
-    if (fmt_2files.count(ext) > 0) ext2 = fmt_2files.at(ext);
-    if (isStarTrekker) ext2 = "mod.nt";
-    if (!ext2.empty()) {
-        files++;
-        auto smpl_file =
-            currentInfo.path.substr(0, currentInfo.path.find_last_of('.') + 1) +
-            ext2;
-        LOGD("Loading secondary (sample) file '%s'", smpl_file);
-        loader.load(smpl_file, [=](File f) {
-            if (!f) {
-                errors.emplace_back("Could not load secondary file");
-                SET_STATE(Error);
-            };
-            songFiles.push_back(f);
-            files--;
-        });
-    }
-
     // LOGD("LOADING:%s", currentInfo.path);
     files++;
     loader.load(currentInfo.path, [=](File f0) {
@@ -567,7 +536,7 @@ void MusicPlayerList::playCurrent()
         }
         songFiles.push_back(f0);
         loadedFile = f0.getName();
-        auto ext = toLower(path_extension(loadedFile));
+        //auto ext = toLower(path_extension(loadedFile));
         LOGD("Loaded file '%s'", loadedFile);
         auto parentDir = File(path_directory(loadedFile));
         auto fileList = mp.getSecondaryFiles(f0);

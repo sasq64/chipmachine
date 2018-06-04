@@ -1,6 +1,7 @@
 #include "MusicDatabase.h"
 #include "RemoteLoader.h"
 #include "SongFileIdentifier.h"
+#include "modutils.h"
 
 #include <luainterpreter/luainterpreter.h>
 #include <coreutils/utils.h>
@@ -276,12 +277,13 @@ bool MusicDatabase::parseModland(Variables &vars, const std::string &listFile,
 
 			SongInfo song(parts[1]);
 
-		    string base = path_basename(song.path);
-			string ext = path_extension(song.path);
+		    /* string base = path_basename(song.path); */
+			/* string ext = path_extension(song.path); */
 
-            if(base == "mdat" || base == "jpn") {
-                std::swap(base, ext);
-            }
+            /* if(base == "mdat" || base == "jpn") { */
+                /* std::swap(base, ext); */
+            /* } */
+			auto [ext, base] = getTypeAndBase(song.path);
             
 
 			if((secondary.count(ext) > 0) || (secondary_pref.count(base) > 0) || endsWith(ext, "sflib")) {

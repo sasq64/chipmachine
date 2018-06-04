@@ -1,4 +1,5 @@
 #include "SongFileIdentifier.h"
+#include "modutils.h"
 
 #include <archive/archive.h>
 #include <coreutils/file.h>
@@ -311,7 +312,7 @@ static void fixName(std::string& name)
 bool identify_song(SongInfo& info, std::string ext)
 {
 
-    if (ext.empty()) ext = path_extension(info.path);
+    if (ext.empty()) ext = getTypeFromName(info.path);
 
     if (ext == "prg") {
 

@@ -1,3 +1,4 @@
+#include "modutils.h"
 #include <bbsutils/ansiconsole.h>
 #include <bbsutils/petsciiconsole.h>
 #include <bbsutils/telnetserver.h>
@@ -151,7 +152,7 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface &ci) {
 			int m = listView.marked();
 			if(!sfr && m >= 0 && iquery->numHits() > 0 && m != last_marked) {
 				auto song = getSelectedSong();	
-				auto ext = utils::path_extension(song.path);
+				auto ext = getTypeFromName(song.path);
 				bool isoffline = RemoteLoader::getInstance().isOffline(song.path);
 				console->fill(Console::BLACK, 0, 0, width, 1);
 				console->put(0,0, utils::format("Format: %s (%s)%s", song.format, ext, isoffline ? "*" : ""), Console::YELLOW);
