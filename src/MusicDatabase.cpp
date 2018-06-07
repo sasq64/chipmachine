@@ -25,26 +25,23 @@ using namespace utils;
 // Compute Levenshtein Distance
 // Martin Ettl, 2012-10-05
 size_t levenshteinDistance(const std::string &s1, const std::string &s2) {
-	const size_t m(s1.size());
-	const size_t n(s2.size());
+	auto m = s1.length();
+	auto n = s2.length();
 
 	if(m == 0)
 		return n;
 	if(n == 0)
 		return m;
 
-	size_t *costs = new size_t[n + 1];
-
-	for(size_t k = 0; k <= n; k++)
-		costs[k] = k;
+	std::vector<size_t> costs(n+1);
 
 	size_t i = 0;
-	for(std::string::const_iterator it1 = s1.begin(); it1 != s1.end(); ++it1, ++i) {
+	for(auto it1 = s1.begin(); it1 != s1.end(); ++it1, ++i) {
 		costs[0] = i + 1;
 		size_t corner = i;
 
 		size_t j = 0;
-		for(std::string::const_iterator it2 = s2.begin(); it2 != s2.end(); ++it2, ++j) {
+		for(auto it2 = s2.begin(); it2 != s2.end(); ++it2, ++j) {
 			size_t upper = costs[j + 1];
 			if(*it1 == *it2) {
 				costs[j + 1] = corner;
@@ -58,7 +55,6 @@ size_t levenshteinDistance(const std::string &s1, const std::string &s2) {
 	}
 
 	size_t result = costs[n];
-	delete[] costs;
 
 	return result;
 }
@@ -76,7 +72,7 @@ void MusicDatabase::createTables() {
 }
 
 bool MusicDatabase::parseBitworld(Variables &vars, const std::string &listFile,
-                                  std::function<void(const Product &)> callback) {
+                                  std::function<void(const Product &)> const& callback) {
 
 	File f{listFile};
 
@@ -103,7 +99,7 @@ bool MusicDatabase::parseBitworld(Variables &vars, const std::string &listFile,
 
 
 bool MusicDatabase::parseGamebase(Variables &vars, const std::string &listFile,
-                                  std::function<void(const Product &)> callback) {
+                                  std::function<void(const Product &)> const& callback) {
 
 	using namespace io;
 	CSVReader<3, trim_chars<' '>, double_quote_escape<',','\"'>> in(listFile);
@@ -126,7 +122,7 @@ bool MusicDatabase::parseGamebase(Variables &vars, const std::string &listFile,
 }
 
 bool MusicDatabase::parseCsdb(Variables &vars, const std::string &listFile,
-                              std::function<void(const Product &)> callback) {
+                              std::function<void(const Product &)> const& callback) {
 
 	auto doc = xmldoc::fromFile(listFile);
 	for(const auto &i : doc["ReleasesWithHVSC"].all("Release")) {
@@ -136,7 +132,7 @@ bool MusicDatabase::parseCsdb(Variables &vars, const std::string &listFile,
 		auto rating = i["CSDbRating"];
 		float rt = rating.valid() ? stod(rating.text()) : 0.0;
 		// LOGD("Found %s (%s %d)", name, type, rt);
-		string group = "";
+		string group;
 		auto rb = i["ReleasedBy"];
 		if(rb.valid()) {
 			for(const auto &g : rb.all("Group")) {
@@ -165,7 +161,7 @@ bool MusicDatabase::parseCsdb(Variables &vars, const std::string &listFile,
 }
 
 bool MusicDatabase::parsePouet(Variables &vars, const std::string &listFile,
-                               std::function<void(const SongInfo &)> callback) {
+                               std::function<void(const SongInfo &)> const& callback) {
 	auto doc = xmldoc::fromFile(listFile);
 	for(const auto &i : doc["feed"].all("prod")) {
 		auto title = i["name"].text();
@@ -178,7 +174,7 @@ bool MusicDatabase::parsePouet(Variables &vars, const std::string &listFile,
 }
 
 bool MusicDatabase::parseAmp(Variables &vars, const std::string &listFile,
-                             std::function<void(const SongInfo &)> callback) {
+                             std::function<void(const SongInfo &)> const& callback) {
 	File f{listFile};
 
 	for(const auto &s : f.getLines()) {
@@ -206,7 +202,7 @@ bool MusicDatabase::parseAmp(Variables &vars, const std::string &listFile,
 }
 
 bool MusicDatabase::parseRss(Variables &vars, const std::string &listFile,
-                             std::function<void(const SongInfo &)> callback) {
+                             std::function<void(const SongInfo &)> const& callback) {
 
 	auto doc = xmldoc::fromFile(listFile);
 	auto rssNode = doc["rss"];
@@ -222,7 +218,7 @@ bool MusicDatabase::parseRss(Variables &vars, const std::string &listFile,
 			continue;
 		auto enclosure = e.attr("url");
 		// LOGD("Title %s", title);
-		string description = "";
+		string description;
 		auto summary = i["itunes:summary"];
 		auto sub_title = i["itunes:subtitle"];
 		auto desc = i["description"];
@@ -235,7 +231,7 @@ bool MusicDatabase::parseRss(Variables &vars, const std::string &listFile,
 
 		description = htmldecode(description);
 
-		string composer = "";
+		string composer;
 
 		auto c = i["dc:creator"];
 		if(c.valid())
@@ -258,7 +254,7 @@ bool MusicDatabase::parseRss(Variables &vars, const std::string &listFile,
 }
 
 bool MusicDatabase::parseModland(Variables &vars, const std::string &listFile,
-                                 std::function<void(const SongInfo &)> callback) {
+                                 std::function<void(const SongInfo &)> const& callback) {
 
 	static const std::set<std::string> secondary = {"smpl", "sam", "ins", "smp", "pdx", "nt", "as"};
 	static const std::set<std::string> secondary_pref = {"smpl", "smp"};
@@ -353,7 +349,7 @@ bool MusicDatabase::parseModland(Variables &vars, const std::string &listFile,
 }
 
 bool MusicDatabase::parseStandard(Variables &vars, const std::string &listFile,
-                                  std::function<void(const SongInfo &)> callback) {
+                                  std::function<void(const SongInfo &)> const& callback) {
 
 	int pathIndex = 4, gameIndex = 1, titleIndex = 0, composerIndex = 2, formatIndex = 3, metaIndex = 5;
 	auto templ = vars["song_template"];
@@ -381,8 +377,8 @@ bool MusicDatabase::parseStandard(Variables &vars, const std::string &listFile,
 		columns = i;
 	}
 
-	bool isUtf8 = vars["utf8"] == "no" ? false : true;
-	bool htmlDec = vars["html_decode"] == "no" ? false : true;
+	bool isUtf8 = (vars["utf8"] != "no");
+	bool htmlDec = (vars["html_decode"] != "no");
 	auto source = vars["source"];
 
 
@@ -607,7 +603,7 @@ void MusicDatabase::setFilter(const std::string &collection, int type) {
 
 int MusicDatabase::search(const string &query, vector<int> &result, unsigned int searchLimit) {
 
-	lock_guard<mutex>{dbMutex};
+	lock_guard<mutex> lock{dbMutex};
 
 	result.resize(0);
 
@@ -663,7 +659,7 @@ int MusicDatabase::search(const string &query, vector<int> &result, unsigned int
 // Lookup the given path in the database
 SongInfo &MusicDatabase::lookup(SongInfo &song) {
 
-	lock_guard<mutex>{dbMutex};
+	lock_guard<mutex> lock{dbMutex};
 	auto path = song.path;
 
 	auto parts = split(path, "::");
@@ -700,7 +696,7 @@ SongInfo &MusicDatabase::lookup(SongInfo &song) {
 }
 
 std::string MusicDatabase::getScreenshotURL(const std::string &collection) {
-	string prefix = "";
+	string prefix;
 	auto q = db.query<string>("SELECT url FROM collection WHERE id = ?", collection);
 	if(q.step())
 		prefix = q.get();
@@ -812,7 +808,7 @@ std::string MusicDatabase::getSongScreenshots(SongInfo &s) {
 			parts.insert(parts.begin(), path_directory(parts[0]) + "/" + path_basename(parts[0]) + "_1." + path_extension(parts[0]));
 		for(auto &p : parts) {
 			if(p != "")
-				p = prefix + p;
+				p.insert(0, prefix);
 		}
 		shot = join(parts, ";");
 	}
@@ -837,7 +833,7 @@ std::string MusicDatabase::getProductScreenshots(uint32_t id) {
 		if(collection == "gb64")
 			parts.push_back(path_basename(parts[0]) + "_1." + path_extension(parts[0]));
 		for(auto &p : parts) {
-			p = prefix + p;
+			p.insert(0, prefix);
 		}
 		return join(parts, ";");
 	}
@@ -987,7 +983,7 @@ void MusicDatabase::writeIndex(File &f) {
 
 void MusicDatabase::generateIndex() {
 
-	lock_guard<mutex>{dbMutex};
+	//lock_guard<mutex> lock{dbMutex};
 
 	RemoteLoader &loader = RemoteLoader::getInstance();
 	auto q = db.query<int, string, string, string>("SELECT ROWID,id,url,localdir FROM collection");
@@ -1058,7 +1054,7 @@ void MusicDatabase::generateIndex() {
 		int tindex = titleIndex.add(title);
 
 		auto &v = composers[composer];
-		if(v.size() == 0) {
+		if(v.empty()) {
 			cindex = composerIndex.add(composer);
 			composers[composer].push_back(cindex);
 		} else
@@ -1097,7 +1093,7 @@ void MusicDatabase::generateIndex() {
 		int tindex = titleIndex.add(title);
 
 		auto &v = composers[composer];
-		if(v.size() == 0) {
+		if(v.empty()) {
 			cindex = composerIndex.add(composer);
 			composers[composer].push_back(cindex);
 		} else
@@ -1132,10 +1128,10 @@ void MusicDatabase::generateIndex() {
 void MusicDatabase::initFromLuaAsync(const fs::path &workDir) {
 	indexing = true;
 	initFuture = std::async(std::launch::async, [=]() {
-		std::lock_guard<std::mutex>{dbMutex};
+		std::lock_guard lock{dbMutex};
 		if(!initFromLua(workDir)) {
 		}
-		std::lock_guard<std::mutex>{chkMutex};
+		std::lock_guard lock2{chkMutex};
 		indexing = false;
 	});
 }
@@ -1215,11 +1211,11 @@ bool MusicDatabase::initFromLua(const fs::path &workDir) {
 int MusicDatabase::getSongs(std::vector<SongInfo> &target, const SongInfo &match, int limit,
                             bool random) {
 
-	lock_guard<mutex>{dbMutex};
+	lock_guard<mutex> lock{dbMutex};
 	string txt = "SELECT path, game, title, composer, format, collection.id FROM song, collection "
 	             "WHERE song.collection = collection.ROWID";
 
-	string collection = "";
+	string collection;
 	if(match.path != "") {
 		auto parts = split(match.path, "::");
 		if(parts.size() >= 2)

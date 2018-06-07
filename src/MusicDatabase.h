@@ -117,12 +117,12 @@ public:
 	           unsigned int searchLimit) override;
 	// Lookup internal string for index
 	std::string getString(int index) const override {
-		std::lock_guard<std::mutex>{dbMutex};
+		//std::lock_guard lock{dbMutex};
 		return utils::format("%s %s", getTitle(index), getComposer(index));
 	}
 
 	std::string getFullString(int index) const override {
-		std::lock_guard<std::mutex>{dbMutex};
+		//std::lock_guard lock{dbMutex};
 		int f;
 		if(index >= PLAYLIST_INDEX)
 			f = PLAYLIST;
@@ -134,28 +134,28 @@ public:
 	SongInfo getSongInfo(int index) const;
 
 	std::string getTitle(int index) const {
-		std::lock_guard<std::mutex>{dbMutex};
+		std::lock_guard lock{dbMutex};
 		if(index >= PLAYLIST_INDEX)
 			return playLists[index - PLAYLIST_INDEX].name;		
 		return titleIndex.getString(index);
 	}
 
 	std::string getComposer(int index) const {
-		std::lock_guard<std::mutex>{dbMutex};
+		std::lock_guard lock{dbMutex};
 		if(index >= PLAYLIST_INDEX)
 			return "";
 		return composerIndex.getString(titleToComposer[index]);
 	}
 
 	std::shared_ptr<IncrementalQuery> createQuery() {
-		std::lock_guard<std::mutex>{dbMutex};
+		std::lock_guard lock{dbMutex};
 		return std::make_shared<IncrementalQuery>(this);
 	}
 
 	int getSongs(std::vector<SongInfo> &target, const SongInfo &match, int limit, bool random);
 
 	bool busy() {
-		std::lock_guard<std::mutex>{chkMutex};
+		std::lock_guard lock{chkMutex};
 		if(initFuture.valid()) {
 			if(initFuture.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready) {
 				initFuture.get();
@@ -212,7 +212,7 @@ public:
 	};
 
 	void addToPlaylist(const std::string &plist, const SongInfo &song);
-	void removeFromPlaylist(const std::string &plist, const SongInfo &song);
+	void removeFromPlaylist(const std::string &plist, const SongInfo &toRemove);
 	std::vector<SongInfo> &getPlaylist(const std::string &plist);
 
 	void setFilter(const std::string &filter, int type = 0);
@@ -231,29 +231,31 @@ private:
 		std::string local_dir;
 	};
 
+	template <typename T> using Callback = std::function<void(const T&)>;
+
 	typedef bool (MusicDatabase::*ParseSongFun)(Variables &, const std::string &,
-	                                      std::function<void(const SongInfo &)>);
+	                                      Callback<SongInfo> const&);
 	typedef bool (MusicDatabase::*ParseProdFun)(Variables &, const std::string &,
-	                                      std::function<void(const Product &)>);
+	                                      Callback<Product> const&);
 
-	bool parseCsdb(Variables &vars, const std::string &listFile,
-	               std::function<void(const Product &)> callback);
-	bool parseBitworld(Variables &vars, const std::string &listFile,
-	               std::function<void(const Product &)> callback);
-	bool parseGamebase(Variables &vars, const std::string &listFile,
-	               std::function<void(const Product &)> callback);
-	bool parsePouet(Variables &vars, const std::string &listFile,
-	                std::function<void(const SongInfo &)> callback);
-	bool parseRss(Variables &vars, const std::string &listFile,
-	              std::function<void(const SongInfo &)> callback);
-	bool parseModland(Variables &vars, const std::string &listFile,
-	                  std::function<void(const SongInfo &)> callback);
-	bool parseAmp(Variables &vars, const std::string &listFile,
-	                  std::function<void(const SongInfo &)> callback);
-	bool parseStandard(Variables &vars, const std::string &listFile,
-	                   std::function<void(const SongInfo &)> callback);
+    bool parseCsdb(Variables& vars, const std::string& listFile,
+                   Callback<Product> const& callback);
+    bool parseBitworld(Variables& vars, const std::string& listFile,
+                       Callback<Product> const& callback);
+    bool parseGamebase(Variables& vars, const std::string& listFile,
+                       Callback<Product> const& callback);
+    bool parsePouet(Variables& vars, const std::string& listFile,
+                    Callback<SongInfo> const& callback);
+    bool parseRss(Variables& vars, const std::string& listFile,
+                  Callback<SongInfo> const& callback);
+    bool parseModland(Variables& vars, const std::string& listFile,
+                      Callback<SongInfo> const& callback);
+    bool parseAmp(Variables& vars, const std::string& listFile,
+                  Callback<SongInfo> const& callback);
+    bool parseStandard(Variables& vars, const std::string& listFile,
+                       Callback<SongInfo> const& callback);
 
-	void writeIndex(utils::File &f);
+    void writeIndex(utils::File &f);
 	void readIndex(utils::File &f);
 
 	void createTables();

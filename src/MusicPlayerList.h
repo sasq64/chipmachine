@@ -28,8 +28,8 @@ struct log_guard
 };
 
 //#define LOCK_GUARD(x) if(x.try_lock()) x.unlock(); else LOGE("WAITING FOR LOCK"); \
-//std::lock_guard<std::mutex> guard(x)
-//#define LOCK_GUARD(x) std::lock_guard<std::mutex> guard(x)
+//std::lock_guard guard(x)
+//#define LOCK_GUARD(x) std::lock_guard guard(x)
 #define LOCK_GUARD(x) log_guard guard(x, __FILE__, __LINE__)
 #define SET_STATE(x) (LOGD("STATE: " #x), state = x)
 
