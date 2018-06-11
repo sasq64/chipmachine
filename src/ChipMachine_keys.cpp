@@ -155,6 +155,12 @@ void ChipMachine::updateKeys() {
 
 	auto key = screen.get_key();
 
+	if((key & 0x80000000) != 0)
+		return;
+
+
+	LOGD("KEY %x", key);
+
 	if(indexingDatabase)
 		return;
 
@@ -166,7 +172,6 @@ void ChipMachine::updateKeys() {
 	else if(currentScreen == COMMAND_SCREEN)
 		currentList = &commandList;
 
-	if(key != keycodes::NO_KEY) {
 		bool ascii = (event >= 'A' && event <= 'Z');
 		if(ascii)
 			event = tolower(event);
@@ -234,7 +239,6 @@ void ChipMachine::updateKeys() {
 			auto action = smac.next_action();
 			commands[action.id].fn();
 		}
-	}
 	
 	if(songList.selected() != last_selection && iquery->numHits() > 0) {
 		int i = songList.selected();

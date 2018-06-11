@@ -64,11 +64,12 @@ void ChipMachine::setupCommands() {
 			else
 				fileName = format("%s - %s.%s", composer, title, ext);
 			auto to = target / fileName;
-			try {
-				fs::copy(from, to);
-			} catch (io_exception &e) {
-				to = target / from;
-				fs::copy(from, to);
+			LOGD("Downloading to '%s'", to.string());
+			std::error_code ec;
+			fs::copy(from, to, ec);
+			if(ec) {
+				to = target / from.filename();
+				fs::copy(from, to, ec);
 			}
 		}
 		toast("Downloaded file");

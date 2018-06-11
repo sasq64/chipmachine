@@ -299,8 +299,7 @@ std::shared_ptr<musix::ChipPlayer>
 MusicPlayer::fromFile(const std::string& fileName)
 {
     std::shared_ptr<musix::ChipPlayer> player;
-	auto [ext, base] = getTypeAndBase(fileName);
-	auto name = base + "." + ext;
+	auto name = fileName;
     utils::makeLower(name);
     checkSilence = true;
 	LOGD("Finding plugin for '%s' (%s)", fileName, name);

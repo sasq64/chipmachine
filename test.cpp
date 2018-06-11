@@ -8,6 +8,7 @@
 #include <coreutils/log.h>
 #include <musicplayer/chipplugin.h>
 #include <string>
+#include <array>
 
 TEST_CASE("modutils", "[machine]")
 {
@@ -50,19 +51,22 @@ TEST_CASE("music player", "")
 #include <numeric>
 
 template <typename PLUGIN, typename... ARGS>
-bool testPlugin(std::string const& dir, const ARGS&... args)
+bool testPlugin(std::string const& dir, std::string const& exclude, const ARGS&... args)
 {
     std::array<int16_t, 8192> buffer;
     PLUGIN plugin{args...};
+	printf("---- %s ----\n", plugin.name().c_str());
     logging::setLevel(logging::Level::Warning);
     for (auto f : utils::File{dir}.listFiles()) {
+		if(exclude != "" && f.getName().find(exclude) != std::string::npos)
+			continue;
 
         int64_t sum = 0;
-        //printf("Trying %s\n", f.getName().c_str());
+        printf("Trying %s\n", f.getName().c_str());
         auto* player = plugin.fromFile(f.getName());
         if (player) {
             //puts("Player created");
-            int count = 5;
+			int count = 15;
             while (sum == 0 && count != 0) {
                 int rc = player->getSamples(&buffer[0], buffer.size());
                 // REQUIRE(rc > 0);
@@ -89,16 +93,41 @@ bool testPlugin(std::string const& dir, const ARGS&... args)
 
 TEST_CASE("gme", "[music]")
 {
-    testPlugin<musix::GMEPlugin>("testmus/gme/working");
+    testPlugin<musix::GMEPlugin>("testmus/gme/working", "");
 }
 
 TEST_CASE("adlib", "[music]")
 {
-    testPlugin<musix::AdPlugin>("testmus/adlib", "data");
+    testPlugin<musix::AdPlugin>("testmus/adlib", "", "data");
 }
 
 TEST_CASE("uade", "[music]")
 {
-    testPlugin<musix::UADEPlugin>("testmus/uade", "data");
+    testPlugin<musix::UADEPlugin>("testmus/uade", "smp", "data");
+}
+
+TEST_CASE("openmpt", "[music]")
+{
+    testPlugin<musix::OpenMPTPlugin>("testmus/openmpt", "");
+}
+
+TEST_CASE("gsf", "[music]")
+{
+    testPlugin<musix::GSFPlugin>("testmus/gsf", "lib");
+}
+
+TEST_CASE("nds", "[music]")
+{
+    testPlugin<musix::NDSPlugin>("testmus/nds", "lib");
+}
+
+TEST_CASE("psx", "[music]")
+{
+    testPlugin<musix::HEPlugin>("testmus/psx", "lib", "data/hebios.bin");
+}
+
+TEST_CASE("zx", "[music]")
+{
+    testPlugin<musix::AyflyPlugin>("testmus/zx", "");
 }
 

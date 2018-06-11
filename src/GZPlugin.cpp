@@ -65,13 +65,14 @@ musix::ChipPlayer *GZPlugin::fromFile(const string &fileName) {
 	/* done when inflate() says it's done */
 	auto outFile = fileName.substr(0, fileName.length() - 3);
 	int rc = inflate(fileName.c_str(), outFile.c_str());
-	LOGD("Trying to gunzip %s = %d", fileName, rc);
+	LOGD("Trying to gunzip %s to %s = %d", fileName, outFile, rc);
 
 	for(auto plugin : plugins) {
 		if(plugin->canHandle(outFile)) {
 			return plugin->fromFile(outFile);
 		}
 	}
+	LOGD("No plugin could handle it");
 	return nullptr;
 };
 
