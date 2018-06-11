@@ -131,6 +131,7 @@ set(MUSICPLAYER_PLUGINS
 	uadeplugin
 	tedplugin
 	ffmpegplugin
+	v2plugin
 )
 
 add_subdirectory(../musicplayer/plugins plugins)

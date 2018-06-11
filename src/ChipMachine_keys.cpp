@@ -158,8 +158,7 @@ void ChipMachine::updateKeys() {
 	if((key & 0x80000000) != 0)
 		return;
 
-
-	LOGD("KEY %x", key);
+	//LOGD("KEY %x", key);
 
 	if(indexingDatabase)
 		return;
