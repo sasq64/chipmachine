@@ -34,9 +34,9 @@ int main(int argc, char* argv[])
     Environment::setAppName("chipmachine");
 
 #ifdef CM_DEBUG
-    logging::setLevel(logging::Debug);
+    logging::setLevel(logging::Level::Debug);
 #else
-    logging::setLevel(logging::WARNING);
+    logging::setLevel(logging::Level::Warning);
 #endif
 
     std::vector<SongInfo> songs;

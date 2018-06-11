@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstring>
 #include <string>
+#include <tuple>
 
 /** Get basename, but also handles urlencoded path names */
 inline std::string getBaseName(std::string const& filename)

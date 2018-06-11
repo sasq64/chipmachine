@@ -551,9 +551,7 @@ void MusicPlayerList::playCurrent()
                         errors.emplace_back("Could not load file");
                         SET_STATE(Error);
                     } else {
-                        LOGD("Copying secondary file to %s", target.getName());
-                        File::copy(f.getName(), target);
-                        songFiles.push_back(target);
+                        songFiles.push_back(f);
                     }
                     files--;
                 });

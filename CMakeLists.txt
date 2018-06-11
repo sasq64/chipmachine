@@ -39,6 +39,19 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 link_directories(/usr/local/lib)
 include_directories(${AP1_ROOT}/mods .. /usr/local/include)
 
+
+set(APP_FILES
+	src/MusicDatabase.cpp
+	src/GZPlugin.cpp
+	src/MusicPlayer.cpp
+	src/MusicPlayerList.cpp
+	src/RemoteLoader.cpp
+	src/SearchIndex.cpp
+	src/SongFileIdentifier.cpp
+	src/state_machine.cpp
+	src/youtube.cpp
+)
+
 set(SOURCE_FILES
 	src/ChipMachine.cpp
 	src/MusicBars.cpp
@@ -46,30 +59,13 @@ set(SOURCE_FILES
 	src/ChipMachine_keys.cpp
 	src/ChipMachine_commands.cpp
 	src/GZPlugin.cpp
-	src/MusicDatabase.cpp
-	src/MusicPlayer.cpp
-	src/MusicPlayerList.cpp
-	src/RemoteLoader.cpp
-	src/SearchIndex.cpp
-	src/SongFileIdentifier.cpp
-	src/state_machine.cpp
 	src/textmode.cpp
 	src/main.cpp
-	src/youtube.cpp
 )
 
 set(TEXTMODE_FILES
-	src/MusicDatabase.cpp
-	src/GZPlugin.cpp
-	src/MusicPlayer.cpp
-	src/MusicPlayerList.cpp
-	src/RemoteLoader.cpp
-	src/SearchIndex.cpp
-	src/SongFileIdentifier.cpp
-	src/state_machine.cpp
 	src/textmode.cpp
 	src/main.cpp
-	src/youtube.cpp
 )
 
 set(SOURCE_FILES ${SOURCE_FILES} src/version.h src/TextField.h src/TextListView.h src/CueSheet.h
@@ -100,6 +96,7 @@ set(APONE_MODULES
 	bbsutils
 	crypto
 )
+
 set(TEXT_MODULES
 	coreutils
 	audioplayer
@@ -160,11 +157,11 @@ if(SAN)
 endif()
 
 if(APPLE)
-	add_executable(chipmachine MACOSX_BUNDLE ${SOURCE_FILES})
+    add_executable(chipmachine MACOSX_BUNDLE ${APP_FILES} ${SOURCE_FILES})
 	add_custom_command(TARGET chipmachine POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:chipmachine> ${CMAKE_CURRENT_BINARY_DIR})
 else()
-	add_executable(chipmachine ${SOURCE_FILES})
+    add_executable(chipmachine ${APP_FILES} ${SOURCE_FILES})
 endif()
 
 set_property(TARGET chipmachine PROPERTY CXX_STANDARD 17)
@@ -173,7 +170,7 @@ set_property(TARGET chipmachine PROPERTY CXX_STANDARD_REQUIRED ON)
 target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} ${FSLIB} pthread)
 
 if(NOT WIN32)
-	add_executable(cm ${PLUGIN_EXTRA_FILES} ${TEXTMODE_FILES})
+    add_executable(cm ${PLUGIN_EXTRA_FILES} ${APP_FILES} ${TEXTMODE_FILES})
 	target_compile_definitions(cm PUBLIC TEXTMODE_ONLY)
 	target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS} ${FSLIB})
 endif()
@@ -198,6 +195,8 @@ add_executable(mksonglist mksonglist/mksonglist.cpp src/SongFileIdentifier.cpp)
 target_link_libraries(mksonglist coreutils archive sc68plugin mp3plugin)
 
 
-add_executable(testing  testmain.cpp test.cpp)
+add_executable(testing ${PLUGIN_EXTRA_FILES} testmain.cpp test.cpp ${APP_FILES})
+target_link_libraries(testing ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} ${FSLIB} pthread)
 target_include_directories(testing PRIVATE ${APONE}/mods)
 target_compile_definitions(testing PRIVATE -DTESTING)
+
