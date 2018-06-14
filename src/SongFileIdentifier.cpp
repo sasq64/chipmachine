@@ -2,20 +2,20 @@
 #include "modutils.h"
 
 #include <archive/archive.h>
+#include <coreutils/environment.h>
 #include <coreutils/file.h>
 #include <coreutils/log.h>
 #include <coreutils/utils.h>
 
-#include <algorithm>
-#include <string>
-#include <memory>
-
-//#define WITH_MPG123
-
 #ifdef WITH_MPG123
 #    include <mpg123.h>
 #endif
-using namespace utils;
+
+#include <algorithm>
+#include <memory>
+#include <string>
+
+using apone::File;
 
 static std::string get_string(uint8_t* ptr, int size)
 {
@@ -26,9 +26,8 @@ static std::string get_string(uint8_t* ptr, int size)
     return std::string((const char*)ptr, end - ptr);
 }
 
-std::vector<std::string> getLines(const std::string& text)
+std::vector<std::string> getLines(std::string const& text)
 {
-
     std::vector<std::string> lines;
 
     char tmp[256];
@@ -64,8 +63,8 @@ bool parseSid(SongInfo& info)
     File f{info.path};
     info.format = "Commodore 64";
     f.read(&buffer[0], buffer.size());
-    info.title = utf8_encode(get_string(&buffer[0x16], 0x20));
-    info.composer = utf8_encode(get_string(&buffer[0x36], 0x20));
+    info.title = utils::utf8_encode(get_string(&buffer[0x16], 0x20));
+    info.composer = utils::utf8_encode(get_string(&buffer[0x36], 0x20));
     // auto copyright = std::string((const char*)&buffer[0x56], 0x20);
     f.close();
     return true;
@@ -84,10 +83,10 @@ bool parseSap(SongInfo& info)
     if (lines.empty() || lines[0] != "SAP") return false;
 
     for (const auto& l : lines) {
-        if (startsWith(l, "AUTHOR"))
-            info.composer = lrstrip(l.substr(7), '\"');
-        else if (startsWith(l, "NAME"))
-            info.title = lrstrip(l.substr(5), '\"');
+        if (utils::startsWith(l, "AUTHOR"))
+            info.composer = utils::lrstrip(l.substr(7), '\"');
+        else if (utils::startsWith(l, "NAME"))
+            info.title = utils::lrstrip(l.substr(5), '\"');
     }
 
     info.format = "Atari 8Bit";
@@ -166,16 +165,17 @@ bool parseSnes(SongInfo& info)
 
     info.format = "Super Nintendo";
 
-    File outDir = File::getCacheDir() / ".rsntemp";
-    auto* a = Archive::open(info.path, outDir, Archive::TYPE_RAR);
+    fs::path outDir = Environment::getCacheDir() / ".rsntemp";
+    auto* a = utils::Archive::open(info.path, outDir.string(),
+                                   utils::Archive::TYPE_RAR);
     // LOGD("ARCHIVE %p", a);
     bool done = false;
     for (auto const& s : *a) {
         // LOGD("FILE %s", s);
         if (done) continue;
-        if (path_extension(s) == "spc") {
+        if (utils::path_extension(s) == "spc") {
             a->extract(s);
-            File f = outDir / s;
+            File f{outDir / s};
             f.read(&buffer[0], buffer.size());
             f.close();
             if (buffer[0x23] == 0x1a) {
@@ -256,13 +256,13 @@ bool parsePList(SongInfo& info)
 
     File f{info.path};
 
-    info.title = path_basename(info.path);
+    info.title = utils::path_basename(info.path);
     info.composer = "";
     info.format = "Playlist";
 
-    for (auto l : f.getLines()) {
+    for (auto const& l : f.lines()) {
         if (l.length() > 0 && l[0] == ';') {
-            auto parts = split(l.substr(1), "\t");
+            auto parts = utils::split(l.substr(1), "\t");
             info.title = parts[0];
             if (parts.size() >= 2) {
                 info.composer = parts[1];
@@ -316,15 +316,15 @@ bool identify_song(SongInfo& info, std::string ext)
 
     if (ext == "prg") {
 
-        auto parts = split(info.metadata[SongInfo::INFO], "/");
+        auto parts = utils::split(info.metadata[SongInfo::INFO], "/");
         LOGD("PARTS %s", parts);
         int l = parts.size();
-        auto title = path_basename(parts[l - 1]);
+        auto title = utils::path_basename(parts[l - 1]);
         fixName(title);
         std::string composer = "Unknown";
         if (parts[0] == "musicians") {
             composer = parts[1];
-            auto cp = split(composer, "_");
+            auto cp = utils::split(composer, "_");
             auto cpl = cp.size();
             if (cpl > 1 && cp[0] != "the" && cp[0] != "billy" &&
                 cp[0] != "legion") {
@@ -336,7 +336,7 @@ bool identify_song(SongInfo& info, std::string ext)
                 cpp[0] = toupper(cpp[0]);
             }
 
-            composer = join(cp, " ");
+            composer = utils::join(cp, " ");
         }
 
         info.format = "TED";

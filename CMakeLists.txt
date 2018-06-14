@@ -193,7 +193,7 @@ if(APPLE)
 endif()
 
 add_executable(mksonglist mksonglist/mksonglist.cpp src/SongFileIdentifier.cpp)
-target_link_libraries(mksonglist coreutils archive sc68plugin mp3plugin)
+target_link_libraries(mksonglist coreutils archive sc68plugin mp3plugin ${FSLIB})
 
 
 add_executable(testing ${PLUGIN_EXTRA_FILES} testmain.cpp test.cpp ${APP_FILES})

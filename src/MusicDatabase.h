@@ -186,21 +186,20 @@ public:
 	}
 
 	struct Playlist {
-		Playlist(utils::File f) : fileName(f.getName()) {
-			if(f.exists()) {
-				for(const auto &l : f.getLines()) {
+		Playlist(fs::path f) : fileName(f.string()) {
+			if(exists(f)) {
+				for(const auto &l : apone::File{f}.lines()) {
 					if(l != "")
 						songs.emplace_back(l);
 				}
 			}
-			name = f.getFileName();
+			name = f.filename();
 		}
 		std::string name;
 		std::string fileName;
 		std::vector<SongInfo> songs;
 		void save() {
-			utils::File f{fileName};
-            f.open(utils::File::WRITE);
+			apone::File f{fileName, apone::File::WRITE };
             LOGD("Writing to %s", fileName);
 			for(const auto &s : songs) {
 				if(s.starttune >= 0)
@@ -218,17 +217,17 @@ public:
 	void setFilter(const std::string &filter, int type = 0);
 
 private:
-	void initDatabase(const std::string &workDir, Variables &vars);
+	void initDatabase(fs::path const& workDir, Variables &vars);
 	void generateIndex();
 
 	struct Collection {
 		Collection(int id = -1, const std::string &name = "", const std::string url = "",
-		           const std::string local_dir = "")
+		           const fs::path local_dir = "")
 		    : id(id), name(name), url(url), local_dir(local_dir) {}
 		int id;
 		std::string name;
 		std::string url;
-		std::string local_dir;
+        fs::path local_dir;
 	};
 
 	template <typename T> using Callback = std::function<void(const T&)>;
@@ -255,8 +254,8 @@ private:
     bool parseStandard(Variables& vars, const std::string& listFile,
                        Callback<SongInfo> const& callback);
 
-    void writeIndex(utils::File &f);
-	void readIndex(utils::File &f);
+    void writeIndex(apone::File&& f);
+	void readIndex(apone::File&& f);
 
 	void createTables();
 

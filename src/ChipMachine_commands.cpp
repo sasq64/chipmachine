@@ -76,8 +76,9 @@ void ChipMachine::setupCommands() {
 	});
 
 	cmd("play_pause", [=] {
-		player.pause(!player.isPaused());
-		if(player.isPaused()) {
+        auto isPaused = player.isPaused();
+		player.pause(!isPaused);
+		if(!isPaused) {
 			Tween::make().sine().repeating().to(timeField.add, 1.0).seconds(0.5);
 		} else
 			Tween::make().to(timeField.add, 0.0).seconds(0.5);

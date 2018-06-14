@@ -205,7 +205,7 @@ ChipMachine::ChipMachine(fs::path const& wd)
     musicBars.setup(spectrumWidth, spectrumHeight, 24);
 
     LOGD("WORKDIR %s", workDir.string());
-    MusicDatabase::getInstance().initFromLuaAsync(this->workDir);
+    MusicDatabase::getInstance().initFromLua(this->workDir);
 
     if (MusicDatabase::getInstance().busy()) {
         indexingDatabase = true;
@@ -661,15 +661,15 @@ void ChipMachine::update()
 
     if (player.isPlaying()) {
 
-        bool party =
-            (player.getPermissions() & MusicPlayerList::Partymode) != 0;
-        if (!lockDown && party) {
-            lockDown = true;
-            Tween::make().to(timeField.color, Color(0xffff0000)).seconds(0.5);
-        } else if (lockDown && !party) {
-            lockDown = false;
-            Tween::make().to(timeField.color, timeColor).seconds(2.0);
-        }
+        /* bool party = */
+        /*     (player.getPermissions() & MusicPlayerList::Partymode) != 0; */
+        /* if (!lockDown && party) { */
+        /*     lockDown = true; */
+        /*     Tween::make().to(timeField.color, Color(0xffff0000)).seconds(0.5); */
+        /* } else if (lockDown && !party) { */
+        /*     lockDown = false; */
+        /*     Tween::make().to(timeField.color, timeColor).seconds(2.0); */
+        /* } */
 
         auto br = player.getBitrate();
         if (br > 0) {

@@ -11,6 +11,7 @@
 #include <xml/xml.h>
 
 #include <coreutils/environment.h>
+#include <coreutils/searchpath.h>
 
 #include <set>
 #include <chrono>
@@ -74,9 +75,9 @@ void MusicDatabase::createTables() {
 bool MusicDatabase::parseBitworld(Variables &vars, const std::string &listFile,
                                   std::function<void(const Product &)> const& callback) {
 
-	File f{listFile};
+    apone::File f{listFile};
 
-	for(const auto &s : f.getLines()) {
+	for(const auto &s : f.lines()) {
 		auto parts = split(s, "\t");
 		Product prod;
 		// LOGD("ID: %s", parts[0]);
@@ -412,7 +413,7 @@ bool MusicDatabase::parseStandard(Variables &vars, const std::string &listFile,
 	return true;
 }
 
-void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
+void MusicDatabase::initDatabase(fs::path const& workDir, Variables &vars) {
 
 	auto id = vars["id"];
 	auto type = vars["type"];
@@ -421,7 +422,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 	auto name = vars["name"];
 	auto source = vars["source"];
 	auto screen_source = vars["screen_source"];
-	auto local_dir = vars["local_dir"];
+    fs::path local_dir = vars["local_dir"];
 	auto song_list = vars["song_list"];
 	auto prod_list = vars["prod_list"];
 	auto remote_list = vars["remote_list"];
@@ -439,10 +440,8 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 	reindexNeeded = true;
 
 	if(local_dir != "") {
-		if(endsWith(local_dir, "/"))
-			local_dir += "/";
-		if(local_dir[0] != '/')
-			local_dir = workDir + "/" + local_dir;
+		if(!local_dir.is_absolute())
+			local_dir = workDir  /  local_dir;
 	}
 
 	print_fmt("Creating '%s' database\n", name);
@@ -526,7 +525,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 		    db.query("INSERT INTO song (title, game, composer, format, path, collection, metadata) "
 		             "VALUES (?, ?, ?, ?, ?, ?, ?)");
 
-		if(File::exists(listFile)) {
+		if(fs::exists(listFile)) {
 
 			unordered_map<string, ParseSongFun> parsers = {
 			    {"pouet", &MusicDatabase::parseStandard},    {"amp", &MusicDatabase::parseAmp},
@@ -545,12 +544,14 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 				                              : nullptr)
 				    .step();
 				auto last = db.last_rowid();
+                if(collection_id == 6)
+                    LOGD("Inserting '%s'", song.path);
 				auto hash = MD5::hash(utils::toLower(song.path));
 				pathMap[hash] = last;
 
 			});
 
-		} else if(File::exists(local_dir)) {
+		} else if(fs::exists(local_dir)) {
 
 			File root{local_dir};
 			LOGD("Checking local dir '%s'", root.getName());
@@ -561,7 +562,7 @@ void MusicDatabase::initDatabase(const std::string &workDir, Variables &vars) {
 
 					auto pos = name.find(local_dir);
 					if(pos != string::npos) {
-						name = name.substr(pos + local_dir.length());
+						name = name.substr(pos + local_dir.string().length());
 					}
 
 					query.bind(songInfo.title, songInfo.game, songInfo.composer, songInfo.format,
@@ -939,18 +940,18 @@ static uint8_t formatToByte(const std::string &fmt, const std::string &path, int
 	return l;
 }
 
-template <typename T> static void readVector(std::vector<T> &v, File &f) {
+template <typename T> static void readVector(std::vector<T> &v, apone::File& f) {
 	auto sz = f.read<uint32_t>();
 	v.resize(sz);
 	f.read((uint8_t *)&v[0], v.size() * sizeof(T));
 }
 
-template <typename T> static void writeVector(std::vector<T> &v, File &f) {
+template <typename T> static void writeVector(std::vector<T> &v, apone::File& f) {
 	f.write<uint32_t>(v.size());
 	f.write((uint8_t *)&v[0], v.size() * sizeof(T));
 }
 
-void MusicDatabase::readIndex(File &f) {
+void MusicDatabase::readIndex(apone::File&& f) {
 
 	indexVersion = 0;
 	auto marker = f.read<uint16_t>();
@@ -968,7 +969,7 @@ void MusicDatabase::readIndex(File &f) {
 	composerIndex.load(f);
 }
 
-void MusicDatabase::writeIndex(File &f) {
+void MusicDatabase::writeIndex(apone::File&& f) {
 	f.write<uint16_t>(0xFEDC);
 	f.write<uint16_t>(dbVersion);
 	f.write<uint32_t>(productStartIndex);
@@ -979,6 +980,7 @@ void MusicDatabase::writeIndex(File &f) {
 
 	titleIndex.dump(f);
 	composerIndex.dump(f);
+    f.close();
 }
 
 void MusicDatabase::generateIndex() {
@@ -992,12 +994,10 @@ void MusicDatabase::generateIndex() {
 		// NOTE c.name is really c.id
 		loader.registerSource(c.name, c.url, c.local_dir);
 	}
+    auto indexPath = Environment::getCacheDir() / "index.dat";
 
-	File f{Environment::getCacheDir() / "index.dat"};
-
-	if(!reindexNeeded && f.exists()) {
-		readIndex(f);
-		f.close();
+	if(!reindexNeeded && fs::exists(indexPath)) {
+		readIndex(apone::File{indexPath});
 		return;
 	}
 
@@ -1119,8 +1119,7 @@ void MusicDatabase::generateIndex() {
 		composerToTitle.push_back(-1);
 	}
 
-	writeIndex(f);
-	f.close();
+	writeIndex(apone::File{indexPath, apone::File::WRITE});
 
 	reindexNeeded = false;
 }
@@ -1137,26 +1136,26 @@ void MusicDatabase::initFromLuaAsync(const fs::path &workDir) {
 }
 
 bool MusicDatabase::initFromLua(const fs::path &workDir) {
-
-	File playlistDir{Environment::getConfigDir() / "playlists"};
-	makedir(playlistDir);
+    auto playlistPath = Environment::getConfigDir() / "playlists";
+    fs::create_directory(playlistPath);
+    //apone::File playlistDir{playlistPath.string()};
 	bool favFound = false;
-	for(auto f : playlistDir.listFiles()) {
+	for(const auto& f : fs::directory_iterator(playlistPath)) {
 		playLists.emplace_back(f);
 		if(playLists.back().name == "Favorites")
 			favFound = true;
 	}
 	if(!favFound) {
-		playLists.emplace_back(playlistDir / "Favorites");
+		playLists.emplace_back(playlistPath / "Favorites");
 		playLists.back().save();
 	}
 
 	reindexNeeded = false;
-
-	File fi{Environment::getCacheDir() / "index.dat"};
+    auto indexDir = Environment::getCacheDir() / "index.dat";
 
 	indexVersion = 0;
-	if(fi.exists()) {
+	if(fs::exists(indexDir)) {
+        apone::File fi{indexDir};
 		auto marker = fi.read<uint16_t>();
 		if(marker == 0xFEDC)
 			indexVersion = fi.read<uint16_t>();
@@ -1175,9 +1174,9 @@ bool MusicDatabase::initFromLua(const fs::path &workDir) {
 		}
 	});
 
-	File f = File::findFile(workDir, "lua/db.lua");
+	auto f = findFile(workDir, "lua/db.lua");
 
-	if(!lua.loadFile(f.getName())) {
+	if(!lua.loadFile(f->string())) {
 		LOGE("Could not load db.lua");
 		return false;
 	}

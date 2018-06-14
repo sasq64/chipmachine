@@ -5,7 +5,7 @@
 using namespace std;
 using namespace utils;
 
-RemoteLoader::RemoteLoader() : webgetter(utils::File::getCacheDir() / "_webfiles") {
+RemoteLoader::RemoteLoader() : webgetter(Environment::getCacheDir() / "_webfiles") {
 	// webgetter.setErrorCallback([](int code, const string &msg) {
 	//	LOGD("Error %d %s", code, msg);
 	//});

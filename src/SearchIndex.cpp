@@ -8,6 +8,9 @@
 #include <set>
 
 using namespace std;
+
+using apone::File;
+
 using namespace utils;
 
 //#define USE_THREADS
@@ -401,7 +404,7 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 	return result.size() - startSize;
 }
 
-void SearchIndex::dump(utils::File &f) {
+void SearchIndex::dump(apone::File& f) {
 
 	for(int i = 0; i < 65536; i++) {
 		auto sz = stringMap[i].size();
@@ -412,11 +415,11 @@ void SearchIndex::dump(utils::File &f) {
 	f.write<uint32_t>(strings.size());
 	for(int i = 0; i < (int)strings.size(); i++) {
 		f.write<uint8_t>(strings[i].length());
-		f.write(strings[i]);
+		f.write(strings[i].c_str(), strings[i].length());
 	}
 }
 
-void SearchIndex::load(utils::File &f) {
+void SearchIndex::load(apone::File& f) {
 
 	if(!transInited) {
 		initTrans();
