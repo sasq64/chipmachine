@@ -1,292 +1,313 @@
 #ifndef MUSIC_DATABASE_H
 #define MUSIC_DATABASE_H
 
-#include "SongInfo.h"
 #include "SearchIndex.h"
+#include "SongInfo.h"
 
+#include <coreutils/environment.h>
 #include <coreutils/file.h>
 #include <coreutils/utils.h>
-#include <coreutils/environment.h>
 #include <sqlite3/database.h>
 
-#include <unordered_set>
 #include <coreutils/thread.h>
-#include <vector>
-#include <string>
 #include <future>
 #include <mutex>
+#include <string>
+#include <unordered_set>
+#include <vector>
 
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 
 namespace chipmachine {
 
-class not_found_exception : public std::exception {
+class not_found_exception : public std::exception
+{
 public:
-	virtual const char *what() const throw() { return "Not found exception"; }
+    virtual char const* what() const throw() { return "Not found exception"; }
 };
 
 // console -- sid -- tracker -- amiga
-enum Formats {
+enum Formats
+{
 
-	NOT_SET,
+    NOT_SET,
 
-	UNKNOWN_FORMAT,
-	NO_FORMAT,
-	PLAYLIST,
+    UNKNOWN_FORMAT,
+    NO_FORMAT,
+    PLAYLIST,
 
-	CONSOLE,
+    CONSOLE,
 
-	HES,
+    HES,
 
-	NINTENDO,
+    NINTENDO,
 
-	GAMEBOY,
-	NES,
-	SNES,
-	NINTENDO64,
-	GBA,
-	NDS,
+    GAMEBOY,
+    NES,
+    SNES,
+    NINTENDO64,
+    GBA,
+    NDS,
 
-	SEGA,
+    SEGA,
 
-	SEGAMS,
-	MEGADRIVE,
-	DREAMCAST,
+    SEGAMS,
+    MEGADRIVE,
+    DREAMCAST,
 
-	SONY,
+    SONY,
 
-	PLAYSTATION,
-	PLAYSTATION2,
+    PLAYSTATION,
+    PLAYSTATION2,
 
-	COMPUTER,
-	C64,
-	SID,
+    COMPUTER,
+    C64,
+    SID,
 
-	SPECTRUM,
+    SPECTRUM,
 
-	ATARI,
+    ATARI,
 
-	MP3,
+    MP3,
 
-	M3U,
-	PLS,
+    M3U,
+    PLS,
 
-	OGG,
+    OGG,
 
-	YOUTUBE,
+    YOUTUBE,
 
-	PC,
+    PC,
 
-	ADPLUG,
-	TRACKER = 0x30,
-	SCREAMTRACKER,
-	IMPULSETRACKER,
-	FASTTRACKER,
+    ADPLUG,
+    TRACKER = 0x30,
+    SCREAMTRACKER,
+    IMPULSETRACKER,
+    FASTTRACKER,
 
-	AMIGA,
-	PROTRACKER,
-	SOUNDTRACKER,
+    AMIGA,
+    PROTRACKER,
+    SOUNDTRACKER,
 
-	UADE,
-	
-	PRODUCT = 0x40
-	
+    UADE,
+
+    PRODUCT = 0x40
+
 };
 
-struct Product {
-	std::string title;
-	std::string creator;
-	std::string type;
-	std::string screenshots;
-	std::vector<std::string> songs;
+struct Product
+{
+    std::string title;
+    std::string creator;
+    std::string type;
+    std::string screenshots;
+    std::vector<std::string> songs;
 };
 
-class MusicDatabase : public SearchProvider {
+class MusicDatabase : public SearchProvider
+{
 public:
-	using Variables = std::unordered_map<std::string, std::string>;
+    using Variables = std::unordered_map<std::string, std::string>;
 
-	MusicDatabase() : db(Environment::getCacheDir() / "music.db"), reindexNeeded(false) {
-		createTables();
-	}
+    MusicDatabase()
+        : db(Environment::getCacheDir() / "music.db"), reindexNeeded(false)
+    {
+        createTables();
+    }
 
-	bool initFromLua(const fs::path &workDir);
-	void initFromLuaAsync(const fs::path &workDir);
+    bool initFromLua(fs::path const& workDir);
+    void initFromLuaAsync(fs::path const& workDir);
 
-	int search(const std::string &query, std::vector<int> &result,
-	           unsigned int searchLimit) override;
-	// Lookup internal string for index
-	std::string getString(int index) const override {
-		//std::lock_guard lock{dbMutex};
-		return utils::format("%s %s", getTitle(index), getComposer(index));
-	}
+    int search(std::string const& query, std::vector<int>& result,
+               unsigned int searchLimit) override;
+    // Lookup internal string for index
+    std::string getString(int index) const override
+    {
+        // std::lock_guard lock{dbMutex};
+        return utils::format("%s %s", getTitle(index), getComposer(index));
+    }
 
-	std::string getFullString(int index) const override {
-		//std::lock_guard lock{dbMutex};
-		int f;
-		if(index >= PLAYLIST_INDEX)
-			f = PLAYLIST;
-		else
-			f = formats[index];
-		return utils::format("%s\t%s\t%d\t%d", getTitle(index), getComposer(index), index, f);
-	}
-	// Get full data, may require SQL query
-	SongInfo getSongInfo(int index) const;
+    std::string getFullString(int index) const override
+    {
+        // std::lock_guard lock{dbMutex};
+        int f;
+        if (index >= PLAYLIST_INDEX)
+            f = PLAYLIST;
+        else
+            f = formats[index];
+        return utils::format("%s\t%s\t%d\t%d", getTitle(index),
+                             getComposer(index), index, f);
+    }
+    // Get full data, may require SQL query
+    SongInfo getSongInfo(int index) const;
 
-	std::string getTitle(int index) const {
-		std::lock_guard lock{dbMutex};
-		if(index >= PLAYLIST_INDEX)
-			return playLists[index - PLAYLIST_INDEX].name;		
-		return titleIndex.getString(index);
-	}
+    std::string getTitle(int index) const
+    {
+        std::lock_guard lock{ dbMutex };
+        if (index >= PLAYLIST_INDEX)
+            return playLists[index - PLAYLIST_INDEX].name;
+        return titleIndex.getString(index);
+    }
 
-	std::string getComposer(int index) const {
-		std::lock_guard lock{dbMutex};
-		if(index >= PLAYLIST_INDEX)
-			return "";
-		return composerIndex.getString(titleToComposer[index]);
-	}
+    std::string getComposer(int index) const
+    {
+        std::lock_guard lock{ dbMutex };
+        if (index >= PLAYLIST_INDEX) return "";
+        return composerIndex.getString(titleToComposer[index]);
+    }
 
-	std::shared_ptr<IncrementalQuery> createQuery() {
-		std::lock_guard lock{dbMutex};
-		return std::make_shared<IncrementalQuery>(this);
-	}
+    std::shared_ptr<IncrementalQuery> createQuery()
+    {
+        std::lock_guard lock{ dbMutex };
+        return std::make_shared<IncrementalQuery>(this);
+    }
 
-	int getSongs(std::vector<SongInfo> &target, const SongInfo &match, int limit, bool random);
+    int getSongs(std::vector<SongInfo>& target, SongInfo const& match,
+                 int limit, bool random);
 
-	bool busy() {
-		std::lock_guard lock{chkMutex};
-		if(initFuture.valid()) {
-			if(initFuture.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready) {
-				initFuture.get();
-				return false;
-			}
-			return true;
-		}
+    bool busy()
+    {
+        std::lock_guard lock{ chkMutex };
+        if (initFuture.valid()) {
+            if (initFuture.wait_for(std::chrono::milliseconds(1)) ==
+                std::future_status::ready) {
+                initFuture.get();
+                return false;
+            }
+            return true;
+        }
 
-		if(dbMutex.try_lock()) {
-			dbMutex.unlock();
-			return false;
-		}
-		return true;
-	}
+        if (dbMutex.try_lock()) {
+            dbMutex.unlock();
+            return false;
+        }
+        return true;
+    }
 
-	SongInfo& lookup(SongInfo &song);
-	
-	std::vector<SongInfo> getProductSongs(uint32_t id);
+    SongInfo& lookup(SongInfo& song);
+
+    std::vector<SongInfo> getProductSongs(uint32_t id);
+
 private:
-	std::string getProductScreenshots(uint32_t id);
-	std::string getScreenshotURL(const std::string &collection);
+    std::string getProductScreenshots(uint32_t id);
+    std::string getScreenshotURL(std::string const& collection);
+
 public:
-	std::string getSongScreenshots(SongInfo &s);
+    std::string getSongScreenshots(SongInfo& s);
 
-	static MusicDatabase &getInstance() {
-		static MusicDatabase mdb;
-		return mdb;
-	}
+    static MusicDatabase& getInstance()
+    {
+        static MusicDatabase mdb;
+        return mdb;
+    }
 
-	struct Playlist {
-		Playlist(fs::path f) : fileName(f.string()) {
-			if(exists(f)) {
-				for(const auto &l : apone::File{f}.lines()) {
-					if(l != "")
-						songs.emplace_back(l);
-				}
-			}
-			name = f.filename();
-		}
-		std::string name;
-		std::string fileName;
-		std::vector<SongInfo> songs;
-		void save() {
-			apone::File f{fileName, apone::File::WRITE };
+    struct Playlist
+    {
+        Playlist(fs::path f) : fileName(f.string())
+        {
+            if (exists(f)) {
+                for (auto const& l : apone::File{ f }.lines()) {
+                    if (l != "") songs.emplace_back(l);
+                }
+            }
+            name = f.filename();
+        }
+        std::string name;
+        std::string fileName;
+        std::vector<SongInfo> songs;
+        void save()
+        {
+            apone::File f{ fileName, apone::File::WRITE };
             LOGD("Writing to %s", fileName);
-			for(const auto &s : songs) {
-				if(s.starttune >= 0)
-					f.writeln(utils::format("%s;%d", s.path, s.starttune));
-				else
-					f.writeln(s.path);
-			}
-		}
-	};
+            for (auto const& s : songs) {
+                if (s.starttune >= 0)
+                    f.writeln(utils::format("%s;%d", s.path, s.starttune));
+                else
+                    f.writeln(s.path);
+            }
+        }
+    };
 
-	void addToPlaylist(const std::string &plist, const SongInfo &song);
-	void removeFromPlaylist(const std::string &plist, const SongInfo &toRemove);
-	std::vector<SongInfo> &getPlaylist(const std::string &plist);
+    void addToPlaylist(std::string const& plist, SongInfo const& song);
+    void removeFromPlaylist(std::string const& plist, SongInfo const& toRemove);
+    std::vector<SongInfo>& getPlaylist(std::string const& plist);
 
-	void setFilter(const std::string &filter, int type = 0);
+    void setFilter(std::string const& filter, int type = 0);
 
 private:
-	void initDatabase(fs::path const& workDir, Variables &vars);
-	void generateIndex();
+    void initDatabase(fs::path const& workDir, Variables& vars);
+    void generateIndex();
 
-	struct Collection {
-		Collection(int id = -1, const std::string &name = "", const std::string url = "",
-		           const fs::path local_dir = "")
-		    : id(id), name(name), url(url), local_dir(local_dir) {}
-		int id;
-		std::string name;
-		std::string url;
+    struct Collection
+    {
+        Collection(int id = -1, std::string const& name = "",
+                   std::string const& url = "", fs::path const& local_dir = "")
+            : id(id), name(name), url(url), local_dir(local_dir)
+        {}
+        int id;
+        std::string name;
+        std::string url;
         fs::path local_dir;
-	};
+    };
 
-	template <typename T> using Callback = std::function<void(const T&)>;
+    template <typename T> using Callback = std::function<void(T const&)>;
 
-	typedef bool (MusicDatabase::*ParseSongFun)(Variables &, const std::string &,
-	                                      Callback<SongInfo> const&);
-	typedef bool (MusicDatabase::*ParseProdFun)(Variables &, const std::string &,
-	                                      Callback<Product> const&);
+    typedef bool (MusicDatabase::*ParseSongFun)(Variables&, std::string const&,
+                                                Callback<SongInfo> const&);
+    typedef bool (MusicDatabase::*ParseProdFun)(Variables&, std::string const&,
+                                                Callback<Product> const&);
 
-    bool parseCsdb(Variables& vars, const std::string& listFile,
+    bool parseCsdb(Variables& vars, std::string const& listFile,
                    Callback<Product> const& callback);
-    bool parseBitworld(Variables& vars, const std::string& listFile,
+    bool parseBitworld(Variables& vars, std::string const& listFile,
                        Callback<Product> const& callback);
-    bool parseGamebase(Variables& vars, const std::string& listFile,
+    bool parseGamebase(Variables& vars, std::string const& listFile,
                        Callback<Product> const& callback);
-    bool parsePouet(Variables& vars, const std::string& listFile,
+    bool parsePouet(Variables& vars, std::string const& listFile,
                     Callback<SongInfo> const& callback);
-    bool parseRss(Variables& vars, const std::string& listFile,
+    bool parseRss(Variables& vars, std::string const& listFile,
                   Callback<SongInfo> const& callback);
-    bool parseModland(Variables& vars, const std::string& listFile,
+    bool parseModland(Variables& vars, std::string const& listFile,
                       Callback<SongInfo> const& callback);
-    bool parseAmp(Variables& vars, const std::string& listFile,
+    bool parseAmp(Variables& vars, std::string const& listFile,
                   Callback<SongInfo> const& callback);
-    bool parseStandard(Variables& vars, const std::string& listFile,
+    bool parseStandard(Variables& vars, std::string const& listFile,
                        Callback<SongInfo> const& callback);
 
     void writeIndex(apone::File&& f);
-	void readIndex(apone::File&& f);
+    void readIndex(apone::File&& f);
 
-	void createTables();
+    void createTables();
 
-	static constexpr int PLAYLIST_INDEX = 0x10000000;
+    static constexpr int PLAYLIST_INDEX = 0x10000000;
 
-	SearchIndex composerIndex;
-	SearchIndex titleIndex;
+    SearchIndex composerIndex;
+    SearchIndex titleIndex;
 
-	std::vector<uint32_t> titleToComposer;
-	std::vector<uint32_t> composerToTitle;
-	std::vector<uint32_t> composerTitleStart;
-	std::vector<uint16_t> formats;
+    std::vector<uint32_t> titleToComposer;
+    std::vector<uint32_t> composerToTitle;
+    std::vector<uint32_t> composerTitleStart;
+    std::vector<uint16_t> formats;
 
-	mutable std::mutex chkMutex;
-	mutable std::mutex dbMutex;
-	sqlite3db::Database db;
-	bool reindexNeeded;
+    mutable std::mutex chkMutex;
+    mutable std::mutex dbMutex;
+    sqlite3db::Database db;
+    bool reindexNeeded;
 
-	uint16_t dbVersion;
-	uint16_t indexVersion;
+    uint16_t dbVersion;
+    uint16_t indexVersion;
 
-	int collectionFilter = -1;
+    int collectionFilter = -1;
 
-	std::future<void> initFuture;
-	std::atomic<bool> indexing;
+    std::future<void> initFuture;
+    std::atomic<bool> indexing;
 
-	std::vector<Playlist> playLists;
-	std::unordered_map<uint64_t, uint32_t> pathMap;
-	uint32_t productStartIndex;
-	std::vector<uint8_t> dontIndex;
+    std::vector<Playlist> playLists;
+    std::unordered_map<uint64_t, uint32_t> pathMap;
+    uint32_t productStartIndex;
+    std::vector<uint8_t> dontIndex;
 };
-}
+} // namespace chipmachine
 
 #endif // MUSIC_DATABASE_H
