@@ -12,10 +12,9 @@
 #ifdef _WIN32
 #    include <ShellApi.h>
 #endif
-using namespace std;
-using namespace utils;
+
 using namespace grappix;
-using namespace tween;
+using tween::Tween;
 
 void initYoutube(LuaInterpreter&);
 
@@ -30,40 +29,40 @@ std::string compressWhitespace(std::string&& m)
     return m;
 }
 
-std::string compressWhitespace(const std::string& text)
+std::string compressWhitespace(std::string const& text)
 {
     return compressWhitespace(std::string(text));
 }
 
 namespace chipmachine {
 
-void ChipMachine::renderSong(const grappix::Rectangle& rec, int y,
+void ChipMachine::renderSong(grappix::Rectangle const& rec, int y,
                              uint32_t index, bool hilight)
 {
 
-    static const map<uint32_t, uint32_t> colors = {
+    static const std::map<uint32_t, uint32_t> colors = {
         {NOT_SET, 0xffff00ff}, {PLAYLIST, 0xffffff88}, {CONSOLE, 0xffdd3355},
         {C64, 0xffcc8844},     {ATARI, 0xffcccc33},    {MP3, 0xff88ff88},
         {M3U, 0xffaaddaa},     {YOUTUBE, 0xffff0000},  {PC, 0xffcccccc},
         {AMIGA, 0xff6666cc},   {PRODUCT, 0xffff88cc},  {255, 0xff00ffff}};
 
     Color c;
-    string text;
+    std::string text;
 
     auto res = iquery->getResult(index);
-    auto parts = split(res, "\t");
+    auto parts = utils::split(res, "\t");
     int f = std::stol(parts[3]) & 0xff;
 
     if (f == PLAYLIST || f == PRODUCT) {
         if (parts[1] == "")
-            text = format("<%s>", parts[0]);
+            text = utils::format("<%s>", parts[0]);
         else
-            text = format("<%s / %s>", parts[0], parts[1]);
+            text = utils::format("<%s / %s>", parts[0], parts[1]);
     } else {
         if (parts[1] == "")
             text = parts[0];
         else
-            text = format("%s / %s", parts[0], parts[1]);
+            text = utils::format("%s / %s", parts[0], parts[1]);
     }
     auto it = --colors.upper_bound(f);
     c = it->second;
@@ -107,7 +106,7 @@ ChipMachine::ChipMachine(fs::path const& wd)
                              auto cmdPath = fs::path(cmd);
                              if (!cmdPath.is_absolute())
                                  cmdPath = binDir / cmdPath;
-                             std::string output = execPipe(cmdPath.string());
+                             std::string output = utils::execPipe(cmdPath.string());
                              return output;
                          });
 
@@ -116,8 +115,8 @@ ChipMachine::ChipMachine(fs::path const& wd)
     initYoutube(lua);
 
 #ifdef USE_REMOTELISTS
-    RemoteLists::getInstance().onError([=](int rc, const std::string& error) {
-        string e = error;
+    RemoteLists::getInstance().onError([=](int rc, std::string const& error) {
+        std::string e = error;
         if (rc == RemoteLists::JSON_INVALID) e = "Server unavailable";
         screen.run_safely([=] { toast(e, 1); });
     });
@@ -167,7 +166,7 @@ ChipMachine::ChipMachine(fs::path const& wd)
 
     Resources::getInstance().load<image::bitmap>(
         Environment::getCacheDir() / "favicon.png",
-        [=](shared_ptr<image::bitmap> bitmap) {
+        [=](std::shared_ptr<image::bitmap> bitmap) {
             favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
         },
         heart_icon);
@@ -205,7 +204,7 @@ ChipMachine::ChipMachine(fs::path const& wd)
     musicBars.setup(spectrumWidth, spectrumHeight, 24);
 
     LOGD("WORKDIR %s", workDir.string());
-    MusicDatabase::getInstance().initFromLua(this->workDir);
+    MusicDatabase::getInstance().initFromLuaAsync(this->workDir);
 
     if (MusicDatabase::getInstance().busy()) {
         indexingDatabase = true;
@@ -276,8 +275,9 @@ ChipMachine::ChipMachine(fs::path const& wd)
                      "-- ENTER to play -- Press TAB to show all commands ---");
     starEffect.fadeIn();
 
-    File f{Environment::getCacheDir() / "login"};
-    if (f.exists()) userName = f.read();
+	auto loginPath = Environment::getCacheDir() / "login";
+	apone::File f{loginPath};
+    if (exists(loginPath)) userName = f.readString();
 }
 
 ChipMachine::~ChipMachine()
@@ -287,7 +287,7 @@ ChipMachine::~ChipMachine()
 #endif
 }
 
-void ChipMachine::setScrolltext(const std::string& txt)
+void ChipMachine::setScrolltext(std::string const& txt)
 {
     scrollEffect.set("scrolltext", txt);
 }
@@ -295,7 +295,7 @@ void ChipMachine::setScrolltext(const std::string& txt)
 void ChipMachine::initLua()
 {
     lua.registerFunction("set_var",
-                         [=](string name, uint32_t index, string val) {
+                         [=](std::string name, uint32_t index, std::string val) {
                              setVariable(name, index, val);
                          });
 }
@@ -310,14 +310,14 @@ void ChipMachine::layoutScreen()
     lua.call<void>("on_layout", screen.width(), screen.height(),
                    screen.getPPI() < 0 ? 100 : screen.getPPI());
 
-    File f(workDir / "lua" / "screen.lua");
+	utils::File f(workDir / "lua" / "screen.lua");
 
     lua.setGlobal("SCREEN_WIDTH", screen.width());
     lua.setGlobal("SCREEN_HEIGHT", screen.height());
     lua.setGlobal("SCREEN_PPI", screen.getPPI() < 0 ? 100 : screen.getPPI());
 
-    Resources::getInstance().load<string>(f.getName(),
-                                          [=](shared_ptr<string> contents) {
+    Resources::getInstance().load<std::string>(f.getName(),
+                                          [=](std::shared_ptr<std::string> contents) {
                                               lua.load(*contents, f);
 
                                               lua.load(R"(
@@ -352,7 +352,7 @@ void ChipMachine::layoutScreen()
     volumeIcon.setArea(volPos);
 }
 
-void ChipMachine::play(const SongInfo& si)
+void ChipMachine::play(SongInfo const& si)
 {
     player.addSong(si);
     player.nextSong();
@@ -363,7 +363,7 @@ void ChipMachine::updateFavorite()
     auto favorites =
         MusicDatabase::getInstance().getPlaylist(currentPlaylistName);
     auto favsong =
-        find_if(favorites.begin(), favorites.end(), [&](const SongInfo& song) {
+        find_if(favorites.begin(), favorites.end(), [&](SongInfo const& song) {
             return (song.path == currentInfo.path &&
                     (currentTune == song.starttune ||
                      (currentTune == currentInfo.starttune &&
@@ -425,7 +425,7 @@ void ChipMachine::updateNextField()
             if (psz == 1)
                 nextField.setText("Next");
             else
-                nextField.setText(format("Next (%d)", psz));
+                nextField.setText(utils::format("Next (%d)", psz));
             nextInfoField.setInfo(info);
             currentNextPath = info.path;
         }
@@ -463,7 +463,7 @@ void ChipMachine::update()
         }
         namedToPlay = "";
         for (const auto& s : target) {
-            if (!endsWith(s.path, ".plist")) player.addSong(s);
+            if (!utils::endsWith(s.path, ".plist")) player.addSong(s);
         }
         player.nextSong();
     }
@@ -487,9 +487,9 @@ void ChipMachine::update()
         currentInfo = player.getInfo();
         dbInfo = player.getDBInfo();
         LOGD("MUSIC STARTING %s", currentInfo.title);
-        screen.setTitle(format("%s / %s (Chipmachine " VERSION_STR ")",
+        screen.setTitle(utils::format("%s / %s (Chipmachine " VERSION_STR ")",
                                currentInfo.title, currentInfo.composer));
-        string m;
+        std::string m;
         if (currentInfo.metadata[SongInfo::INFO] != "") {
             m = compressWhitespace(currentInfo.metadata[SongInfo::INFO]);
         } else {
@@ -508,9 +508,9 @@ void ChipMachine::update()
             currentScreenshot = shot;
 
             if (shot != "") {
-                auto parts = split(shot, ";");
+                auto parts = utils::split(shot, ";");
                 int total = parts.size();
-                auto cb = [=](File f) {
+                auto cb = [=](utils::File f) {
                     if (currentScreenshot == "")
                         return; // We probably got a new screenshot while
                                 // loading
@@ -522,7 +522,7 @@ void ChipMachine::update()
                         // LOCK_GUARD(multiLoadLock);
 
                         try {
-                            if (toLower(path_extension(f.getName())) == "gif") {
+                            if (utils::toLower(utils::path_extension(f.getName())) == "gif") {
                                 t--;
                                 for (auto& bm : image::load_gifs(f.getName())) {
                                     for (auto& px : bm) {
@@ -571,7 +571,7 @@ void ChipMachine::update()
 
         if (currentInfo.numtunes > 0)
             songField.setText(
-                format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
+                utils::format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
         else
             songField.setText("[01/01]");
 
@@ -650,7 +650,7 @@ void ChipMachine::update()
         currentInfoField.setInfo(currentInfo);
         currentTune = tune;
         songField.setText(
-            format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
+            utils::format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
         auto m = compressWhitespace(player.getMeta("message"));
         if (m != "" && scrollText != m) {
             scrollEffect.set("scrolltext", m);
@@ -673,15 +673,15 @@ void ChipMachine::update()
 
         auto br = player.getBitrate();
         if (br > 0) {
-            songField.setText(format("%d KBit", br));
+            songField.setText(utils::format("%d KBit", br));
         }
 
         auto p = player.getPosition();
         int length = player.getLength();
-        timeField.setText(format("%02d:%02d", p / 60, p % 60));
+        timeField.setText(utils::format("%02d:%02d", p / 60, p % 60));
         if (length > 0)
             lengthField.setText(
-                format("(%02d:%02d)", length / 60, length % 60));
+                utils::format("(%02d:%02d)", length / 60, length % 60));
         else
             lengthField.setText("");
 
@@ -726,7 +726,7 @@ void ChipMachine::update()
             spectrum = fft.getLevels();
             fft.popLevels();
         }
-        for (auto i : count_to(fft.eq_slots)) {
+        for (auto i : utils::count_to(fft.eq_slots)) {
             if (spectrum[i] > 5) {
                 auto f = static_cast<unsigned>(logf(spectrum[i]) * 64);
                 if (f > 255) f = 255;
@@ -751,10 +751,10 @@ void fadeOut(float& alpha, float t = 0.25)
     Tween::make().to(alpha, 0.0).seconds(t);
 }
 
-void ChipMachine::toast(const std::string& txt, ToastType type)
+void ChipMachine::toast(std::string const& txt, ToastType type)
 {
 
-    static vector<Color> colors = {
+    static std::vector<Color> colors = {
         0xffffff, 0xff8888, 0x55aa55}; // Alpha intentionally left at zero
 
     toastField.setText(txt);
@@ -805,7 +805,7 @@ void ChipMachine::render(uint32_t delta)
         auto v = (int)(player.getVolume() * 10);
         v = (int)(v * volPos.w) / 10;
         screen.rectangle(volPos.x + v, volPos.y, volPos.w - v, volPos.h, color);
-        // screen.text(listFont, std::to_string((int)(v * 100)), volPos.x,
+        // screen.text(listFont, std::to_std::string((int)(v * 100)), volPos.x,
         // volPos.y, 10.0, 0xff8888ff);
     }
 

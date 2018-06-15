@@ -1,5 +1,4 @@
-#ifndef CUE_SHEET_H
-#define CUE_SHEET_H
+#pragma once
 
 /*
 
@@ -13,6 +12,8 @@
 */
 #include <coreutils/log.h>
 #include <coreutils/file.h>
+#include <coreutils/utils.h>
+
 #include <string>
 
 class CueSheet {
@@ -25,12 +26,11 @@ public:
 
 	CueSheet(utils::File cf) {
 
-		using namespace std;
 
-		for(const string &line : cf.getLines()) {
+		for(const std::string &line : cf.getLines()) {
 			bool quotes = false;
 			int start = 0;
-			vector<string> parts;
+			std::vector<std::string> parts;
 			for(int i = 0; i < line.length(); i++) {
 				if(line[i] == '\"') {
 					quotes = !quotes;
@@ -84,4 +84,3 @@ public:
 	std::vector<Track> tracks;
 };
 
-#endif // CUE_SHEET_H

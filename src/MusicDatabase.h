@@ -13,7 +13,8 @@
 #include <future>
 #include <mutex>
 #include <string>
-#include <unordered_set>
+#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include <experimental/filesystem>
@@ -108,7 +109,7 @@ struct Product
 class MusicDatabase : public SearchProvider
 {
 public:
-    using Variables = std::unordered_map<std::string, std::string>;
+    using Variables = std::map<std::string, std::string>;
 
     MusicDatabase()
         : db(Environment::getCacheDir() / "music.db"), reindexNeeded(false)

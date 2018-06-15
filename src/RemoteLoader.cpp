@@ -19,7 +19,6 @@ void RemoteLoader::registerSource(const std::string &name, const std::string url
 	sources[name] = s;
 }
 
-// modland:Protracker/X/Y.mod"
 bool RemoteLoader::inCache(const std::string &p) const {
 	Source source;
 	string path = p;

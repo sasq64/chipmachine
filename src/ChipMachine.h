@@ -1,5 +1,4 @@
-#ifndef CHIP_MACHINE_H
-#define CHIP_MACHINE_H
+#pragma once
 
 #include "MusicDatabase.h"
 #include "MusicPlayerList.h"
@@ -379,4 +378,3 @@ private:
 };
 } // namespace chipmachine
 
-#endif // CHIP_MACHINE_H
