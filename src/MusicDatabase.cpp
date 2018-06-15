@@ -1158,7 +1158,7 @@ void MusicDatabase::generateIndex()
         composerToTitle.push_back(-1);
     }
 
-    writeIndex(apone::File{ indexPath, apone::File::WRITE });
+    writeIndex(apone::File{ indexPath, apone::File::Write });
 
     reindexNeeded = false;
 }

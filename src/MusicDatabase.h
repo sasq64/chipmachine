@@ -218,7 +218,7 @@ public:
         std::vector<SongInfo> songs;
         void save()
         {
-            apone::File f{ fileName, apone::File::WRITE };
+            apone::File f{ fileName, apone::File::Write };
             LOGD("Writing to %s", fileName);
             for (auto const& s : songs) {
                 if (s.starttune >= 0)
