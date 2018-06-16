@@ -3,13 +3,13 @@
 #include <bbsutils/petsciiconsole.h>
 #include <bbsutils/telnetserver.h>
 #include <bbsutils/editor.h>
-#include <luainterpreter/luainterpreter.h>
 
 #include <map>
 #include "ChipInterface.h"
 #include "TextListView.h"
+#include "../sol2/sol.hpp"
 
-void initYoutube(LuaInterpreter&);
+void initYoutube(sol::state&);
 
 namespace chipmachine {
 
@@ -19,11 +19,6 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface &ci) {
 	
 	auto iquery = ci.createQuery();
 
-	LuaInterpreter lua;
-	//std::string workDir;
-	//lua.loadFile(workDir / "lua" / "init.lua");
-	initYoutube(lua);
-	
 	console->clear();
 	console->flush();
 	console->setColor(Console::WHITE);

@@ -6,7 +6,6 @@
 #include <archive/archive.h>
 #include <coreutils/utils.h>
 #include <crypto/md5.h>
-#include <luainterpreter/luainterpreter.h>
 #include <webutils/web.h>
 #include <xml/xml.h>
 
@@ -17,6 +16,8 @@
 #include <chrono>
 #include <set>
 #include <map>
+
+#include "../sol2/sol.hpp"
 
 #include "csv.h"
 
@@ -1200,27 +1201,36 @@ bool MusicDatabase::initFromLua(fs::path const& workDir)
         if (marker == 0xFEDC) indexVersion = fi.read<uint16_t>();
     }
 
-    LuaInterpreter lua;
+    sol::state lua;
+    lua.open_libraries(sol::lib::base, sol::lib::package);
 
-    lua.registerFunction("set_db_var", [&](std::string name, std::string val) {
-        static std::map<std::string, std::string> dbmap;
-        if (val == "start") {
-        } else if (val == "end") {
-            initDatabase(workDir, dbmap);
-            dbmap.clear();
-        } else {
+    std::map<std::string, std::string> dbmap;
+    lua["start_db"] = []{};
+    lua["end_db"] = [&]{
+        initDatabase(workDir, dbmap);
+        dbmap.clear();
+    };
+
+    lua["set_db_var"] = sol::overload(
+        [&](std::string name, std::string val) {
             dbmap[name] = val;
+        },
+        [&](std::string name, double val) {
+            dbmap[name] = std::to_string(val);
+        },
+        [&](std::string name, uint32_t val) {
+            dbmap[name] = std::to_string(val);
         }
-    });
-
+    );
     auto f = findFile(workDir, "lua/db.lua");
+    LOGD("%s", f->string());
 
-    if (!lua.loadFile(f->string())) {
-        LOGE("Could not load db.lua");
-        return false;
-    }
+    lua.script_file(f->string());
+        /* LOGE("Could not load db.lua"); */
+        /* return false; */
+    /* } */
 
-    dbVersion = lua.getGlobal<int>("VERSION");
+    dbVersion = lua["VERSION"];
     LOGD("DBVERSION %d INDEXVERSION %d", dbVersion, indexVersion);
     if (dbVersion != indexVersion) {
         db.exec("DROP TABLE IF EXISTS collection");
@@ -1231,14 +1241,15 @@ bool MusicDatabase::initFromLua(fs::path const& workDir)
         reindexNeeded = true;
     }
 
-    lua.load(R"(
+    lua.script(R"(
 		for a,b in pairs(DB) do
+            print(a,b)
 			if type(b) == 'table' then
-				set_db_var(a, 'start')
+				start_db()
 				for a1,b1 in pairs(b) do
 					set_db_var(a1, b1)
 				end
-				set_db_var(a, 'end')
+				end_db()
 			end
 		end
 	)");

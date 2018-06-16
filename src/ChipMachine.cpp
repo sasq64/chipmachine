@@ -7,7 +7,6 @@
 #include <grappix/window.h>
 
 #include <cctype>
-#include <luainterpreter/luainterpreter.h>
 #include <map>
 #ifdef _WIN32
 #    include <ShellApi.h>
@@ -16,7 +15,7 @@
 using namespace grappix;
 using tween::Tween;
 
-void initYoutube(LuaInterpreter&);
+void initYoutube(sol::state&);
 
 std::string compressWhitespace(std::string&& m)
 {
@@ -93,15 +92,15 @@ ChipMachine::ChipMachine(fs::path const& wd)
 {
 
     screen.setTitle("Chipmachine " VERSION_STR);
-
+    lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::string);
 #ifdef _WIN32
-    lua.setGlobal("WINDOWS", true);
+    lua["WINDOWS"] = true;
 #else
-    lua.setGlobal("WINDOWS", false);
+    lua["WINDOWS"] = false;
 #endif
 
     fs::path binDir = (workDir / "bin");
-    lua.registerFunction("cm_execute",
+    lua.set_function("cm_execute",
                          [binDir](std::string cmd) -> std::string {
                              auto cmdPath = fs::path(cmd);
                              if (!cmdPath.is_absolute())
@@ -110,7 +109,7 @@ ChipMachine::ChipMachine(fs::path const& wd)
                              return output;
                          });
 
-    lua.loadFile(workDir / "lua" / "init.lua");
+    lua.script_file(workDir / "lua" / "init.lua");
 
     initYoutube(lua);
 
@@ -275,9 +274,8 @@ ChipMachine::ChipMachine(fs::path const& wd)
                      "-- ENTER to play -- Press TAB to show all commands ---");
     starEffect.fadeIn();
 
-	auto loginPath = Environment::getCacheDir() / "login";
-	apone::File f{loginPath};
-    if (exists(loginPath)) userName = f.readString();
+	const auto loginPath = Environment::getCacheDir() / "login";
+    if (exists(loginPath)) userName = apone::File{ loginPath }.readString();
 }
 
 ChipMachine::~ChipMachine()
@@ -294,10 +292,17 @@ void ChipMachine::setScrolltext(std::string const& txt)
 
 void ChipMachine::initLua()
 {
-    lua.registerFunction("set_var",
+    lua["set_var"] = sol::overload(
                          [=](std::string name, uint32_t index, std::string val) {
                              setVariable(name, index, val);
-                         });
+                         },
+                         [=](std::string name, uint32_t index, double val) {
+                             setVariable(name, index, std::to_string(val));
+                         },
+                         [=](std::string name, uint32_t index, uint32_t val) {
+                             setVariable(name, index, std::to_string(val));
+                         }
+                    );
 }
 
 void ChipMachine::layoutScreen()
@@ -307,21 +312,24 @@ void ChipMachine::layoutScreen()
     currentTween.finish();
     currentTween = Tween();
 
-    lua.call<void>("on_layout", screen.width(), screen.height(),
+    lua["on_layout"](screen.width(), screen.height(),
                    screen.getPPI() < 0 ? 100 : screen.getPPI());
 
 	utils::File f(workDir / "lua" / "screen.lua");
 
-    lua.setGlobal("SCREEN_WIDTH", screen.width());
-    lua.setGlobal("SCREEN_HEIGHT", screen.height());
-    lua.setGlobal("SCREEN_PPI", screen.getPPI() < 0 ? 100 : screen.getPPI());
+    lua["SCREEN_WIDTH"] = screen.width();
+    lua["SCREEN_HEIGHT"] = screen.height();
+    lua["SCREEN_PPI"] = screen.getPPI() < 0 ? 100 : screen.getPPI();
 
     Resources::getInstance().load<std::string>(f.getName(),
                                           [=](std::shared_ptr<std::string> contents) {
-                                              lua.load(*contents, f);
+                                              LOGD("%s", *contents);
+                                              lua.script(*contents);
+                                              LOGD("Settings");
 
-                                              lua.load(R"(
+                                              lua.script(R"(
 			for a,b in pairs(Settings) do
+                print(a, b)
 				if type(b) == 'table' then
 					for a1,b1 in ipairs(b) do
 						set_var(a, a1, b1)
@@ -331,6 +339,7 @@ void ChipMachine::layoutScreen()
 				end
 			end
 		)");
+                                              LOGD("DONE");
                                           });
 
     starEffect.resize(screen.width(), screen.height());

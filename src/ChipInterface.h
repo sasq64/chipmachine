@@ -5,7 +5,6 @@
 #include "MusicPlayerList.h"
 
 #include <coreutils/utils.h>
-#include <luainterpreter/luainterpreter.h>
 
 #include <vector>
 #include <string>

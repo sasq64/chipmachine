@@ -26,7 +26,7 @@
 #include <coreutils/utils.h>
 #include <grappix/grappix.h>
 #include <grappix/gui/list.h>
-#include <luainterpreter/luainterpreter.h>
+#include "../sol2/sol.hpp"
 #include <tween/tween.h>
 
 #include <cstdio>
@@ -233,7 +233,7 @@ private:
     uint32_t bgcolor = 0;
     bool starsOn = true;
 
-    LuaInterpreter lua;
+    sol::state lua;
 
     demofx::StarField starEffect;
     demofx::Scroller scrollEffect;
