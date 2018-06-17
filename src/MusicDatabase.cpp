@@ -462,7 +462,7 @@ void MusicDatabase::initDatabase(fs::path const& workDir, Variables& vars)
     db.exec("BEGIN TRANSACTION");
     db.exec("INSERT INTO collection (name, id, url, localdir, description) "
             "VALUES (?, ?, ?, ?, ?)",
-            name, id, source, local_dir, description);
+            name, id, source, local_dir.string(), description);
     auto collection_id = db.last_rowid();
     dontIndex.resize(collection_id + 1);
     dontIndex[collection_id] = 0;
@@ -475,7 +475,7 @@ void MusicDatabase::initDatabase(fs::path const& workDir, Variables& vars)
     LOGD("Workdir:%s", workDir);
     File listFile;
     bool writeListFile = false;
-    webutils::Web web{ Environment::getCacheDir() / "_webfiles" };
+    webutils::Web web{ (Environment::getCacheDir() / "_webfiles").string() };
 
     bool prodCollection = false;
 
@@ -489,7 +489,7 @@ void MusicDatabase::initDatabase(fs::path const& workDir, Variables& vars)
     if (startsWith(song_list, "http://")) {
         listFile = web.getFileBlocking(song_list);
     } else if (song_list != "") {
-        listFile = File(workDir, song_list);
+        listFile = File(workDir.string(), song_list);
         writeListFile = listFile.exists();
     }
 
@@ -576,7 +576,7 @@ void MusicDatabase::initDatabase(fs::path const& workDir, Variables& vars)
                 SongInfo songInfo(name);
                 if (identify_song(songInfo)) {
 
-                    auto pos = name.find(local_dir);
+                    auto pos = name.find(local_dir.string());
                     if (pos != std::string::npos) {
                         name = name.substr(pos + local_dir.string().length());
                     }
@@ -1033,7 +1033,7 @@ void MusicDatabase::generateIndex()
     while (q.step()) {
         auto c = q.get<Collection>();
         // NOTE c.name is really c.id
-        loader.registerSource(c.name, c.url, c.local_dir);
+        loader.registerSource(c.name, c.url, c.local_dir.string());
     }
     auto indexPath = Environment::getCacheDir() / "index.dat";
 
@@ -1222,7 +1222,7 @@ bool MusicDatabase::initFromLua(fs::path const& workDir)
             dbmap[name] = std::to_string(val);
         }
     );
-    auto f = findFile(workDir, "lua/db.lua");
+    auto f = findFile(workDir.string(), "lua/db.lua");
     LOGD("%s", f->string());
 
     lua.script_file(f->string());

@@ -12,7 +12,7 @@ using namespace utils;
 
 namespace chipmachine {
 
-MusicPlayerList::MusicPlayerList(const std::string& workDir) : mp(workDir)
+MusicPlayerList::MusicPlayerList(const fs::path& workDir) : mp(workDir.string())
 {
     playerThread = std::thread([=] {
         while (!quitThread) {
@@ -159,7 +159,7 @@ bool MusicPlayerList::handlePlaylist(const std::string& fileName)
 bool MusicPlayerList::playFile(fs::path fileName)
 {
     if (fileName == "") return false;
-    auto ext = toLower(fileName.extension());
+    auto ext = toLower(fileName.extension().string());
     if (ext == ".pls" || currentInfo.format == "PLS") {
         File f{fileName};
 
@@ -190,7 +190,7 @@ bool MusicPlayerList::playFile(fs::path fileName)
         return false;
 
     } else if (ext == ".plist") {
-        handlePlaylist(fileName);
+        handlePlaylist(fileName.string());
         return true;
     } else if (ext == ".jb") {
         // Jason Brooke fix
@@ -200,7 +200,7 @@ bool MusicPlayerList::playFile(fs::path fileName)
         fileName = newName;
     }
 
-    if (mp.playFile(fileName)) {
+    if (mp.playFile(fileName.string())) {
 #ifdef USE_REMOTELISTS
         if (reportSongs)
             RemoteLists::getInstance().songPlayed(currentInfo.path);

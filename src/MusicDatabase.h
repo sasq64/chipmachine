@@ -112,7 +112,7 @@ public:
     using Variables = std::map<std::string, std::string>;
 
     MusicDatabase()
-        : db(Environment::getCacheDir() / "music.db"), reindexNeeded(false)
+        : db((Environment::getCacheDir() / "music.db").string()), reindexNeeded(false)
     {
         createTables();
     }
@@ -212,7 +212,7 @@ public:
                     if (l != "") songs.emplace_back(l);
                 }
             }
-            name = f.filename();
+            name = f.string();
         }
         std::string name;
         std::string fileName;

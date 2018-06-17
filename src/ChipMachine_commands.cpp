@@ -40,7 +40,7 @@ void ChipMachine::setupCommands()
 
     cmd("download_current", [=] {
         auto target = Environment::getHomeDir() / "Downloads";
-        utils::makedir(target);
+        fs::create_directory(target);
 
         auto files = player.getSongFiles();
         if (files.size() == 0) return;
@@ -51,7 +51,7 @@ void ChipMachine::setupCommands()
             std::string composer = currentInfo.composer;
             if (composer == "" || composer == "?") composer = "Unknown";
             if (title == "") title = currentInfo.game;
-            auto ext = utils::path_extension(from);
+            auto ext = utils::path_extension(from.string());
             if (title == "" || utils::endsWith(ext, "lib"))
                 fileName = from.string();
             else

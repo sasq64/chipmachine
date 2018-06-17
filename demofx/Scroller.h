@@ -15,7 +15,7 @@ public:
 		//font = grappix::Font("data/ObelixPro.ttf", 24, 512 | grappix::Font::DISTANCE_MAP);
 		program = grappix::get_program(grappix::TEXTURED_PROGRAM).clone();
 
-		grappix::Resources::getInstance().load<std::string>(Environment::getCacheDir() / "sine_shader.glsl",
+		grappix::Resources::getInstance().load<std::string>((Environment::getCacheDir() / "sine_shader.glsl").string(),
 			[=](std::shared_ptr<std::string> source) {
 				try {
 					program.setFragmentSource(*source);

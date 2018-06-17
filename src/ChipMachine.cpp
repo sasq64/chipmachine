@@ -109,7 +109,7 @@ ChipMachine::ChipMachine(fs::path const& wd)
                              return output;
                          });
 
-    lua.script_file(workDir / "lua" / "init.lua");
+    lua.script_file((workDir / "lua" / "init.lua").string());
 
     initYoutube(lua);
 
@@ -164,7 +164,7 @@ ChipMachine::ChipMachine(fs::path const& wd)
     overlay.add(&toastField);
 
     Resources::getInstance().load<image::bitmap>(
-        Environment::getCacheDir() / "favicon.png",
+        (Environment::getCacheDir() / "favicon.png").string(),
         [=](std::shared_ptr<image::bitmap> bitmap) {
             favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
         },
@@ -416,7 +416,7 @@ void ChipMachine::nextScreenshot()
             float d2 = (float)w / bm.width();
             if (d2 < d) d = d2;
             screenShotIcon.setArea(
-                Rectangle(x, y, bm.width() * d, bm.height() * d));
+                grappix::Rectangle(x, y, bm.width() * d, bm.height() * d));
             Tween::make()
                 .to(screenShotIcon.color, Color(0xffffffff))
                 .seconds(1.0);

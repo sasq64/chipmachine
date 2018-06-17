@@ -57,7 +57,7 @@ public:
         Playmulti
     };
 
-    MusicPlayerList(const std::string& workDir);
+    MusicPlayerList(const fs::path& workDir);
 
     ~MusicPlayerList()
     {

@@ -19,7 +19,7 @@ namespace chipmachine {
 class ChipInterface {
 public:
 	ChipInterface(const fs::path &wd) : workDir(wd), player(wd) {
-		MusicDatabase::getInstance().initFromLua(this->workDir);
+		MusicDatabase::getInstance().initFromLua(wd);
 	}
 	
 	std::shared_ptr<IncrementalQuery> createQuery() {
