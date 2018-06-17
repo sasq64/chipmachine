@@ -4,18 +4,17 @@
 #include "modutils.h"
 
 #include <archive/archive.h>
+#include <coreutils/environment.h>
+#include <coreutils/searchpath.h>
 #include <coreutils/utils.h>
 #include <crypto/md5.h>
 #include <webutils/web.h>
 #include <xml/xml.h>
 
-#include <coreutils/environment.h>
-#include <coreutils/searchpath.h>
-
 #include <algorithm>
 #include <chrono>
-#include <set>
 #include <map>
+#include <set>
 
 #include "../sol2/sol.hpp"
 
@@ -276,7 +275,7 @@ bool MusicDatabase::parseModland(
                                                          "Video Game Music" };
 
     auto parts = split(vars["exclude_formats"], ";");
-	std::set<std::string> exclude(parts.begin(), parts.end());
+    std::set<std::string> exclude(parts.begin(), parts.end());
 
     SongInfo lastSong;
 
@@ -502,7 +501,7 @@ void MusicDatabase::initDatabase(fs::path const& workDir, Variables& vars)
         auto query2 = db.query("INSERT INTO prod2song (prodid, songid) "
                                "VALUES (?, ?)");
 
-		std::map<std::string, ParseProdFun> parsers = {
+        std::map<std::string, ParseProdFun> parsers = {
             { "csdb", &MusicDatabase::parseCsdb },
             { "gb64", &MusicDatabase::parseGamebase },
             { "bitworld", &MusicDatabase::parseBitworld },
@@ -542,7 +541,7 @@ void MusicDatabase::initDatabase(fs::path const& workDir, Variables& vars)
 
         if (fs::exists(listFile)) {
 
-			std::map<std::string, ParseSongFun> parsers = {
+            std::map<std::string, ParseSongFun> parsers = {
                 { "pouet", &MusicDatabase::parseStandard },
                 { "amp", &MusicDatabase::parseAmp },
                 { "modland", &MusicDatabase::parseModland },
@@ -699,7 +698,8 @@ SongInfo& MusicDatabase::lookup(SongInfo& song)
         LOGD("INDEX %s %s", parts[0], path);
     }
 
-    auto q = db.query<std::string, std::string, std::string, std::string, std::string, std::string, std::string>(
+    auto q = db.query<std::string, std::string, std::string, std::string,
+                      std::string, std::string, std::string>(
         "SELECT path, title, game, composer, format, collection.id, metadata "
         "FROM song, collection "
         "WHERE song.collection = collection.ROWID AND song.path = ?",
@@ -721,8 +721,8 @@ SongInfo& MusicDatabase::lookup(SongInfo& song)
 std::string MusicDatabase::getScreenshotURL(std::string const& collection)
 {
     std::string prefix;
-    auto q =
-        db.query<std::string>("SELECT url FROM collection WHERE id = ?", collection);
+    auto q = db.query<std::string>("SELECT url FROM collection WHERE id = ?",
+                                   collection);
     if (q.step()) prefix = q.get();
     return prefix;
 }
@@ -742,7 +742,8 @@ SongInfo MusicDatabase::getSongInfo(int index) const
     // LOGD("ID %d vs PROD %d", index, productStartIndex);
     if (index >= productStartIndex) {
         index -= productStartIndex;
-        auto q = db.query<std::string, std::string, std::string, std::string, std::string>(
+        auto q = db.query<std::string, std::string, std::string, std::string,
+                          std::string>(
             "SELECT title, creator, type, collection.id, metadata "
             "FROM  product, collection "
             "WHERE product.ROWID = ? AND product.collection = collection.ROWID",
@@ -758,13 +759,13 @@ SongInfo MusicDatabase::getSongInfo(int index) const
 
     } else {
 
-        auto q =
-            db.query<std::string, std::string, std::string, std::string, std::string, std::string, std::string>(
-                "SELECT title, game, composer, format, song.path, "
-                "collection.id, metadata "
-                "FROM song, collection "
-                "WHERE song.ROWID = ? AND song.collection = collection.ROWID",
-                index);
+        auto q = db.query<std::string, std::string, std::string, std::string,
+                          std::string, std::string, std::string>(
+            "SELECT title, game, composer, format, song.path, "
+            "collection.id, metadata "
+            "FROM song, collection "
+            "WHERE song.ROWID = ? AND song.collection = collection.ROWID",
+            index);
         if (q.step()) {
             SongInfo song;
             std::string collection;
@@ -826,8 +827,9 @@ std::string MusicDatabase::getSongScreenshots(SongInfo& s)
                 collection = c;
                 lowestDist = ld;
             }
-            // if(format.find("Game") != std::string::npos || format.find("Demo") !=
-            // std::string::npos || format.find("Trackmo") != std::string::npos) 	break;
+            // if(format.find("Game") != std::string::npos ||
+            // format.find("Demo") != std::string::npos ||
+            // format.find("Trackmo") != std::string::npos) 	break;
         }
     }
     if (shot != "") {
@@ -877,7 +879,8 @@ std::vector<SongInfo> MusicDatabase::getProductSongs(uint32_t id)
 {
     std::vector<SongInfo> songs;
     auto screenshot = getProductScreenshots(id);
-    auto q = db.query<std::string, std::string, std::string, std::string, std::string, std::string, std::string>(
+    auto q = db.query<std::string, std::string, std::string, std::string,
+                      std::string, std::string, std::string>(
         "SELECT title, game, composer, format, song.path, collection.id, "
         "metadata "
         "FROM song, prod2song, collection "
@@ -1045,7 +1048,8 @@ void MusicDatabase::generateIndex()
     print_fmt("Creating Search Index...\n");
 
     std::string oldComposer;
-    auto query = db.query<std::string, std::string, std::string, std::string, std::string, int>(
+    auto query = db.query<std::string, std::string, std::string, std::string,
+                          std::string, int>(
         "SELECT title, game, format, composer, path, collection FROM song");
 
     int count = 0;
@@ -1060,7 +1064,7 @@ void MusicDatabase::generateIndex()
 
     int step = 438000 / 20;
 
-	std::unordered_map<std::string, std::vector<uint32_t>> composers;
+    std::unordered_map<std::string, std::vector<uint32_t>> composers;
 
     std::string title, game, fmt, composer, path;
     int collection;
@@ -1205,30 +1209,20 @@ bool MusicDatabase::initFromLua(fs::path const& workDir)
     lua.open_libraries(sol::lib::base, sol::lib::package);
 
     std::map<std::string, std::string> dbmap;
-    lua["start_db"] = []{};
-    lua["end_db"] = [&]{
+    lua["create_db"] = [&] {
         initDatabase(workDir, dbmap);
         dbmap.clear();
     };
 
     lua["set_db_var"] = sol::overload(
-        [&](std::string name, std::string val) {
-            dbmap[name] = val;
-        },
-        [&](std::string name, double val) {
+        [&](std::string const& name, std::string val) { dbmap[name] = val; },
+        [&](std::string const& name, uint32_t val) {
             dbmap[name] = std::to_string(val);
-        },
-        [&](std::string name, uint32_t val) {
-            dbmap[name] = std::to_string(val);
-        }
-    );
-    auto f = findFile(workDir.string(), "lua/db.lua");
-    LOGD("%s", f->string());
+        });
 
-    lua.script_file(f->string());
-        /* LOGE("Could not load db.lua"); */
-        /* return false; */
-    /* } */
+    if (auto f = findFile(workDir.string(), "lua/db.lua")) {
+        lua.script_file(f->string());
+    }
 
     dbVersion = lua["VERSION"];
     LOGD("DBVERSION %d INDEXVERSION %d", dbVersion, indexVersion);
@@ -1243,13 +1237,11 @@ bool MusicDatabase::initFromLua(fs::path const& workDir)
 
     lua.script(R"(
 		for a,b in pairs(DB) do
-            print(a,b)
 			if type(b) == 'table' then
-				start_db()
 				for a1,b1 in pairs(b) do
 					set_db_var(a1, b1)
 				end
-				end_db()
+				create_db()
 			end
 		end
 	)");
@@ -1262,9 +1254,10 @@ int MusicDatabase::getSongs(std::vector<SongInfo>& target,
 {
 
     std::lock_guard lock{ dbMutex };
-    std::string txt = "SELECT path, game, title, composer, format, collection.id "
-                 "FROM song, collection "
-                 "WHERE song.collection = collection.ROWID";
+    std::string txt =
+        "SELECT path, game, title, composer, format, collection.id "
+        "FROM song, collection "
+        "WHERE song.collection = collection.ROWID";
 
     std::string collection;
     if (match.path != "") {
@@ -1280,7 +1273,8 @@ int MusicDatabase::getSongs(std::vector<SongInfo>& target,
 
     LOGD("SQL:%s", txt);
 
-    auto q = db.query<std::string, std::string, std::string, std::string, std::string, std::string>(txt);
+    auto q = db.query<std::string, std::string, std::string, std::string,
+                      std::string, std::string>(txt);
     int index = 1;
     if (match.format != "") q.bind(index++, match.format);
     if (match.composer != "") q.bind(index++, match.composer);

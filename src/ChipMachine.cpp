@@ -40,10 +40,13 @@ void ChipMachine::renderSong(grappix::Rectangle const& rec, int y,
 {
 
     static const std::map<uint32_t, uint32_t> colors = {
-        {NOT_SET, 0xffff00ff}, {PLAYLIST, 0xffffff88}, {CONSOLE, 0xffdd3355},
-        {C64, 0xffcc8844},     {ATARI, 0xffcccc33},    {MP3, 0xff88ff88},
-        {M3U, 0xffaaddaa},     {YOUTUBE, 0xffff0000},  {PC, 0xffcccccc},
-        {AMIGA, 0xff6666cc},   {PRODUCT, 0xffff88cc},  {255, 0xff00ffff}};
+        { NOT_SET, 0xffff00ff }, { PLAYLIST, 0xffffff88 },
+        { CONSOLE, 0xffdd3355 }, { C64, 0xffcc8844 },
+        { ATARI, 0xffcccc33 },   { MP3, 0xff88ff88 },
+        { M3U, 0xffaaddaa },     { YOUTUBE, 0xffff0000 },
+        { PC, 0xffcccccc },      { AMIGA, 0xff6666cc },
+        { PRODUCT, 0xffff88cc }, { 255, 0xff00ffff }
+    };
 
     Color c;
     std::string text;
@@ -101,13 +104,12 @@ ChipMachine::ChipMachine(fs::path const& wd)
 
     fs::path binDir = (workDir / "bin");
     lua.set_function("cm_execute",
-                         [binDir](std::string cmd) -> std::string {
-                             auto cmdPath = fs::path(cmd);
-                             if (!cmdPath.is_absolute())
-                                 cmdPath = binDir / cmdPath;
-                             std::string output = utils::execPipe(cmdPath.string());
-                             return output;
-                         });
+                     [binDir](std::string const& cmd) -> std::string {
+                         auto cmdPath = fs::path(cmd);
+                         if (!cmdPath.is_absolute()) cmdPath = binDir / cmdPath;
+                         std::string output = utils::execPipe(cmdPath.string());
+                         return output;
+                     });
 
     lua.script_file((workDir / "lua" / "init.lua").string());
 
@@ -125,7 +127,7 @@ ChipMachine::ChipMachine(fs::path const& wd)
     scrollEffect.set("font", ff.string());
 
 #ifdef ENABLE_TELNET
-    telnet = make_unique<TelnetInterface>(player);
+    telnet = std::make_unique<TelnetInterface>(player);
     telnet->start();
 #endif
 
@@ -173,8 +175,8 @@ ChipMachine::ChipMachine(fs::path const& wd)
 
     float ww = volume_icon.width() * 15;
     float hh = volume_icon.height() * 10;
-    volPos = {((float)screen.width() - ww) / 2.0f,
-              ((float)screen.height() - hh) / 2.0f, ww, hh};
+    volPos = { ((float)screen.width() - ww) / 2.0f,
+               ((float)screen.height() - hh) / 2.0f, ww, hh };
     volumeIcon = Icon(volume_icon, volPos.x, volPos.y, volPos.w, volPos.h);
 
     setupCommands();
@@ -274,7 +276,7 @@ ChipMachine::ChipMachine(fs::path const& wd)
                      "-- ENTER to play -- Press TAB to show all commands ---");
     starEffect.fadeIn();
 
-	const auto loginPath = Environment::getCacheDir() / "login";
+    const auto loginPath = Environment::getCacheDir() / "login";
     if (exists(loginPath)) userName = apone::File{ loginPath }.readString();
 }
 
@@ -293,16 +295,15 @@ void ChipMachine::setScrolltext(std::string const& txt)
 void ChipMachine::initLua()
 {
     lua["set_var"] = sol::overload(
-                         [=](std::string name, uint32_t index, std::string val) {
-                             setVariable(name, index, val);
-                         },
-                         [=](std::string name, uint32_t index, double val) {
-                             setVariable(name, index, std::to_string(val));
-                         },
-                         [=](std::string name, uint32_t index, uint32_t val) {
-                             setVariable(name, index, std::to_string(val));
-                         }
-                    );
+        [=](std::string const& name, uint32_t index, std::string const& val) {
+            setVariable(name, index, val);
+        },
+        [=](std::string const& name, uint32_t index, double val) {
+            setVariable(name, index, std::to_string(val));
+        },
+        [=](std::string const& name, uint32_t index, uint32_t val) {
+            setVariable(name, index, std::to_string(val));
+        });
 }
 
 void ChipMachine::layoutScreen()
@@ -313,23 +314,19 @@ void ChipMachine::layoutScreen()
     currentTween = Tween();
 
     lua["on_layout"](screen.width(), screen.height(),
-                   screen.getPPI() < 0 ? 100 : screen.getPPI());
+                     screen.getPPI() < 0 ? 100 : screen.getPPI());
 
-	utils::File f(workDir / "lua" / "screen.lua");
+    utils::File f(workDir / "lua" / "screen.lua");
 
     lua["SCREEN_WIDTH"] = screen.width();
     lua["SCREEN_HEIGHT"] = screen.height();
     lua["SCREEN_PPI"] = screen.getPPI() < 0 ? 100 : screen.getPPI();
 
-    Resources::getInstance().load<std::string>(f.getName(),
-                                          [=](std::shared_ptr<std::string> contents) {
-                                              LOGD("%s", *contents);
-                                              lua.script(*contents);
-                                              LOGD("Settings");
-
-                                              lua.script(R"(
+    Resources::getInstance().load<std::string>(
+        f.getName(), [=](std::shared_ptr<std::string> contents) {
+            lua.script(*contents);
+            lua.script(R"(
 			for a,b in pairs(Settings) do
-                print(a, b)
 				if type(b) == 'table' then
 					for a1,b1 in ipairs(b) do
 						set_var(a, a1, b1)
@@ -339,8 +336,7 @@ void ChipMachine::layoutScreen()
 				end
 			end
 		)");
-                                              LOGD("DONE");
-                                          });
+        });
 
     starEffect.resize(screen.width(), screen.height());
     scrollEffect.resize(screen.width(), 45 * scrollEffect.scrollsize);
@@ -356,8 +352,8 @@ void ChipMachine::layoutScreen()
 
     float ww = volume_icon.width() * 15;
     float hh = volume_icon.height() * 10;
-    volPos = {((float)screen.width() - ww) / 2.0f,
-              ((float)screen.height() - hh) / 2.0f, ww, hh};
+    volPos = { ((float)screen.width() - ww) / 2.0f,
+               ((float)screen.height() - hh) / 2.0f, ww, hh };
     volumeIcon.setArea(volPos);
 }
 
@@ -497,7 +493,7 @@ void ChipMachine::update()
         dbInfo = player.getDBInfo();
         LOGD("MUSIC STARTING %s", currentInfo.title);
         screen.setTitle(utils::format("%s / %s (Chipmachine " VERSION_STR ")",
-                               currentInfo.title, currentInfo.composer));
+                                      currentInfo.title, currentInfo.composer));
         std::string m;
         if (currentInfo.metadata[SongInfo::INFO] != "") {
             m = compressWhitespace(currentInfo.metadata[SongInfo::INFO]);
@@ -531,7 +527,8 @@ void ChipMachine::update()
                         // LOCK_GUARD(multiLoadLock);
 
                         try {
-                            if (utils::toLower(utils::path_extension(f.getName())) == "gif") {
+                            if (utils::toLower(utils::path_extension(
+                                    f.getName())) == "gif") {
                                 t--;
                                 for (auto& bm : image::load_gifs(f.getName())) {
                                     for (auto& px : bm) {
@@ -579,8 +576,8 @@ void ChipMachine::update()
         currentTune = player.getTune();
 
         if (currentInfo.numtunes > 0)
-            songField.setText(
-                utils::format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
+            songField.setText(utils::format("[%02d/%02d]", currentTune + 1,
+                                            currentInfo.numtunes));
         else
             songField.setText("[01/01]");
 
@@ -658,8 +655,8 @@ void ChipMachine::update()
         xinfoField.setText(sub_title);
         currentInfoField.setInfo(currentInfo);
         currentTune = tune;
-        songField.setText(
-            utils::format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
+        songField.setText(utils::format("[%02d/%02d]", currentTune + 1,
+                                        currentInfo.numtunes));
         auto m = compressWhitespace(player.getMeta("message"));
         if (m != "" && scrollText != m) {
             scrollEffect.set("scrolltext", m);
@@ -674,7 +671,8 @@ void ChipMachine::update()
         /*     (player.getPermissions() & MusicPlayerList::Partymode) != 0; */
         /* if (!lockDown && party) { */
         /*     lockDown = true; */
-        /*     Tween::make().to(timeField.color, Color(0xffff0000)).seconds(0.5); */
+        /*     Tween::make().to(timeField.color,
+         * Color(0xffff0000)).seconds(0.5); */
         /* } else if (lockDown && !party) { */
         /*     lockDown = false; */
         /*     Tween::make().to(timeField.color, timeColor).seconds(2.0); */
@@ -764,7 +762,8 @@ void ChipMachine::toast(std::string const& txt, ToastType type)
 {
 
     static std::vector<Color> colors = {
-        0xffffff, 0xff8888, 0x55aa55}; // Alpha intentionally left at zero
+        0xffffff, 0xff8888, 0x55aa55
+    }; // Alpha intentionally left at zero
 
     toastField.setText(txt);
     int tlen = toastField.getWidth();
