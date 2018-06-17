@@ -12,7 +12,7 @@ using namespace utils;
 
 namespace chipmachine {
 
-MusicPlayerList::MusicPlayerList(const std::string& workDir) : mp(workDir)
+MusicPlayerList::MusicPlayerList(const fs::path& workDir) : mp(workDir.string())
 {
     playerThread = std::thread([=] {
         while (!quitThread) {
@@ -156,11 +156,11 @@ bool MusicPlayerList::handlePlaylist(const std::string& fileName)
     return true;
 }
 
-bool MusicPlayerList::playFile(std::string fileName)
+bool MusicPlayerList::playFile(fs::path fileName)
 {
     if (fileName == "") return false;
-    auto ext = toLower(path_extension(fileName));
-    if (ext == "pls" || currentInfo.format == "PLS") {
+    auto ext = toLower(fileName.extension().string());
+    if (ext == ".pls" || currentInfo.format == "PLS") {
         File f{fileName};
 
         auto lines = f.getLines();
@@ -173,7 +173,7 @@ bool MusicPlayerList::playFile(std::string fileName)
         playCurrent();
         return false;
 
-    } else if (ext == "m3u" || currentInfo.format == "M3U") {
+    } else if (ext == ".m3u" || currentInfo.format == "M3U") {
         File f{fileName};
 
         auto lines = f.getLines();
@@ -189,18 +189,18 @@ bool MusicPlayerList::playFile(std::string fileName)
         playCurrent();
         return false;
 
-    } else if (ext == "plist") {
-        handlePlaylist(fileName);
+    } else if (ext == ".plist") {
+        handlePlaylist(fileName.string());
         return true;
-    } else if (ext == "jb") {
+    } else if (ext == ".jb") {
         // Jason Brooke fix
-        std::string newName =
-            fileName.substr(0, fileName.find_last_of('.')) + ".jcb";
-        if (!File::exists(newName)) File::copy(fileName, newName);
+        auto newName = fileName;
+        newName.replace_extension(".jcb");
+        if (!exists(newName)) fs::copy(fileName, newName);
         fileName = newName;
     }
 
-    if (mp.playFile(fileName)) {
+    if (mp.playFile(fileName.string())) {
 #ifdef USE_REMOTELISTS
         if (reportSongs)
             RemoteLists::getInstance().songPlayed(currentInfo.path);
@@ -470,7 +470,7 @@ void MusicPlayerList::playCurrent()
 
     cancelStreaming();
 
-    if (File::exists(currentInfo.path)) {
+    if (fs::exists(currentInfo.path)) {
         LOGD("PLAYING LOCAL FILE %s", currentInfo.path);
         songFiles = {File(currentInfo.path)};
         loadedFile = currentInfo.path;

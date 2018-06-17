@@ -59,7 +59,7 @@ buildTool = args.buildsystem;
 buildArgs = []
 buildArgs += configs[args.config][1]
 buildArgs.append(buildsystems[args.buildsystem][0])
-buildArgs.append('-DCMAKE_TOOLCHAIN_FILE=clang.cmake')
+#buildArgs.append('-DCMAKE_TOOLCHAIN_FILE=clang.cmake')
 outputDir = os.path.join(args.output, configs[args.config][0])
 
 try :

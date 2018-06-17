@@ -175,8 +175,8 @@ public:
 
 	int add(const std::string &str, bool stringonly = false);
 
-	void dump(utils::File &f);
-	void load(utils::File &f);
+	void dump(apone::File& f);
+	void load(apone::File& f);
 
 	static std::string& simplify(std::string &s);
 	static unsigned int tlcode(const char *s);

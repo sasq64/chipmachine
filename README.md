@@ -245,3 +245,8 @@ Support for (Youtube) streaming audio
 
 * AAC
 * Ogg/Vorbis
+
+## V2
+
+Support for Farbrauisch V2 Synthesizer System modules
+

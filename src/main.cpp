@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 #ifdef ENABLE_CONSOLE
         auto* c = bbs::Console::createLocalConsole();
 #endif
-        auto pl = std::make_unique<MusicPlayer>(workDir);
+        auto pl = std::make_unique<MusicPlayer>(workDir.string());
         while (true) {
             if (pos >= songs.size()) return 0;
             pl->playFile(songs[pos++].path);

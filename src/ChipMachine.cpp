@@ -7,17 +7,15 @@
 #include <grappix/window.h>
 
 #include <cctype>
-#include <luainterpreter/luainterpreter.h>
 #include <map>
 #ifdef _WIN32
 #    include <ShellApi.h>
 #endif
-using namespace std;
-using namespace utils;
-using namespace grappix;
-using namespace tween;
 
-void initYoutube(LuaInterpreter&);
+using namespace grappix;
+using tween::Tween;
+
+void initYoutube(sol::state&);
 
 std::string compressWhitespace(std::string&& m)
 {
@@ -30,40 +28,43 @@ std::string compressWhitespace(std::string&& m)
     return m;
 }
 
-std::string compressWhitespace(const std::string& text)
+std::string compressWhitespace(std::string const& text)
 {
     return compressWhitespace(std::string(text));
 }
 
 namespace chipmachine {
 
-void ChipMachine::renderSong(const grappix::Rectangle& rec, int y,
+void ChipMachine::renderSong(grappix::Rectangle const& rec, int y,
                              uint32_t index, bool hilight)
 {
 
-    static const map<uint32_t, uint32_t> colors = {
-        {NOT_SET, 0xffff00ff}, {PLAYLIST, 0xffffff88}, {CONSOLE, 0xffdd3355},
-        {C64, 0xffcc8844},     {ATARI, 0xffcccc33},    {MP3, 0xff88ff88},
-        {M3U, 0xffaaddaa},     {YOUTUBE, 0xffff0000},  {PC, 0xffcccccc},
-        {AMIGA, 0xff6666cc},   {PRODUCT, 0xffff88cc},  {255, 0xff00ffff}};
+    static const std::map<uint32_t, uint32_t> colors = {
+        { NOT_SET, 0xffff00ff }, { PLAYLIST, 0xffffff88 },
+        { CONSOLE, 0xffdd3355 }, { C64, 0xffcc8844 },
+        { ATARI, 0xffcccc33 },   { MP3, 0xff88ff88 },
+        { M3U, 0xffaaddaa },     { YOUTUBE, 0xffff0000 },
+        { PC, 0xffcccccc },      { AMIGA, 0xff6666cc },
+        { PRODUCT, 0xffff88cc }, { 255, 0xff00ffff }
+    };
 
     Color c;
-    string text;
+    std::string text;
 
     auto res = iquery->getResult(index);
-    auto parts = split(res, "\t");
+    auto parts = utils::split(res, "\t");
     int f = std::stol(parts[3]) & 0xff;
 
     if (f == PLAYLIST || f == PRODUCT) {
         if (parts[1] == "")
-            text = format("<%s>", parts[0]);
+            text = utils::format("<%s>", parts[0]);
         else
-            text = format("<%s / %s>", parts[0], parts[1]);
+            text = utils::format("<%s / %s>", parts[0], parts[1]);
     } else {
         if (parts[1] == "")
             text = parts[0];
         else
-            text = format("%s / %s", parts[0], parts[1]);
+            text = utils::format("%s / %s", parts[0], parts[1]);
     }
     auto it = --colors.upper_bound(f);
     c = it->second;
@@ -94,30 +95,29 @@ ChipMachine::ChipMachine(fs::path const& wd)
 {
 
     screen.setTitle("Chipmachine " VERSION_STR);
-
+    lua.open_libraries(sol::lib::base, sol::lib::package, sol::lib::string);
 #ifdef _WIN32
-    lua.setGlobal("WINDOWS", true);
+    lua["WINDOWS"] = true;
 #else
-    lua.setGlobal("WINDOWS", false);
+    lua["WINDOWS"] = false;
 #endif
 
     fs::path binDir = (workDir / "bin");
-    lua.registerFunction("cm_execute",
-                         [binDir](std::string cmd) -> std::string {
-                             auto cmdPath = fs::path(cmd);
-                             if (!cmdPath.is_absolute())
-                                 cmdPath = binDir / cmdPath;
-                             std::string output = execPipe(cmdPath.string());
-                             return output;
-                         });
+    lua.set_function("cm_execute",
+                     [binDir](std::string const& cmd) -> std::string {
+                         auto cmdPath = fs::path(cmd);
+                         if (!cmdPath.is_absolute()) cmdPath = binDir / cmdPath;
+                         std::string output = utils::execPipe(cmdPath.string());
+                         return output;
+                     });
 
-    lua.loadFile(workDir / "lua" / "init.lua");
+    lua.script_file((workDir / "lua" / "init.lua").string());
 
     initYoutube(lua);
 
 #ifdef USE_REMOTELISTS
-    RemoteLists::getInstance().onError([=](int rc, const std::string& error) {
-        string e = error;
+    RemoteLists::getInstance().onError([=](int rc, std::string const& error) {
+        std::string e = error;
         if (rc == RemoteLists::JSON_INVALID) e = "Server unavailable";
         screen.run_safely([=] { toast(e, 1); });
     });
@@ -127,7 +127,7 @@ ChipMachine::ChipMachine(fs::path const& wd)
     scrollEffect.set("font", ff.string());
 
 #ifdef ENABLE_TELNET
-    telnet = make_unique<TelnetInterface>(player);
+    telnet = std::make_unique<TelnetInterface>(player);
     telnet->start();
 #endif
 
@@ -166,8 +166,8 @@ ChipMachine::ChipMachine(fs::path const& wd)
     overlay.add(&toastField);
 
     Resources::getInstance().load<image::bitmap>(
-        Environment::getCacheDir() / "favicon.png",
-        [=](shared_ptr<image::bitmap> bitmap) {
+        (Environment::getCacheDir() / "favicon.png").string(),
+        [=](std::shared_ptr<image::bitmap> bitmap) {
             favIcon = Icon(heart_icon, favPos.x, favPos.y, favPos.w, favPos.h);
         },
         heart_icon);
@@ -175,8 +175,8 @@ ChipMachine::ChipMachine(fs::path const& wd)
 
     float ww = volume_icon.width() * 15;
     float hh = volume_icon.height() * 10;
-    volPos = {((float)screen.width() - ww) / 2.0f,
-              ((float)screen.height() - hh) / 2.0f, ww, hh};
+    volPos = { ((float)screen.width() - ww) / 2.0f,
+               ((float)screen.height() - hh) / 2.0f, ww, hh };
     volumeIcon = Icon(volume_icon, volPos.x, volPos.y, volPos.w, volPos.h);
 
     setupCommands();
@@ -276,8 +276,8 @@ ChipMachine::ChipMachine(fs::path const& wd)
                      "-- ENTER to play -- Press TAB to show all commands ---");
     starEffect.fadeIn();
 
-    File f{Environment::getCacheDir() / "login"};
-    if (f.exists()) userName = f.read();
+    const auto loginPath = Environment::getCacheDir() / "login";
+    if (exists(loginPath)) userName = apone::File{ loginPath }.readString();
 }
 
 ChipMachine::~ChipMachine()
@@ -287,17 +287,23 @@ ChipMachine::~ChipMachine()
 #endif
 }
 
-void ChipMachine::setScrolltext(const std::string& txt)
+void ChipMachine::setScrolltext(std::string const& txt)
 {
     scrollEffect.set("scrolltext", txt);
 }
 
 void ChipMachine::initLua()
 {
-    lua.registerFunction("set_var",
-                         [=](string name, uint32_t index, string val) {
-                             setVariable(name, index, val);
-                         });
+    lua["set_var"] = sol::overload(
+        [=](std::string const& name, uint32_t index, std::string const& val) {
+            setVariable(name, index, val);
+        },
+        [=](std::string const& name, uint32_t index, double val) {
+            setVariable(name, index, std::to_string(val));
+        },
+        [=](std::string const& name, uint32_t index, uint32_t val) {
+            setVariable(name, index, std::to_string(val));
+        });
 }
 
 void ChipMachine::layoutScreen()
@@ -307,20 +313,19 @@ void ChipMachine::layoutScreen()
     currentTween.finish();
     currentTween = Tween();
 
-    lua.call<void>("on_layout", screen.width(), screen.height(),
-                   screen.getPPI() < 0 ? 100 : screen.getPPI());
+    lua["on_layout"](screen.width(), screen.height(),
+                     screen.getPPI() < 0 ? 100 : screen.getPPI());
 
-    File f(workDir / "lua" / "screen.lua");
+    utils::File f(workDir / "lua" / "screen.lua");
 
-    lua.setGlobal("SCREEN_WIDTH", screen.width());
-    lua.setGlobal("SCREEN_HEIGHT", screen.height());
-    lua.setGlobal("SCREEN_PPI", screen.getPPI() < 0 ? 100 : screen.getPPI());
+    lua["SCREEN_WIDTH"] = screen.width();
+    lua["SCREEN_HEIGHT"] = screen.height();
+    lua["SCREEN_PPI"] = screen.getPPI() < 0 ? 100 : screen.getPPI();
 
-    Resources::getInstance().load<string>(f.getName(),
-                                          [=](shared_ptr<string> contents) {
-                                              lua.load(*contents, f);
-
-                                              lua.load(R"(
+    Resources::getInstance().load<std::string>(
+        f.getName(), [=](std::shared_ptr<std::string> contents) {
+            lua.script(*contents);
+            lua.script(R"(
 			for a,b in pairs(Settings) do
 				if type(b) == 'table' then
 					for a1,b1 in ipairs(b) do
@@ -331,7 +336,7 @@ void ChipMachine::layoutScreen()
 				end
 			end
 		)");
-                                          });
+        });
 
     starEffect.resize(screen.width(), screen.height());
     scrollEffect.resize(screen.width(), 45 * scrollEffect.scrollsize);
@@ -347,12 +352,12 @@ void ChipMachine::layoutScreen()
 
     float ww = volume_icon.width() * 15;
     float hh = volume_icon.height() * 10;
-    volPos = {((float)screen.width() - ww) / 2.0f,
-              ((float)screen.height() - hh) / 2.0f, ww, hh};
+    volPos = { ((float)screen.width() - ww) / 2.0f,
+               ((float)screen.height() - hh) / 2.0f, ww, hh };
     volumeIcon.setArea(volPos);
 }
 
-void ChipMachine::play(const SongInfo& si)
+void ChipMachine::play(SongInfo const& si)
 {
     player.addSong(si);
     player.nextSong();
@@ -363,7 +368,7 @@ void ChipMachine::updateFavorite()
     auto favorites =
         MusicDatabase::getInstance().getPlaylist(currentPlaylistName);
     auto favsong =
-        find_if(favorites.begin(), favorites.end(), [&](const SongInfo& song) {
+        find_if(favorites.begin(), favorites.end(), [&](SongInfo const& song) {
             return (song.path == currentInfo.path &&
                     (currentTune == song.starttune ||
                      (currentTune == currentInfo.starttune &&
@@ -407,7 +412,7 @@ void ChipMachine::nextScreenshot()
             float d2 = (float)w / bm.width();
             if (d2 < d) d = d2;
             screenShotIcon.setArea(
-                Rectangle(x, y, bm.width() * d, bm.height() * d));
+                grappix::Rectangle(x, y, bm.width() * d, bm.height() * d));
             Tween::make()
                 .to(screenShotIcon.color, Color(0xffffffff))
                 .seconds(1.0);
@@ -425,7 +430,7 @@ void ChipMachine::updateNextField()
             if (psz == 1)
                 nextField.setText("Next");
             else
-                nextField.setText(format("Next (%d)", psz));
+                nextField.setText(utils::format("Next (%d)", psz));
             nextInfoField.setInfo(info);
             currentNextPath = info.path;
         }
@@ -463,7 +468,7 @@ void ChipMachine::update()
         }
         namedToPlay = "";
         for (const auto& s : target) {
-            if (!endsWith(s.path, ".plist")) player.addSong(s);
+            if (!utils::endsWith(s.path, ".plist")) player.addSong(s);
         }
         player.nextSong();
     }
@@ -487,9 +492,9 @@ void ChipMachine::update()
         currentInfo = player.getInfo();
         dbInfo = player.getDBInfo();
         LOGD("MUSIC STARTING %s", currentInfo.title);
-        screen.setTitle(format("%s / %s (Chipmachine " VERSION_STR ")",
-                               currentInfo.title, currentInfo.composer));
-        string m;
+        screen.setTitle(utils::format("%s / %s (Chipmachine " VERSION_STR ")",
+                                      currentInfo.title, currentInfo.composer));
+        std::string m;
         if (currentInfo.metadata[SongInfo::INFO] != "") {
             m = compressWhitespace(currentInfo.metadata[SongInfo::INFO]);
         } else {
@@ -508,9 +513,9 @@ void ChipMachine::update()
             currentScreenshot = shot;
 
             if (shot != "") {
-                auto parts = split(shot, ";");
+                auto parts = utils::split(shot, ";");
                 int total = parts.size();
-                auto cb = [=](File f) {
+                auto cb = [=](utils::File f) {
                     if (currentScreenshot == "")
                         return; // We probably got a new screenshot while
                                 // loading
@@ -522,7 +527,8 @@ void ChipMachine::update()
                         // LOCK_GUARD(multiLoadLock);
 
                         try {
-                            if (toLower(path_extension(f.getName())) == "gif") {
+                            if (utils::toLower(utils::path_extension(
+                                    f.getName())) == "gif") {
                                 t--;
                                 for (auto& bm : image::load_gifs(f.getName())) {
                                     for (auto& px : bm) {
@@ -570,8 +576,8 @@ void ChipMachine::update()
         currentTune = player.getTune();
 
         if (currentInfo.numtunes > 0)
-            songField.setText(
-                format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
+            songField.setText(utils::format("[%02d/%02d]", currentTune + 1,
+                                            currentInfo.numtunes));
         else
             songField.setText("[01/01]");
 
@@ -649,8 +655,8 @@ void ChipMachine::update()
         xinfoField.setText(sub_title);
         currentInfoField.setInfo(currentInfo);
         currentTune = tune;
-        songField.setText(
-            format("[%02d/%02d]", currentTune + 1, currentInfo.numtunes));
+        songField.setText(utils::format("[%02d/%02d]", currentTune + 1,
+                                        currentInfo.numtunes));
         auto m = compressWhitespace(player.getMeta("message"));
         if (m != "" && scrollText != m) {
             scrollEffect.set("scrolltext", m);
@@ -661,27 +667,28 @@ void ChipMachine::update()
 
     if (player.isPlaying()) {
 
-        bool party =
-            (player.getPermissions() & MusicPlayerList::Partymode) != 0;
-        if (!lockDown && party) {
-            lockDown = true;
-            Tween::make().to(timeField.color, Color(0xffff0000)).seconds(0.5);
-        } else if (lockDown && !party) {
-            lockDown = false;
-            Tween::make().to(timeField.color, timeColor).seconds(2.0);
-        }
+        /* bool party = */
+        /*     (player.getPermissions() & MusicPlayerList::Partymode) != 0; */
+        /* if (!lockDown && party) { */
+        /*     lockDown = true; */
+        /*     Tween::make().to(timeField.color,
+         * Color(0xffff0000)).seconds(0.5); */
+        /* } else if (lockDown && !party) { */
+        /*     lockDown = false; */
+        /*     Tween::make().to(timeField.color, timeColor).seconds(2.0); */
+        /* } */
 
         auto br = player.getBitrate();
         if (br > 0) {
-            songField.setText(format("%d KBit", br));
+            songField.setText(utils::format("%d KBit", br));
         }
 
         auto p = player.getPosition();
         int length = player.getLength();
-        timeField.setText(format("%02d:%02d", p / 60, p % 60));
+        timeField.setText(utils::format("%02d:%02d", p / 60, p % 60));
         if (length > 0)
             lengthField.setText(
-                format("(%02d:%02d)", length / 60, length % 60));
+                utils::format("(%02d:%02d)", length / 60, length % 60));
         else
             lengthField.setText("");
 
@@ -726,7 +733,7 @@ void ChipMachine::update()
             spectrum = fft.getLevels();
             fft.popLevels();
         }
-        for (auto i : count_to(fft.eq_slots)) {
+        for (auto i : utils::count_to(fft.eq_slots)) {
             if (spectrum[i] > 5) {
                 auto f = static_cast<unsigned>(logf(spectrum[i]) * 64);
                 if (f > 255) f = 255;
@@ -751,11 +758,12 @@ void fadeOut(float& alpha, float t = 0.25)
     Tween::make().to(alpha, 0.0).seconds(t);
 }
 
-void ChipMachine::toast(const std::string& txt, ToastType type)
+void ChipMachine::toast(std::string const& txt, ToastType type)
 {
 
-    static vector<Color> colors = {
-        0xffffff, 0xff8888, 0x55aa55}; // Alpha intentionally left at zero
+    static std::vector<Color> colors = {
+        0xffffff, 0xff8888, 0x55aa55
+    }; // Alpha intentionally left at zero
 
     toastField.setText(txt);
     int tlen = toastField.getWidth();
@@ -805,7 +813,7 @@ void ChipMachine::render(uint32_t delta)
         auto v = (int)(player.getVolume() * 10);
         v = (int)(v * volPos.w) / 10;
         screen.rectangle(volPos.x + v, volPos.y, volPos.w - v, volPos.h, color);
-        // screen.text(listFont, std::to_string((int)(v * 100)), volPos.x,
+        // screen.text(listFont, std::to_std::string((int)(v * 100)), volPos.x,
         // volPos.y, 10.0, 0xff8888ff);
     }
 

@@ -5,7 +5,7 @@
 using namespace std;
 using namespace utils;
 
-RemoteLoader::RemoteLoader() : webgetter(utils::File::getCacheDir() / "_webfiles") {
+RemoteLoader::RemoteLoader() : webgetter((Environment::getCacheDir() / "_webfiles").string()) {
 	// webgetter.setErrorCallback([](int code, const string &msg) {
 	//	LOGD("Error %d %s", code, msg);
 	//});
@@ -19,7 +19,6 @@ void RemoteLoader::registerSource(const std::string &name, const std::string url
 	sources[name] = s;
 }
 
-// modland:Protracker/X/Y.mod"
 bool RemoteLoader::inCache(const std::string &p) const {
 	Source source;
 	string path = p;

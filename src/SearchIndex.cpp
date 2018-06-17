@@ -7,7 +7,8 @@
 #include <algorithm>
 #include <set>
 
-using namespace std;
+using apone::File;
+
 using namespace utils;
 
 //#define USE_THREADS
@@ -160,18 +161,18 @@ void IncrementalQuery::clear() {
 	search();
 }
 
-const string IncrementalQuery::getString() {
+const std::string IncrementalQuery::getString() {
 	if(query.size() == 0)
 		return "";
-	return string(&query[0], query.size());
+	return std::string(&query[0], query.size());
 }
 
-const string IncrementalQuery::getResult(int i) {
+const std::string IncrementalQuery::getResult(int i) {
 	int index = finalResult[i];
 	return provider->getFullString(index);
 }
 
-const vector<string> &IncrementalQuery::getResult(int start, int size) {
+const std::vector<std::string> &IncrementalQuery::getResult(int start, int size) {
 
 	if(lastStart != start || lastSize < size) {
 		textResult.resize(0);
@@ -199,14 +200,14 @@ void IncrementalQuery::search() {
         return;
     }
 
-	string q = string(&query[0], query.size());
+	std::string q = std::string(&query[0], query.size());
 
 	auto words = split(q);
 
 	// Words : IRON LORD -> 3L= "IRO"
 
 	// Remove empty strings
-	words.erase(remove_if(words.begin(), words.end(), [&](const string &a) {
+	words.erase(remove_if(words.begin(), words.end(), [&](const std::string &a) {
 		            return a.size() == 0;
 		        }), words.end());
 	LOGD("words: [%s]", words);
@@ -221,9 +222,9 @@ void IncrementalQuery::search() {
 			LOGD("## FAST: Filter prevous result");
 			firstResult.erase(std::remove_if(firstResult.begin(), firstResult.end(),
 			                                 [=](const int &index) -> bool {
-				                                 string str = provider->getString(index);
+				                                 std::string str = provider->getString(index);
 				                                 SearchIndex::simplify(str);
-				                                 return str.find(words[0]) == string::npos;
+				                                 return str.find(words[0]) == std::string::npos;
 				                             }),
 			                  firstResult.end());
 		} else {
@@ -255,7 +256,7 @@ void IncrementalQuery::search() {
 		// for(auto p : words) {
 
 		// Get the full searchable string for this result
-		string str = provider->getString(index);
+		std::string str = provider->getString(index);
 		// Simplify it
 		SearchIndex::simplify(str);
 
@@ -263,12 +264,12 @@ void IncrementalQuery::search() {
 		for(size_t i = 1; i < words.size(); i++) {
 
 			size_t pos = str.find(words[i - 1]);
-			if(pos != string::npos) {
+			if(pos != std::string::npos) {
 				// Remove the previous match from the result string to avoid double matching
 				str.erase(pos, words[i - 1].length());
 			}
 
-			if(str.find(words[i]) == string::npos) {
+			if(str.find(words[i]) == std::string::npos) {
 				// All words must match
 				found = false;
 				break;
@@ -303,7 +304,7 @@ void SearchIndex::initTrans() {
 	}
 }
 
-string& SearchIndex::simplify(string &s) {
+std::string& SearchIndex::simplify(std::string &s) {
 
 	if(!transInited) {
 		initTrans();
@@ -331,7 +332,7 @@ unsigned int SearchIndex::tlcode(const char *s) {
 	return l;
 }
 
-int SearchIndex::search(const string &q, vector<int> &result, unsigned int searchLimit) {
+int SearchIndex::search(const std::string &q, std::vector<int> &result, unsigned int searchLimit) {
 
 
 	// result.resize(0);
@@ -341,7 +342,7 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 
 	bool q3 = (q.size() <= 3);
 
-	string query = q;
+	std::string query = q;
 	simplify(query);
 
 	// LOGV("Checking '%s' among %d+%d sub strings", query, titleMap.size(), composerMap.size());
@@ -363,9 +364,9 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 				if(filter(index)) {
 					continue;
 				}
-				string s = strings[index];
+				std::string s = strings[index];
 				simplify(s);
-				if(s.find(query) != string::npos) {
+				if(s.find(query) != std::string::npos) {
 					result.push_back(index);
 				}
 			}
@@ -381,7 +382,7 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 
 #ifdef USE_THREADS
 			result = worker.reduce(tv, [=](int i) {
-				string s = strings[i];
+				std::string s = strings[i];
 				simplify(s);
 				return (s.find(query) != string::npos);
 			});
@@ -389,9 +390,9 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 			auto sz = tv.size();
 			for(int i = 0; i < sz; i++) {
 				auto index = tv[i];
-				string s = strings[index];
+				std::string s = strings[index];
 				simplify(s);
-				if(s.find(query) != string::npos) {
+				if(s.find(query) != std::string::npos) {
 					result.push_back(index);
 				}
 			}
@@ -401,7 +402,7 @@ int SearchIndex::search(const string &q, vector<int> &result, unsigned int searc
 	return result.size() - startSize;
 }
 
-void SearchIndex::dump(utils::File &f) {
+void SearchIndex::dump(apone::File& f) {
 
 	for(int i = 0; i < 65536; i++) {
 		auto sz = stringMap[i].size();
@@ -412,11 +413,11 @@ void SearchIndex::dump(utils::File &f) {
 	f.write<uint32_t>(strings.size());
 	for(int i = 0; i < (int)strings.size(); i++) {
 		f.write<uint8_t>(strings[i].length());
-		f.write(strings[i]);
+		f.write(strings[i].c_str(), strings[i].length());
 	}
 }
 
-void SearchIndex::load(utils::File &f) {
+void SearchIndex::load(apone::File& f) {
 
 	if(!transInited) {
 		initTrans();
@@ -439,7 +440,7 @@ void SearchIndex::load(utils::File &f) {
 	}
 }
 
-int SearchIndex::add(const string &str, bool stringonly) {
+int SearchIndex::add(const std::string &str, bool stringonly) {
 
 	strings.push_back(str);
 	int index = strings.size() - 1;
@@ -447,8 +448,8 @@ int SearchIndex::add(const string &str, bool stringonly) {
 	if(stringonly)
 		return index;
 
-	set<uint16_t> used;
-	string tl;
+	std::set<uint16_t> used;
+	std::string tl;
 	bool wordAdded = true;
 
 	if(!transInited) {

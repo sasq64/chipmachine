@@ -1,5 +1,4 @@
-#ifndef CHIP_MACHINE_H
-#define CHIP_MACHINE_H
+#pragma once
 
 #include "MusicDatabase.h"
 #include "MusicPlayerList.h"
@@ -27,7 +26,7 @@
 #include <coreutils/utils.h>
 #include <grappix/grappix.h>
 #include <grappix/gui/list.h>
-#include <luainterpreter/luainterpreter.h>
+#include "../sol2/sol.hpp"
 #include <tween/tween.h>
 
 #include <cstdio>
@@ -234,7 +233,7 @@ private:
     uint32_t bgcolor = 0;
     bool starsOn = true;
 
-    LuaInterpreter lua;
+    sol::state lua;
 
     demofx::StarField starEffect;
     demofx::Scroller scrollEffect;
@@ -379,4 +378,3 @@ private:
 };
 } // namespace chipmachine
 
-#endif // CHIP_MACHINE_H

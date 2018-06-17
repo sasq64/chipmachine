@@ -36,8 +36,11 @@ if(SAN)
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+
+find_package(Lua REQUIRED)
+
 link_directories(/usr/local/lib)
-include_directories(${AP1_ROOT}/mods .. /usr/local/include)
+include_directories(${AP1_ROOT}/mods .. /usr/local/include ${LUA_INCLUDE_DIR})
 
 
 set(APP_FILES
@@ -88,10 +91,7 @@ set(APONE_MODULES
 	fft
 	archive
 	webutils
-#	json
-	luainterpreter
 	sqlite3
-#	net
 	xml
 	bbsutils
 	crypto
@@ -102,7 +102,6 @@ set(TEXT_MODULES
 	audioplayer
 	archive
 	webutils
-	luainterpreter
 	sqlite3
 	xml
 	bbsutils
@@ -168,12 +167,12 @@ endif()
 set_property(TARGET chipmachine PROPERTY CXX_STANDARD 17)
 set_property(TARGET chipmachine PROPERTY CXX_STANDARD_REQUIRED ON)
 
-target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} ${FSLIB} pthread)
+target_link_libraries(chipmachine ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} ${FSLIB} pthread ${LUA_LIBRARIES})
 
 if(NOT WIN32)
     add_executable(cm ${PLUGIN_EXTRA_FILES} ${APP_FILES} ${TEXTMODE_FILES})
 	target_compile_definitions(cm PUBLIC TEXTMODE_ONLY)
-	target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS} ${FSLIB})
+	target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS} ${FSLIB} ${LUA_LIBRARIES})
 endif()
 
 if(APPLE)
@@ -193,11 +192,11 @@ if(APPLE)
 endif()
 
 add_executable(mksonglist mksonglist/mksonglist.cpp src/SongFileIdentifier.cpp)
-target_link_libraries(mksonglist coreutils archive sc68plugin mp3plugin)
+target_link_libraries(mksonglist coreutils archive sc68plugin mp3plugin ${FSLIB})
 
 
 add_executable(testing ${PLUGIN_EXTRA_FILES} testmain.cpp test.cpp ${APP_FILES})
-target_link_libraries(testing ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} ${FSLIB} pthread)
+target_link_libraries(testing ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} ${FSLIB} pthread ${LUA_LIBRARIES})
 target_include_directories(testing PRIVATE ${APONE}/mods)
 target_compile_definitions(testing PRIVATE -DTESTING)
 

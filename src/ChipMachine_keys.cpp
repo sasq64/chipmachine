@@ -1,10 +1,7 @@
 #include "ChipMachine.h"
 #include "modutils.h"
 
-using namespace std;
-using namespace utils;
-using namespace grappix;
-using namespace tween;
+using tween::Tween;
 
 namespace chipmachine {
 
@@ -123,7 +120,7 @@ SongInfo ChipMachine::getSelectedSong() {
 }
 
 void ChipMachine::shuffleSongs(bool format, bool composer, bool collection, int limit) {
-	vector<SongInfo> target;
+	std::vector<SongInfo> target;
 	SongInfo match = (currentScreen == SEARCH_SCREEN) ? getSelectedSong() : dbInfo;
 
 	LOGD("SHUFFLE %s / %s", match.composer, match.format);
@@ -139,7 +136,7 @@ void ChipMachine::shuffleSongs(bool format, bool composer, bool collection, int 
 	MusicDatabase::getInstance().getSongs(target, match, limit, true);
 	player.clearSongs();
 	for(const auto &s : target) {
-		if(!endsWith(s.path, ".plist"))
+		if(!utils::endsWith(s.path, ".plist"))
 			player.addSong(s);
 	}
 	showScreen(MAIN_SCREEN);
@@ -147,6 +144,8 @@ void ChipMachine::shuffleSongs(bool format, bool composer, bool collection, int 
 }
 
 void ChipMachine::updateKeys() {
+
+	using namespace grappix;
 
 	haveSearchChars = (iquery->getString().length() > 0);
 
@@ -216,7 +215,7 @@ void ChipMachine::updateKeys() {
 						matchingCommands.resize(commands.size());
 						int j = 0;
 						for(int i=0; i<commands.size(); i++) {
-							if(toLower(commands[i].name).find(ctext) != string::npos)
+							if(utils::toLower(commands[i].name).find(ctext) != std::string::npos)
 								matchingCommands[j++] = &commands[i];
 						}
 						matchingCommands.resize(j);
@@ -245,9 +244,9 @@ void ChipMachine::updateKeys() {
 		auto ext = getTypeFromName(song.path);
 		bool isoffline = RemoteLoader::getInstance().isOffline(song.path);
 		if(ext != "")
-			topStatus.setText(format("Format: %s (%s)%s", song.format, ext, isoffline ? "*" : ""));
+			topStatus.setText(utils::format("Format: %s (%s)%s", song.format, ext, isoffline ? "*" : ""));
 		else
-			topStatus.setText(format("Format: %s %s", song.format, isoffline ? "*" : ""));
+			topStatus.setText(utils::format("Format: %s %s", song.format, isoffline ? "*" : ""));
 		searchField.visible(false);
 		filterField.visible(false);
 		topStatus.visible(true);
@@ -257,7 +256,7 @@ void ChipMachine::updateKeys() {
 		auto s = searchField.getText();
 		if(s[0] == '\\') {
 			int pos = s.find(' ');
-			if(pos != string::npos) {
+			if(pos != std::string::npos) {
 				auto f = s.substr(1, pos-1);
 				if(f != filter) {
 					filter = f;
