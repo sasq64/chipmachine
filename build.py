@@ -85,6 +85,5 @@ for a in args.actions :
         subprocess.call([buildTool, '-C', outputDir, 'clean'])
     elif a == 'run' :
         exe = os.path.join(outputDir, 'chipmachine')
-        print exe
         os.system(exe + ' -d')
 

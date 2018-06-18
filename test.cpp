@@ -47,7 +47,7 @@ TEST_CASE("music player", "")
     mp.playFile("music/Amiga/Nuke - Loader.mod");
     mp.update();
 }
-#include "musicplayer/plugins/plugins.h"
+#include <musicplayer/plugins/plugins.h>
 #include <numeric>
 
 template <typename PLUGIN, typename... ARGS>
