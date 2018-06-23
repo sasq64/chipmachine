@@ -24,7 +24,7 @@ https://github.com/sasq64/chipmachine/releases
 ### Linux/Debian
 
 ```
-$ sudo apt-get install cmake git g++ zlib1g-dev libao-dev libgl1-mesa-dev libasound2-dev libglfw3-dev libcurl4-gnutls-dev libglew-dev libmpg123-dev ninja-build
+$ sudo apt-get install cmake git g++ zlib1g-dev libao-dev libgl1-mesa-dev libasound2-dev libglfw3-dev libcurl4-gnutls-dev libglew-dev libmpg123-dev ninja-build liblua6.3-dev libfftw3-dev
 ```
 * NOTE: glfw3 does not exist in Trusty, but you can find deb packages for it (or you can build it yourself).
 
@@ -34,12 +34,13 @@ $ sudo apt-get install cmake git g++ zlib1g-dev libao-dev libgl1-mesa-dev libaso
 * Download, build and install _libmpg123_ (http://sourceforge.net/projects/mpg123/files/)
 
 ```
-$ brew install git cmake ninja freetype glew glfw3 
+$ brew install git cmake ninja freetype glew glfw3 lua fftw
 ```
 
 ### Windows
 
 * Install MSYS2 and launch mingw32 shell
+* Make sure you are updated; `pacman -Suy`
 
 ```
 $ pacman -S mingw32/mingw-w64-i686-cmake msys/git mingw32/mingw-w64-i686-gcc mingw32/mingw-w64-i686-ninja mingw32/mingw-w64-i686-python2 mingw32/mingw-w64-i686-glew mingw32/mingw-w64-i686-glfw mingw32/mingw-w64-i686-freetype mingw32/mingw-w64-i686-mpg123

@@ -20,11 +20,11 @@ void initYoutube(sol::state&);
 std::string compressWhitespace(std::string&& m)
 {
     // Turn linefeeds into spaces
-    replace(m.begin(), m.end(), '\n', ' ');
+    replace(begin(m), end(m), '\n', ' ');
     // Turn whitespace sequences into single spaces
-    auto last = unique(m.begin(), m.end(),
+    auto last = unique(begin(m), end(m),
                        [](char a, char b) { return (a | b) <= 0x20; });
-    m.resize(distance(m.begin(), last));
+    m.resize(distance(begin(m), last));
     return m;
 }
 
@@ -709,9 +709,7 @@ void ChipMachine::update()
 #endif
     }
 
-    if (!player.getAllowed()) {
-        toast("Not allowed", ERROR);
-    } else if (player.hasError()) {
+    if (player.hasError()) {
         toast(player.getError(), ERROR);
     }
 

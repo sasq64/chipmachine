@@ -214,3 +214,101 @@ Corpsicle		Pollen	MP3	sos3/86.corpsicle_-_pollen.mp3
 Blaizer		Rift	MP3	sos3/87.blaizer_-_rift.mp3
 Proteque		Sanity Lives	MP3	sos3/88.proteque_-_sanity_lives.mp3
 Xerxes & Phoenix		Scarecrow	MP3	sos3/89.xerxes_and_phoenix_-_scarecrow.mp3
+pROPER dISCO		Filter Bubble Prisons	MP3	sos4dir/mp3lo/01.proper_disco_-_filter_bubble_prisons-lq.mp3
+Martin Wall		Asteroid Landfill	MP3	sos4dir/mp3lo/02.martin_wall_-_asteroid_landfill-lq.mp3
+Mordi		Hit for Kid	MP3	sos4dir/mp3lo/03.mordi_-_hit_for_kid-lq.mp3
+Teetow		Paralateral	MP3	sos4dir/mp3lo/04.teetow_-_paralateral-lq.mp3
+Hazel		Through the Eyes of Science (And the Agony of War)	MP3	sos4dir/mp3lo/05.hazel_-_through_the_eyes_of_science_and_the_agony_of_war-lq.mp3
+N-Joy		Tokyo Sea Line 1987	MP3	sos4dir/mp3lo/06.n-joy_-_tokyo_sea_line_1987-lq.mp3
+EOX Studios		Dancing Hearts	MP3	sos4dir/mp3lo/07.eox_studios_-_dancing_hearts-lq.mp3
+Dr.Future		The Desert	MP3	sos4dir/mp3lo/08.dr_future_-_the_desert-lq.mp3
+Floaf		Trancelucent	MP3	sos4dir/mp3lo/09.floaf_-_trancelucent-lq.mp3
+Infamous		Peace Break	MP3	sos4dir/mp3lo/10.infamous_-_peace_break-lq.mp3
+Mitch van Hayden		You Are Mine (Original Mix)	MP3	sos4dir/mp3lo/11.mitch_van_hayden_-_you_are_mine_original_mix-lq.mp3
+Infamous		Entropy	MP3	sos4dir/mp3lo/12.infamous_-_entropy-lq.mp3
+Response of Darklite		Say Something (SceneSat Edit)	MP3	sos4dir/mp3lo/13.response_of_darklite_-_say_something_scenesat_edit-lq.mp3
+Byproduct		Morphgress	MP3	sos4dir/mp3lo/14.byproduct_-_morphgress-lq.mp3
+Rafael Dyll		Ghost Blade (Rapture Spacesynth Remix)	MP3	sos4dir/mp3lo/15.rafael_dyll_-_ghost_blade_rapture_spacesynth_remix-lq.mp3
+The Hooligan		Fantastic Beats and How to Find Them	MP3	sos4dir/mp3lo/16.the_hooligan_-_fantastic_beats_and_how_to_find_them-lq.mp3
+N-Joy		Gyruss Death Waltz	MP3	sos4dir/mp3lo/17.n-joy_-_gyruss_death_waltz-lq.mp3
+Triace		Over Your Head (Dr Headcrash Under Your Ground Mix)	MP3	sos4dir/mp3lo/18.triace_-_over_your_head_dr_headcrash_under_your_ground_mix-lq.mp3
+Banana		Echoing (Bit Arts Mix)	MP3	sos4dir/mp3lo/19.banana_-_echoing_bit_arts_mix-lq.mp3
+DHS		Waliser Nachzehrer-Lehren der alten Schule	MP3	sos4dir/mp3lo/20.dhs_-_waliser_nachzehrer-lehren_der_alten_schule-lq.mp3
+Hazel		Re-Life	MP3	sos4dir/mp3lo/21.hazel_-_relife-lq.mp3
+Sidman		Inner Trance	MP3	sos4dir/mp3lo/22.sidman_-_inner_trance-lq.mp3
+ALPAidUS		Beo Beu	MP3	sos4dir/mp3lo/23.alpaidus_-_beo_beu-lq.mp3
+Bacter & Saga Musix		Far Off	MP3	sos4dir/mp3lo/24.bacter_and_saga_musix_-_far_off-lq.mp3
+Chris Hülsbeck & Rapture		Crystal Caves	MP3	sos4dir/mp3lo/25.chris_huelsbeck_and_rapture_-_crystal_caves-lq.mp3
+Buzzer		January	MP3	sos4dir/mp3lo/26.buzzer_-_january-lq.mp3
+Jogeir Liljedahl		Childhood	MP3	sos4dir/mp3lo/27.jogeir_liljedahl_-_childhood-lq.mp3
+Wobble		Lucy	MP3	sos4dir/mp3lo/28.wobble_-_lucy-lq.mp3
+Electrominister		Traveling Light	MP3	sos4dir/mp3lo/29.electrominister_-_traveling_light-lq.mp3
+Floaf		The Game	MP3	sos4dir/mp3lo/30.floaf_-_the_game-lq.mp3
+DHS		SID plus Drums (Live at Pettogallico Arena)	MP3	sos4dir/mp3lo/31.dhs_-_sid_plus_drums_live_at_pettogallico_arena-lq.mp3
+Netpoet & jco		You	MP3	sos4dir/mp3lo/32.netpoet_and_jco_-_you-lq.mp3
+Mordi		Bygone	MP3	sos4dir/mp3lo/33.mordi_-_bygone-lq.mp3
+Mikael Fyrek		Bella Notte	MP3	sos4dir/mp3lo/34.mikael_fyrek_-_bella_notte-lq.mp3
+CoLD SToRAGE		Determination (Bob Reynolds Sax Mix)	MP3	sos4dir/mp3lo/35.cold_storage_-_determination_bob_reynolds_sax_mix-lq.mp3
+Jogeir Liljedahl & Rapture		Blue Marbles	MP3	sos4dir/mp3lo/36.jogeir_liljedahl_and_rapture_-_blue_marbles-lq.mp3
+LMan		Vortex (Chillout Mix)	MP3	sos4dir/mp3lo/37.lman_-_vortex_chillout_mix-lq.mp3
+Kent Valdén		Super Cube	MP3	sos4dir/mp3lo/38.kent_valden_-_super_cube-lq.mp3
+Matt Gray		Last Ninja II- Central Park (Mitch van Hayden Remix)	MP3	sos4dir/mp3lo/39.matt_gray_-_last_ninja_ii_central_park_mitch_van_hayden_remix-lq.mp3
+Yasuhiro Kawakami		Shinobi Level 1 (moonove Cover)	MP3	sos4dir/mp3lo/40.yasuhiro_kawakami_-_shinobi_level1_cover_by_moonove-lq.mp3
+Chris Hülsbeck		Visions of Tyrell	MP3	sos4dir/mp3lo/41.chris_huelsbeck_-_visions_of_tyrell-lq.mp3
+PsychNerD		Triptych 1.01	MP3	sos4dir/mp3lo/42.psychnerd_-_triptych_1.01-lq.mp3
+Dees Productions		Monochromatic Neon Lights	MP3	sos4dir/mp3lo/43.dees_productions_-_monochromatic_neon_lights-lq.mp3
+Phobium		Precalc	MP3	sos4dir/mp3lo/44.phobium_-_precalc-lq.mp3
+DHS		A Warm Breeze	MP3	sos4dir/mp3lo/45.dhs_-_a_warm_breeze-lq.mp3
+Xerxes		Cabin Fever	MP3	sos4dir/mp3lo/46.xerxes_-_cabin_fever-lq.mp3
+Kent Valdén		Boom Goes the 808	MP3	sos4dir/mp3lo/47.kent_valden_-_boom_goes_the_808-lq.mp3
+Corpsicle		Eat Your Veggies	MP3	sos4dir/mp3lo/48.corpsicle_-_eat_your_veggies-lq.mp3
+Gloom		Aurora	MP3	sos4dir/mp3lo/49.gloom_-_aurora-lq.mp3
+Max Hall		Abstractithica Part 3 (SceneSat Edition)	MP3	sos4dir/mp3lo/50.max_hall_-_abstractithica_part_3_scenesat_edition-lq.mp3
+Netpoet		Live It Forwards, Understand It Backwards	MP3	sos4dir/mp3lo/51.netpoet_-_live_it_forwards_understand_it_backwards-lq.mp3
+PsychNerD		Triptych 1.02	MP3	sos4dir/mp3lo/52.psychnerd_-_triptych_1.02-lq.mp3
+melcom		Fernweh	MP3	sos4dir/mp3lo/53.melcom_-_fernweh-lq.mp3
+Gloom		Wander	MP3	sos4dir/mp3lo/54.gloom_-_wander-lq.mp3
+Alkama		Last Symphony	MP3	sos4dir/mp3lo/55.alkama_-_last_symphony-lq.mp3
+CZ-Tunes		Reconstructed (The Lost Art OST)	MP3	sos4dir/mp3lo/56.cz-tunes_-_reconstructed_the_lost_art_ost-lq.mp3
+Hazel		To the Moon at Last	MP3	sos4dir/mp3lo/57.hazel_-_to_the_moon_at_last-lq.mp3
+Lizardking		World of Unicorns (Modaxx Remix)	MP3	sos4dir/mp3lo/58.lizardking_-_world_of_unicorns_modaxx_remix-lq.mp3
+Bacter		Lo-Fi Me	MP3	sos4dir/mp3lo/59.bacter_-_lo-fi_me-lq.mp3
+Infamous		Rumble	MP3	sos4dir/mp3lo/60.infamous_-_rumble-lq.mp3
+Dascon		Effort Reward Imbalance	MP3	sos4dir/mp3lo/61.dascon_-_effort_reward_imbalance-lq.mp3
+Starbuck		Tennis (gibs Remix)	MP3	sos4dir/mp3lo/62.starbuck_-_tennis_remix_by_gibs-lq.mp3
+Mitch van Hayden		Thunderstorm (Original Forecast Version)	MP3	sos4dir/mp3lo/63.mitch_van_hayden_-_thunderstorm_original_forecast_version-lq.mp3
+Modaxx		Ponder About Wonder	MP3	sos4dir/mp3lo/64.modaxx_-_ponder_about_wonder-lq.mp3
+Kent Valdén		Time to Play	MP3	sos4dir/mp3lo/65.kent_valden_-_time_to_play-lq.mp3
+Design8		Hummingbird	MP3	sos4dir/mp3lo/66.design8_-_hummingbird-lq.mp3
+Wayfinder		Darkvark	MP3	sos4dir/mp3lo/67.wayfinder_-_darkvark-lq.mp3
+Saga Musix		Coast Drive (Extended Mix)	MP3	sos4dir/mp3lo/68.saga_musix_-_coast_drive_extended_mix-lq.mp3
+Infamous		Limbo	MP3	sos4dir/mp3lo/69.infamous_-_limbo-lq.mp3
+Twolegs		Juno Crack	MP3	sos4dir/mp3lo/70.twolegs_-_juno_crack-lq.mp3
+Chronberg		Fuchs Cluster and the Hunt for Dr Ivel (SoS4 Edit)	MP3	sos4dir/mp3lo/71.chronberg_-_fuchs_cluster_and_the_hunt_for_dr_ivel_sos4_edit-lq.mp3
+Response of Darklite		Jesus Fistus (The Judas Fucked Us Edit)	MP3	sos4dir/mp3lo/72.response_of_darklite_-_jesus_fistus_the-judas_fucked_us_edit-lq.mp3
+Rex 42		Tung Fu	MP3	sos4dir/mp3lo/73.rex_42_-_tung_fu-lq.mp3
+NecroPolo		Red Pill, Blue Hell (Event Horizon Edition)	MP3	sos4dir/mp3lo/74.necropolo_-_red_pill_blue_hell_event_horizon_edition-lq.mp3
+Hoffman		Wrecklamation	MP3	sos4dir/mp3lo/75.hoffman_-_wrecklamation-lq.mp3
+LMan		Could be Cool	MP3	sos4dir/mp3lo/76.lman_-_could_be_cool-lq.mp3
+Jeroen Tel		Massive Miracles V11	MP3	sos4dir/mp3lo/77.jeroen_tel_-_massive_miracles_v11-lq.mp3
+tenfour		Sauce Dallas	MP3	sos4dir/mp3lo/78.tenfour_-_sauce_dallas-lq.mp3
+The Megasong Project		Chapter 3- Next Destination	MP3	sos4dir/mp3lo/79.the_megasong_project_-_chapter_3_-_next_destination-lq.mp3
+Elwood		Dead Lock (Paokala Remake)	MP3	sos4dir/mp3lo/80.elwood_-_deadlock_paokala_remake-lq.mp3
+Response of Darklite		Tik-Tiki-Tak (Skal Du Ha Edit)	MP3	sos4dir/mp3lo/81.response_of_darklite_-_tik-tiki-tak_skal_du_ha_edit-lq.mp3
+Hansee & Mordi		Crust	MP3	sos4dir/mp3lo/82.hansee_and_mordi_-_crust-lq.mp3
+Rapture		Twilight Zone (Chill Out Mix)	MP3	sos4dir/mp3lo/83.rapture_-_twilight_zone_chill_out_mix-lq.mp3
+Jogeir Liljedahl		Hereafter	MP3	sos4dir/mp3lo/84.jogeir_liljedahl_-_hereafter-lq.mp3
+SunSpire		Premium Elevator Music	MP3	sos4dir/mp3lo/85.sunspire_-_premium_elevator_music-lq.mp3
+vincenzo		Whiskey, Smoke, Rain and Crime	MP3	sos4dir/mp3lo/86.vincenzo_-_whiskey_smoke_rain_and_crime-lq.mp3
+Malmen		Vitamin D	MP3	sos4dir/mp3lo/87.malmen_-_vitamin_d-lq.mp3
+Martin Wall		Unreally	MP3	sos4dir/mp3lo/88.martin_wall_-_unreally-lq.mp3
+Paokala		Distant Worlds	MP3	sos4dir/mp3lo/89.paokala_-_distant_worlds-lq.mp3
+Phobium		Recursion	MP3	sos4dir/mp3lo/90.phobium_-_recursion-lq.mp3
+Puryx		Winter Mist	MP3	sos4dir/mp3lo/91.puryx_-_winter_mist-lq.mp3
+PsychNerD		Triptych 1.03	MP3	sos4dir/mp3lo/92.psychnerd_-_triptych_1.03-lq.mp3
+Proteque		White Hand Grenade	MP3	sos4dir/mp3lo/93.proteque_-_white_hand_grenade-lq.mp3
+Saga Musix		Meadow at Night	MP3	sos4dir/mp3lo/94.saga_musix_-_meadow_at_night-lq.mp3
+Triace		Imaginary Numbers	MP3	sos4dir/mp3lo/95.triace_-_imaginary_numbers-lq.mp3
+moonove		Dawn	MP3	sos4dir/mp3lo/96.moonove_-_dawn-lq.mp3
+SunSpire		Life	MP3	sos4dir/mp3lo/97.sunspire_-_life-lq.mp3
+CZ-Tunes		The Countdown	MP3	sos4dir/mp3lo/98.cz-tunes_-_the_countdown-lq.mp3

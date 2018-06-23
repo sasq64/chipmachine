@@ -165,28 +165,28 @@ private:
             downRight.y - topLeft.y - y));
     }
 
-    const std::vector<std::string> key_names = {
+    static inline const std::vector<std::string> key_names = {
         "UP",  "DOWN",   "LEFT",     "RIGHT",  "ENTER", "ESCAPE", "BACKSPACE",
         "TAB", "PAGEUP", "PAGEDOWN", "DELETE", "HOME",  "END",    "F1",
         "F2",  "F3",     "F4",       "F5",     "F6",    "F7",     "F8",
         "F9",  "F10",    "F11",      "F12"};
 
     void addKey(uint32_t key, statemachine::Condition const& cond,
-                const std::string& cmd);
+                std::string const& cmd);
 
     void addKey(std::vector<uint32_t> const& events,
-                statemachine::Condition const& cond, const std::string& cmd)
+                statemachine::Condition const& cond, std::string const& cmd)
     {
         for (auto& e : events)
             addKey(e, cond, cmd);
     }
 
-    void addKey(std::vector<uint32_t> const& events, const std::string& cmd)
+    void addKey(std::vector<uint32_t> const& events, std::string const& cmd)
     {
         addKey(events, statemachine::ALWAYS_TRUE, cmd);
     }
 
-    void addKey(uint32_t key, const std::string& cmd)
+    void addKey(uint32_t key, std::string const& cmd)
     {
         addKey(key, statemachine::ALWAYS_TRUE, cmd);
     }
