@@ -225,15 +225,6 @@ bool MusicPlayerList::playFile(fs::path fileName)
     return false;
 }
 
-void MusicPlayerList::setPartyMode(bool on, int lockSeconds, int graceSec)
-{
-    partyMode = on;
-    partyLockDown = false;
-    setPermissions(0xffff);
-    lockSeconds = lockSeconds;
-    graceSeconds = graceSec;
-}
-
 void MusicPlayerList::cancelStreaming()
 {
     RemoteLoader::getInstance().cancel();
@@ -247,21 +238,6 @@ void MusicPlayerList::update()
     mp.update();
 
     RemoteLoader::getInstance().update();
-
-    if (partyMode) {
-        auto p = getPosition();
-        if (partyLockDown) {
-            if (p >= lockSeconds) {
-                setPermissions(0xffff);
-                partyLockDown = false;
-            }
-        } else {
-            if (p >= graceSeconds && p < lockSeconds) {
-                partyLockDown = true;
-                setPermissions(CanPause | CanAddSong | Partymode);
-            }
-        }
-    }
 
     if (state == Playnow) {
         SET_STATE(Started);
@@ -304,11 +280,6 @@ void MusicPlayerList::update()
                 mp.fadeOut(0.5);
                 SET_STATE(Fading);
             }
-        } else if (partyLockDown) {
-            if ((length > 0 && pos > length) || mp.getSilence() > 44100 * 6) {
-                partyLockDown = false;
-                setPermissions(0xffff);
-            }
         }
     }
 
@@ -343,10 +314,6 @@ void MusicPlayerList::update()
         // pos = 0;
         LOGD("Next song from queue : %s (%d)", currentInfo.path,
              currentInfo.starttune);
-        if (partyMode) {
-            partyLockDown = true;
-            setPermissions(CanPause | CanAddSong | Partymode);
-        }
         multiSongs.clear();
         playCurrent();
     }

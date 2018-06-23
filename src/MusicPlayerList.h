@@ -82,7 +82,6 @@ public:
 
     void pause(bool dopause = true)
     {
-        if (!(permissions & CanPause)) return;
         LOCK_GUARD(plMutex);
         mp.pause(dopause);
     }
@@ -114,13 +113,6 @@ public:
         return rc;
     }
 
-    bool getAllowed()
-    {
-        bool rc = wasAllowed;
-        wasAllowed = true;
-        return rc;
-    }
-
     bool hasError() { return errors.size() > 0; }
 
     std::string getError()
@@ -130,22 +122,6 @@ public:
         errors.pop_front();
         return e;
     }
-
-    enum
-    {
-        CanSwitchSong = 1,
-        CanSeek = 2,
-        CanPause = 4,
-        CanAddSong = 8,
-        CanClearSongs = 16,
-        Partymode = 0x10000000
-    };
-
-    uint32_t getPermissions() { return permissions; }
-
-    void setPermissions(uint32_t p) { permissions = p; }
-
-    void setPartyMode(bool on, int lockSeconds = 60, int graceSec = 3);
 
     void setReportSongs(bool on) { reportSongs = on; }
 
@@ -279,13 +255,6 @@ private:
     bool changedSong = false;
 
     bool reportSongs = true;
-
-    std::atomic<uint32_t> permissions{0xff};
-
-    bool partyMode = false;
-    bool partyLockDown = false;
-    int graceSeconds = 3;
-    int lockSeconds = 60;
 
     bool detectSilence = true;
 
