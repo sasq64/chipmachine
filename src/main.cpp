@@ -39,6 +39,8 @@ int main(int argc, char* argv[])
     logging::setLevel(logging::Level::Warning);
 #endif
 
+    srand(time(NULL));
+
     std::vector<SongInfo> songs;
     int w = 960;
     int h = 540;

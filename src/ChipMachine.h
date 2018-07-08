@@ -122,7 +122,8 @@ public:
     void removeToast();
 
     void setScrolltext(const std::string& txt);
-    void shuffleSongs(bool format, bool composer, bool collection, int limit);
+    void shuffleSongs(bool format, bool composer, bool collection,
+                      bool favorites, int limit);
 
     MusicPlayerList& musicPlayer() { return player; }
 
