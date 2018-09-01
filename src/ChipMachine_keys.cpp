@@ -120,35 +120,41 @@ SongInfo ChipMachine::getSelectedSong() {
 	return MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
 }
 
+void ChipMachine::shuffleFavorites()
+{
+    std::vector<SongInfo> target =
+        MusicDatabase::getInstance().getPlaylist(currentPlaylistName);
+    // TODO: Switch to std::shuffle?
+    std::random_shuffle(target.begin(), target.end());
+    playSongs(target);
+}
+
 void ChipMachine::shuffleSongs(bool format, bool composer, bool collection,
-                               bool favorites, int limit) {
-	std::vector<SongInfo> target;
-    if (favorites) {
-        target = MusicDatabase::getInstance().getPlaylist(currentPlaylistName);
-        // TODO: Switch to std::shuffle?
-        std::random_shuffle(target.begin(), target.end());
-    } else {
-        SongInfo match = (currentScreen == SEARCH_SCREEN) ? getSelectedSong() : dbInfo;
+                               int limit)
+{
+    std::vector<SongInfo> target;
+    SongInfo match =
+        (currentScreen == SEARCH_SCREEN) ? getSelectedSong() : dbInfo;
 
-        LOGD("SHUFFLE %s / %s", match.composer, match.format);
+    LOGD("SHUFFLE %s / %s", match.composer, match.format);
 
-        if(!format)
-            match.format = "";
-        if(!composer)
-            match.composer = "";
-        if(!collection)
-            match.path = "";
-        match.title = match.game;
+    if (!format) match.format = "";
+    if (!composer) match.composer = "";
+    if (!collection) match.path = "";
+    match.title = match.game;
 
-        MusicDatabase::getInstance().getSongs(target, match, limit, true);
+    MusicDatabase::getInstance().getSongs(target, match, limit, true);
+    playSongs(target);
+}
+
+void ChipMachine::playSongs(std::vector<SongInfo> const& songs)
+{
+    player.clearSongs();
+    for (const auto& s : songs) {
+        if (!utils::endsWith(s.path, ".plist")) player.addSong(s);
     }
-	player.clearSongs();
-	for(const auto &s : target) {
-		if(!utils::endsWith(s.path, ".plist"))
-			player.addSong(s);
-	}
-	showScreen(MAIN_SCREEN);
-	player.nextSong();
+    showScreen(MAIN_SCREEN);
+    player.nextSong();
 }
 
 void ChipMachine::updateKeys() {

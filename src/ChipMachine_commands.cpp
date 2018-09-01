@@ -216,27 +216,27 @@ void ChipMachine::setupCommands()
 
     cmd("random_shuffle", [=] {
         toast("Random shuffle!");
-        shuffleSongs(false, false, false, false, 100);
+        shuffleSongs(false, false, false, 100);
     });
 
     cmd("composer_shuffle", [=] {
         toast("Composer shuffle!");
-        shuffleSongs(false, true, false, false, 1000);
+        shuffleSongs(false, true, false, 1000);
     });
 
     cmd("format_shuffle", [=] {
         toast("Format shuffle!");
-        shuffleSongs(true, false, false, false, 100);
+        shuffleSongs(true, false, false, 100);
     });
 
     cmd("collection_shuffle", [=] {
         toast("Collection shuffle!");
-        shuffleSongs(false, false, true, false, 100);
+        shuffleSongs(false, false, true, 100);
     });
 
     cmd("favorite_shuffle", [=]() {
         toast("Favorites shuffle!");
-        shuffleSongs(false, false, false, true, 1000);
+        shuffleFavorites();
     });
 
     cmd("result_shuffle", [=] {

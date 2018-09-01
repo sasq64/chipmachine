@@ -122,11 +122,11 @@ public:
     void removeToast();
 
     void setScrolltext(const std::string& txt);
-    void shuffleSongs(bool format, bool composer, bool collection,
-                      bool favorites, int limit);
+    void shuffleSongs(bool format, bool composer, bool collection, int limit);
 
+    void shuffleFavorites();
     MusicPlayerList& musicPlayer() { return player; }
-
+    void playSongs(std::vector<SongInfo> const& songs);
     void playNamed(const std::string& what) { namedToPlay = what; }
 
 private:
