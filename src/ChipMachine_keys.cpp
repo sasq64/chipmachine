@@ -89,6 +89,7 @@ void ChipMachine::setupRules() {
 	addKey('c' | CTRL, "composer_shuffle");
 	addKey('s' | CTRL, "result_shuffle");
 	addKey('o' | CTRL, "collection_shuffle");
+	addKey('g' | CTRL, "favorite_shuffle");
 	addKey('-', "volume_down");
 	addKey({'+', '='}, "volume_up");
 	addKey(keycodes::TAB, "toggle_command");
@@ -119,21 +120,28 @@ SongInfo ChipMachine::getSelectedSong() {
 	return MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
 }
 
-void ChipMachine::shuffleSongs(bool format, bool composer, bool collection, int limit) {
+void ChipMachine::shuffleSongs(bool format, bool composer, bool collection,
+                               bool favorites, int limit) {
 	std::vector<SongInfo> target;
-	SongInfo match = (currentScreen == SEARCH_SCREEN) ? getSelectedSong() : dbInfo;
+    if (favorites) {
+        target = MusicDatabase::getInstance().getPlaylist(currentPlaylistName);
+        // TODO: Switch to std::shuffle?
+        std::random_shuffle(target.begin(), target.end());
+    } else {
+        SongInfo match = (currentScreen == SEARCH_SCREEN) ? getSelectedSong() : dbInfo;
 
-	LOGD("SHUFFLE %s / %s", match.composer, match.format);
+        LOGD("SHUFFLE %s / %s", match.composer, match.format);
 
-	if(!format)
-		match.format = "";
-	if(!composer)
-		match.composer = "";
-	if(!collection)
-		match.path = "";
-	match.title = match.game;
+        if(!format)
+            match.format = "";
+        if(!composer)
+            match.composer = "";
+        if(!collection)
+            match.path = "";
+        match.title = match.game;
 
-	MusicDatabase::getInstance().getSongs(target, match, limit, true);
+        MusicDatabase::getInstance().getSongs(target, match, limit, true);
+    }
 	player.clearSongs();
 	for(const auto &s : target) {
 		if(!utils::endsWith(s.path, ".plist"))
