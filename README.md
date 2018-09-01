@@ -39,11 +39,11 @@ $ brew install git cmake ninja freetype glew glfw3 lua fftw
 
 ### Windows
 
-* Install MSYS2 and launch mingw32 shell
+* Install MSYS2 and launch mingw32 shell (and not the mingw64 shell)
 * Make sure you are updated; `pacman -Suy`
 
 ```
-$ pacman -S mingw32/mingw-w64-i686-cmake msys/git mingw32/mingw-w64-i686-gcc mingw32/mingw-w64-i686-ninja mingw32/mingw-w64-i686-python2 mingw32/mingw-w64-i686-glew mingw32/mingw-w64-i686-glfw mingw32/mingw-w64-i686-freetype mingw32/mingw-w64-i686-mpg123
+$ pacman -S mingw32/mingw-w64-i686-cmake msys/git mingw32/mingw-w64-i686-gcc mingw32/mingw-w64-i686-ninja mingw32/mingw-w64-i686-python2 mingw32/mingw-w64-i686-glew mingw32/mingw-w64-i686-glfw mingw32/mingw-w64-i686-freetype mingw32/mingw-w64-i686-mpg123 mingw32/mingw-w64-i686-fftw mingw32/mingw-w64-i686-lua
 ```
 
 ### Raspberry PI
