@@ -207,12 +207,12 @@ public:
     {
         Playlist(fs::path f) : fileName(f.string())
         {
-            if (exists(f)) {
+            if (fs::exists(f)) {
                 for (auto const& l : apone::File{ f }.lines()) {
                     if (l != "") songs.emplace_back(l);
                 }
             }
-            name = f.string();
+            name = f.filename();
         }
         std::string name;
         std::string fileName;
