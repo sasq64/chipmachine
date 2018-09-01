@@ -1184,7 +1184,6 @@ bool MusicDatabase::initFromLua(fs::path const& workDir)
 {
     auto playlistPath = Environment::getConfigDir() / "playlists";
     fs::create_directory(playlistPath);
-    // apone::File playlistDir{playlistPath.std::string()};
     bool favFound = false;
     for (auto const& f : fs::directory_iterator(playlistPath)) {
         playLists.emplace_back(f);

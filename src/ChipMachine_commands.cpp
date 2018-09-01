@@ -105,7 +105,6 @@ void ChipMachine::setupCommands()
         Tween::make()
             .to(favIcon.color, Color(favColor | (alpha << 24)))
             .seconds(0.25);
-        // favIcon.visible(isFavorite);
     });
 
     cmd("add_list_favorite", [=] {
