@@ -1,5 +1,7 @@
 #include "ChipMachine.h"
 #include "modutils.h"
+#include <algorithm>
+#include <random>
 
 using tween::Tween;
 
@@ -125,7 +127,9 @@ void ChipMachine::shuffleFavorites()
     std::vector<SongInfo> target =
         MusicDatabase::getInstance().getPlaylist(currentPlaylistName);
     // TODO: Switch to std::shuffle?
-    std::random_shuffle(target.begin(), target.end());
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(target.begin(), target.end(), g);
     playSongs(target);
 }
 

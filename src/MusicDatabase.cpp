@@ -216,7 +216,13 @@ bool MusicDatabase::parseRss(
     std::function<void(SongInfo const&)> const& callback)
 {
 
-    auto doc = xmldoc::fromFile(listFile);
+    xmldoc doc;
+
+    try {
+        doc = xmldoc::fromFile(listFile);
+    } catch(xml_exception e) {
+        return false;
+    }
     auto rssNode = doc["rss"];
     if (!rssNode.valid()) {
         LOGE("Could not find rss node in xml");
@@ -259,6 +265,7 @@ bool MusicDatabase::parseRss(
 
         callback(SongInfo(enclosure, "", title, composer, "MP3", description));
     }
+    LOGD("Done");
     return true;
 }
 
