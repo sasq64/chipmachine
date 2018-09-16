@@ -105,7 +105,6 @@ void ChipMachine::setupCommands()
         Tween::make()
             .to(favIcon.color, Color(favColor | (alpha << 24)))
             .seconds(0.25);
-        // favIcon.visible(isFavorite);
     });
 
     cmd("add_list_favorite", [=] {
@@ -233,6 +232,11 @@ void ChipMachine::setupCommands()
     cmd("collection_shuffle", [=] {
         toast("Collection shuffle!");
         shuffleSongs(false, false, true, 100);
+    });
+
+    cmd("favorite_shuffle", [=]() {
+        toast("Favorites shuffle!");
+        shuffleFavorites();
     });
 
     cmd("result_shuffle", [=] {

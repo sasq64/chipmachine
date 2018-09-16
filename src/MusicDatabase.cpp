@@ -216,7 +216,13 @@ bool MusicDatabase::parseRss(
     std::function<void(SongInfo const&)> const& callback)
 {
 
-    auto doc = xmldoc::fromFile(listFile);
+    xmldoc doc;
+
+    try {
+        doc = xmldoc::fromFile(listFile);
+    } catch(xml_exception e) {
+        return false;
+    }
     auto rssNode = doc["rss"];
     if (!rssNode.valid()) {
         LOGE("Could not find rss node in xml");
@@ -259,6 +265,7 @@ bool MusicDatabase::parseRss(
 
         callback(SongInfo(enclosure, "", title, composer, "MP3", description));
     }
+    LOGD("Done");
     return true;
 }
 
@@ -365,7 +372,7 @@ bool MusicDatabase::parseStandard(
         formatIndex = 3, metaIndex = 5;
     auto templ = vars["song_template"];
     // if(temp == "")
-    //	templ = "title game composer format path meta";
+    //  templ = "title game composer format path meta";
     auto format = vars["format"];
     auto composer = vars["composer"];
     int columns = 2;
@@ -829,7 +836,7 @@ std::string MusicDatabase::getSongScreenshots(SongInfo& s)
             }
             // if(format.find("Game") != std::string::npos ||
             // format.find("Demo") != std::string::npos ||
-            // format.find("Trackmo") != std::string::npos) 	break;
+            // format.find("Trackmo") != std::string::npos)     break;
         }
     }
     if (shot != "") {
@@ -1184,7 +1191,6 @@ bool MusicDatabase::initFromLua(fs::path const& workDir)
 {
     auto playlistPath = Environment::getConfigDir() / "playlists";
     fs::create_directory(playlistPath);
-    // apone::File playlistDir{playlistPath.std::string()};
     bool favFound = false;
     for (auto const& f : fs::directory_iterator(playlistPath)) {
         playLists.emplace_back(f);
@@ -1236,15 +1242,15 @@ bool MusicDatabase::initFromLua(fs::path const& workDir)
     }
 
     lua.script(R"(
-		for a,b in pairs(DB) do
-			if type(b) == 'table' then
-				for a1,b1 in pairs(b) do
-					set_db_var(a1, b1)
-				end
-				create_db()
-			end
-		end
-	)");
+        for a,b in pairs(DB) do
+            if type(b) == 'table' then
+                for a1,b1 in pairs(b) do
+                    set_db_var(a1, b1)
+                end
+                create_db()
+            end
+        end
+    )");
     generateIndex();
     return true;
 }

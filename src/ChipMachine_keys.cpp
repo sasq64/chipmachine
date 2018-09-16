@@ -1,5 +1,7 @@
 #include "ChipMachine.h"
 #include "modutils.h"
+#include <algorithm>
+#include <random>
 
 using tween::Tween;
 
@@ -89,6 +91,7 @@ void ChipMachine::setupRules() {
 	addKey('c' | CTRL, "composer_shuffle");
 	addKey('s' | CTRL, "result_shuffle");
 	addKey('o' | CTRL, "collection_shuffle");
+	addKey('g' | CTRL, "favorite_shuffle");
 	addKey('-', "volume_down");
 	addKey({'+', '='}, "volume_up");
 	addKey(keycodes::TAB, "toggle_command");
@@ -119,28 +122,43 @@ SongInfo ChipMachine::getSelectedSong() {
 	return MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
 }
 
-void ChipMachine::shuffleSongs(bool format, bool composer, bool collection, int limit) {
-	std::vector<SongInfo> target;
-	SongInfo match = (currentScreen == SEARCH_SCREEN) ? getSelectedSong() : dbInfo;
+void ChipMachine::shuffleFavorites()
+{
+    std::vector<SongInfo> target =
+        MusicDatabase::getInstance().getPlaylist(currentPlaylistName);
+    // TODO: Switch to std::shuffle?
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(target.begin(), target.end(), g);
+    playSongs(target);
+}
 
-	LOGD("SHUFFLE %s / %s", match.composer, match.format);
+void ChipMachine::shuffleSongs(bool format, bool composer, bool collection,
+                               int limit)
+{
+    std::vector<SongInfo> target;
+    SongInfo match =
+        (currentScreen == SEARCH_SCREEN) ? getSelectedSong() : dbInfo;
 
-	if(!format)
-		match.format = "";
-	if(!composer)
-		match.composer = "";
-	if(!collection)
-		match.path = "";
-	match.title = match.game;
+    LOGD("SHUFFLE %s / %s", match.composer, match.format);
 
-	MusicDatabase::getInstance().getSongs(target, match, limit, true);
-	player.clearSongs();
-	for(const auto &s : target) {
-		if(!utils::endsWith(s.path, ".plist"))
-			player.addSong(s);
-	}
-	showScreen(MAIN_SCREEN);
-	player.nextSong();
+    if (!format) match.format = "";
+    if (!composer) match.composer = "";
+    if (!collection) match.path = "";
+    match.title = match.game;
+
+    MusicDatabase::getInstance().getSongs(target, match, limit, true);
+    playSongs(target);
+}
+
+void ChipMachine::playSongs(std::vector<SongInfo> const& songs)
+{
+    player.clearSongs();
+    for (const auto& s : songs) {
+        if (!utils::endsWith(s.path, ".plist")) player.addSong(s);
+    }
+    showScreen(MAIN_SCREEN);
+    player.nextSong();
 }
 
 void ChipMachine::updateKeys() {

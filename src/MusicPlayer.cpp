@@ -69,7 +69,7 @@ void MusicPlayer::update()
                 playEnded = true;
                 break;
             }
-            if (fadeOutPos != 0) {
+            if (fadeOutPos != 0 && fadeOutPos >= pos) {
                 fifo.setVolume((fadeOutPos - pos) / (float)fadeLength);
             }
 

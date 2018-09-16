@@ -39,7 +39,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 
 find_package(Lua REQUIRED)
 
-link_directories(/usr/local/lib)
+link_directories(/usr/local/lib /usr/local/Cellar/llvm/6.0.1/lib)
 include_directories(${AP1_ROOT}/mods .. /usr/local/include ${LUA_INCLUDE_DIR})
 
 
