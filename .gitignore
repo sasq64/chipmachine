@@ -6,7 +6,6 @@ builds/
 *~
 _cache/
 _files/
-.*
 *.dfield
 *.kdev4
 *.db
