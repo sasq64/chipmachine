@@ -28,6 +28,3 @@ script:
     - cmake -DAP1_ROOT=../apone -DMUSICPLAYER=../musicplayer ..
     - make -j2
 
-notifications:
-      email: false
-
