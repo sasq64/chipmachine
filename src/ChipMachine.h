@@ -20,10 +20,10 @@
 #include "../demofx/Scroller.h"
 #include "../demofx/StarField.h"
 
+#include "../sol2/sol.hpp"
 #include <coreutils/utils.h>
 #include <grappix/grappix.h>
 #include <grappix/gui/list.h>
-#include "../sol2/sol.hpp"
 #include <tween/tween.h>
 
 #include <cstdio>
@@ -81,7 +81,7 @@ public:
 
     void setArea(const grappix::Rectangle& r) { rec = r; }
 
-    grappix::Color color{0xffffffff};
+    grappix::Color color{ 0xffffffff };
     grappix::Rectangle rec;
 
 private:
@@ -175,7 +175,8 @@ private:
         "UP",  "DOWN",   "LEFT",     "RIGHT",  "ENTER", "ESCAPE", "BACKSPACE",
         "TAB", "PAGEUP", "PAGEDOWN", "DELETE", "HOME",  "END",    "F1",
         "F2",  "F3",     "F4",       "F5",     "F6",    "F7",     "F8",
-        "F9",  "F10",    "F11",      "F12"};
+        "F9",  "F10",    "F11",      "F12"
+    };
 
     void addKey(uint32_t key, statemachine::Condition const& cond,
                 std::string const& cmd);
@@ -223,8 +224,8 @@ private:
     std::unique_ptr<TelnetInterface> telnet;
 
     // Aera of screen used for UI (defaults are for TV with overscan)
-    utils::vec2i topLeft = {80, 54};
-    utils::vec2i downRight = {636, 520};
+    utils::vec2i topLeft = { 80, 54 };
+    utils::vec2i downRight = { 636, 520 };
 
     grappix::Font font;
     grappix::Font listFont;
@@ -377,4 +378,3 @@ private:
     std::string currentScreenshot;
 };
 } // namespace chipmachine
-

@@ -212,7 +212,7 @@ public:
                     if (l != "") songs.emplace_back(l);
                 }
             }
-            name = f.filename();
+            name = f.filename().string();
         }
         std::string name;
         std::string fileName;

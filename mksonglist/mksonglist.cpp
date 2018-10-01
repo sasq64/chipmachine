@@ -5,7 +5,7 @@
 
 void makeList(const std::string& local_dir, const std::string& list_file)
 {
-    apone::File listFile{ list_file };
+    apone::File listFile{ list_file, apone::File::Write };
 
     for (auto& rf : utils::File(local_dir).listRecursive()) {
         auto name = rf.getName();

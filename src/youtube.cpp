@@ -1,5 +1,7 @@
 #include <memory>
 #include <musicplayer/chipplugin.h>
+#include <coreutils/utils.h>
+#include <coreutils/log.h>
 #include <string>
 
 #include "../sol2/sol.hpp"
@@ -17,8 +19,6 @@ public:
         LOGD("Youtube plugin %s", fileName);
         std::string x = lua["on_parse_youtube"](fileName);
         LOGD("LUA reports %s", x);
-        if (x == "")
-            return nullptr;
         auto player = plugin->fromFile(x);
         LOGD("OK");
         auto dpos = x.find("dur=");
