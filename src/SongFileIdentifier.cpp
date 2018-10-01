@@ -165,7 +165,7 @@ bool parseSnes(SongInfo& info)
 
     info.format = "Super Nintendo";
 
-    fs::path outDir = Environment::getCacheDir() / ".rsntemp";
+    utils::path outDir = Environment::getCacheDir() / ".rsntemp";
     auto* a = utils::Archive::open(info.path, outDir.string(),
                                    utils::Archive::TYPE_RAR);
     // LOGD("ARCHIVE %p", a);
