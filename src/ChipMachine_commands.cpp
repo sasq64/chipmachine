@@ -216,22 +216,22 @@ void ChipMachine::setupCommands()
 
     cmd("random_shuffle", [=] {
         toast("Random shuffle!");
-        shuffleSongs(false, false, false, 100);
+        shuffleSongs(Shuffle::All, 100);
     });
 
     cmd("composer_shuffle", [=] {
         toast("Composer shuffle!");
-        shuffleSongs(false, true, false, 1000);
+        shuffleSongs(Shuffle::Composer, 1000);
     });
 
     cmd("format_shuffle", [=] {
         toast("Format shuffle!");
-        shuffleSongs(true, false, false, 100);
+        shuffleSongs(Shuffle::Format, 100);
     });
 
     cmd("collection_shuffle", [=] {
         toast("Collection shuffle!");
-        shuffleSongs(false, false, true, 100);
+        shuffleSongs(Shuffle::Collection, 100);
     });
 
     cmd("favorite_shuffle", [=]() {
@@ -270,32 +270,6 @@ void ChipMachine::setupCommands()
                                                  "Type something:");
         overlay.add(currentDialog);
     });
-
-#ifdef USE_REMOTELISTS
-    if (userName == "") {
-        currentDialog =
-            std::make_shared<Dialog>(screenptr, font, "Login with handle:");
-        currentDialog->on_ok([=](string const& text) {
-            RemoteLists::getInstance().login(text, [=](int rc) {
-                userName = text;
-                if (rc) toast("Login successful", 2);
-                File f{Environment::getCacheDir() / "login"};
-                f.write(userName);
-                f.close();
-                auto plist = PlaylistDatabase::getInstance().getPlaylist(
-                    currentPlaylistName);
-                RemoteLists::getInstance().sendList(
-                    plist.songs, plist.name, [=] { toast("Uploaded", 2); });
-            });
-        });
-        renderSet.add(currentDialog);
-    } else {
-        auto plist =
-            PlaylistDatabase::getInstance().getPlaylist(currentPlaylistName);
-        RemoteLists::getInstance().sendList(plist.songs, plist.name,
-                                            [=] { toast("Uploaded", 2); });
-    }
-#endif
 }
 
 } // namespace chipmachine

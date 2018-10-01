@@ -6,9 +6,6 @@
 #include "TextField.h"
 
 #include "TelnetInterface.h"
-#ifdef USE_REMOTELISTS
-#    include "RemoteLists.h"
-#endif
 
 #include "state_machine.h"
 #include <grappix/gui/renderset.h>
@@ -118,11 +115,19 @@ public:
         STICKY
     };
 
+    enum Shuffle
+    {
+        All = 0,
+        Format = 1,
+        Composer = 2,
+        Collection = 4,
+    };
+
     void toast(const std::string& txt, ToastType type = NORMAL);
     void removeToast();
 
     void setScrolltext(const std::string& txt);
-    void shuffleSongs(bool format, bool composer, bool collection, int limit);
+    void shuffleSongs(int what, int limit);
 
     void shuffleFavorites();
     MusicPlayerList& musicPlayer() { return player; }
@@ -288,7 +293,6 @@ private:
     int currentTune = 0;
 
     tween::Tween currentTween;
-    bool lockDown = false;
     bool isFavorite = false;
 
     grappix::Rectangle favPos;
@@ -312,15 +316,10 @@ private:
     statemachine::StateMachine smac;
 
     std::string currentPlaylistName = "Favorites";
-    // std::string editPlaylistName;
-
-    // bool playlistEdit = false;
 
     bool commandMode = false;
 
     std::shared_ptr<Dialog> currentDialog;
-
-    std::string userName;
 
     std::pair<float, float> screenSize;
     int resizeDelay = 0;

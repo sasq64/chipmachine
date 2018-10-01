@@ -1,5 +1,4 @@
-#ifndef MUSIC_PLAYER_H
-#define MUSIC_PLAYER_H
+#pragma once
 
 #include "SongInfo.h"
 
@@ -81,10 +80,9 @@ private:
     SongInfo playingInfo;
     // Fifo fifo;
     std::function<void(int16_t*, int)> audioCb;
-    // std::vector<std::shared_ptr<musix::ChipPlugin>> plugins;
+
     std::atomic<bool> paused{false};
 
-    // Should be held when accessing FFT data
     std::shared_ptr<musix::ChipPlayer> player;
     std::string message;
     std::string sub_title;
@@ -95,7 +93,7 @@ private:
     int silentFrames = 0;
     int currentTune = 0;
     float volume = 1.0f;
-    // bool changedSong = false;
+
     std::atomic<bool> dontPlay{false};
     std::atomic<bool> playEnded{false};
     bool checkSilence = true;
@@ -104,4 +102,3 @@ private:
 };
 } // namespace chipmachine
 
-#endif // MUSIC_PLAYER_H

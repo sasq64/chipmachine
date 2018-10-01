@@ -122,8 +122,6 @@ public:
         return e;
     }
 
-    void setReportSongs(bool on) { reportSongs = on; }
-
     void setVolume(float volume)
     {
         onThisThread([=] { mp.setVolume(volume); });
@@ -250,8 +248,6 @@ private:
     std::thread playerThread;
 
     bool changedSong = false;
-
-    bool reportSongs = true;
 
     bool detectSilence = true;
 
