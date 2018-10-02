@@ -13,9 +13,6 @@
 #include <cstdint>
 #include <deque>
 
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-
 struct log_guard
 {
     log_guard(std::mutex& m, const char* f, int l) : m(m)
@@ -56,7 +53,7 @@ public:
         Playmulti
     };
 
-    MusicPlayerList(const fs::path& workDir);
+    MusicPlayerList(const utils::path& workDir);
 
     ~MusicPlayerList()
     {
@@ -164,7 +161,7 @@ private:
     void cancelStreaming();
     bool handlePlaylist(const std::string& fileName);
     void playCurrent();
-    bool playFile(fs::path fileName);
+    bool playFile(utils::path fileName);
 
     void update();
     void updateInfo();

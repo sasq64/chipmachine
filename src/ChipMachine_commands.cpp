@@ -40,12 +40,12 @@ void ChipMachine::setupCommands()
 
     cmd("download_current", [=] {
         auto target = Environment::getHomeDir() / "Downloads";
-        fs::create_directory(target);
+        utils::create_directory(target);
 
         auto files = player.getSongFiles();
         if (files.size() == 0) return;
         for (auto const& fromFile : files) {
-            fs::path from = fromFile.getName();
+            utils::path from = fromFile.getName();
             std::string fileName;
             std::string title = currentInfo.title;
             std::string composer = currentInfo.composer;
@@ -58,11 +58,9 @@ void ChipMachine::setupCommands()
                 fileName = utils::format("%s - %s.%s", composer, title, ext);
             auto to = target / fileName;
             LOGD("Downloading to '%s'", to.string());
-            std::error_code ec;
-            fs::copy(from, to, ec);
-            if (ec) {
+            if(!utils::copy(from, to)) {
                 to = target / from.filename();
-                fs::copy(from, to, ec);
+                utils::copy(from, to);
             }
         }
         toast("Downloaded file");

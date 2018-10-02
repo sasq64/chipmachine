@@ -12,7 +12,7 @@ using namespace utils;
 
 namespace chipmachine {
 
-MusicPlayerList::MusicPlayerList(const fs::path& workDir) : mp(workDir.string())
+MusicPlayerList::MusicPlayerList(const utils::path& workDir) : mp(workDir.string())
 {
     playerThread = std::thread([=] {
         while (!quitThread) {
@@ -156,10 +156,10 @@ bool MusicPlayerList::handlePlaylist(const std::string& fileName)
     return true;
 }
 
-bool MusicPlayerList::playFile(fs::path fileName)
+bool MusicPlayerList::playFile(utils::path fileName)
 {
     if (fileName == "") return false;
-    auto ext = toLower(fileName.extension().string());
+    auto ext = toLower(fileName.extension());
     if (ext == ".pls" || currentInfo.format == "PLS") {
         File f{fileName};
 
@@ -196,7 +196,7 @@ bool MusicPlayerList::playFile(fs::path fileName)
         // Jason Brooke fix
         auto newName = fileName;
         newName.replace_extension(".jcb");
-        if (!exists(newName)) fs::copy(fileName, newName);
+        if (!exists(newName)) utils::copy(fileName, newName);
         fileName = newName;
     }
 
@@ -433,7 +433,7 @@ void MusicPlayerList::playCurrent()
 
     cancelStreaming();
 
-    if (fs::exists(currentInfo.path)) {
+    if (utils::exists(currentInfo.path)) {
         LOGD("PLAYING LOCAL FILE %s", currentInfo.path);
         songFiles = {File(currentInfo.path)};
         loadedFile = currentInfo.path;

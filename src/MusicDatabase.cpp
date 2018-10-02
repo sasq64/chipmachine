@@ -430,7 +430,7 @@ bool MusicDatabase::parseStandard(
     return true;
 }
 
-void MusicDatabase::initDatabase(fs::path const& workDir, Variables& vars)
+void MusicDatabase::initDatabase(utils::path const& workDir, Variables& vars)
 {
 
     auto id = vars["id"];
@@ -439,7 +439,7 @@ void MusicDatabase::initDatabase(fs::path const& workDir, Variables& vars)
     auto name = vars["name"];
     auto source = vars["source"];
     auto screen_source = vars["screen_source"];
-    fs::path local_dir = vars["local_dir"];
+    utils::path local_dir = vars["local_dir"];
     auto song_list = vars["song_list"];
     auto prod_list = vars["prod_list"];
     auto remote_list = vars["remote_list"];
@@ -457,7 +457,7 @@ void MusicDatabase::initDatabase(fs::path const& workDir, Variables& vars)
 
     reindexNeeded = true;
 
-    if (local_dir != "") {
+    if (!local_dir.empty()) {
         if (!local_dir.is_absolute()) local_dir = workDir / local_dir;
     }
 
@@ -546,7 +546,7 @@ void MusicDatabase::initDatabase(fs::path const& workDir, Variables& vars)
                               "format, path, collection, metadata) "
                               "VALUES (?, ?, ?, ?, ?, ?, ?)");
 
-        if (fs::exists(listFile)) {
+        if (utils::exists(listFile.getName())) {
 
             std::map<std::string, ParseSongFun> parsers = {
                 { "pouet", &MusicDatabase::parseStandard },
@@ -573,7 +573,7 @@ void MusicDatabase::initDatabase(fs::path const& workDir, Variables& vars)
                 pathMap[hash] = last;
             });
 
-        } else if (fs::exists(local_dir)) {
+        } else if (utils::exists(local_dir)) {
 
             File root{ local_dir };
             LOGD("Checking local dir '%s'", root.getName());
@@ -1047,7 +1047,7 @@ void MusicDatabase::generateIndex()
     }
     auto indexPath = Environment::getCacheDir() / "index.dat";
 
-    if (!reindexNeeded && fs::exists(indexPath)) {
+    if (!reindexNeeded && utils::exists(indexPath)) {
         readIndex(apone::File{ indexPath });
         return;
     }
@@ -1175,7 +1175,7 @@ void MusicDatabase::generateIndex()
     reindexNeeded = false;
 }
 
-void MusicDatabase::initFromLuaAsync(fs::path const& workDir)
+void MusicDatabase::initFromLuaAsync(utils::path const& workDir)
 {
     indexing = true;
     initFuture = std::async(std::launch::async, [=]() {
@@ -1187,13 +1187,14 @@ void MusicDatabase::initFromLuaAsync(fs::path const& workDir)
     });
 }
 
-bool MusicDatabase::initFromLua(fs::path const& workDir)
+bool MusicDatabase::initFromLua(utils::path const& workDir)
 {
     auto playlistPath = Environment::getConfigDir() / "playlists";
-    fs::create_directory(playlistPath);
+    utils::create_directory(playlistPath);
     bool favFound = false;
-    for (auto const& f : fs::directory_iterator(playlistPath)) {
-        playLists.emplace_back(f);
+    for(auto const& f : utils::File{playlistPath}.listRecursive()) {
+    //for (auto const& f : fs::directory_iterator(playlistPath)) {
+        playLists.emplace_back(f.getName());
         if (playLists.back().name == "Favorites") favFound = true;
     }
     if (!favFound) {
@@ -1205,7 +1206,7 @@ bool MusicDatabase::initFromLua(fs::path const& workDir)
     auto indexDir = Environment::getCacheDir() / "index.dat";
 
     indexVersion = 0;
-    if (fs::exists(indexDir)) {
+    if (utils::exists(indexDir)) {
         apone::File fi{ indexDir };
         auto marker = fi.read<uint16_t>();
         if (marker == 0xFEDC) indexVersion = fi.read<uint16_t>();

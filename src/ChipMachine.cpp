@@ -86,7 +86,7 @@ void ChipMachine::renderSong(grappix::Rectangle const& rec, int y,
                          resultFieldTemplate.scale);
 }
 
-ChipMachine::ChipMachine(fs::path const& wd)
+ChipMachine::ChipMachine(utils::path const& wd)
     : workDir(wd), player(wd), currentScreen(MAIN_SCREEN),
       eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen)
 {
@@ -99,10 +99,10 @@ ChipMachine::ChipMachine(fs::path const& wd)
     lua["WINDOWS"] = false;
 #endif
 
-    fs::path binDir = (workDir / "bin");
+    utils::path binDir = (workDir / "bin");
     lua.set_function("cm_execute",
                      [binDir](std::string const& cmd) -> std::string {
-                         auto cmdPath = fs::path(cmd);
+                         auto cmdPath = utils::path(cmd);
                          if (!cmdPath.is_absolute())
                              cmdPath = binDir / cmdPath;
                          std::string output = utils::execPipe(cmdPath.string());

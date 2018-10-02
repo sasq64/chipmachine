@@ -37,7 +37,7 @@ TEST_CASE("music database", "")
     using namespace chipmachine;
 
     auto& mdb = MusicDatabase::getInstance();
-    REQUIRE(mdb.initFromLua(".") == true);
+    REQUIRE(mdb.initFromLua(utils::path(".")) == true);
     auto q = mdb.createQuery();
 }
 

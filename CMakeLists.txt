@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(chipmachine)
 
-set(AP1_ROOT ../apone)
+set(AP1_ROOT apone CACHE PATH "Where apone is checked out")
+set(MUSICPLAYER musicplayer CACHE PATH "Where musicplayer is checked out")
+
 include(${AP1_ROOT}/cmake/Utils.cmake)
 
 add_definitions(-DAPP_NAME=chipmachine)
@@ -133,19 +135,19 @@ set(MUSICPLAYER_PLUGINS
 	v2plugin
 )
 
-add_subdirectory(../musicplayer/plugins plugins)
+add_subdirectory(${MUSICPLAYER}/plugins plugins)
 
-include_directories(${AP1_ROOT}/mods/grappix ../musicplayer/plugins)
+include_directories(${AP1_ROOT}/mods/grappix ${MUSICPLAYER}/plugins)
 
 if(MSVC) 
 	set(STDFLAG /std:c++17)
-	set(FSLIB "")
+    #set(FSLIB "")
 elseif(APPLE)
 	set(STDFLAG -std=c++17)
-	set(FSLIB c++experimental)
+    #set(FSLIB c++experimental)
 else()
     set(STDFLAG -std=c++17)
-	set(FSLIB stdc++fs)
+    #set(FSLIB stdc++fs)
 endif()
 
 if(WIN32)
@@ -195,8 +197,8 @@ add_executable(mksonglist mksonglist/mksonglist.cpp src/SongFileIdentifier.cpp)
 target_link_libraries(mksonglist coreutils archive sc68plugin mp3plugin ${FSLIB})
 
 
-add_executable(testing ${PLUGIN_EXTRA_FILES} testmain.cpp test.cpp ${APP_FILES})
-target_link_libraries(testing ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} ${FSLIB} pthread ${LUA_LIBRARIES})
-target_include_directories(testing PRIVATE ${APONE}/mods)
-target_compile_definitions(testing PRIVATE -DTESTING)
+#add_executable(testing ${PLUGIN_EXTRA_FILES} testmain.cpp test.cpp ${APP_FILES})
+#target_link_libraries(testing ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} ${FSLIB} pthread ${LUA_LIBRARIES})
+#target_include_directories(testing PRIVATE ${APONE}/mods)
+#target_compile_definitions(testing PRIVATE -DTESTING)
 

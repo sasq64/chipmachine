@@ -17,9 +17,6 @@
 #include <map>
 #include <vector>
 
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-
 namespace chipmachine {
 
 class not_found_exception : public std::exception
@@ -117,8 +114,8 @@ public:
         createTables();
     }
 
-    bool initFromLua(fs::path const& workDir);
-    void initFromLuaAsync(fs::path const& workDir);
+    bool initFromLua(utils::path const& workDir);
+    void initFromLuaAsync(utils::path const& workDir);
 
     int search(std::string const& query, std::vector<int>& result,
                unsigned int searchLimit) override;
@@ -205,9 +202,9 @@ public:
 
     struct Playlist
     {
-        Playlist(fs::path f) : fileName(f.string())
+        Playlist(utils::path f) : fileName(f.string())
         {
-            if (fs::exists(f)) {
+            if (utils::exists(f)) {
                 for (auto const& l : apone::File{ f }.lines()) {
                     if (l != "") songs.emplace_back(l);
                 }
@@ -237,19 +234,19 @@ public:
     void setFilter(std::string const& filter, int type = 0);
 
 private:
-    void initDatabase(fs::path const& workDir, Variables& vars);
+    void initDatabase(utils::path const& workDir, Variables& vars);
     void generateIndex();
 
     struct Collection
     {
         Collection(int id = -1, std::string const& name = "",
-                   std::string const& url = "", fs::path const& local_dir = "")
+                   std::string const& url = "", utils::path const& local_dir = utils::path(""))
             : id(id), name(name), url(url), local_dir(local_dir)
         {}
         int id;
         std::string name;
         std::string url;
-        fs::path local_dir;
+        utils::path local_dir;
     };
 
     template <typename T> using Callback = std::function<void(T const&)>;
