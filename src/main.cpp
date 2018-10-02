@@ -111,7 +111,8 @@ int main(int argc, char* argv[])
 #endif
         auto pl = std::make_unique<MusicPlayer>(workDir.string());
         while (true) {
-            if (pos >= songs.size()) return 0;
+            if (pos >= songs.size())
+                return 0;
             pl->playFile(songs[pos++].path);
             SongInfo info = pl->getPlayingInfo();
             utils::print_fmt("Playing: %s\n",
@@ -130,7 +131,9 @@ int main(int argc, char* argv[])
                             LOGD("SEEK");
                             pl->seek(tune++);
                             break;
-                        case bbs::Console::KEY_ENTER: pl->stop(); break;
+                        case bbs::Console::KEY_ENTER:
+                            pl->stop();
+                            break;
                         }
                     }
                 }

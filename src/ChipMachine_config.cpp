@@ -46,7 +46,8 @@ void ChipMachine::setVariable(const std::string& name, int index,
         auto& f = (*fields[name]);
         if (index >= 4) {
             auto c = Color(stoll(val));
-            if (name == "time_field") timeColor = c;
+            if (name == "time_field")
+                timeColor = c;
             f.color = c;
             if (name == "result_field") {
                 markColor = c;
@@ -107,9 +108,15 @@ void ChipMachine::setVariable(const std::string& name, int index,
         updateLists();
     } else if (name == "scroll") {
         switch (index) {
-        case 1: scrollEffect.scrolly = stol(val); break;
-        case 2: scrollEffect.scrollsize = stod(val); break;
-        case 3: scrollEffect.scrollspeed = stol(val); break;
+        case 1:
+            scrollEffect.scrolly = stol(val);
+            break;
+        case 2:
+            scrollEffect.scrollsize = stod(val);
+            break;
+        case 3:
+            scrollEffect.scrollspeed = stol(val);
+            break;
         case 4: {
             if (auto fontFile = findFile(path, val))
                 scrollEffect.set("font", fontFile->string());

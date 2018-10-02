@@ -201,10 +201,6 @@ bool MusicPlayerList::playFile(fs::path fileName)
     }
 
     if (mp.playFile(fileName.string())) {
-#ifdef USE_REMOTELISTS
-        if (reportSongs)
-            RemoteLists::getInstance().songPlayed(currentInfo.path);
-#endif
         if (currentInfo.starttune >= 0) mp.seek(currentInfo.starttune);
         changedSong = false;
         LOGD("CHANGED MULTI:%s", changedMulti ? "YES" : "NO");
