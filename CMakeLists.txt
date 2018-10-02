@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(chipmachine)
 
-set(AP1_ROOT apone CACHE PATH "Where apone is checked out")
-set(MUSICPLAYER musicplayer CACHE PATH "Where musicplayer is checked out")
+set(AP1_ROOT ../apone CACHE PATH "Where apone is checked out")
+set(MUSICPLAYER ../musicplayer CACHE PATH "Where musicplayer is checked out")
 
 include(${AP1_ROOT}/cmake/Utils.cmake)
 
