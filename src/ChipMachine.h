@@ -31,9 +31,6 @@
 #include <string>
 #include <vector>
 
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-
 namespace chipmachine {
 
 class Icon : public Renderable
@@ -98,7 +95,7 @@ public:
     void renderCommand(grappix::Rectangle& rec, int y, uint32_t index,
                        bool hilight);
 
-    ChipMachine(fs::path const& workDir);
+    ChipMachine(utils::path const& workDir);
     ~ChipMachine();
 
     void initLua();
@@ -214,7 +211,7 @@ private:
 
     void nextScreenshot();
 
-    fs::path workDir;
+    utils::path workDir;
 
     MusicPlayerList player;
 

@@ -17,9 +17,6 @@
 #include <map>
 #include <vector>
 
-//#include <experimental/filesystem>
-//namespace fs = std::experimental::filesystem;
-
 namespace chipmachine {
 
 class not_found_exception : public std::exception
@@ -207,7 +204,7 @@ public:
     {
         Playlist(utils::path f) : fileName(f.string())
         {
-            if (fs::exists(f)) {
+            if (utils::exists(f)) {
                 for (auto const& l : apone::File{ f }.lines()) {
                     if (l != "") songs.emplace_back(l);
                 }
