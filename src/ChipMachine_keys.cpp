@@ -2,10 +2,14 @@
 #include "modutils.h"
 #include <algorithm>
 #include <random>
+#include <chrono>
 
 using tween::Tween;
 
 namespace chipmachine {
+
+// see also: https://github.com/Attnam/ivan/pull/407
+static std::mt19937 rng(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 
 void ChipMachine::addKey(uint32_t key, statemachine::Condition const& cond,
                          std::string const& cmd)
@@ -147,10 +151,7 @@ void ChipMachine::shuffleFavorites()
 {
     std::vector<SongInfo> target =
         MusicDatabase::getInstance().getPlaylist(currentPlaylistName);
-    // TODO: Switch to std::shuffle?
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(target.begin(), target.end(), g);
+    std::shuffle(target.begin(), target.end(), rng);
     playSongs(target);
 }
 
