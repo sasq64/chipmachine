@@ -177,7 +177,6 @@ bool parseSnes(SongInfo& info)
             a->extract(s);
             File f{outDir / s};
             f.read(&buffer[0], buffer.size());
-            f.close();
             if (buffer[0x23] == 0x1a) {
                 // auto title = std::string((const char*)&buffer[0x2e], 0x20);
                 auto ptr = (const char*)&buffer[0x4e];
@@ -202,6 +201,7 @@ bool parseSnes(SongInfo& info)
                         }
                     }
                 }
+                f.close();
 
                 info.composer = composer;
                 info.game = game;
