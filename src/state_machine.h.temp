@@ -6,17 +6,17 @@
 #include <deque>
 #include <memory>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include <cstring>
-#include <stdint.h>
+#include <cstdint>
 
 namespace statemachine {
 
 class BaseCondition
 {
 public:
-    virtual ~BaseCondition() {}
     virtual bool check() const = 0;
 };
 
@@ -51,7 +51,7 @@ private:
 template <class T> class SharedPtrNotNullCondition : public BaseCondition
 {
 public:
-    SharedPtrNotNullCondition(const std::shared_ptr<T>& ptr) : ptr(ptr) {}
+    explicit SharedPtrNotNullCondition(const std::shared_ptr<T>& ptr) : ptr(ptr) {}
     bool check() const override { return ptr != nullptr; }
 
 private:
@@ -61,7 +61,7 @@ private:
 template <class T> class SharedPtrNullCondition : public BaseCondition
 {
 public:
-    SharedPtrNullCondition(const std::shared_ptr<T>& ptr) : ptr(ptr) {}
+    explicit explicit SharedPtrNullCondition(const std::shared_ptr<T>& ptr) : ptr(ptr) {}
     bool check() const override { return ptr == nullptr; }
 
 private:
@@ -73,7 +73,7 @@ class AndCondition : public BaseCondition
 public:
     AndCondition(std::shared_ptr<BaseCondition> a,
                  std::shared_ptr<BaseCondition> b)
-        : a(a), b(b)
+        : a(std::move(a)), b(std::move(b))
     {}
     bool check() const override { return a->check() && b->check(); }
 
@@ -87,7 +87,7 @@ class OrCondition : public BaseCondition
 public:
     OrCondition(std::shared_ptr<BaseCondition> a,
                 std::shared_ptr<BaseCondition> b)
-        : a(a), b(b)
+        : a(std::move(a)), b(std::move(b))
     {}
     bool check() const override { return a->check() || b->check(); }
 
@@ -98,7 +98,7 @@ private:
 
 struct Condition
 {
-    Condition(std::shared_ptr<BaseCondition> bc) : c(bc) {}
+    explicit Condition(std::shared_ptr<BaseCondition> bc) : c(std::move(bc)) {}
     std::shared_ptr<BaseCondition> c;
     bool check() const { return c->check(); }
     Condition operator&&(const Condition& other)
@@ -143,7 +143,7 @@ extern std::shared_ptr<BaseCondition> ALWAYS_TRUE;
 
 struct Action
 {
-    Action(uint32_t id = 0, uint32_t event = 0) : id(id), event(event) {}
+    explicit Action(uint32_t id = 0, uint32_t event = 0) : id(id), event(event) {}
     uint32_t id;
     uint32_t event;
 };
@@ -213,7 +213,7 @@ public:
 
     Action next_action()
     {
-        if (actions.size() > 0) {
+        if (!actions.empty()) {
             auto a = actions.front();
             actions.pop_front();
             return a;
@@ -226,7 +226,7 @@ public:
     struct Mapping
     {
         Mapping(Condition condition, uint32_t action, bool stop = true)
-            : condition(condition), action(action), stop(stop)
+            : condition(std::move(condition)), action(action), stop(stop)
         {}
         Condition condition;
         uint32_t action;

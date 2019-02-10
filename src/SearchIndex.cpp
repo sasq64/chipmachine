@@ -332,7 +332,7 @@ unsigned int SearchIndex::tlcode(const char *s) {
 	return l;
 }
 
-int SearchIndex::search(const std::string &q, std::vector<int> &result, unsigned int searchLimit) {
+int SearchIndex::search(const std::string &q, std::vector<int> &result, unsigned int /*searchLimit*/) {
 
 
 	// result.resize(0);
@@ -388,7 +388,7 @@ int SearchIndex::search(const std::string &q, std::vector<int> &result, unsigned
 			});
 #else
 			auto sz = tv.size();
-			for(int i = 0; i < sz; i++) {
+			for(size_t i = 0; i < sz; i++) {
 				auto index = tv[i];
 				std::string s = strings[index];
 				simplify(s);

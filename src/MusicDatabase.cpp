@@ -16,7 +16,7 @@
 #include <map>
 #include <set>
 
-#include "../sol2/sol.hpp"
+#include <sol.hpp>
 
 #include "csv.h"
 

@@ -38,13 +38,15 @@ int static inflate(const char* infile, const char* outfile)
             strm.next_out = out;
             ret = inflate(&strm, Z_NO_FLUSH);
             // assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
-            switch (ret) {
-            case Z_NEED_DICT: ret = Z_DATA_ERROR; /* and fall through */
-            case Z_DATA_ERROR:
-            case Z_MEM_ERROR: (void)inflateEnd(&strm); return ret;
+            if(ret == Z_NEED_DICT)
+                ret = Z_DATA_ERROR;
+            if(ret <= Z_DATA_ERROR) {
+                (void)inflateEnd(&strm);
+                return ret;
             }
+
             int have = sizeof(out) - strm.avail_out;
-            if (fwrite(out, 1, have, fpo) != have || ferror(fpo)) {
+            if ((int)fwrite(out, 1, have, fpo) != have || ferror(fpo)) {
                 fclose(fpo);
                 (void)inflateEnd(&strm);
                 return Z_ERRNO;
@@ -71,7 +73,7 @@ musix::ChipPlayer* GZPlugin::fromFile(const std::string& fileName)
     }
     LOGD("No plugin could handle it");
     return nullptr;
-};
+}
 
 bool GZPlugin::canHandle(const std::string& name)
 {

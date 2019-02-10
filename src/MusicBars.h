@@ -5,7 +5,7 @@
 class MusicBars {
 public:
 	MusicBars();
-	void setup(int w, int h, int slots);
+	void setup(int w, int h);
 	void render(const utils::vec2i &spectrumPos, const grappix::Color &spectrumColor,
 	            const std::vector<uint8_t> &eq);
 

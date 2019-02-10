@@ -4,7 +4,7 @@
 #include <bbsutils/petsciiconsole.h>
 #include <bbsutils/telnetserver.h>
 
-#include "../sol2/sol.hpp"
+#include <sol.hpp>
 #include "ChipInterface.h"
 #include "TextListView.h"
 #include <map>

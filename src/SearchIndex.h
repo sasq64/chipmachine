@@ -105,6 +105,7 @@ private:
 */
 class SearchProvider {
 public:
+    virtual ~SearchProvider() {}
 	// Search for a string, return indexes of hits
 	virtual int search(const std::string &word, std::vector<int> &result,
 	                   unsigned int searchLimit) = 0;

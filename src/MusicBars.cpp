@@ -77,7 +77,7 @@ static const std::string eqShaderF = R"(
 
 MusicBars::MusicBars() {}
 
-void MusicBars::setup(int w, int h, int slots) {
+void MusicBars::setup(int w, int h) {
 
 	spectrumWidth = w;
 	spectrumHeight = h;

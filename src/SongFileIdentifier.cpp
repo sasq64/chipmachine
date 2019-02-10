@@ -247,6 +247,7 @@ bool parseMp3(SongInfo& info)
     mpg123_exit();
     return true;
 #else
+    (void)info;
     return false;
 #endif
 }
@@ -296,7 +297,7 @@ bool parseNsfe(SongInfo& song)
 static void fixName(std::string& name)
 {
     bool capNext = true;
-    for (int i = 0; i < name.size(); i++) {
+    for (size_t i = 0; i < name.size(); i++) {
         auto& c = name[i];
         if (capNext) {
             c = toupper(c);

@@ -192,7 +192,7 @@ ChipMachine::ChipMachine(utils::path const& wd)
     player.setAudioCallback(
         [this](int16_t* ptr, int size) { fft.addAudio(ptr, size); });
 
-    musicBars.setup(spectrumWidth, spectrumHeight, 24);
+    musicBars.setup(spectrumWidth, spectrumHeight);
 
     LOGD("WORKDIR %s", workDir.string());
     MusicDatabase::getInstance().initFromLuaAsync(this->workDir);
@@ -328,7 +328,7 @@ void ChipMachine::layoutScreen()
 
     starEffect.resize(screen.width(), screen.height());
     scrollEffect.resize(screen.width(), 45 * scrollEffect.scrollsize);
-    musicBars.setup(spectrumWidth, spectrumHeight, 24);
+    musicBars.setup(spectrumWidth, spectrumHeight);
 
     searchField.setFont(font);
     commandField.pos = searchField.pos;
@@ -416,8 +416,6 @@ void ChipMachine::updateNextField()
     LOGD("####### PLAYLIST UPDATED WITH %d entries", psz);
     if (psz > 0) {
         auto info = player.getInfo(1);
-        if (info.path != "")
-            RemoteLoader::getInstance().preCache(info.path);
         if (info.path != currentNextPath) {
             if (psz == 1)
                 nextField.setText("Next");

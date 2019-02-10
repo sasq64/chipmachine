@@ -94,7 +94,7 @@ bool RemoteLoader::load(const std::string &p, function<void(File f)> done_cb) {
 	return true;
 }
 
-void RemoteLoader::preCache(const std::string &path) {}
+//void RemoteLoader::preCache(const std::string &path) {}
 
 std::shared_ptr<webutils::WebJob>
 RemoteLoader::stream(const std::string &p,

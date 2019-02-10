@@ -29,9 +29,9 @@ public:
 
 		for(const std::string &line : cf.getLines()) {
 			bool quotes = false;
-			int start = 0;
+			size_t start = 0;
 			std::vector<std::string> parts;
-			for(int i = 0; i < line.length(); i++) {
+			for(size_t i = 0; i < line.length(); i++) {
 				if(line[i] == '\"') {
 					quotes = !quotes;
 					if(!quotes)

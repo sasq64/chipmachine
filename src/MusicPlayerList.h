@@ -205,7 +205,7 @@ private:
             if (psongs.size() > 0) return psongs.front();
             return songs.front();
         }
-        SongInfo& getSong(int i)
+        SongInfo& getSong(size_t i)
         {
             if (i < psongs.size()) return psongs[i];
             return songs[i - psongs.size()];
