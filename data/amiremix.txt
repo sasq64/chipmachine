@@ -1182,7 +1182,6 @@
 3102	http://amigaremix.com/listen/3102/Piepie_-_Enigma_-_A_Final_Hyperbase_Piepie_Remix.mp3	Enigma - A Final Hyperbase (Piepie Remix)	Piepie
 3104	http://amigaremix.com/listen/3104/Strange_Days_-_Atom_Demo_IV_Soundtrack_Strange_Days_2017_Refurbish.mp3	Atom Demo IV Soundtrack (Strange Days 2017 Refurbish)	Strange Days
 3105	http://amigaremix.com/listen/3105/Psyria_-_Once_in_a_life_Turrican3_End_Theme_Psyria_Reconstruction_Edit.mp3	Once in a life (Turrican3 End Theme) (Psyria Reconstruction Edit)	Psyria
-3106	http://amigaremix.com/listen/3106/Isaac_Bjar_-_Leander_-_World_One.mp3	Leander - World One	Isaac Béjar
 3107	http://amigaremix.com/listen/3107/SoundLogic_-_A_Final_Hyperbase.mp3	A Final Hyperbase	SoundLogic
 3108	http://amigaremix.com/listen/3108/DrFuture_-_Lizardkings_Theme_Epic_Transition.mp3	Lizardking's Theme (Epic Transition)	Dr.Future
 3109	http://amigaremix.com/listen/3109/pinozulpo_-_SLL1_Remix_v2.mp3	SLL1 Remix v2	pinozulpo
@@ -1238,3 +1237,29 @@
 3175	http://amigaremix.com/listen/3175/SoundLogic_-_Shadow_of_the_Beast_Guitar_Edit.mp3	Shadow of the Beast (Guitar Edit)	SoundLogic
 3176	http://amigaremix.com/listen/3176/Lolo_from_GP_-_Chuck_Rock_Theme_REVISITED.mp3	Chuck Rock Theme (REVISITED)	Lolo from GP
 3177	http://amigaremix.com/listen/3177/Flekador_-_Torvak_the_Warrior_-_Level_1_Axe__Bow_mix_.mp3	Torvak the Warrior - Level 1 (Axe & Bow mix) 	Flekador
+3178	http://amigaremix.com/listen/3178/punkt_stef_-_Fire_and_Ice_-_Underwater_Level_JP-thx-remix.mp3	Fire and Ice - Underwater Level (JP-thx-remix)	punkt_stef
+3179	http://amigaremix.com/listen/3179/Bit_Arts_-_Amegas.mp3	Amegas	Bit Arts
+3180	http://amigaremix.com/listen/3180/cube_-_Leander_-_World_Three_AS2018.mp3	Leander - World Three (AS2018)	cube
+3181	http://amigaremix.com/listen/3181/Lolo_from_GP_-_Stormlord_Hi-Score_Theme_-_REVISITED.mp3	Stormlord (Hi-Score Theme - REVISITED)	Lolo from GP
+3182	http://amigaremix.com/listen/3182/SHEN_LON_-_Space_Deliria_Tribute_to_DRAwesome.mp3	Space Deliria (Tribute to DR.Awesome)	SHEN LON
+3183	http://amigaremix.com/listen/3183/LiterallyMe_-_Elysium.mp3	Elysium	LiterallyMe
+3184	http://amigaremix.com/listen/3184/ibux_-_Starter_Dreamy_Retrowave_RMX.mp3	Starter (Dreamy Retrowave RMX)	ibux
+3185	http://amigaremix.com/listen/3185/Rapture_-_Zool_Rave.mp3	Zool Rave	Rapture
+3186	http://amigaremix.com/listen/3186/Aknotronic_-_RoboCop_The_best_of_both_worlds_Remix.mp3	RoboCop (The best of both worlds Remix)	Aknotronic
+3187	http://amigaremix.com/listen/3187/Hypnos_Music__Audio_-_Flashback_Orchestral_Cover.mp3	Flashback [Orchestral Cover]	Hypnos Music & Audio
+3188	http://amigaremix.com/listen/3188/Mano_-_Wings_-_Melvilles_Theme.mp3	Wings - Melville's Theme	Mano
+3189	http://amigaremix.com/listen/3189/cube_-_Jim_Power_-_Level_5.mp3	Jim Power - Level 5	cube
+3190	http://amigaremix.com/listen/3190/Silok_-_Enchanted_Lands_-_Intro_Enchantedness.mp3	Enchanted Lands - Intro (Enchantedness)	Silok
+3192	http://amigaremix.com/listen/3192/DrFuture_-_Oil_Imperium_Adair_has_the_Funk.mp3	Oil Imperium (Adair has the Funk)	Dr.Future
+3195	http://amigaremix.com/listen/3195/Spiral_-_Disconnected_Spiral_Hands_On_Maniac.mp3	Disconnected (Spiral Hands On Maniac)	Spiral
+3196	http://amigaremix.com/listen/3196/Bit_Arts_-_RSI_Megademo_-_Wastelands_Refurbished.mp3	RSI Megademo - Wastelands (Refurbished)	Bit Arts
+3197	http://amigaremix.com/listen/3197/EightBit_Commando_-_Xenon_2_Megablast.mp3	Xenon 2 Megablast	Eight.Bit Commando
+3198	http://amigaremix.com/listen/3198/groovebox_-_Byggsats_13_Live_Re-Mix.mp3	Byggsats 13 [Live Re-Mix]	groovebox
+3199	http://amigaremix.com/listen/3199/Armandox_-_Lizardkings_Theme_Armandox_Rework.mp3	Lizardking's Theme (Armandox Rework)	Armandox
+3200	http://amigaremix.com/listen/3200/SHEN_LON_-_Turrican.mp3	Turrican	SHEN LON
+3201	http://amigaremix.com/listen/3201/Walter_Zarmick_-_Flashback_Options_Menu.mp3	Flashback [Options Menu]	Walter Zarmick
+3203	http://amigaremix.com/listen/3203/DrFuture_-_Battle_Valley_Fire_Power.mp3	Battle Valley (Fire Power)	Dr.Future
+3204	http://amigaremix.com/listen/3204/Gerd_Bahl_-_Unreal_-_Flight_Level_regular_mix.mp3	Unreal - Flight Level (regular mix)	Gerd Bahl
+3205	http://amigaremix.com/listen/3205/Kurgen_-_Maupiti_Island_-_Theme.mp3	Maupiti Island - Theme	Kurgen
+3206	http://amigaremix.com/listen/3206/Kurgen_-_Cadaver_-_Theme.mp3	Cadaver - Theme	Kurgen
+3207	http://amigaremix.com/listen/3207/groovebox_-_SuperFrog_-_World_4.mp3	SuperFrog - World 4	groovebox
