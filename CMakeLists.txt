@@ -21,7 +21,7 @@ add_definitions(-DAPP_NAME=chipmachine)
 if(APPLE)
     #set(CMAKE_OSX_SYSROOT "/Users/jonasminnberg/unity/repo/trunk/PlatformDependent/OSX/External/NonRedistributable/BuildEnvironment/builds/MacOSX10.12.sdk")
     #set(CMAKE_OSX_SYSROOT "/Users/jonasminnberg/MacOSX10.10.sdk")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11")
 endif()
 
 if(RASPBERRYPI)

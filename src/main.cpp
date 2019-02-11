@@ -106,7 +106,12 @@ int main(int argc, char* argv[])
     }
 
     auto workDir = d->parent_path();
-
+    musix::ChipPlugin::createPlugins(workDir / "data");
+    AudioPlayer ap { 44100 };
+    const auto injector = di::make_injector(
+        di::bind<AudioPlayer>.to(ap),
+        di::bind<utils::path>.to(workDir)
+    );
     LOGD("WorkDir:%s", workDir);
 
     if (!songs.empty()) {
@@ -116,9 +121,6 @@ int main(int argc, char* argv[])
 #endif
         // auto pl =
         // std::make_unique<chipmachine::MusicPlayer>(workDir.string());
-        const auto injector = di::make_injector(di::bind<utils::path>.to("."));
-
-        musix::ChipPlugin::createPlugins("data");
 
         static auto pl =
             injector.create<std::unique_ptr<chipmachine::MusicPlayer>>();
@@ -154,11 +156,6 @@ int main(int argc, char* argv[])
     }
 
     if (textMode || telnetServer) {
-
-        const auto injector =
-            di::make_injector(di::bind<utils::path>.to(workDir));
-
-        musix::ChipPlugin::createPlugins("data");
 
         static auto ci =
             injector.create<std::unique_ptr<chipmachine::ChipInterface>>();
@@ -209,29 +206,15 @@ int main(int argc, char* argv[])
     else
         grappix::screen.open(w, h, false);
 
-    struct App
-    {
-        App(chipmachine::ChipMachine& c) : cm(c) {}
-        chipmachine::ChipMachine& cm;
-    };
+    auto cm = injector.create<std::unique_ptr<chipmachine::ChipMachine>>();
 
-    AudioPlayer ap{ 44100 };
-    const auto injector = di::make_injector(di::bind<AudioPlayer>.to(ap),
-                                            // di::bind<MusicDatabase>.to(db),
-                                            di::bind<utils::path>.to("."));
-
-    musix::ChipPlugin::createPlugins("data");
-
-    static App app = injector.create<App>();
-
-    // static chipmachine::ChipMachine app(workDir);
     if (!playWhat.empty() && (!onlyHeadless || !grappix::screen.haveKeyboard()))
-        app.cm.playNamed(playWhat);
+        cm->playNamed(playWhat);
 
     grappix::screen.render_loop(
-        [](uint32_t delta) {
-            app.cm.update();
-            app.cm.render(delta);
+        [&cm](uint32_t delta) {
+            cm->update();
+            cm->render(delta);
         },
         20);
 #endif
