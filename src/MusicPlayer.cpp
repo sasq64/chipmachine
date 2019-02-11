@@ -45,7 +45,6 @@ MusicPlayer::MusicPlayer(AudioPlayer& ap)
 // Make sure the fifo is filled
 void MusicPlayer::update()
 {
-
     static std::vector<int16_t> tempBuf(fifo.size());
 
     if (!paused && player) {
@@ -101,7 +100,7 @@ void MusicPlayer::seek(int song, int seconds)
     }
 }
 
-int MusicPlayer::getSilence()
+int MusicPlayer::getSilence() const
 {
     return silentFrames;
 }

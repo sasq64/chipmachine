@@ -1,13 +1,10 @@
 #pragma once
 
-#include "MusicPlayer.h"
-#include "SongInfo.h"
-#ifdef USE_REMOTELISTS
-#    include "RemoteLists.h"
-#endif
 #include "CueSheet.h"
 #include "MusicDatabase.h"
+#include "MusicPlayer.h"
 #include "RemoteLoader.h"
+#include "SongInfo.h"
 
 #include <coreutils/thread.h>
 #include <cstdint>
@@ -66,15 +63,15 @@ public:
     void clearSongs();
     void nextSong();
 
-    SongInfo getInfo(int index = 0);
-    SongInfo getDBInfo();
-    int getLength();
-    int getPosition();
-    int listSize();
+    SongInfo getInfo(int index = 0) const;
+    SongInfo getDBInfo() const;
+    int getLength() const;
+    int getPosition() const;
+    int listSize() const;
 
-    bool isPlaying() { return playing; }
+    bool isPlaying() const { return playing; }
 
-    int getTune() { return currentTune; }
+    int getTune() const { return currentTune; }
 
     void pause(bool dopause = true)
     {
@@ -82,11 +79,11 @@ public:
         mp.pause(dopause);
     }
 
-    bool isPaused() { return paused; }
+    bool isPaused() const { return paused; }
 
     void seek(int song, int seconds = -1);
 
-    int getBitrate() { return bitRate; }
+    int getBitrate() const { return bitRate; }
 
     std::string getMeta(const std::string& what)
     {
@@ -109,7 +106,7 @@ public:
         return rc;
     }
 
-    bool hasError() { return errors.size() > 0; }
+    bool hasError() const { return errors.size() > 0; }
 
     std::string getError()
     {
@@ -173,7 +170,7 @@ private:
     RemoteLoader& remoteLoader;
 
     // Lock when accessing MusicPlayer
-    std::mutex plMutex;
+    mutable std::mutex plMutex;
 
     struct PlayQueue
     {
@@ -181,7 +178,7 @@ private:
         std::deque<SongInfo> songs;
         std::deque<SongInfo> psongs;
         std::string prodScreenshot;
-        int size() { return songs.size() + psongs.size(); }
+        int size() const { return songs.size() + psongs.size(); }
         void push_back(const SongInfo& s)
         {
             songs.push_back(s);
@@ -207,11 +204,19 @@ private:
             if (psongs.size() > 0) return psongs.front();
             return songs.front();
         }
+
         SongInfo& getSong(size_t i)
         {
             if (i < psongs.size()) return psongs[i];
             return songs[i - psongs.size()];
         }
+
+        const SongInfo& getSong(size_t i) const
+        {
+            if (i < psongs.size()) return psongs[i];
+            return songs[i - psongs.size()];
+        }
+
         void insertAt(int i, const SongInfo& s)
         {
             songs.insert(songs.begin() + i, s);
@@ -263,4 +268,3 @@ private:
 };
 
 } // namespace chipmachine
-

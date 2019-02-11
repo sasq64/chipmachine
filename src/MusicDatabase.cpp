@@ -220,7 +220,7 @@ bool MusicDatabase::parseRss(
 
     try {
         doc = xmldoc::fromFile(listFile);
-    } catch(xml_exception e) {
+    } catch (xml_exception e) {
         return false;
     }
     auto rssNode = doc["rss"];
@@ -1192,8 +1192,8 @@ bool MusicDatabase::initFromLua(utils::path const& workDir)
     auto playlistPath = Environment::getConfigDir() / "playlists";
     utils::create_directory(playlistPath);
     bool favFound = false;
-    for(auto const& f : utils::File{playlistPath}.listRecursive()) {
-    //for (auto const& f : fs::directory_iterator(playlistPath)) {
+    for (auto const& f : utils::File{ playlistPath }.listRecursive()) {
+        // for (auto const& f : fs::directory_iterator(playlistPath)) {
         playLists.emplace_back(f.getName());
         if (playLists.back().name == "Favorites") favFound = true;
     }

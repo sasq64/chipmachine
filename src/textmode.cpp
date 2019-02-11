@@ -4,10 +4,10 @@
 #include <bbsutils/petsciiconsole.h>
 #include <bbsutils/telnetserver.h>
 
-#include <sol.hpp>
 #include "ChipInterface.h"
 #include "TextListView.h"
 #include <map>
+#include <sol.hpp>
 
 void initYoutube(sol::state&);
 
@@ -51,12 +51,13 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface& ci)
 
     listView.setCallback([&](Console& c, int index, bool marked) {
         static const std::map<uint32_t, int> colors = {
-            {NOT_SET, Console::PURPLE},  {PLAYLIST, Console::GREY},
-            {CONSOLE, Console::RED},     {C64, Console::BROWN},
-            {ATARI, Console::YELLOW},    {MP3, Console::GREEN},
-            {M3U, Console::LIGHT_GREEN}, {YOUTUBE, Console::RED},
-            {PC, Console::CYAN},         {AMIGA, Console::LIGHT_BLUE},
-            {255, Console::ORANGE}};
+            { NOT_SET, Console::PURPLE },  { PLAYLIST, Console::GREY },
+            { CONSOLE, Console::RED },     { C64, Console::BROWN },
+            { ATARI, Console::YELLOW },    { MP3, Console::GREEN },
+            { M3U, Console::LIGHT_GREEN }, { YOUTUBE, Console::RED },
+            { PC, Console::CYAN },         { AMIGA, Console::LIGHT_BLUE },
+            { 255, Console::ORANGE }
+        };
 
         int color = 0;
         auto parts = utils::split(iquery->getResult(index), "\t");
@@ -113,12 +114,10 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface& ci)
                 olds = -1;
             }
         } else if (k == Console::KEY_RIGHT) {
-            if (currentTune < info.numtunes - 1)
-                ci.setTune(++currentTune);
+            if (currentTune < info.numtunes - 1) ci.setTune(++currentTune);
             olds = -1;
         } else if (k == Console::KEY_LEFT) {
-            if (currentTune > 0)
-                ci.setTune(--currentTune);
+            if (currentTune > 0) ci.setTune(--currentTune);
             olds = -1;
         } else if (k != Console::KEY_TIMEOUT) {
             bool sfr = false;
@@ -134,21 +133,18 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface& ci)
                     lvr = true;
                 }
             }
-            if (lvr)
-                listView.refresh();
+            if (lvr) listView.refresh();
             if (sfr) {
                 console->fill(Console::BLACK, 0, 0, width, 1);
                 console->put(0, 0, "#", Console::WHITE);
                 searchField.refresh();
             }
-            if (sfr || lvr)
-                doFlush = true;
+            if (sfr || lvr) doFlush = true;
             int m = listView.marked();
             if (!sfr && m >= 0 && iquery->numHits() > 0 && m != last_marked) {
                 auto song = getSelectedSong();
                 auto ext = getTypeFromName(song.path);
-                bool isoffline =
-                    ci.remoteLoader.isOffline(song.path);
+                bool isoffline = ci.remoteLoader.isOffline(song.path);
                 console->fill(Console::BLACK, 0, 0, width, 1);
                 console->put(0, 0,
                              utils::format("Format: %s (%s)%s", song.format,
@@ -171,8 +167,7 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface& ci)
                 olds = s;
             }
         }
-        if (doFlush)
-            console->flush(true);
+        if (doFlush) console->flush(true);
     }
 }
 

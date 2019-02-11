@@ -58,7 +58,7 @@ void ChipMachine::setupCommands()
                 fileName = utils::format("%s - %s.%s", composer, title, ext);
             auto to = target / fileName;
             LOGD("Downloading to '%s'", to.string());
-            if(!utils::copy(from, to)) {
+            if (!utils::copy(from, to)) {
                 to = target / from.filename();
                 utils::copy(from, to);
             }
@@ -92,11 +92,9 @@ void ChipMachine::setupCommands()
         auto song = dbInfo;
         song.starttune = currentTune;
         if (isFavorite) {
-            musicDatabase.removeFromPlaylist(currentPlaylistName,
-                                                            song);
+            musicDatabase.removeFromPlaylist(currentPlaylistName, song);
         } else {
-            musicDatabase.addToPlaylist(currentPlaylistName,
-                                                       song);
+            musicDatabase.addToPlaylist(currentPlaylistName, song);
         }
         isFavorite = !isFavorite;
         uint32_t alpha = isFavorite ? 0xff : 0x00;
@@ -107,8 +105,7 @@ void ChipMachine::setupCommands()
 
     cmd("add_list_favorite", [=] {
         if (haveSelection())
-            musicDatabase.addToPlaylist(currentPlaylistName,
-                                                       getSelectedSong());
+            musicDatabase.addToPlaylist(currentPlaylistName, getSelectedSong());
     });
 
     cmd("clear_filter", [=] {

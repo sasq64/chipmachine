@@ -3,8 +3,8 @@
 
 #include "SearchIndex.h"
 
-#include <cstring>
 #include <algorithm>
+#include <cstring>
 #include <set>
 
 using apone::File;
@@ -19,476 +19,500 @@ using namespace utils;
 #define NOT_FOUND patlen
 #define max(a, b) ((a < b) ? b : a)
 
-class BMSearch {
+class BMSearch
+{
 
 public:
-	BMSearch(const std::string &pattern) {
-		patlen = pattern.length();
-		pat = (const unsigned char *)malloc(patlen + 1);
-		strcpy((char *)pat, pattern.c_str());
-		delta2 = (int *)malloc(patlen * sizeof(int));
-		make_delta1(delta1, pat, patlen);
-		make_delta2(delta2, pat, patlen);
-	}
+    BMSearch(const std::string& pattern)
+    {
+        patlen = pattern.length();
+        pat = (const unsigned char*)malloc(patlen + 1);
+        strcpy((char*)pat, pattern.c_str());
+        delta2 = (int*)malloc(patlen * sizeof(int));
+        make_delta1(delta1, pat, patlen);
+        make_delta2(delta2, pat, patlen);
+    }
 
-	const char *search(const char *st, int stringlen) {
+    const char* search(const char* st, int stringlen)
+    {
 
-		int i;
+        int i;
 
-		const unsigned char *string = (const unsigned char *)st;
+        const unsigned char* string = (const unsigned char*)st;
 
-		i = patlen - 1;
-		while(i < stringlen) {
-			int j = patlen - 1;
-			while(j >= 0 && (tolower(string[i]) == pat[j])) {
-				--i;
-				--j;
-			}
-			if(j < 0) {
-				return (st + i + 1);
-			}
+        i = patlen - 1;
+        while (i < stringlen) {
+            int j = patlen - 1;
+            while (j >= 0 && (tolower(string[i]) == pat[j])) {
+                --i;
+                --j;
+            }
+            if (j < 0) {
+                return (st + i + 1);
+            }
 
-			i += max(delta1[tolower(string[i])], delta2[j]);
-		}
-		return nullptr;
-	}
+            i += max(delta1[tolower(string[i])], delta2[j]);
+        }
+        return nullptr;
+    }
 
 private:
-	void make_delta1(int *delta1, const unsigned char *pat, int32_t patlen) {
-		int i;
-		for(i = 0; i < ALPHABET_LEN; i++) {
-			delta1[i] = NOT_FOUND;
-		}
-		for(i = 0; i < patlen - 1; i++) {
-			delta1[pat[i]] = patlen - 1 - i;
-		}
-	}
+    void make_delta1(int* delta1, const unsigned char* pat, int32_t patlen)
+    {
+        int i;
+        for (i = 0; i < ALPHABET_LEN; i++) {
+            delta1[i] = NOT_FOUND;
+        }
+        for (i = 0; i < patlen - 1; i++) {
+            delta1[pat[i]] = patlen - 1 - i;
+        }
+    }
 
-	// true if the suffix of word starting from word[pos] is a prefix
-	// of word
-	int is_prefix(const unsigned char *word, int wordlen, int pos) {
-		int i;
-		int suffixlen = wordlen - pos;
-		// could also use the strncmp() library function here
-		for(i = 0; i < suffixlen; i++) {
-			if(word[i] != word[pos + i]) {
-				return 0;
-			}
-		}
-		return 1;
-	}
+    // true if the suffix of word starting from word[pos] is a prefix
+    // of word
+    int is_prefix(const unsigned char* word, int wordlen, int pos)
+    {
+        int i;
+        int suffixlen = wordlen - pos;
+        // could also use the strncmp() library function here
+        for (i = 0; i < suffixlen; i++) {
+            if (word[i] != word[pos + i]) {
+                return 0;
+            }
+        }
+        return 1;
+    }
 
-	// length of the longest suffix of word ending on word[pos].
-	// suffix_length("dddbcabc", 8, 4) = 2
-	int suffix_length(const unsigned char *word, int wordlen, int pos) {
-		int i;
-		// increment suffix length i to the first mismatch or beginning
-		// of the word
-		for(i = 0; (word[pos - i] == word[wordlen - 1 - i]) && (i < pos); i++)
-			;
-		return i;
-	}
+    // length of the longest suffix of word ending on word[pos].
+    // suffix_length("dddbcabc", 8, 4) = 2
+    int suffix_length(const unsigned char* word, int wordlen, int pos)
+    {
+        int i;
+        // increment suffix length i to the first mismatch or beginning
+        // of the word
+        for (i = 0; (word[pos - i] == word[wordlen - 1 - i]) && (i < pos); i++)
+            ;
+        return i;
+    }
 
-	void make_delta2(int *delta2, const unsigned char *pat, int32_t patlen) {
-		int p;
-		int last_prefix_index = patlen - 1;
+    void make_delta2(int* delta2, const unsigned char* pat, int32_t patlen)
+    {
+        int p;
+        int last_prefix_index = patlen - 1;
 
-		// first loop
-		for(p = patlen - 1; p >= 0; p--) {
-			if(is_prefix(pat, patlen, p + 1)) {
-				last_prefix_index = p + 1;
-			}
-			delta2[p] = last_prefix_index + (patlen - 1 - p);
-		}
+        // first loop
+        for (p = patlen - 1; p >= 0; p--) {
+            if (is_prefix(pat, patlen, p + 1)) {
+                last_prefix_index = p + 1;
+            }
+            delta2[p] = last_prefix_index + (patlen - 1 - p);
+        }
 
-		// second loop
-		for(p = 0; p < patlen - 1; p++) {
-			int slen = suffix_length(pat, patlen, p);
-			if(pat[p - slen] != pat[patlen - 1 - slen]) {
-				delta2[patlen - 1 - slen] = patlen - 1 - p + slen;
-			}
-		}
-	}
-	const unsigned char *pat;
-	int patlen;
-	int delta1[ALPHABET_LEN];
-	int *delta2;
+        // second loop
+        for (p = 0; p < patlen - 1; p++) {
+            int slen = suffix_length(pat, patlen, p);
+            if (pat[p - slen] != pat[patlen - 1 - slen]) {
+                delta2[patlen - 1 - slen] = patlen - 1 - p + slen;
+            }
+        }
+    }
+    const unsigned char* pat;
+    int patlen;
+    int delta1[ALPHABET_LEN];
+    int* delta2;
 };
 
 ///////////////////
 
-void IncrementalQuery::addLetter(char c) {
-	if(c == ' ') {
-		if(query.size() == 0 || query.back() == ' ')
-			return;
-	}
-	LOGV("Adding %c", c);
-	query.push_back(c);
-	if(query.size() > 0) {
-		search();
-	}
+void IncrementalQuery::addLetter(char c)
+{
+    if (c == ' ') {
+        if (query.size() == 0 || query.back() == ' ') return;
+    }
+    LOGV("Adding %c", c);
+    query.push_back(c);
+    if (query.size() > 0) {
+        search();
+    }
 }
 
-void IncrementalQuery::removeLast() {
-	if(!query.empty()) {
-		query.pop_back();
-		if(query.size() > 0) {
-			search();
-		} else {
-			lastStart = -1;
-			newRes = true;
-			finalResult.clear();
-			search();
-		}
-	}
+void IncrementalQuery::removeLast()
+{
+    if (!query.empty()) {
+        query.pop_back();
+        if (query.size() > 0) {
+            search();
+        } else {
+            lastStart = -1;
+            newRes = true;
+            finalResult.clear();
+            search();
+        }
+    }
 }
 
-void IncrementalQuery::setString(const std::string &s) {
-	query.resize(0);
-	for(const auto &c : s) {
-		query.push_back(c);
-	}
-	if(query.size() == 0) {
-		lastStart = -1;
-		newRes = true;
-		finalResult.clear();
-	}
-	search();
+void IncrementalQuery::setString(const std::string& s)
+{
+    query.resize(0);
+    for (const auto& c : s) {
+        query.push_back(c);
+    }
+    if (query.size() == 0) {
+        lastStart = -1;
+        newRes = true;
+        finalResult.clear();
+    }
+    search();
 }
 
-void IncrementalQuery::clear() {
-	query.resize(0);
-	search();
+void IncrementalQuery::clear()
+{
+    query.resize(0);
+    search();
 }
 
-const std::string IncrementalQuery::getString() {
-	if(query.size() == 0)
-		return "";
-	return std::string(&query[0], query.size());
+const std::string IncrementalQuery::getString()
+{
+    if (query.size() == 0) return "";
+    return std::string(&query[0], query.size());
 }
 
-const std::string IncrementalQuery::getResult(int i) {
-	int index = finalResult[i];
-	return provider->getFullString(index);
+const std::string IncrementalQuery::getResult(int i)
+{
+    int index = finalResult[i];
+    return provider->getFullString(index);
 }
 
-const std::vector<std::string> &IncrementalQuery::getResult(int start, int size) {
+const std::vector<std::string>& IncrementalQuery::getResult(int start, int size)
+{
 
-	if(lastStart != start || lastSize < size) {
-		textResult.resize(0);
+    if (lastStart != start || lastSize < size) {
+        textResult.resize(0);
 
-		for(int i = start; i < start + size && i < (int)finalResult.size(); i++) {
-			int index = finalResult[i];
-			textResult.push_back(provider->getFullString(index));
-		}
-		lastStart = start;
-		lastSize = size;
-	}
-	return textResult;
+        for (int i = start; i < start + size && i < (int)finalResult.size();
+             i++) {
+            int index = finalResult[i];
+            textResult.push_back(provider->getFullString(index));
+        }
+        lastStart = start;
+        lastSize = size;
+    }
+    return textResult;
 }
-int IncrementalQuery::numHits() const {
-	return finalResult.size();
+int IncrementalQuery::numHits() const
+{
+    return finalResult.size();
 }
 
-void IncrementalQuery::search() {
+void IncrementalQuery::search()
+{
 
-	lastStart = -1;
-	newRes = true;
+    lastStart = -1;
+    newRes = true;
 
-    if(query.size() == 0) {
+    if (query.size() == 0) {
         finalResult.resize(0);
         return;
     }
 
-	std::string q = std::string(&query[0], query.size());
+    std::string q = std::string(&query[0], query.size());
 
-	auto words = split(q);
+    auto words = split(q);
 
-	// Words : IRON LORD -> 3L= "IRO"
+    // Words : IRON LORD -> 3L= "IRO"
 
-	// Remove empty strings
-	words.erase(remove_if(words.begin(), words.end(), [&](const std::string &a) {
-		            return a.size() == 0;
-		        }), words.end());
-	LOGD("words: [%s]", words);
+    // Remove empty strings
+    words.erase(remove_if(words.begin(), words.end(),
+                          [&](const std::string& a) { return a.size() == 0; }),
+                words.end());
+    LOGD("words: [%s]", words);
 
-	if(oldWords.size() == 0 || oldWords[0] != words[0]) {
-		LOGD("## First word changed");
-		// First word has changed
-		//  - If something was just added, we can filter our firstResult more
-		//  - Otherwise do a new search
-		if(words[0].size() > 4 && oldWords.size() > 0 && words[0].find(oldWords[0]) == 0) {
-			// Erase things that don't match from existing result
-			LOGD("## FAST: Filter prevous result");
-			firstResult.erase(std::remove_if(firstResult.begin(), firstResult.end(),
-			                                 [=](const int &index) -> bool {
-				                                 std::string str = provider->getString(index);
-				                                 SearchIndex::simplify(str);
-				                                 return str.find(words[0]) == std::string::npos;
-				                             }),
-			                  firstResult.end());
-		} else {
-			// Do full search
-			// In chipmachine this is a proxy that searches in two separate providers
-			// This will do the 3L 16bit lookup and grep for the word in all hits. May take time
-			LOGD("## SLOW: Full search");
-			provider->search(words[0], firstResult, searchLimit);
-		}
-	}
-	oldWords = words;
+    if (oldWords.size() == 0 || oldWords[0] != words[0]) {
+        LOGD("## First word changed");
+        // First word has changed
+        //  - If something was just added, we can filter our firstResult more
+        //  - Otherwise do a new search
+        if (words[0].size() > 4 && oldWords.size() > 0 &&
+            words[0].find(oldWords[0]) == 0) {
+            // Erase things that don't match from existing result
+            LOGD("## FAST: Filter prevous result");
+            firstResult.erase(
+                std::remove_if(firstResult.begin(), firstResult.end(),
+                               [=](const int& index) -> bool {
+                                   std::string str = provider->getString(index);
+                                   SearchIndex::simplify(str);
+                                   return str.find(words[0]) ==
+                                          std::string::npos;
+                               }),
+                firstResult.end());
+        } else {
+            // Do full search
+            // In chipmachine this is a proxy that searches in two separate
+            // providers This will do the 3L 16bit lookup and grep for the word
+            // in all hits. May take time
+            LOGD("## SLOW: Full search");
+            provider->search(words[0], firstResult, searchLimit);
+        }
+    }
+    oldWords = words;
 
-	if(words.size() == 1) {
-		finalResult = firstResult;
-		return;
-	}
+    if (words.size() == 1) {
+        finalResult = firstResult;
+        return;
+    }
 
-	// Check if the other words (or words) is contained in the result
+    // Check if the other words (or words) is contained in the result
 
-	finalResult.resize(0);
+    finalResult.resize(0);
 
-	// TODO: Parallellize this!
+    // TODO: Parallellize this!
 
-	LOGD("## OTHER PARTS");
-	for(auto &index : firstResult) {
-		// string rc = r;
-		// makeLower(rc);
-		bool found = true;
-		// for(auto p : words) {
+    LOGD("## OTHER PARTS");
+    for (auto& index : firstResult) {
+        // string rc = r;
+        // makeLower(rc);
+        bool found = true;
+        // for(auto p : words) {
 
-		// Get the full searchable string for this result
-		std::string str = provider->getString(index);
-		// Simplify it
-		SearchIndex::simplify(str);
+        // Get the full searchable string for this result
+        std::string str = provider->getString(index);
+        // Simplify it
+        SearchIndex::simplify(str);
 
-		// Check against the other words from the searchline
-		for(size_t i = 1; i < words.size(); i++) {
+        // Check against the other words from the searchline
+        for (size_t i = 1; i < words.size(); i++) {
 
-			size_t pos = str.find(words[i - 1]);
-			if(pos != std::string::npos) {
-				// Remove the previous match from the result string to avoid double matching
-				str.erase(pos, words[i - 1].length());
-			}
+            size_t pos = str.find(words[i - 1]);
+            if (pos != std::string::npos) {
+                // Remove the previous match from the result string to avoid
+                // double matching
+                str.erase(pos, words[i - 1].length());
+            }
 
-			if(str.find(words[i]) == std::string::npos) {
-				// All words must match
-				found = false;
-				break;
-			}
-		}
-		if(found)
-			finalResult.push_back(index); // format("%s\t%s\t%d", sdb->getTitle(index),
-		                                  // sdb->getComposer(index), index));
-	}
+            if (str.find(words[i]) == std::string::npos) {
+                // All words must match
+                found = false;
+                break;
+            }
+        }
+        if (found)
+            finalResult.push_back(
+                index); // format("%s\t%s\t%d", sdb->getTitle(index),
+                        // sdb->getComposer(index), index));
+    }
 }
 
 bool SearchIndex::transInited = false;
 std::vector<uint8_t> SearchIndex::to7bit(256);
 std::vector<uint8_t> SearchIndex::to7bitlow(256);
 
-static const char *translit = "!c$oY|S\"ca<n-R 0/23'uP.,1o>   "
-                              "?AAAAAAACEEEEIIIIDNOOOOOxOUUUUYTsaaaaaaaceeeeiiiidnooooo:ouuuuyty";
+static const char* translit =
+    "!c$oY|S\"ca<n-R 0/23'uP.,1o>   "
+    "?AAAAAAACEEEEIIIIDNOOOOOxOUUUUYTsaaaaaaaceeeeiiiidnooooo:ouuuuyty";
 
-void SearchIndex::initTrans() {
-	transInited = true;
+void SearchIndex::initTrans()
+{
+    transInited = true;
 
-	for(int i = 0; i < 256; i++) {
-		if(i >= 0xa1)
-			to7bit[i] = translit[i - 0xa1];
-		else if(i >= 0x80)
-			to7bit[i] = '?';
-		else
-			to7bit[i] = i;
-		to7bitlow[i] = tolower(to7bit[i]);
-		if(to7bitlow[i] == '-' || to7bitlow[i] == '\'')
-			to7bitlow[i] = 0;
-	}
+    for (int i = 0; i < 256; i++) {
+        if (i >= 0xa1)
+            to7bit[i] = translit[i - 0xa1];
+        else if (i >= 0x80)
+            to7bit[i] = '?';
+        else
+            to7bit[i] = i;
+        to7bitlow[i] = tolower(to7bit[i]);
+        if (to7bitlow[i] == '-' || to7bitlow[i] == '\'') to7bitlow[i] = 0;
+    }
 }
 
-std::string& SearchIndex::simplify(std::string &s) {
+std::string& SearchIndex::simplify(std::string& s)
+{
 
-	if(!transInited) {
-		initTrans();
-	}
-	unsigned char *p = (unsigned char *)&s[0];
-	unsigned char *conv = &to7bitlow[0];
-	while(*p) {
-		if(!(*p = conv[*p])) {
-			int i = p - (unsigned char *)&s[0];
-			s.erase(i, 1);
-			p = (unsigned char *)&s[0];
-		}
-		p++;
-	}
-	return s;
+    if (!transInited) {
+        initTrans();
+    }
+    unsigned char* p = (unsigned char*)&s[0];
+    unsigned char* conv = &to7bitlow[0];
+    while (*p) {
+        if (!(*p = conv[*p])) {
+            int i = p - (unsigned char*)&s[0];
+            s.erase(i, 1);
+            p = (unsigned char*)&s[0];
+        }
+        p++;
+    }
+    return s;
 }
 
-unsigned int SearchIndex::tlcode(const char *s) {
-	int l = 0;
-	while(s[0]) {
-		l *= 40;
-		l += ((s[0] > '9' ? s[0] - 'a' + 10 : s[0] - '0') + 1);
-		s++;
-	}
-	return l;
+unsigned int SearchIndex::tlcode(const char* s)
+{
+    int l = 0;
+    while (s[0]) {
+        l *= 40;
+        l += ((s[0] > '9' ? s[0] - 'a' + 10 : s[0] - '0') + 1);
+        s++;
+    }
+    return l;
 }
 
-int SearchIndex::search(const std::string &q, std::vector<int> &result, unsigned int /*searchLimit*/) {
+int SearchIndex::search(const std::string& q, std::vector<int>& result,
+                        unsigned int /*searchLimit*/)
+{
 
+    // result.resize(0);
+    // if(q.size() < 3)
+    //	return 0;
+    int startSize = result.size();
 
-	// result.resize(0);
-	// if(q.size() < 3)
-	//	return 0;
-	int startSize = result.size();
+    bool q3 = (q.size() <= 3);
 
-	bool q3 = (q.size() <= 3);
+    std::string query = q;
+    simplify(query);
 
-	std::string query = q;
-	simplify(query);
+    // LOGV("Checking '%s' among %d+%d sub strings", query, titleMap.size(),
+    // composerMap.size());
 
-	// LOGV("Checking '%s' among %d+%d sub strings", query, titleMap.size(), composerMap.size());
+    uint16_t v = tlcode(query.substr(0, 3).c_str());
 
-	uint16_t v = tlcode(query.substr(0, 3).c_str());
+    const auto& tv = stringMap[v];
 
-	const auto &tv = stringMap[v];
-
-	LOGV("Searching %d candidates for '%s'", tv.size(), query);
-	if(filter) {
-		LOGD("Filtering");
-		if(q3) {
-			for(int index : tv) {
-				if(!filter(index))
-					result.push_back(index);
-			}
-		} else {
-			for(int index : tv) {
-				if(filter(index)) {
-					continue;
-				}
-				std::string s = strings[index];
-				simplify(s);
-				if(s.find(query) != std::string::npos) {
-					result.push_back(index);
-				}
-			}
-		}
-	} else {
-		if(q3) {
-			if(startSize == 0)
-				result = tv;
-			else
-				result.insert(result.end(), tv.begin(), tv.end());
-		} else {
-			LOGD("## SLOW: First word filtering");
+    LOGV("Searching %d candidates for '%s'", tv.size(), query);
+    if (filter) {
+        LOGD("Filtering");
+        if (q3) {
+            for (int index : tv) {
+                if (!filter(index)) result.push_back(index);
+            }
+        } else {
+            for (int index : tv) {
+                if (filter(index)) {
+                    continue;
+                }
+                std::string s = strings[index];
+                simplify(s);
+                if (s.find(query) != std::string::npos) {
+                    result.push_back(index);
+                }
+            }
+        }
+    } else {
+        if (q3) {
+            if (startSize == 0)
+                result = tv;
+            else
+                result.insert(result.end(), tv.begin(), tv.end());
+        } else {
+            LOGD("## SLOW: First word filtering");
 
 #ifdef USE_THREADS
-			result = worker.reduce(tv, [=](int i) {
-				std::string s = strings[i];
-				simplify(s);
-				return (s.find(query) != string::npos);
-			});
+            result = worker.reduce(tv, [=](int i) {
+                std::string s = strings[i];
+                simplify(s);
+                return (s.find(query) != string::npos);
+            });
 #else
-			auto sz = tv.size();
-			for(size_t i = 0; i < sz; i++) {
-				auto index = tv[i];
-				std::string s = strings[index];
-				simplify(s);
-				if(s.find(query) != std::string::npos) {
-					result.push_back(index);
-				}
-			}
+            auto sz = tv.size();
+            for (size_t i = 0; i < sz; i++) {
+                auto index = tv[i];
+                std::string s = strings[index];
+                simplify(s);
+                if (s.find(query) != std::string::npos) {
+                    result.push_back(index);
+                }
+            }
 #endif
-		}
-	}
-	return result.size() - startSize;
+        }
+    }
+    return result.size() - startSize;
 }
 
-void SearchIndex::dump(apone::File& f) {
+void SearchIndex::dump(apone::File& f)
+{
 
-	for(int i = 0; i < 65536; i++) {
-		auto sz = stringMap[i].size();
-		f.write<uint32_t>(sz);
-		if(sz > 0)
-			f.write((uint8_t *)&stringMap[i][0], sz * sizeof(uint32_t));
-	}
-	f.write<uint32_t>(strings.size());
-	for(int i = 0; i < (int)strings.size(); i++) {
-		f.write<uint8_t>(strings[i].length());
-		f.write(strings[i].c_str(), strings[i].length());
-	}
+    for (int i = 0; i < 65536; i++) {
+        auto sz = stringMap[i].size();
+        f.write<uint32_t>(sz);
+        if (sz > 0) f.write((uint8_t*)&stringMap[i][0], sz * sizeof(uint32_t));
+    }
+    f.write<uint32_t>(strings.size());
+    for (int i = 0; i < (int)strings.size(); i++) {
+        f.write<uint8_t>(strings[i].length());
+        f.write(strings[i].c_str(), strings[i].length());
+    }
 }
 
-void SearchIndex::load(apone::File& f) {
+void SearchIndex::load(apone::File& f)
+{
 
-	if(!transInited) {
-		initTrans();
-	}
+    if (!transInited) {
+        initTrans();
+    }
 
-	for(int i = 0; i < 65536; i++) {
-		auto sz = f.read<uint32_t>();
-		stringMap[i].resize(sz);
-		if(sz > 0)
-			f.read((uint8_t *)&stringMap[i][0], sz * sizeof(uint32_t));
-	}
-	uint8_t temp[256];
-	auto sz = f.read<uint32_t>();
-	strings.resize(sz);
-	for(int i = 0; i < (int)strings.size(); i++) {
-		auto l = f.read<uint8_t>();
-		f.read(temp, l);
-		temp[l] = 0;
-		strings[i] = (char *)temp;
-	}
+    for (int i = 0; i < 65536; i++) {
+        auto sz = f.read<uint32_t>();
+        stringMap[i].resize(sz);
+        if (sz > 0) f.read((uint8_t*)&stringMap[i][0], sz * sizeof(uint32_t));
+    }
+    uint8_t temp[256];
+    auto sz = f.read<uint32_t>();
+    strings.resize(sz);
+    for (int i = 0; i < (int)strings.size(); i++) {
+        auto l = f.read<uint8_t>();
+        f.read(temp, l);
+        temp[l] = 0;
+        strings[i] = (char*)temp;
+    }
 }
 
-int SearchIndex::add(const std::string &str, bool stringonly) {
+int SearchIndex::add(const std::string& str, bool stringonly)
+{
 
-	strings.push_back(str);
-	int index = strings.size() - 1;
+    strings.push_back(str);
+    int index = strings.size() - 1;
 
-	if(stringonly)
-		return index;
+    if (stringonly) return index;
 
-	std::set<uint16_t> used;
-	std::string tl;
-	bool wordAdded = true;
+    std::set<uint16_t> used;
+    std::string tl;
+    bool wordAdded = true;
 
-	if(!transInited) {
-		initTrans();
-	}
+    if (!transInited) {
+        initTrans();
+    }
 
-	for(char c : str) {
-		if(c == '-' || c == '\'')
-			continue;
+    for (char c : str) {
+        if (c == '-' || c == '\'') continue;
 
-		c = to7bitlow[c & 0xff];
+        c = to7bitlow[c & 0xff];
 
-		if(!isalnum(c)) {
-			if(!wordAdded) {
-				uint16_t code = tlcode(tl.c_str());
-				// LOGV("Adding '%s'", tl);
-				if(used.count(code) == 0) {
-					stringMap[code].push_back(index);
-					used.insert(code);
-				}
-				wordAdded = true;
-			}
-			tl.resize(0);
-			continue;
-		}
-		wordAdded = false;
-		tl.push_back(c);
+        if (!isalnum(c)) {
+            if (!wordAdded) {
+                uint16_t code = tlcode(tl.c_str());
+                // LOGV("Adding '%s'", tl);
+                if (used.count(code) == 0) {
+                    stringMap[code].push_back(index);
+                    used.insert(code);
+                }
+                wordAdded = true;
+            }
+            tl.resize(0);
+            continue;
+        }
+        wordAdded = false;
+        tl.push_back(c);
 
-		if(tl.size() == 3) {
-			uint16_t code = tlcode(tl.c_str());
-			// LOGV("Adding '%s'", tl);
-			if(used.count(code) == 0) {
-				stringMap[code].push_back(index);
-				used.insert(code);
-			}
-			wordAdded = true;
-			tl.erase(0, 1);
-		}
-	}
+        if (tl.size() == 3) {
+            uint16_t code = tlcode(tl.c_str());
+            // LOGV("Adding '%s'", tl);
+            if (used.count(code) == 0) {
+                stringMap[code].push_back(index);
+                used.insert(code);
+            }
+            wordAdded = true;
+            tl.erase(0, 1);
+        }
+    }
 
-	return index;
+    return index;
 }

@@ -8,7 +8,7 @@
 namespace bbs {
 class TelnetServer;
 class Console;
-};
+}; // namespace bbs
 
 #include <memory>
 
@@ -16,21 +16,22 @@ namespace chipmachine {
 
 class MusicPlayerList;
 
-class TelnetInterface {
+class TelnetInterface
+{
 public:
-	TelnetInterface(MusicPlayerList &cm) : player(cm) {}
-	void start();
-	void stop();
+    TelnetInterface(MusicPlayerList& cm) : player(cm) {}
+    void start();
+    void stop();
 
 private:
-	void runClient(std::shared_ptr<bbs::Console> console);
-	// MusicDatabase& db;
-	MusicPlayerList &player;
-	// ChipMachine &chipmachine;
-	std::shared_ptr<bbs::TelnetServer> telnet;
-	std::shared_ptr<bbs::Console> console;
+    void runClient(std::shared_ptr<bbs::Console> console);
+    // MusicDatabase& db;
+    MusicPlayerList& player;
+    // ChipMachine &chipmachine;
+    std::shared_ptr<bbs::TelnetServer> telnet;
+    std::shared_ptr<bbs::Console> console;
 };
 
-} // namespace bbs
+} // namespace chipmachine
 
 #endif // TELNET_INTERFACE_H

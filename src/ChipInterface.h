@@ -17,7 +17,9 @@ namespace chipmachine {
 class ChipInterface
 {
 public:
-    ChipInterface(const utils::path& wd, RemoteLoader& rl, MusicPlayerList& mpl, MusicDatabase& mdb) : workDir(wd), remoteLoader(rl), player(mpl), mdb(mdb)
+    ChipInterface(const utils::path& wd, RemoteLoader& rl, MusicPlayerList& mpl,
+                  MusicDatabase& mdb)
+        : workDir(wd), remoteLoader(rl), player(mpl), mdb(mdb)
     {
         mdb.initFromLua(wd);
     }
@@ -28,10 +30,7 @@ public:
         return mdb.createQuery();
     }
 
-    SongInfo getSongInfo(int i)
-    {
-        return mdb.getSongInfo(i);
-    }
+    SongInfo getSongInfo(int i) { return mdb.getSongInfo(i); }
 
     int play(const SongInfo& song)
     {
@@ -91,4 +90,3 @@ private:
 };
 
 } // namespace chipmachine
-

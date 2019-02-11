@@ -22,7 +22,8 @@ inline std::string getBaseName(std::string const& filename)
     return filename.substr(fnstart + 1);
 }
 
-inline std::tuple<std::string, std::string> getTypeAndBase(std::string const& filename)
+inline std::tuple<std::string, std::string>
+getTypeAndBase(std::string const& filename)
 {
     constexpr char const* knownExts[] = {
         "jpn", "mdat", "mod", "smp", "smpl", "sng",
@@ -41,14 +42,14 @@ inline std::tuple<std::string, std::string> getTypeAndBase(std::string const& fi
                                    [](char const* a, char const* b) -> bool {
                                        return strcmp(a, b) < 0;
                                    });
-        if (it != std::end(knownExts) && strcmp(*it, prefix.c_str()) == 0) return std::make_tuple(prefix, base.substr(firstDot+1));
-		return std::make_tuple(suffix, base.substr(0, lastDot));
+        if (it != std::end(knownExts) && strcmp(*it, prefix.c_str()) == 0)
+            return std::make_tuple(prefix, base.substr(firstDot + 1));
+        return std::make_tuple(suffix, base.substr(0, lastDot));
     }
     return std::make_tuple("", base);
 }
 
 inline std::string getTypeFromName(std::string const& filename)
 {
-	return std::get<0>(getTypeAndBase(filename));
+    return std::get<0>(getTypeAndBase(filename));
 }
-

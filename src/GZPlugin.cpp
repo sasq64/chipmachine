@@ -5,7 +5,6 @@
 #include <cstdio>
 #include <zlib.h>
 
-
 namespace chipmachine {
 
 int static inflate(const char* infile, const char* outfile)
@@ -38,9 +37,8 @@ int static inflate(const char* infile, const char* outfile)
             strm.next_out = out;
             ret = inflate(&strm, Z_NO_FLUSH);
             // assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
-            if(ret == Z_NEED_DICT)
-                ret = Z_DATA_ERROR;
-            if(ret <= Z_DATA_ERROR) {
+            if (ret == Z_NEED_DICT) ret = Z_DATA_ERROR;
+            if (ret <= Z_DATA_ERROR) {
                 (void)inflateEnd(&strm);
                 return ret;
             }

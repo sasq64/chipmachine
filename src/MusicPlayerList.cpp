@@ -87,30 +87,30 @@ void MusicPlayerList::seek(int song, int seconds)
     });
 }
 
-SongInfo MusicPlayerList::getInfo(int index)
+SongInfo MusicPlayerList::getInfo(int index) const
 {
     LOCK_GUARD(plMutex);
     if (index == 0) return currentInfo;
     return playList.getSong(index - 1);
 }
 
-SongInfo MusicPlayerList::getDBInfo()
+SongInfo MusicPlayerList::getDBInfo() const
 {
     LOCK_GUARD(plMutex);
     return dbInfo;
 }
 
-int MusicPlayerList::getLength()
+int MusicPlayerList::getLength() const
 {
     return playerLength;
 }
 
-int MusicPlayerList::getPosition()
+int MusicPlayerList::getPosition() const
 {
     return playerPosition;
 }
 
-int MusicPlayerList::listSize()
+int MusicPlayerList::listSize() const
 {
     LOCK_GUARD(plMutex);
     return playList.size();

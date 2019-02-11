@@ -1,14 +1,16 @@
 #define Z 0xffffffff
 static const image::bitmap heart_icon = {
-    8, 6, {0, Z, Z, 0, Z, Z, 0, 0, Z, Z, Z, Z, Z, Z, Z, 0,
-           Z, Z, Z, Z, Z, Z, Z, 0, 0, Z, Z, Z, Z, Z, 0, 0,
-           0, 0, Z, Z, Z, 0, 0, 0, 0, 0, 0, Z, 0, 0, 0, 0}};
+    8, 6, { 0, Z, Z, 0, Z, Z, 0, 0, Z, Z, Z, Z, Z, Z, Z, 0,
+            Z, Z, Z, Z, Z, Z, Z, 0, 0, Z, Z, Z, Z, Z, 0, 0,
+            0, 0, Z, Z, Z, 0, 0, 0, 0, 0, 0, Z, 0, 0, 0, 0 }
+};
 
 #undef Z
 #define Z 0xff44cccc
 static const image::bitmap net_icon = {
-    8, 5, {0, 0, Z, Z, Z, 0, 0, 0, 0, 0, Z, 0, Z, 0, 0, 0, Z, Z, Z, 0,
-           Z, 0, Z, Z, 0, 0, 0, 0, Z, 0, Z, 0, 0, 0, 0, 0, Z, Z, Z, 0}};
+    8, 5, { 0, 0, Z, Z, Z, 0, 0, 0, 0, 0, Z, 0, Z, 0, 0, 0, Z, Z, Z, 0,
+            Z, 0, Z, Z, 0, 0, 0, 0, Z, 0, Z, 0, 0, 0, 0, 0, Z, Z, Z, 0 }
+};
 #undef Z
 
 #define Z 0xffffcccc
@@ -32,5 +34,6 @@ static const image::bitmap volume_icon = {
         Z, 0, Z, 0, Z, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, Z, 0, Z, 0,
         Z, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, Z, 0, Z, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, Z,
-    }};
+    }
+};
 #undef Z

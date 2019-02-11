@@ -25,10 +25,10 @@ public:
     ~MusicPlayer();
     bool playFile(const std::string& fileName);
     bool streamFile(const std::string& fileName);
-    bool playing() { return !playEnded && player != nullptr; }
+    bool playing() const { return !playEnded && player != nullptr; }
     void stop() { player = nullptr; }
-    uint32_t getPosition() { return pos / 44100; };
-    uint32_t getLength() { return length; }
+    uint32_t getPosition() const { return pos / 44100; };
+    uint32_t getLength() const { return length; }
 
     void putStream(const uint8_t* ptr, int size);
     void clearStreamFifo()
@@ -46,18 +46,18 @@ public:
 
     void pause(bool dopause = true);
 
-    bool isPaused() { return paused; }
+    bool isPaused() const { return paused; }
 
     void seek(int song, int seconds = -1);
 
-    int getTune() { return currentTune; }
+    int getTune() const { return currentTune; }
 
-    SongInfo getPlayingInfo() { return playingInfo; }
+    SongInfo getPlayingInfo() const { return playingInfo; }
 
     std::string getMeta(const std::string& what);
 
     // Returns silence (from now) in seconds
-    int getSilence();
+    int getSilence() const;
 
     void setVolume(float v);
     float getVolume() const;
@@ -106,4 +106,3 @@ private:
     AudioPlayer& audioPlayer;
 };
 } // namespace chipmachine
-

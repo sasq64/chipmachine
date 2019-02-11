@@ -95,7 +95,8 @@ public:
     void renderCommand(grappix::Rectangle& rec, int y, uint32_t index,
                        bool hilight);
 
-    ChipMachine(utils::path const& workDir, RemoteLoader& rl, MusicPlayerList& mpl, MusicDatabase& mdb);
+    ChipMachine(utils::path const& workDir, RemoteLoader& rl,
+                MusicPlayerList& mpl, MusicDatabase& mdb);
     ~ChipMachine();
 
     void initLua();

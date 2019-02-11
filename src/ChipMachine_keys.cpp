@@ -1,15 +1,16 @@
 #include "ChipMachine.h"
 #include "modutils.h"
 #include <algorithm>
-#include <random>
 #include <chrono>
+#include <random>
 
 using tween::Tween;
 
 namespace chipmachine {
 
 // see also: https://github.com/Attnam/ivan/pull/407
-static std::mt19937 rng(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+static std::mt19937
+    rng(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 
 void ChipMachine::addKey(uint32_t key, statemachine::Condition const& cond,
                          std::string const& cmd)
@@ -32,25 +33,19 @@ void ChipMachine::addKey(uint32_t key, statemachine::Condition const& cond,
     if (it != commands.end()) {
         smac.add(key, cond,
                  static_cast<uint32_t>(std::distance(commands.begin(), it)));
-        if (key == keycodes::BACKSPACE)
-            return;
+        if (key == keycodes::BACKSPACE) return;
         if (it->shortcut == "") {
             std::string name;
-            if (key & SHIFT)
-                name += "shift+";
-            if (key & ALT)
-                name += "alt+";
-            if (key & CTRL)
-                name += "ctrl+";
+            if (key & SHIFT) name += "shift+";
+            if (key & ALT) name += "alt+";
+            if (key & CTRL) name += "ctrl+";
             key &= 0xffff;
             if (key < 0x100)
                 name.append(1, tolower(key));
             else if (key <= keycodes::F12)
                 name += utils::toLower(key_names[key - 0x100]);
-            if (onSearch)
-                name += " [search]";
-            if (onMain)
-                name += " [main]";
+            if (onSearch) name += " [search]";
+            if (onMain) name += " [main]";
             it->shortcut = name;
         }
     }
@@ -63,8 +58,9 @@ void ChipMachine::setupRules()
 
     addKey(keycodes::F1, "show_main");
     addKey(keycodes::F2, "show_search");
-    addKey({keycodes::UP, keycodes::DOWN, keycodes::PAGEUP, keycodes::PAGEDOWN},
-           if_equals(currentScreen, MAIN_SCREEN), "show_search");
+    addKey(
+        { keycodes::UP, keycodes::DOWN, keycodes::PAGEUP, keycodes::PAGEDOWN },
+        if_equals(currentScreen, MAIN_SCREEN), "show_search");
     addKey(keycodes::F5, "play_pause");
     addKey(keycodes::F3, "show_command");
 
@@ -117,7 +113,7 @@ void ChipMachine::setupRules()
     addKey('o' | CTRL, "collection_shuffle");
     addKey('g' | CTRL, "favorite_shuffle");
     addKey('-', "volume_down");
-    addKey({'+', '='}, "volume_up");
+    addKey({ '+', '=' }, "volume_up");
     addKey(keycodes::TAB, "toggle_command");
     std::string empty("");
     addKey('i' | CTRL, if_equals(filter, empty), "set_collection_filter");
@@ -142,8 +138,7 @@ void ChipMachine::showScreen(Screen screen)
 SongInfo ChipMachine::getSelectedSong()
 {
     int i = songList.selected();
-    if (i < 0)
-        return SongInfo();
+    if (i < 0) return SongInfo();
     return musicDatabase.getSongInfo(iquery->getIndex(i));
 }
 
@@ -163,12 +158,9 @@ void ChipMachine::shuffleSongs(int what, int limit)
 
     LOGD("SHUFFLE %s / %s", match.composer, match.format);
 
-    if (!(what & Shuffle::Format))
-        match.format = "";
-    if (!(what & Shuffle::Composer))
-        match.composer = "";
-    if (!(what & Shuffle::Collection))
-        match.path = "";
+    if (!(what & Shuffle::Format)) match.format = "";
+    if (!(what & Shuffle::Composer)) match.composer = "";
+    if (!(what & Shuffle::Collection)) match.path = "";
     match.title = match.game;
 
     musicDatabase.getSongs(target, match, limit, true);
@@ -179,8 +171,7 @@ void ChipMachine::playSongs(std::vector<SongInfo> const& songs)
 {
     player.clearSongs();
     for (const auto& s : songs) {
-        if (!utils::endsWith(s.path, ".plist"))
-            player.addSong(s);
+        if (!utils::endsWith(s.path, ".plist")) player.addSong(s);
     }
     showScreen(MAIN_SCREEN);
     player.nextSong();
@@ -198,13 +189,11 @@ void ChipMachine::updateKeys()
 
     auto key = screen.get_key();
 
-    if ((key & 0x80000000) != 0)
-        return;
+    if ((key & 0x80000000) != 0) return;
 
     // LOGD("KEY %x", key);
 
-    if (indexingDatabase)
-        return;
+    if (indexingDatabase) return;
 
     uint32_t event = key;
 
@@ -215,8 +204,7 @@ void ChipMachine::updateKeys()
         currentList = &commandList;
 
     bool ascii = (event >= 'A' && event <= 'Z');
-    if (ascii)
-        event = tolower(event);
+    if (ascii) event = tolower(event);
     if (screen.key_pressed(keycodes::SHIFT_LEFT) ||
         screen.key_pressed(keycodes::SHIFT_RIGHT)) {
         if (ascii)
@@ -240,11 +228,9 @@ void ChipMachine::updateKeys()
         screen.key_pressed(keycodes::ALT_RIGHT))
         event |= ALT;
 
-    if ((event & (CTRL | SHIFT)) == 0 && currentList)
-        currentList->onKey(key);
+    if ((event & (CTRL | SHIFT)) == 0 && currentList) currentList->onKey(key);
 
-    if (event == (keycodes::RIGHT | SHIFT))
-        event = keycodes::LEFT;
+    if (event == (keycodes::RIGHT | SHIFT)) event = keycodes::LEFT;
 
     lastKey = key;
 
@@ -275,8 +261,7 @@ void ChipMachine::updateKeys()
                     searchField.setText("");
                 hasMoved = false;
                 showScreen(SEARCH_SCREEN);
-                if (event >= 0x20 && event <= 0xff)
-                    event = tolower(event);
+                if (event >= 0x20 && event <= 0xff) event = tolower(event);
                 searchField.on_key(event);
                 searchUpdated = true;
             }
@@ -289,8 +274,7 @@ void ChipMachine::updateKeys()
 
     if (songList.selected() != last_selection && iquery->numHits() > 0) {
         int i = songList.selected();
-        SongInfo song =
-            musicDatabase.getSongInfo(iquery->getIndex(i));
+        SongInfo song = musicDatabase.getSongInfo(iquery->getIndex(i));
         auto ext = getTypeFromName(song.path);
         bool isoffline = remoteLoader.isOffline(song.path);
         if (ext != "")

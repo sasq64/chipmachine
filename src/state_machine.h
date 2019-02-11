@@ -202,7 +202,8 @@ public:
         add(chars, ALWAYS_TRUE, action, stop);
     }
 
-    void add(std::vector<uint32_t> const& events, uint32_t action, bool stop = true)
+    void add(std::vector<uint32_t> const& events, uint32_t action,
+             bool stop = true)
     {
         add(events, ALWAYS_TRUE, action, stop);
     }

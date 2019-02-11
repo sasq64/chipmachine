@@ -3,11 +3,11 @@
 
 #include <coreutils/file.h>
 
-#include <string>
-#include <vector>
-#include <unordered_map>
-#include <functional>
 #include <coreutils/thread.h>
+#include <functional>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include <coreutils/log.h>
 /*
@@ -29,10 +29,10 @@ public:
                     }
                     if(sourceVec) {
                         // LOGD("WORK STARTING");
-                        for(int i = tno; i < sourceVec->size(); i += threadCount) {
-                            const T &item = (*sourceVec)[i];
-                            if(filterFunc(item)) {
-                                // Dealing with index 'i'. Need to wait until all lower indexes has
+                        for(int i = tno; i < sourceVec->size(); i +=
+threadCount) { const T &item = (*sourceVec)[i]; if(filterFunc(item)) {
+                                // Dealing with index 'i'. Need to wait until
+all lower indexes has
                                 // been dealt with.
                                 // while(handled < i)
                                 //	utils::sleepms(0);
@@ -57,18 +57,15 @@ public:
             t.join();
     }
 
-    std::vector<T> reduce(const std::vector<T> &vec, std::function<bool(const T &t)> filter) {
-        std::vector<T> result;
-        for(const auto &x : vec) {
-            if(filter(x))
+    std::vector<T> reduce(const std::vector<T> &vec, std::function<bool(const T
+&t)> filter) { std::vector<T> result; for(const auto &x : vec) { if(filter(x))
                 result.push_back(x);
         }
         return result;
     }
 
-    std::vector<T> reduce_p(const std::vector<T> &vec, std::function<bool(const T &t)> filter) {
-        std::vector<T> result(vec.size());
-        filterFunc = filter;
+    std::vector<T> reduce_p(const std::vector<T> &vec, std::function<bool(const
+T &t)> filter) { std::vector<T> result(vec.size()); filterFunc = filter;
         sourceVec = &vec;
         targetVec = &result;
         counter = 0;
@@ -103,108 +100,112 @@ private:
     std::function<bool(const T &)> filterFunc;
 };
 */
-class SearchProvider {
+class SearchProvider
+{
 public:
     virtual ~SearchProvider() {}
-	// Search for a string, return indexes of hits
-	virtual int search(const std::string &word, std::vector<int> &result,
-	                   unsigned int searchLimit) = 0;
-	// Lookup internal string for index
-	virtual std::string getString(int index) const = 0;
-	// Get full data, may require SQL query
-	virtual std::string getFullString(int index) const { return getString(index); }
+    // Search for a string, return indexes of hits
+    virtual int search(const std::string& word, std::vector<int>& result,
+                       unsigned int searchLimit) = 0;
+    // Lookup internal string for index
+    virtual std::string getString(int index) const = 0;
+    // Get full data, may require SQL query
+    virtual std::string getFullString(int index) const
+    {
+        return getString(index);
+    }
 };
 
-class IncrementalQuery {
+class IncrementalQuery
+{
 public:
-	IncrementalQuery() : provider(nullptr) {}
+    IncrementalQuery() : provider(nullptr) {}
 
-	IncrementalQuery(SearchProvider *provider)
-	    : newRes(false), provider(provider), searchLimit(20000), lastStart(-1), lastSize(-1) {}
+    IncrementalQuery(SearchProvider* provider)
+        : newRes(false), provider(provider), searchLimit(20000), lastStart(-1),
+          lastSize(-1)
+    {}
 
-	void addLetter(char c);
-	void removeLast();
-	void clear();
-	void setString(const std::string &s);
-	const std::string getString();
-	const std::vector<std::string> &getResult(int start, int size);
-	const std::string getResult(int start);
+    void addLetter(char c);
+    void removeLast();
+    void clear();
+    void setString(const std::string& s);
+    const std::string getString();
+    const std::vector<std::string>& getResult(int start, int size);
+    const std::string getResult(int start);
 
-	int getIndex(int no) { return finalResult[no]; }
+    int getIndex(int no) { return finalResult[no]; }
 
-	int numHits() const;
-	bool newResult() {
-		bool r = newRes;
-		newRes = false;
-		return r;
-	}
+    int numHits() const;
+    bool newResult()
+    {
+        bool r = newRes;
+        newRes = false;
+        return r;
+    }
 
-	void invalidate() {
-		oldWords.clear();
-	}
-	
-	// std::string getFull(int index) const {
-	//	return provider->getFullString(finalResult[index]);
-	//}
+    void invalidate() { oldWords.clear(); }
+
+    // std::string getFull(int index) const {
+    //	return provider->getFullString(finalResult[index]);
+    //}
 
 private:
-	void search();
+    void search();
 
-	bool newRes;
+    bool newRes;
 
-	SearchProvider *provider;
-	unsigned int searchLimit;
-	std::vector<char> query;
-	std::vector<std::string> oldWords;
-	std::vector<int> firstResult;
-	std::vector<int> finalResult;
-	std::vector<std::string> textResult;
-	int lastStart;
-	int lastSize;
+    SearchProvider* provider;
+    unsigned int searchLimit;
+    std::vector<char> query;
+    std::vector<std::string> oldWords;
+    std::vector<int> firstResult;
+    std::vector<int> finalResult;
+    std::vector<std::string> textResult;
+    int lastStart;
+    int lastSize;
 };
 
-class SearchIndex : public SearchProvider {
+class SearchIndex : public SearchProvider
+{
 public:
-	SearchIndex() {}
-	~SearchIndex() {}
+    SearchIndex() {}
+    ~SearchIndex() {}
 
-	void reserve(uint32_t sz) { strings.reserve(sz); }
+    void reserve(uint32_t sz) { strings.reserve(sz); }
 
-	int search(const std::string &word, std::vector<int> &result,
-	           unsigned int searchLimit) override;
-	std::string getString(int index) const override { return strings[index]; }
+    int search(const std::string& word, std::vector<int>& result,
+               unsigned int searchLimit) override;
+    std::string getString(int index) const override { return strings[index]; }
 
-	int add(const std::string &str, bool stringonly = false);
+    int add(const std::string& str, bool stringonly = false);
 
-	void dump(apone::File& f);
-	void load(apone::File& f);
+    void dump(apone::File& f);
+    void load(apone::File& f);
 
-	static std::string& simplify(std::string &s);
-	static unsigned int tlcode(const char *s);
+    static std::string& simplify(std::string& s);
+    static unsigned int tlcode(const char* s);
 
-	void setFilter(std::function<bool(int)> f = nullptr) { 
-		filter = f;
-	}
+    void setFilter(std::function<bool(int)> f = nullptr) { filter = f; }
 
-	uint32_t size() { return strings.size(); }	
+    uint32_t size() { return strings.size(); }
 
 private:
-	// Worker<int> worker;
+    // Worker<int> worker;
 
-	std::function<bool(int)> filter;
+    std::function<bool(int)> filter;
 
-	static void initTrans();
+    static void initTrans();
 
-	static bool transInited;
-	static std::vector<uint8_t> to7bit;
-	static std::vector<uint8_t> to7bitlow;
+    static bool transInited;
+    static std::vector<uint8_t> to7bit;
+    static std::vector<uint8_t> to7bitlow;
 
-	// Maps coded 3-letters to a list of indexes
-	// std::unordered_map<uint16_t, std::vector<int>> stringMap;
-	std::vector<int> stringMap[65536];
-	// The actual strings
-	std::vector<std::string> strings;
+    // Maps coded 3-letters to a list of indexes
+    // std::unordered_map<uint16_t, std::vector<int>> stringMap;
+    std::vector<int> stringMap[65536];
+    // The actual strings
+    std::vector<std::string> strings;
 };
 
 #endif // SEARCH_INDEX_H
-

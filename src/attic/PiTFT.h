@@ -1,17 +1,18 @@
 
 #include <cstdint>
 
-class PiTFT {
+class PiTFT
+{
 public:
-	PiTFT();
+    PiTFT();
 
-	uint16_t *ptr() { return screenPtr; }
+    uint16_t* ptr() { return screenPtr; }
 
 private:
-	int fbfd;
-	int width;
-	int height;
-	int bpp;
+    int fbfd;
+    int width;
+    int height;
+    int bpp;
 
-	uint16_t *screenPtr;
+    uint16_t* screenPtr;
 };

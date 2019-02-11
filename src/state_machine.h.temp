@@ -9,8 +9,8 @@
 #include <utility>
 #include <vector>
 
-#include <cstring>
 #include <cstdint>
+#include <cstring>
 
 namespace statemachine {
 
@@ -51,7 +51,8 @@ private:
 template <class T> class SharedPtrNotNullCondition : public BaseCondition
 {
 public:
-    explicit SharedPtrNotNullCondition(const std::shared_ptr<T>& ptr) : ptr(ptr) {}
+    explicit SharedPtrNotNullCondition(const std::shared_ptr<T>& ptr) : ptr(ptr)
+    {}
     bool check() const override { return ptr != nullptr; }
 
 private:
@@ -61,7 +62,9 @@ private:
 template <class T> class SharedPtrNullCondition : public BaseCondition
 {
 public:
-    explicit explicit SharedPtrNullCondition(const std::shared_ptr<T>& ptr) : ptr(ptr) {}
+    explicit explicit SharedPtrNullCondition(const std::shared_ptr<T>& ptr)
+        : ptr(ptr)
+    {}
     bool check() const override { return ptr == nullptr; }
 
 private:
@@ -143,7 +146,8 @@ extern std::shared_ptr<BaseCondition> ALWAYS_TRUE;
 
 struct Action
 {
-    explicit Action(uint32_t id = 0, uint32_t event = 0) : id(id), event(event) {}
+    explicit Action(uint32_t id = 0, uint32_t event = 0) : id(id), event(event)
+    {}
     uint32_t id;
     uint32_t event;
 };
@@ -202,7 +206,8 @@ public:
         add(chars, ALWAYS_TRUE, action, stop);
     }
 
-    void add(std::vector<uint32_t> const& events, uint32_t action, bool stop = true)
+    void add(std::vector<uint32_t> const& events, uint32_t action,
+             bool stop = true)
     {
         add(events, ALWAYS_TRUE, action, stop);
     }

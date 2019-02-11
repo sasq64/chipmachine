@@ -40,10 +40,13 @@ void ChipMachine::renderSong(grappix::Rectangle const& rec, int y,
 {
 
     static const std::map<uint32_t, uint32_t> colors = {
-        {NOT_SET, 0xffff00ff}, {PLAYLIST, 0xffffff88}, {CONSOLE, 0xffdd3355},
-        {C64, 0xffcc8844},     {ATARI, 0xffcccc33},    {MP3, 0xff88ff88},
-        {M3U, 0xffaaddaa},     {YOUTUBE, 0xffff0000},  {PC, 0xffcccccc},
-        {AMIGA, 0xff6666cc},   {PRODUCT, 0xffff88cc},  {255, 0xff00ffff}};
+        { NOT_SET, 0xffff00ff }, { PLAYLIST, 0xffffff88 },
+        { CONSOLE, 0xffdd3355 }, { C64, 0xffcc8844 },
+        { ATARI, 0xffcccc33 },   { MP3, 0xff88ff88 },
+        { M3U, 0xffaaddaa },     { YOUTUBE, 0xffff0000 },
+        { PC, 0xffcccccc },      { AMIGA, 0xff6666cc },
+        { PRODUCT, 0xffff88cc }, { 255, 0xff00ffff }
+    };
 
     Color c;
     std::string text;
@@ -86,9 +89,11 @@ void ChipMachine::renderSong(grappix::Rectangle const& rec, int y,
                          resultFieldTemplate.scale);
 }
 
-ChipMachine::ChipMachine(utils::path const& wd, RemoteLoader& rl, MusicPlayerList& mpl, MusicDatabase& mdb)
-    : workDir(wd), remoteLoader(rl), player(mpl), musicDatabase(mdb), currentScreen(MAIN_SCREEN),
-      eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen)
+ChipMachine::ChipMachine(utils::path const& wd, RemoteLoader& rl,
+                         MusicPlayerList& mpl, MusicDatabase& mdb)
+    : workDir(wd), remoteLoader(rl), player(mpl), musicDatabase(mdb),
+      currentScreen(MAIN_SCREEN), eq(SpectrumAnalyzer::eq_slots),
+      starEffect(screen), scrollEffect(screen)
 {
 
     screen.setTitle("Chipmachine " VERSION_STR);
@@ -103,8 +108,7 @@ ChipMachine::ChipMachine(utils::path const& wd, RemoteLoader& rl, MusicPlayerLis
     lua.set_function("cm_execute",
                      [binDir](std::string const& cmd) -> std::string {
                          auto cmdPath = utils::path(cmd);
-                         if (!cmdPath.is_absolute())
-                             cmdPath = binDir / cmdPath;
+                         if (!cmdPath.is_absolute()) cmdPath = binDir / cmdPath;
                          std::string output = utils::execPipe(cmdPath.string());
                          return output;
                      });
@@ -165,8 +169,8 @@ ChipMachine::ChipMachine(utils::path const& wd, RemoteLoader& rl, MusicPlayerLis
 
     float ww = volume_icon.width() * 15;
     float hh = volume_icon.height() * 10;
-    volPos = {((float)screen.width() - ww) / 2.0f,
-              ((float)screen.height() - hh) / 2.0f, ww, hh};
+    volPos = { ((float)screen.width() - ww) / 2.0f,
+               ((float)screen.height() - hh) / 2.0f, ww, hh };
     volumeIcon = Icon(volume_icon, volPos.x, volPos.y, volPos.w, volPos.h);
 
     setupCommands();
@@ -270,8 +274,7 @@ ChipMachine::ChipMachine(utils::path const& wd, RemoteLoader& rl, MusicPlayerLis
 ChipMachine::~ChipMachine()
 {
 #ifdef ENABLE_TELNET
-    if (telnet)
-        telnet->stop();
+    if (telnet) telnet->stop();
 #endif
 }
 
@@ -340,8 +343,8 @@ void ChipMachine::layoutScreen()
 
     float ww = volume_icon.width() * 15;
     float hh = volume_icon.height() * 10;
-    volPos = {((float)screen.width() - ww) / 2.0f,
-              ((float)screen.height() - hh) / 2.0f, ww, hh};
+    volPos = { ((float)screen.width() - ww) / 2.0f,
+               ((float)screen.height() - hh) / 2.0f, ww, hh };
     volumeIcon.setArea(volPos);
 }
 
@@ -353,8 +356,7 @@ void ChipMachine::play(SongInfo const& si)
 
 void ChipMachine::updateFavorite()
 {
-    auto favorites =
-        musicDatabase.getPlaylist(currentPlaylistName);
+    auto favorites = musicDatabase.getPlaylist(currentPlaylistName);
     auto favsong =
         find_if(favorites.begin(), favorites.end(), [&](SongInfo const& song) {
             return (song.path == currentInfo.path &&
@@ -372,12 +374,10 @@ void ChipMachine::updateFavorite()
 void ChipMachine::nextScreenshot()
 {
     setShotAt = utils::getms();
-    if (screenshots.empty())
-        return;
+    if (screenshots.empty()) return;
 
     currentShot++;
-    if (currentShot >= screenshots.size())
-        currentShot = 0;
+    if (currentShot >= screenshots.size()) currentShot = 0;
 
     Tween::make()
         .to(screenShotIcon.color, Color(0x00000000))
@@ -400,8 +400,7 @@ void ChipMachine::nextScreenshot()
 
             float d = (float)h / bm.height();
             float d2 = (float)w / bm.width();
-            if (d2 < d)
-                d = d2;
+            if (d2 < d) d = d2;
             screenShotIcon.setArea(
                 grappix::Rectangle(x, y, bm.width() * d, bm.height() * d));
             Tween::make()
@@ -435,8 +434,7 @@ void ChipMachine::update()
     if (indexingDatabase) {
 
         static int delay = 30;
-        if (delay-- == 0)
-            toast("Indexing database", STICKY);
+        if (delay-- == 0) toast("Indexing database", STICKY);
 
         if (!musicDatabase.busy()) {
             indexingDatabase = false;
@@ -459,8 +457,7 @@ void ChipMachine::update()
         }
         namedToPlay = "";
         for (const auto& s : target) {
-            if (!utils::endsWith(s.path, ".plist"))
-                player.addSong(s);
+            if (!utils::endsWith(s.path, ".plist")) player.addSong(s);
         }
         player.nextSong();
     }
@@ -534,8 +531,7 @@ void ChipMachine::update()
                             } else {
                                 auto bm = image::load_image(f.getName());
                                 for (auto& px : bm) {
-                                    if ((px & 0xffffff) == 0)
-                                        px &= 0xffffff;
+                                    if ((px & 0xffffff) == 0) px &= 0xffffff;
                                 }
                                 screenshots.emplace_back(f.getFileName(), bm);
                             }
@@ -675,8 +671,7 @@ void ChipMachine::update()
             lengthField.setText("");
 
         auto sub_title = player.getMeta("sub_title");
-        if (sub_title != xinfoField.getText())
-            xinfoField.setText(sub_title);
+        if (sub_title != xinfoField.getText()) xinfoField.setText(sub_title);
 
 #ifdef DO_WE_NEED_THIS
         if (scrollText == "") {
@@ -717,10 +712,8 @@ void ChipMachine::update()
         for (auto i : utils::count_to(fft.eq_slots)) {
             if (spectrum[i] > 5) {
                 auto f = static_cast<unsigned>(logf(spectrum[i]) * 64);
-                if (f > 255)
-                    f = 255;
-                if (f > eq[i])
-                    eq[i] = static_cast<uint8_t>(f);
+                if (f > 255) f = 255;
+                if (f > eq[i]) eq[i] = static_cast<uint8_t>(f);
             }
         }
     }
@@ -733,8 +726,7 @@ void ChipMachine::update()
 
     netIcon.visible(busy);
 
-    if (setShotAt < utils::getms() - 10000)
-        nextScreenshot();
+    if (setShotAt < utils::getms() - 10000) nextScreenshot();
 }
 
 void fadeOut(float& alpha, float t = 0.25)
@@ -746,7 +738,8 @@ void ChipMachine::toast(std::string const& txt, ToastType type)
 {
 
     static std::vector<Color> colors = {
-        0xffffff, 0xff8888, 0x55aa55}; // Alpha intentionally left at zero
+        0xffffff, 0xff8888, 0x55aa55
+    }; // Alpha intentionally left at zero
 
     toastField.setText(txt);
     int tlen = toastField.getWidth();
@@ -802,8 +795,7 @@ void ChipMachine::render(uint32_t delta)
 
     musicBars.render(spectrumPos, spectrumColor, eq);
 
-    if (starsOn)
-        starEffect.render(delta);
+    if (starsOn) starEffect.render(delta);
     scrollEffect.render(delta);
 
     if (currentScreen == MAIN_SCREEN) {
