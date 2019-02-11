@@ -1037,7 +1037,7 @@ void MusicDatabase::generateIndex()
 
     // std::lock_guard lock{dbMutex};
 
-    RemoteLoader& loader = RemoteLoader::getInstance();
+    RemoteLoader& loader = remoteLoader;
     auto q = db.query<int, std::string, std::string, std::string>(
         "SELECT ROWID,id,url,localdir FROM collection");
     while (q.step()) {

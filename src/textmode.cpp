@@ -148,7 +148,7 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface& ci)
                 auto song = getSelectedSong();
                 auto ext = getTypeFromName(song.path);
                 bool isoffline =
-                    RemoteLoader::getInstance().isOffline(song.path);
+                    ci.remoteLoader.isOffline(song.path);
                 console->fill(Console::BLACK, 0, 0, width, 1);
                 console->put(0, 0,
                              utils::format("Format: %s (%s)%s", song.format,

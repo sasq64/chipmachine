@@ -11,11 +11,13 @@
 
 #include <coreutils/thread.h>
 #include <future>
+#include <map>
 #include <mutex>
 #include <string>
 #include <unordered_map>
-#include <map>
 #include <vector>
+
+class RemoteLoader;
 
 namespace chipmachine {
 
@@ -108,8 +110,10 @@ class MusicDatabase : public SearchProvider
 public:
     using Variables = std::map<std::string, std::string>;
 
-    MusicDatabase()
-        : db((Environment::getCacheDir() / "music.db").string()), reindexNeeded(false)
+    MusicDatabase(RemoteLoader& rl)
+        : remoteLoader(rl),
+          db((Environment::getCacheDir() / "music.db").string()),
+          reindexNeeded(false)
     {
         createTables();
     }
@@ -194,12 +198,6 @@ private:
 public:
     std::string getSongScreenshots(SongInfo& s);
 
-    static MusicDatabase& getInstance()
-    {
-        static MusicDatabase mdb;
-        return mdb;
-    }
-
     struct Playlist
     {
         Playlist(utils::path f) : fileName(f.string())
@@ -240,7 +238,8 @@ private:
     struct Collection
     {
         Collection(int id = -1, std::string const& name = "",
-                   std::string const& url = "", utils::path const& local_dir = utils::path(""))
+                   std::string const& url = "",
+                   utils::path const& local_dir = utils::path(""))
             : id(id), name(name), url(url), local_dir(local_dir)
         {}
         int id;
@@ -279,6 +278,8 @@ private:
     void createTables();
 
     static constexpr int PLAYLIST_INDEX = 0x10000000;
+
+    RemoteLoader& remoteLoader;
 
     SearchIndex composerIndex;
     SearchIndex titleIndex;

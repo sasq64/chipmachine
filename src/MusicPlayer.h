@@ -13,12 +13,15 @@ class ChipPlugin;
 class ChipPlayer;
 } // namespace musix
 
+class AudioPlayer;
+
 namespace chipmachine {
 
 class MusicPlayer
 {
 public:
-    MusicPlayer(const std::string& workDir);
+    MusicPlayer(AudioPlayer& ap);
+    MusicPlayer(MusicPlayer const& other) = delete;
     ~MusicPlayer();
     bool playFile(const std::string& fileName);
     bool streamFile(const std::string& fileName);
@@ -81,24 +84,26 @@ private:
     // Fifo fifo;
     std::function<void(int16_t*, int)> audioCb;
 
-    std::atomic<bool> paused{false};
+    std::atomic<bool> paused{ false };
 
     std::shared_ptr<musix::ChipPlayer> player;
     std::string message;
     std::string sub_title;
-    std::atomic<int> pos{0};
-    std::atomic<int> length{0};
+    std::atomic<int> pos{ 0 };
+    std::atomic<int> length{ 0 };
     int fadeLength = 0;
     int fadeOutPos = 0;
     int silentFrames = 0;
     int currentTune = 0;
-    float volume = 1.0f;
+    std::atomic<float> volume = 1.0f;
 
-    std::atomic<bool> dontPlay{false};
-    std::atomic<bool> playEnded{false};
+    std::atomic<bool> dontPlay{ false };
+    std::atomic<bool> playEnded{ false };
     bool checkSilence = true;
 
     std::shared_ptr<utils::Fifo<uint8_t>> streamFifo;
+
+    AudioPlayer& audioPlayer;
 };
 } // namespace chipmachine
 

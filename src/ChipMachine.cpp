@@ -86,8 +86,8 @@ void ChipMachine::renderSong(grappix::Rectangle const& rec, int y,
                          resultFieldTemplate.scale);
 }
 
-ChipMachine::ChipMachine(utils::path const& wd)
-    : workDir(wd), player(wd), currentScreen(MAIN_SCREEN),
+ChipMachine::ChipMachine(utils::path const& wd, RemoteLoader& rl, MusicPlayerList& mpl, MusicDatabase& mdb)
+    : workDir(wd), remoteLoader(rl), player(mpl), musicDatabase(mdb), currentScreen(MAIN_SCREEN),
       eq(SpectrumAnalyzer::eq_slots), starEffect(screen), scrollEffect(screen)
 {
 
@@ -142,7 +142,7 @@ ChipMachine::ChipMachine(utils::path const& wd)
 
     // SEARCHSCREEN
 
-    iquery = MusicDatabase::getInstance().createQuery();
+    iquery = musicDatabase.createQuery();
 
     searchField.setPrompt("#");
     searchScreen.add(&searchField);
@@ -195,9 +195,9 @@ ChipMachine::ChipMachine(utils::path const& wd)
     musicBars.setup(spectrumWidth, spectrumHeight);
 
     LOGD("WORKDIR %s", workDir.string());
-    MusicDatabase::getInstance().initFromLuaAsync(this->workDir);
+    musicDatabase.initFromLuaAsync(this->workDir);
 
-    if (MusicDatabase::getInstance().busy()) {
+    if (musicDatabase.busy()) {
         indexingDatabase = true;
     }
 
@@ -354,7 +354,7 @@ void ChipMachine::play(SongInfo const& si)
 void ChipMachine::updateFavorite()
 {
     auto favorites =
-        MusicDatabase::getInstance().getPlaylist(currentPlaylistName);
+        musicDatabase.getPlaylist(currentPlaylistName);
     auto favsong =
         find_if(favorites.begin(), favorites.end(), [&](SongInfo const& song) {
             return (song.path == currentInfo.path &&
@@ -438,7 +438,7 @@ void ChipMachine::update()
         if (delay-- == 0)
             toast("Indexing database", STICKY);
 
-        if (!MusicDatabase::getInstance().busy()) {
+        if (!musicDatabase.busy()) {
             indexingDatabase = false;
             removeToast();
         } else
@@ -450,12 +450,12 @@ void ChipMachine::update()
         SongInfo info;
         bool random = true;
         if (namedToPlay == "favorites") {
-            target = MusicDatabase::getInstance().getPlaylist("Favorites");
+            target = musicDatabase.getPlaylist("Favorites");
         } else if (namedToPlay == "all") {
-            MusicDatabase::getInstance().getSongs(target, info, 500, random);
+            musicDatabase.getSongs(target, info, 500, random);
         } else {
             info.path = namedToPlay + "::x";
-            MusicDatabase::getInstance().getSongs(target, info, 500, random);
+            musicDatabase.getSongs(target, info, 500, random);
         }
         namedToPlay = "";
         for (const auto& s : target) {

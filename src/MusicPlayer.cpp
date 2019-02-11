@@ -14,19 +14,18 @@
 
 namespace chipmachine {
 
-MusicPlayer::MusicPlayer(const std::string& workDir)
+MusicPlayer::MusicPlayer(AudioPlayer& ap)
     : fifo(32786 * 4),
-      streamFifo(std::make_shared<utils::Fifo<uint8_t>>(32768 * 8))
+      streamFifo(std::make_shared<utils::Fifo<uint8_t>>(32768 * 8)),
+      audioPlayer(ap)
 {
-
-    AudioPlayer::set_volume(80);
+    audioPlayer.set_volume(80);
     volume = 0.8;
 
-    musix::ChipPlugin::createPlugins(workDir + "/data");
     musix::ChipPlugin::addPlugin(
         std::make_shared<GZPlugin>(musix::ChipPlugin::getPlugins()));
 
-    AudioPlayer::play([=](int16_t* ptr, int size) mutable {
+    audioPlayer.play([=](int16_t* ptr, int size) mutable {
         if (dontPlay) {
             memset(ptr, 0, size * 2);
             return;
@@ -35,12 +34,13 @@ MusicPlayer::MusicPlayer(const std::string& workDir)
         if (fifo.filled() >= size) {
             fifo.get(ptr, size);
             pos += size / 2;
-            if (audioCb)
-                audioCb(ptr, size);
+            if (audioCb) audioCb(ptr, size);
         } else
             memset(ptr, 0, size * 2);
     });
 }
+
+// MusicPlayer::MusicPlayer(MusicPlayer const& other) = default;
 
 // Make sure the fifo is filled
 void MusicPlayer::update()
@@ -59,13 +59,11 @@ void MusicPlayer::update()
 
             int f = fifo.left();
 
-            if (f < 4096)
-                break;
+            if (f < 4096) break;
 
             int rc = player->getSamples(&tempBuf[0], f - 1024);
 
-            if (rc == 0)
-                break;
+            if (rc == 0) break;
 
             if (rc < 0) {
                 playEnded = true;
@@ -86,13 +84,11 @@ void MusicPlayer::update()
 MusicPlayer::~MusicPlayer()
 {
     streamFifo->quit();
-    AudioPlayer::close();
 }
 
 void MusicPlayer::seek(int song, int seconds)
 {
-    if (!player)
-        return;
+    if (!player) return;
     if (player->seekTo(song, seconds)) {
         if (seconds < 0)
             pos = 0;
@@ -125,8 +121,7 @@ void MusicPlayer::putStream(const uint8_t* ptr, int size)
 
 void MusicPlayer::setParameter(const std::string& what, int v)
 {
-    if (player)
-        player->setParameter(what, v);
+    if (player) player->setParameter(what, v);
 }
 
 bool MusicPlayer::streamFile(const std::string& fileName)
@@ -145,8 +140,7 @@ bool MusicPlayer::streamFile(const std::string& fileName)
             LOGD("Playing with %s\n", plugin->name());
             auto newPlayer = std::shared_ptr<musix::ChipPlayer>(
                 plugin->fromStream(streamFifo));
-            if (newPlayer)
-                player = newPlayer;
+            if (newPlayer) player = newPlayer;
             checkSilence = plugin->checkSilence();
             break;
         }
@@ -195,8 +189,10 @@ bool MusicPlayer::playFile(const std::string& fileName)
         }
     }
 
+    LOGD("Try");
     player = nullptr;
     player = fromFile(name);
+    LOGD("Done");
 
     dontPlay = false;
     playEnded = false;
@@ -230,8 +226,7 @@ void MusicPlayer::updatePlayingInfo()
     si.format = player->getMeta("format");
     si.numtunes = player->getMetaInt("songs");
     si.starttune = player->getMetaInt("startSong");
-    if (si.starttune == -1)
-        si.starttune = 0;
+    if (si.starttune == -1) si.starttune = 0;
 
     length = player->getMetaInt("length");
     message = player->getMeta("message");
@@ -242,9 +237,9 @@ void MusicPlayer::updatePlayingInfo()
 void MusicPlayer::pause(bool dopause)
 {
     if (dopause)
-        AudioPlayer::pause_audio();
+        audioPlayer.pause();
     else
-        AudioPlayer::resume_audio();
+        audioPlayer.resume();
     paused = dopause;
 }
 
@@ -255,15 +250,14 @@ std::string MusicPlayer::getMeta(const std::string& what)
     } else if (what == "sub_title") {
         return sub_title;
     }
-    if (player)
-        return player->getMeta(what);
+    if (player) return player->getMeta(what);
     return "";
 }
 
 void MusicPlayer::setVolume(float v)
 {
     volume = utils::clamp(v);
-    AudioPlayer::set_volume(volume * 100);
+    audioPlayer.set_volume(volume * 100);
 }
 
 float MusicPlayer::getVolume() const
@@ -274,12 +268,13 @@ float MusicPlayer::getVolume() const
 std::vector<std::string> MusicPlayer::getSecondaryFiles(const std::string& name)
 {
 
-    utils::File file{name};
+    utils::File file{ name };
     if (file.exists()) {
-        PSFFile f{name};
+        PSFFile f{ name };
         if (f.valid()) {
             LOGD("IS PSF");
-            const std::string tagNames[] = {"_lib", "_lib2", "_lib3", "_lib4"};
+            const std::string tagNames[] = { "_lib", "_lib2", "_lib3",
+                                             "_lib4" };
             std::vector<std::string> libFiles;
             for (auto const& tag : tagNames) {
                 auto lib = f.tags()[tag];
@@ -315,8 +310,7 @@ MusicPlayer::fromFile(const std::string& fileName)
             LOGD("Playing with %s\n", plugin->name());
             player =
                 std::shared_ptr<musix::ChipPlayer>(plugin->fromFile(fileName));
-            if (!player)
-                continue;
+            if (!player) continue;
             checkSilence = plugin->checkSilence();
             break;
         }

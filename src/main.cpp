@@ -12,6 +12,9 @@
 #include <coreutils/searchpath.h>
 #include <coreutils/var.h>
 
+#include <audioplayer/audioplayer.h>
+#include <musicplayer/plugins/plugins.h>
+
 #include <musicplayer/PSFFile.h>
 
 #ifndef _WIN32
@@ -19,11 +22,13 @@
 #    define ENABLE_CONSOLE
 #endif
 #include "CLI11.hpp"
+
+#include "di.hpp"
+namespace di = boost::di;
+
 #include "version.h"
 #include <optional>
 #include <vector>
-
-using namespace chipmachine;
 
 namespace chipmachine {
 void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface& ci);
@@ -55,7 +60,7 @@ int main(int argc, char* argv[])
     bool textMode = false;
 #endif
 
-    static CLI::App opts{"Chipmachine 1.3"};
+    static CLI::App opts{ "Chipmachine 1.3" };
 
 #ifndef TEXTMODE_ONLY
     opts.add_option("--width", w, "Width of window");
@@ -89,7 +94,7 @@ int main(int argc, char* argv[])
             Environment::getExeDir() / ".." / "chipmachine",
             Environment::getExeDir() / ".." / ".." / "chipmachine",
             Environment::getExeDir() / "..",
-            Environment::getExeDir() / ".." / "..", Environment::getAppDir()},
+            Environment::getExeDir() / ".." / "..", Environment::getAppDir() },
         true);
     LOGD("PATH:%s", path);
 
@@ -109,10 +114,17 @@ int main(int argc, char* argv[])
 #ifdef ENABLE_CONSOLE
         auto* c = bbs::Console::createLocalConsole();
 #endif
-        auto pl = std::make_unique<MusicPlayer>(workDir.string());
+        // auto pl =
+        // std::make_unique<chipmachine::MusicPlayer>(workDir.string());
+        const auto injector = di::make_injector(di::bind<utils::path>.to("."));
+
+        musix::ChipPlugin::createPlugins("data");
+
+        static auto pl =
+            injector.create<std::unique_ptr<chipmachine::MusicPlayer>>();
+
         while (true) {
-            if (pos >= songs.size())
-                return 0;
+            if (pos >= songs.size()) return 0;
             pl->playFile(songs[pos++].path);
             SongInfo info = pl->getPlayingInfo();
             utils::print_fmt("Playing: %s\n",
@@ -131,9 +143,7 @@ int main(int argc, char* argv[])
                             LOGD("SEEK");
                             pl->seek(tune++);
                             break;
-                        case bbs::Console::KEY_ENTER:
-                            pl->stop();
-                            break;
+                        case bbs::Console::KEY_ENTER: pl->stop(); break;
                         }
                     }
                 }
@@ -145,17 +155,24 @@ int main(int argc, char* argv[])
 
     if (textMode || telnetServer) {
 
-        static ChipInterface ci(workDir);
+        const auto injector =
+            di::make_injector(di::bind<utils::path>.to(workDir));
+
+        musix::ChipPlugin::createPlugins("data");
+
+        static auto ci =
+            injector.create<std::unique_ptr<chipmachine::ChipInterface>>();
         if (textMode) {
 #ifndef _WIN32
             logging::setLevel(logging::Error);
             auto console = std::shared_ptr<bbs::Console>(
                 bbs::Console::createLocalConsole());
-            runConsole(console, ci);
+            chipmachine::runConsole(console, *ci);
             if (telnetServer)
-                std::thread conThread(runConsole, console, std::ref(ci));
+                std::thread conThread(chipmachine::runConsole, console,
+                                      std::ref(*ci));
             else
-                runConsole(console, ci);
+                chipmachine::runConsole(console, *ci);
 #else
             puts("Textmode not supported on Windows");
             exit(0);
@@ -176,7 +193,7 @@ int main(int argc, char* argv[])
                         console =
                             std::make_shared<bbs::PetsciiConsole>(session);
                     }
-                    runConsole(console, ci);
+                    runConsole(console, *ci);
                 } catch (bbs::TelnetServer::disconnect_excpetion& e) {
                     LOGD("Got disconnect");
                 }
@@ -192,14 +209,29 @@ int main(int argc, char* argv[])
     else
         grappix::screen.open(w, h, false);
 
-    static chipmachine::ChipMachine app(workDir);
+    struct App
+    {
+        App(chipmachine::ChipMachine& c) : cm(c) {}
+        chipmachine::ChipMachine& cm;
+    };
+
+    AudioPlayer ap{ 44100 };
+    const auto injector = di::make_injector(di::bind<AudioPlayer>.to(ap),
+                                            // di::bind<MusicDatabase>.to(db),
+                                            di::bind<utils::path>.to("."));
+
+    musix::ChipPlugin::createPlugins("data");
+
+    static App app = injector.create<App>();
+
+    // static chipmachine::ChipMachine app(workDir);
     if (!playWhat.empty() && (!onlyHeadless || !grappix::screen.haveKeyboard()))
-        app.playNamed(playWhat);
+        app.cm.playNamed(playWhat);
 
     grappix::screen.render_loop(
         [](uint32_t delta) {
-            app.update();
-            app.render(delta);
+            app.cm.update();
+            app.cm.render(delta);
         },
         20);
 #endif

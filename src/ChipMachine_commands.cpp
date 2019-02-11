@@ -92,10 +92,10 @@ void ChipMachine::setupCommands()
         auto song = dbInfo;
         song.starttune = currentTune;
         if (isFavorite) {
-            MusicDatabase::getInstance().removeFromPlaylist(currentPlaylistName,
+            musicDatabase.removeFromPlaylist(currentPlaylistName,
                                                             song);
         } else {
-            MusicDatabase::getInstance().addToPlaylist(currentPlaylistName,
+            musicDatabase.addToPlaylist(currentPlaylistName,
                                                        song);
         }
         isFavorite = !isFavorite;
@@ -107,7 +107,7 @@ void ChipMachine::setupCommands()
 
     cmd("add_list_favorite", [=] {
         if (haveSelection())
-            MusicDatabase::getInstance().addToPlaylist(currentPlaylistName,
+            musicDatabase.addToPlaylist(currentPlaylistName,
                                                        getSelectedSong());
     });
 

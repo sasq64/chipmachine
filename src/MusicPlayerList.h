@@ -53,7 +53,7 @@ public:
         Playmulti
     };
 
-    MusicPlayerList(const utils::path& workDir);
+    MusicPlayerList(MusicDatabase& mdb, RemoteLoader& rl, AudioPlayer& ap);
 
     ~MusicPlayerList()
     {
@@ -169,6 +169,8 @@ private:
     std::deque<std::string> errors;
 
     MusicPlayer mp;
+    MusicDatabase& musicDatabase;
+    RemoteLoader& remoteLoader;
 
     // Lock when accessing MusicPlayer
     std::mutex plMutex;
@@ -225,20 +227,20 @@ private:
 
     PlayQueue playList;
 
-    std::atomic<bool> wasAllowed{true};
-    std::atomic<bool> quitThread{false};
+    std::atomic<bool> wasAllowed{ true };
+    std::atomic<bool> quitThread{ false };
 
-    std::atomic<int> currentTune{0};
-    std::atomic<bool> playing{false};
-    std::atomic<bool> paused{false};
-    std::atomic<int> bitRate{0};
-    std::atomic<int> playerPosition{0};
-    std::atomic<int> playerLength{0};
+    std::atomic<int> currentTune{ 0 };
+    std::atomic<bool> playing{ false };
+    std::atomic<bool> paused{ false };
+    std::atomic<int> bitRate{ 0 };
+    std::atomic<int> playerPosition{ 0 };
+    std::atomic<int> playerLength{ 0 };
 
-    std::atomic<int> files{0};
+    std::atomic<int> files{ 0 };
     std::string loadedFile;
 
-    std::atomic<State> state{Stopped};
+    std::atomic<State> state{ Stopped };
     SongInfo currentInfo;
     SongInfo dbInfo;
 
@@ -250,7 +252,7 @@ private:
 
     std::shared_ptr<CueSheet> cueSheet;
     std::string subtitle;
-    std::atomic<const char*> subtitlePtr{nullptr};
+    std::atomic<const char*> subtitlePtr{ nullptr };
 
     int multiSongNo = 0;
     std::vector<std::string> multiSongs;

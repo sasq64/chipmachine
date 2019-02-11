@@ -95,7 +95,7 @@ public:
     void renderCommand(grappix::Rectangle& rec, int y, uint32_t index,
                        bool hilight);
 
-    ChipMachine(utils::path const& workDir);
+    ChipMachine(utils::path const& workDir, RemoteLoader& rl, MusicPlayerList& mpl, MusicDatabase& mdb);
     ~ChipMachine();
 
     void initLua();
@@ -213,7 +213,9 @@ private:
 
     utils::path workDir;
 
-    MusicPlayerList player;
+    RemoteLoader& remoteLoader;
+    MusicPlayerList& player;
+    MusicDatabase& musicDatabase;
 
     Screen lastScreen = MAIN_SCREEN;
     Screen currentScreen = MAIN_SCREEN;

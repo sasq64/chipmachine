@@ -144,13 +144,13 @@ SongInfo ChipMachine::getSelectedSong()
     int i = songList.selected();
     if (i < 0)
         return SongInfo();
-    return MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
+    return musicDatabase.getSongInfo(iquery->getIndex(i));
 }
 
 void ChipMachine::shuffleFavorites()
 {
     std::vector<SongInfo> target =
-        MusicDatabase::getInstance().getPlaylist(currentPlaylistName);
+        musicDatabase.getPlaylist(currentPlaylistName);
     std::shuffle(target.begin(), target.end(), rng);
     playSongs(target);
 }
@@ -171,7 +171,7 @@ void ChipMachine::shuffleSongs(int what, int limit)
         match.path = "";
     match.title = match.game;
 
-    MusicDatabase::getInstance().getSongs(target, match, limit, true);
+    musicDatabase.getSongs(target, match, limit, true);
     playSongs(target);
 }
 
@@ -290,9 +290,9 @@ void ChipMachine::updateKeys()
     if (songList.selected() != last_selection && iquery->numHits() > 0) {
         int i = songList.selected();
         SongInfo song =
-            MusicDatabase::getInstance().getSongInfo(iquery->getIndex(i));
+            musicDatabase.getSongInfo(iquery->getIndex(i));
         auto ext = getTypeFromName(song.path);
-        bool isoffline = RemoteLoader::getInstance().isOffline(song.path);
+        bool isoffline = remoteLoader.isOffline(song.path);
         if (ext != "")
             topStatus.setText(utils::format("Format: %s (%s)%s", song.format,
                                             ext, isoffline ? "*" : ""));
@@ -321,7 +321,7 @@ void ChipMachine::updateKeys()
         if (filter != filterField.getText()) {
             LOGD("Filter now %s", filter);
             filterField.setText(filter);
-            MusicDatabase::getInstance().setFilter(filter);
+            musicDatabase.setFilter(filter);
             iquery->invalidate();
         }
 

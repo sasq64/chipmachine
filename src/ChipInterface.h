@@ -10,25 +10,27 @@
 #include <string>
 #include <vector>
 
+class RemoteLoader;
+
 namespace chipmachine {
 
 class ChipInterface
 {
 public:
-    ChipInterface(const utils::path& wd) : workDir(wd), player(wd)
+    ChipInterface(const utils::path& wd, RemoteLoader& rl, MusicPlayerList& mpl, MusicDatabase& mdb) : workDir(wd), remoteLoader(rl), player(mpl), mdb(mdb)
     {
-        MusicDatabase::getInstance().initFromLua(wd);
+        mdb.initFromLua(wd);
     }
 
     std::shared_ptr<IncrementalQuery> createQuery()
     {
         std::lock_guard<std::mutex> lg(m);
-        return MusicDatabase::getInstance().createQuery();
+        return mdb.createQuery();
     }
 
     SongInfo getSongInfo(int i)
     {
-        return MusicDatabase::getInstance().getSongInfo(i);
+        return mdb.getSongInfo(i);
     }
 
     int play(const SongInfo& song)
@@ -74,12 +76,14 @@ public:
 
     int seconds() { return player.getPosition(); }
 
+    RemoteLoader& remoteLoader;
+
 private:
     utils::path workDir;
     std::mutex m;
-    MusicDatabase mdb;
+    MusicDatabase& mdb;
     SongInfo info;
-    MusicPlayerList player;
+    MusicPlayerList& player;
     MusicPlayerList::State playerState;
     std::vector<std::shared_ptr<MetaCallback>> meta_callbacks;
     void setupRules();
