@@ -68,8 +68,9 @@ void MusicPlayer::update()
                 playEnded = true;
                 break;
             }
-            if (fadeOutPos != 0 && fadeOutPos >= pos) {
-                fifo.setVolume((fadeOutPos - pos) / (float)fadeLength);
+
+            if (fadeOutPos != 0) {
+                fifo.setVolume(std::min(0, fadeOutPos - pos) / (float)fadeLength);
             }
 
             fifo.put(&tempBuf[0], rc);
