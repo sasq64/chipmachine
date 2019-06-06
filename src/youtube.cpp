@@ -43,5 +43,5 @@ public:
 
 void initYoutube(sol::state& lua)
 {
-    musix::ChipPlugin::addPlugin(std::make_shared<YoutubePlugin>(lua));
+    musix::ChipPlugin::addPlugin(std::make_shared<YoutubePlugin>(lua), true);
 }

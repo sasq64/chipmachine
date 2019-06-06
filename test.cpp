@@ -2,11 +2,15 @@
 
 #include "src/MusicDatabase.h"
 #include "src/MusicPlayer.h"
-
+#include "src/RemoteLoader.h"
 #include "src/modutils.h"
+
+#include "src/di.hpp"
+namespace di = boost::di;
 
 #include <coreutils/log.h>
 #include <musicplayer/chipplugin.h>
+#include <audioplayer/audioplayer.h>
 #include <string>
 #include <array>
 
@@ -35,18 +39,38 @@ TEST_CASE("modutils", "[machine]")
 TEST_CASE("music database", "")
 {
     using namespace chipmachine;
+    const auto injector = di::make_injector(
+        di::bind<utils::path>.to(".")
+    );
 
-    auto& mdb = MusicDatabase::getInstance();
-    REQUIRE(mdb.initFromLua(utils::path(".")) == true);
-    auto q = mdb.createQuery();
+    auto mdb = injector.create<std::unique_ptr<MusicDatabase>>();
+    REQUIRE(mdb->initFromLua(utils::path(".")) == true);
+    auto q = mdb->createQuery();
 }
+
+struct AudioPlayerNull : public AudioPlayer
+{
+    std::function<void(int16_t *, int)> callback;
+    virtual void play(std::function<void(int16_t *, int)> cb) override
+    {
+        int16_t temp[8192];
+        callback = cb;
+        callback(&temp[0], 8192);
+    }
+};
 
 TEST_CASE("music player", "")
 {
-    chipmachine::MusicPlayer mp{"."};
+    AudioPlayerNull ap{};
+    const auto injector = di::make_injector(
+        di::bind<utils::path>.to("."),
+        di::bind<AudioPlayer>.to(ap)
+    );
+    chipmachine::MusicPlayer mp{ap};
     mp.playFile("music/Amiga/Nuke - Loader.mod");
     mp.update();
 }
+
 #include <musicplayer/plugins/plugins.h>
 #include <numeric>
 
@@ -55,18 +79,18 @@ bool testPlugin(std::string const& dir, std::string const& exclude, const ARGS&.
 {
     std::array<int16_t, 8192> buffer;
     PLUGIN plugin{args...};
-	printf("---- %s ----\n", plugin.name().c_str());
+    printf("---- %s ----\n", plugin.name().c_str());
     logging::setLevel(logging::Level::Warning);
     for (auto f : utils::File{dir}.listFiles()) {
-		if(exclude != "" && f.getName().find(exclude) != std::string::npos)
-			continue;
+        if(exclude != "" && f.getName().find(exclude) != std::string::npos)
+            continue;
 
         int64_t sum = 0;
         printf("Trying %s\n", f.getName().c_str());
         auto* player = plugin.fromFile(f.getName());
         if (player) {
             //puts("Player created");
-			int count = 15;
+            int count = 15;
             while (sum == 0 && count != 0) {
                 int rc = player->getSamples(&buffer[0], buffer.size());
                 // REQUIRE(rc > 0);

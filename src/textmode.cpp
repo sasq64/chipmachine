@@ -62,9 +62,9 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface& ci)
         int color = 0;
         auto parts = utils::split(iquery->getResult(index), "\t");
         std::string text;
-        int f = atoi(parts[3].c_str()) & 0xff;
+        int f = atoi(parts[3]) & 0xff;
         if (f == PLAYLIST) {
-            if (parts[1] == "")
+            if (*parts[1] == 0)
                 text = utils::format("<%s>", parts[0]);
             else
                 text = utils::format("<%s / %s>", parts[0], parts[1]);

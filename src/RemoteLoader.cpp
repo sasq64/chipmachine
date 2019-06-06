@@ -1,6 +1,7 @@
 #include "RemoteLoader.h"
 
 #include <coreutils/log.h>
+#include <coreutils/split.h>
 
 using namespace std;
 using namespace utils;

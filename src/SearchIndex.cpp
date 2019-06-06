@@ -1,5 +1,6 @@
 #include <coreutils/log.h>
 #include <coreutils/utils.h>
+#include <coreutils/split.h>
 
 #include "SearchIndex.h"
 
@@ -217,7 +218,7 @@ void IncrementalQuery::search()
 
     std::string q = std::string(&query[0], query.size());
 
-    auto words = split(q);
+    std::vector<std::string> words = split(q, " ");
 
     // Words : IRON LORD -> 3L= "IRO"
 

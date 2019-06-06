@@ -5,6 +5,7 @@
 #include <coreutils/environment.h>
 #include <coreutils/file.h>
 #include <coreutils/log.h>
+#include <coreutils/split.h>
 #include <coreutils/utils.h>
 
 #ifdef WITH_MPG123
@@ -323,9 +324,9 @@ bool identify_song(SongInfo& info, std::string ext)
         auto title = utils::path_basename(parts[l - 1]);
         fixName(title);
         std::string composer = "Unknown";
-        if (parts[0] == "musicians") {
+        if (strcmp(parts[0], "musicians") == 0) {
             composer = parts[1];
-            auto cp = utils::split(composer, "_");
+            std::vector<std::string> cp = utils::split(composer, "_");
             auto cpl = cp.size();
             if (cpl > 1 && cp[0] != "the" && cp[0] != "billy" &&
                 cp[0] != "legion") {
@@ -337,7 +338,7 @@ bool identify_song(SongInfo& info, std::string ext)
                 cpp[0] = toupper(cpp[0]);
             }
 
-            composer = utils::join(cp, " ");
+            composer = utils::join(cp.begin(), cp.end(), " "s);
         }
 
         info.format = "TED";

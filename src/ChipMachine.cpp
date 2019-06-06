@@ -30,6 +30,7 @@ std::string compressWhitespace(std::string&& m)
 
 std::string compressWhitespace(std::string const& text)
 {
+    int i;
     return compressWhitespace(std::string(text));
 }
 

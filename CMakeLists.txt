@@ -5,6 +5,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
+link_directories(/usr/local/lib /usr/local/Cellar/llvm/6.0.1/lib)
+include_directories(/usr/local/include)
+
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
@@ -16,10 +19,8 @@ set(MUSICPLAYER ../musicplayer CACHE PATH "Where musicplayer is checked out")
 
 include(${AP1_ROOT}/cmake/Utils.cmake)
 
-add_definitions(-DAPP_NAME=chipmachine)
 
 if(APPLE)
-    #set(CMAKE_OSX_SYSROOT "/Users/jonasminnberg/unity/repo/trunk/PlatformDependent/OSX/External/NonRedistributable/BuildEnvironment/builds/MacOSX10.12.sdk")
     #set(CMAKE_OSX_SYSROOT "/Users/jonasminnberg/MacOSX10.10.sdk")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11")
 endif()
@@ -74,11 +75,9 @@ endif()
 add_subdirectory(external/lua)
 add_subdirectory(external/sol2)
 
-link_directories(/usr/local/lib /usr/local/Cellar/llvm/6.0.1/lib)
-include_directories(${AP1_ROOT}/mods .. /usr/local/include)
 
-
-set(APP_FILES
+# Main app files
+set(MAIN_FILES
     src/MusicDatabase.cpp
     src/GZPlugin.cpp
     src/MusicPlayer.cpp
@@ -88,9 +87,11 @@ set(APP_FILES
     src/SongFileIdentifier.cpp
     src/state_machine.cpp
     src/youtube.cpp
+    src/textmode.cpp
 )
 
-set(SOURCE_FILES
+# GL GUI files
+set(GUI_FILES
     src/ChipMachine.cpp
     src/MusicBars.cpp
     src/ChipMachine_config.cpp
@@ -99,11 +100,7 @@ set(SOURCE_FILES
     src/textmode.cpp
 )
 
-set(TEXTMODE_FILES
-    src/textmode.cpp
-    src/main.cpp
-)
-
+# Add include files
 set(SOURCE_FILES ${SOURCE_FILES} src/version.h src/TextField.h src/TextListView.h src/CueSheet.h
     src/Dialog.h src/LineEdit.h src/Icons.h src/SongInfo.h src/SongInfoField.h src/ChipInterface.h)
 
@@ -116,12 +113,10 @@ add_custom_target(chipmachine.data_files SOURCES ${DATA_FILES} )
 add_custom_target(chipmachine.lua_files SOURCES ${LUA_FILES})
 add_custom_target(chipmachine.doc_files SOURCES ${DOC_FILES} )
 add_custom_target(chipmachine.script_files SOURCES ${SCRIPT_FILES} )
-  
-set(APONE_MODULES
+
+set(CORE_MODULES
     coreutils
     audioplayer
-    grappix
-    fft
     archive
     webutils
     sqlite3
@@ -130,15 +125,12 @@ set(APONE_MODULES
     crypto
 )
 
-set(TEXT_MODULES
-    coreutils
-    audioplayer
-    archive
-    webutils
-    sqlite3
-    xml
-    bbsutils
+set(GUI_MODULES
+    grappix
+    fft
 )
+
+set(APONE_MODULES ${GUI_MODULES} ${CORE_MODULES})
 add_subdirectory(${AP1_ROOT}/mods ap1mods)
 
 set(MUSICPLAYER_PLUGINS
@@ -165,8 +157,8 @@ set(MUSICPLAYER_PLUGINS
     ffmpegplugin
     v2plugin
 )
-
 add_subdirectory(${MUSICPLAYER}/plugins plugins)
+add_subdirectory(${MUSICPLAYER}/psf psf)
 
 include_directories(${AP1_ROOT}/mods/grappix ${MUSICPLAYER}/plugins)
 
@@ -178,20 +170,26 @@ if(SAN)
     set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -fsanitize=${SAN})
 endif()
 
+
+add_library(musicplayer INTERFACE)
+target_link_libraries(musicplayer INTERFACE psf plugin_register)
+target_include_directories(musicplayer INTERFACE ${MUSICPLAYER}/..)
+
 if(APPLE)
-    add_executable(chipmachine MACOSX_BUNDLE ${APP_FILES} ${SOURCE_FILES} src/main.cpp)
+    add_executable(chipmachine MACOSX_BUNDLE ${MAIN_FILES} ${GUI_FILES} src/main.cpp)
     add_custom_command(TARGET chipmachine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:chipmachine> ${CMAKE_CURRENT_BINARY_DIR})
 else()
-    add_executable(chipmachine ${APP_FILES} ${SOURCE_FILES} src/main.cpp)
+    add_executable(chipmachine ${MAIN_FILES} ${GUI_FILES} src/main.cpp)
 endif()
 
-target_link_libraries(chipmachine PRIVATE ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} pthread sol)
+target_link_libraries(chipmachine PRIVATE plugin_register musicplayer ${CORE_MODULES} ${GUI_MODULES} ${MUSICPLAYER_PLUGINS} pthread sol z)
+target_compile_definitions(chipmachine PRIVATE -DAPP_NAME=chipmachine)
 
 if(NOT WIN32)
-    add_executable(cm ${PLUGIN_EXTRA_FILES} ${APP_FILES} ${TEXTMODE_FILES})
+    add_executable(cm ${MAIN_FILES} src/textmode.cpp src/main.cpp)
     target_compile_definitions(cm PUBLIC TEXTMODE_ONLY)
-    target_link_libraries(cm ${TEXT_MODULES} ${MUSICPLAYER_PLUGINS} sol)
+    target_link_libraries(cm musicplayer ${CORE_MODULES} ${MUSICPLAYER_PLUGINS} sol z)
 endif()
 
 if(APPLE)
@@ -211,11 +209,15 @@ if(APPLE)
 endif()
 
 add_executable(mksonglist mksonglist/mksonglist.cpp src/SongFileIdentifier.cpp)
-target_link_libraries(mksonglist coreutils archive sc68plugin mp3plugin )
+target_link_libraries(mksonglist coreutils archive sc68plugin mp3plugin)
 
+# add_executable(cmtest ${PLUGIN_EXTRA_FILES} testmain.cpp test.cpp ${APP_FILES} ${SOURCE_FILES})
+# target_link_libraries(cmtest ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} pthread sol)
+# target_include_directories(cmtest PRIVATE ${APONE}/mods)
+# target_compile_definitions(cmtest PRIVATE -DTESTING)
 
-add_executable(ditest ${PLUGIN_EXTRA_FILES} testmain.cpp ditest.cpp ${APP_FILES} ${SOURCE_FILES})
-target_link_libraries(ditest ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} pthread sol)
-target_include_directories(ditest PRIVATE ${APONE}/mods)
-target_compile_definitions(ditest PRIVATE -DTESTING)
+#${TEXTMODE_FILES} add_executable(ditest ${PLUGIN_EXTRA_FILES} testmain.cpp ditest.cpp ${APP_FILES} ${SOURCE_FILES})
+# target_link_libraries(ditest ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} pthread sol)
+# target_include_directories(ditest PRIVATE ${APONE}/mods)
+# target_compile_definitions(ditest PRIVATE -DTESTING)
 

@@ -15,7 +15,7 @@
 #include <audioplayer/audioplayer.h>
 #include <musicplayer/plugins/plugins.h>
 
-#include <musicplayer/PSFFile.h>
+#include <psf/PSFFile.h>
 
 #ifndef _WIN32
 #    include <bbsutils/console.h>
@@ -68,12 +68,13 @@ int main(int argc, char* argv[])
     opts.add_flag("-f,--fullscreen", fullScreen, "Run in fullscreen");
 #endif
     opts.add_flag("-X,--textmode", textMode, "Run in textmode");
-    opts.add_flag_function("-d",
-                           [&](size_t count) {
-                               fullScreen = false;
-                               logging::setLevel(logging::Debug);
-                           },
-                           "Debug output");
+    opts.add_flag_function(
+        "-d",
+        [&](size_t count) {
+            fullScreen = false;
+            logging::setLevel(logging::Debug);
+        },
+        "Debug output");
 
     opts.add_option("-T,--telnet", telnetServer, "Start telnet server");
     opts.add_option("-p,--port", port, "Port for telnet server", true);
@@ -107,11 +108,9 @@ int main(int argc, char* argv[])
 
     auto workDir = d->parent_path();
     musix::ChipPlugin::createPlugins(workDir / "data");
-    AudioPlayer ap { 44100 };
-    const auto injector = di::make_injector(
-        di::bind<AudioPlayer>.to(ap),
-        di::bind<utils::path>.to(workDir)
-    );
+    AudioPlayer ap{ 44100 };
+    const auto injector = di::make_injector(di::bind<AudioPlayer>.to(ap),
+                                            di::bind<utils::path>.to(workDir));
     LOGD("WorkDir:%s", workDir);
 
     if (!songs.empty()) {

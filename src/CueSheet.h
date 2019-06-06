@@ -13,6 +13,7 @@
 #include <coreutils/file.h>
 #include <coreutils/log.h>
 #include <coreutils/utils.h>
+#include <coreutils/split.h>
 
 #include <string>
 
@@ -60,7 +61,7 @@ public:
                         track.performer = parts[1];
                     else if (cmd == "INDEX") {
                         auto iparts = utils::split(parts[2], ":");
-                        track.index = stol(iparts[0]) * 60 + stol(iparts[1]);
+                        track.index = std::stol(iparts[0]) * 60 + std::stol(iparts[1]);
                     }
                 }
             }

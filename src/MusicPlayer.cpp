@@ -6,8 +6,8 @@
 #include <audioplayer/audioplayer.h>
 #include <coreutils/format.h>
 #include <coreutils/utils.h>
-#include <musicplayer/PSFFile.h>
 #include <musicplayer/plugins/plugins.h>
+#include <psf/PSFFile.h>
 
 #include <algorithm>
 #include <set>
@@ -23,7 +23,7 @@ MusicPlayer::MusicPlayer(AudioPlayer& ap)
     volume = 0.8;
 
     musix::ChipPlugin::addPlugin(
-        std::make_shared<GZPlugin>(musix::ChipPlugin::getPlugins()));
+        std::make_shared<GZPlugin>(musix::ChipPlugin::getPlugins()), true);
 
     audioPlayer.play([=](int16_t* ptr, int size) mutable {
         if (dontPlay) {

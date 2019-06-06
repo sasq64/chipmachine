@@ -2,6 +2,7 @@
 
 #include <coreutils/file.h>
 #include <coreutils/utils.h>
+#include <coreutils/split.h>
 
 void makeList(const std::string& local_dir, const std::string& list_file)
 {
@@ -14,7 +15,7 @@ void makeList(const std::string& local_dir, const std::string& list_file)
         if (name[0] == '/') name = name.substr(1);
         songInfo.metadata[SongInfo::INFO] = name;
         if (identify_song(songInfo)) {
-            listFile.writeln(utils::join("\t", songInfo.title, songInfo.game,
+            listFile.writeln(utils::join(std::string("\t"), songInfo.title, songInfo.game,
                                          songInfo.composer, songInfo.format,
                                          name));
         }

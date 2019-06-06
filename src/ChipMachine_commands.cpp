@@ -242,13 +242,13 @@ void ChipMachine::setupCommands()
             LOGD("%s", res);
             auto parts = utils::split(res, "\t");
 
-            int f = atoi(parts[3].c_str()) & 0xff;
+            int f = atoi(parts[3]) & 0xff;
             if (f == PLAYLIST) continue;
 
             SongInfo song;
             song.title = parts[0];
             song.composer = parts[1];
-            song.path = "index::" + parts[2];
+            song.path = std::string("index::") + parts[2];
             player.addSong(song, true);
         }
         showScreen(MAIN_SCREEN);

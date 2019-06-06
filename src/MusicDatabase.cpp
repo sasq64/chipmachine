@@ -86,14 +86,14 @@ bool MusicDatabase::parseBitworld(
         // LOGD("ID: %s", parts[0]);
         prod.title = parts[1];
         prod.creator = parts[2];
-        prod.type = "Amiga " + parts[3];
+        prod.type = std::string("Amiga ") + parts[3];
         prod.screenshots = parts[5];
-        for (auto const& s : split(parts[4], ";")) {
+        for (const char* s : split(parts[4], ";")) {
             if (endsWith(s, ".smpl")) continue;
             if (s[0] == 'M')
-                prod.songs.push_back(utils::urldecode(s.substr(2), ""));
+                prod.songs.push_back(utils::urldecode(&s[2], ""));
             else
-                prod.songs.push_back(s.substr(2));
+                prod.songs.push_back(&s[2]);
         }
         callback(prod);
     }
@@ -196,7 +196,7 @@ bool MusicDatabase::parseAmp(
             continue;
         }
         int l = parts.size();
-        auto titleParts = split(parts[l - 1], ".");
+        std::vector<std::string> titleParts = split(parts[l - 1], ".");
         if (titleParts.size() < 2) {
             LOGD("%s broken", s);
             continue;
@@ -307,7 +307,7 @@ bool MusicDatabase::parseModland(
                 continue;
             }
 
-            auto parts = split(song.path, "/");
+            std::vector<std::string> parts = split(song.path, "/");
             int l = parts.size();
             if (l < 3) {
                 LOGD("%s", song.path);
@@ -379,7 +379,8 @@ bool MusicDatabase::parseStandard(
     if (templ != "") {
         formatIndex = gameIndex = composerIndex = -1;
         int i = 0;
-        for (auto const& p : split(templ)) {
+        std::vector<std::string> parts = split(templ, " ");
+        for (auto const& p : parts) {
             if (p == "title")
                 titleIndex = i;
             else if (p == "composer")
@@ -402,7 +403,8 @@ bool MusicDatabase::parseStandard(
     File f{ listFile };
 
     for (auto const& s : f.getLines()) {
-        auto parts = isUtf8 ? split(s, "\t") : split(utf8_encode(s), "\t");
+        std::vector<std::string> parts =
+            isUtf8 ? split(s, "\t") : split(utf8_encode(s), "\t");
         if (parts.size() >= columns) {
 
             if (htmlDec) {
@@ -690,7 +692,7 @@ SongInfo& MusicDatabase::lookup(SongInfo& song)
     std::lock_guard lock{ dbMutex };
     auto path = song.path;
 
-    auto parts = split(path, "::");
+    std::vector<std::string> parts = split(path, "::");
     if (parts.size() > 1) {
         path = parts[1];
         if (parts[0] == "index") {
@@ -842,7 +844,7 @@ std::string MusicDatabase::getSongScreenshots(SongInfo& s)
     if (shot != "") {
         std::string prefix;
         if (!startsWith(shot, "http")) prefix = getScreenshotURL(collection);
-        auto parts = split(shot, ";");
+        std::vector<std::string> parts = split(shot, ";");
         if (collection == "gb64")
             parts.insert(parts.begin(), path_directory(parts[0]) + "/" +
                                             path_basename(parts[0]) + "_1." +
@@ -850,7 +852,7 @@ std::string MusicDatabase::getSongScreenshots(SongInfo& s)
         for (auto& p : parts) {
             if (p != "") p.insert(0, prefix);
         }
-        shot = join(parts, ";");
+        shot = join(parts.begin(), parts.end(), ";");
     }
     return shot;
 }
@@ -870,14 +872,14 @@ std::string MusicDatabase::getProductScreenshots(uint32_t id)
     if (q.step()) {
         tie(collection, screenshot) = q.get_tuple();
         auto prefix = getScreenshotURL(collection);
-        auto parts = split(screenshot, ";");
+        std::vector<std::string> parts = split(screenshot, ";");
         if (collection == "gb64")
             parts.push_back(path_basename(parts[0]) + "_1." +
                             path_extension(parts[0]));
         for (auto& p : parts) {
             p.insert(0, prefix);
         }
-        return join(parts, ";");
+        return join(parts.begin(), parts.end(), ";");
     }
     return "";
 }
