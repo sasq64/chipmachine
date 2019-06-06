@@ -11,12 +11,12 @@ namespace demofx {
 
 class Scroller : public Effect {
 public:
-	Scroller(grappix::RenderTarget &target) : target(target), scr(grappix::screen.width()+10, 180/4) {
+	explicit Scroller(grappix::RenderTarget &target) : target(target), scr(grappix::screen.width()+10, 180/4) {
 		//font = grappix::Font("data/ObelixPro.ttf", 24, 512 | grappix::Font::DISTANCE_MAP);
 		program = grappix::get_program(grappix::TEXTURED_PROGRAM).clone();
 
 		grappix::Resources::getInstance().load<std::string>((Environment::getCacheDir() / "sine_shader.glsl").string(),
-			[=](std::shared_ptr<std::string> source) {
+			[=](const std::shared_ptr<std::string>& source) {
 				try {
 					program.setFragmentSource(*source);
 				} catch(grappix::shader_exception &e) {
@@ -34,7 +34,7 @@ public:
 		if(w > 8 && h > 8)
 			scr = grappix::Texture(w+10, h);
 	}
-	virtual void set(const std::string &what, const std::string &val, float seconds = 0.0) override {
+	void set(const std::string &what, const std::string &val, float seconds = 0.0) override {
 		if(what == "font") {
 			font = grappix::Font(val, 24, 512 | grappix::Font::DISTANCE_MAP);
 			//font.set_program(fprogram);
@@ -46,7 +46,7 @@ public:
 		}
 	}
 
-	virtual void render(uint32_t delta) override {
+	void render(uint32_t delta) override {
 		if(alpha <= 0.01)
 			return;
 		if(xpos < -scrollLen)
@@ -56,7 +56,7 @@ public:
 		scr.text(font, scrollText, xpos-=scrollspeed, 10, 0xffffff | ((int)(alpha*255) << 24), scrollsize);
 		program.use();
 		static float uvs[] = { 0,0,1,0,0,1,1,1 };
-		target.draw(scr, 0.0f, scrolly, scr.width(), scr.height(), uvs, program);
+		target.draw(scr, 0.0F, scrolly, scr.width(), scr.height(), uvs, program);
 	}
 
 	float alpha = 1.0;
@@ -73,7 +73,7 @@ private:
 	int xpos = -9999;
 	grappix::Texture scr;
 	std::string scrollText;
-	int scrollLen;
+	int scrollLen{};
 
 
 	const std::string sineShaderF = R"(

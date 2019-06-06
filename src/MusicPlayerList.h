@@ -106,7 +106,7 @@ public:
         return rc;
     }
 
-    bool hasError() const { return errors.size() > 0; }
+    bool hasError() const { return !errors.empty(); }
 
     std::string getError()
     {
@@ -147,7 +147,7 @@ public:
     bool playlistUpdated() { return playList.wasUpdated(); }
 
 private:
-    void onThisThread(std::function<void()> f)
+    void onThisThread(const std::function<void()>& f)
     {
         LOCK_GUARD(plMutex);
         funcs.push_back(f);
@@ -178,7 +178,10 @@ private:
         std::deque<SongInfo> songs;
         std::deque<SongInfo> psongs;
         std::string prodScreenshot;
-        int size() const { return songs.size() + psongs.size(); }
+        [[nodiscard]] size_t size() const
+        {
+            return songs.size() + psongs.size();
+        }
         void push_back(const SongInfo& s)
         {
             songs.push_back(s);

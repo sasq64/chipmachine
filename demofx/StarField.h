@@ -5,7 +5,7 @@ namespace demofx {
 
 class StarField : public Effect {
 public:
-	StarField(grappix::RenderTarget &target) : target(target) {
+	explicit StarField(grappix::RenderTarget &target) : target(target) {
 		resize(grappix::screen.width(), grappix::screen.height());
 
 		starProgram = grappix::get_program(grappix::TEXTURED_PROGRAM).clone();

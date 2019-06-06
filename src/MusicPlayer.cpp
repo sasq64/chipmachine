@@ -188,10 +188,8 @@ bool MusicPlayer::playFile(const std::string& fileName)
         }
     }
 
-    LOGD("Try");
     player = nullptr;
     player = fromFile(name);
-    LOGD("Done");
 
     dontPlay = false;
     playEnded = false;
@@ -291,7 +289,7 @@ std::vector<std::string> MusicPlayer::getSecondaryFiles(const std::string& name)
             }
         }
     }
-    return std::vector<std::string>();
+    return {};
 }
 
 // PRIVATE
@@ -299,7 +297,6 @@ std::vector<std::string> MusicPlayer::getSecondaryFiles(const std::string& name)
 std::shared_ptr<musix::ChipPlayer>
 MusicPlayer::fromFile(const std::string& fileName)
 {
-    std::shared_ptr<musix::ChipPlayer> player;
     auto name = fileName;
     utils::makeLower(name);
     checkSilence = true;
@@ -307,14 +304,14 @@ MusicPlayer::fromFile(const std::string& fileName)
     for (auto& plugin : musix::ChipPlugin::getPlugins()) {
         if (plugin->canHandle(name)) {
             LOGD("Playing with %s\n", plugin->name());
-            player =
+            auto player =
                 std::shared_ptr<musix::ChipPlayer>(plugin->fromFile(fileName));
             if (!player) continue;
             checkSilence = plugin->checkSilence();
-            break;
+            return player;
         }
     }
-    return player;
+    return nullptr;
 }
 
 } // namespace chipmachine

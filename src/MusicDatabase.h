@@ -24,7 +24,7 @@ namespace chipmachine {
 class not_found_exception : public std::exception
 {
 public:
-    virtual char const* what() const throw() { return "Not found exception"; }
+    char const* what() const noexcept override { return "Not found exception"; }
 };
 
 // console -- sid -- tracker -- amiga
@@ -110,7 +110,7 @@ class MusicDatabase : public SearchProvider
 public:
     using Variables = std::map<std::string, std::string>;
 
-    MusicDatabase(RemoteLoader& rl)
+    explicit MusicDatabase(RemoteLoader& rl)
         : remoteLoader(rl),
           db((Environment::getCacheDir() / "music.db").string()),
           reindexNeeded(false)
@@ -200,7 +200,11 @@ public:
 
     struct Playlist
     {
-        Playlist(utils::path f) : fileName(f.string())
+        std::string name;
+        std::string fileName;
+        std::vector<SongInfo> songs;
+
+        explicit Playlist(const utils::path& f) : fileName(f.string())
         {
             if (utils::exists(f)) {
                 for (auto const& l : apone::File{ f }.lines()) {
@@ -209,9 +213,7 @@ public:
             }
             name = f.filename().string();
         }
-        std::string name;
-        std::string fileName;
-        std::vector<SongInfo> songs;
+
         void save()
         {
             apone::File f{ fileName, apone::File::Write };
@@ -237,15 +239,16 @@ private:
 
     struct Collection
     {
-        Collection(int id = -1, std::string const& name = "",
-                   std::string const& url = "",
-                   utils::path const& local_dir = utils::path(""))
-            : id(id), name(name), url(url), local_dir(local_dir)
-        {}
         int id;
         std::string name;
         std::string url;
         utils::path local_dir;
+
+        explicit Collection(int id = -1, std::string const& name = "",
+                            std::string const& url = "",
+                            utils::path const& local_dir = utils::path(""))
+            : id(id), name(name), url(url), local_dir(local_dir)
+        {}
     };
 
     template <typename T> using Callback = std::function<void(T const&)>;
@@ -294,17 +297,17 @@ private:
     sqlite3db::Database db;
     bool reindexNeeded;
 
-    uint16_t dbVersion;
-    uint16_t indexVersion;
+    uint16_t dbVersion{};
+    uint16_t indexVersion{};
 
     int collectionFilter = -1;
 
     std::future<void> initFuture;
-    std::atomic<bool> indexing;
+    std::atomic<bool> indexing{};
 
     std::vector<Playlist> playLists;
     std::unordered_map<uint64_t, uint32_t> pathMap;
-    uint32_t productStartIndex;
+    uint32_t productStartIndex{};
     std::vector<uint8_t> dontIndex;
 };
 } // namespace chipmachine

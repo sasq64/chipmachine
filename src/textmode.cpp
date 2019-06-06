@@ -1,13 +1,16 @@
 #include "modutils.h"
+
+#include "ChipInterface.h"
+#include "TextListView.h"
+
 #include <bbsutils/ansiconsole.h>
 #include <bbsutils/editor.h>
 #include <bbsutils/petsciiconsole.h>
 #include <bbsutils/telnetserver.h>
 
-#include "ChipInterface.h"
-#include "TextListView.h"
-#include <map>
 #include <sol.hpp>
+
+#include <map>
 
 void initYoutube(sol::state&);
 
@@ -144,7 +147,7 @@ void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface& ci)
             if (!sfr && m >= 0 && iquery->numHits() > 0 && m != last_marked) {
                 auto song = getSelectedSong();
                 auto ext = getTypeFromName(song.path);
-                bool isoffline = ci.remoteLoader.isOffline(song.path);
+                bool isoffline = ci.getRemoteLoader().isOffline(song.path);
                 console->fill(Console::BLACK, 0, 0, width, 1);
                 console->put(0, 0,
                              utils::format("Format: %s (%s)%s", song.format,

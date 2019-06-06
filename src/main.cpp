@@ -26,9 +26,10 @@
 #include "di.hpp"
 namespace di = boost::di;
 
-#include "version.h"
 #include <optional>
 #include <vector>
+
+#include "version.h"
 
 namespace chipmachine {
 void runConsole(std::shared_ptr<bbs::Console> console, ChipInterface& ci);
@@ -46,46 +47,50 @@ int main(int argc, char* argv[])
 
     srand(time(NULL));
 
-    std::vector<SongInfo> songs;
-    int w = 960;
-    int h = 540;
-    int port = 12345;
-    bool fullScreen = false;
-    bool telnetServer = false;
-    bool onlyHeadless = false;
-    std::string playWhat;
+    struct
+    {
+        std::vector<SongInfo> songs;
+        int w = 960;
+        int h = 540;
+        int port = 12345;
+        bool fullScreen = false;
+        bool telnetServer = false;
+        bool onlyHeadless = false;
+        std::string playWhat;
 #ifdef TEXTMODE_ONLY
-    bool textMode = true;
+        bool textMode = true;
 #else
-    bool textMode = false;
+        bool textMode = false;
 #endif
+    } options;
 
-    static CLI::App opts{ "Chipmachine 1.3" };
+    static CLI::App opts{ "Chipmachine " VERSION_STR };
 
 #ifndef TEXTMODE_ONLY
-    opts.add_option("--width", w, "Width of window");
-    opts.add_option("--height", h, "Height of window");
-    opts.add_flag("-f,--fullscreen", fullScreen, "Run in fullscreen");
+    opts.add_option("--width", options.w, "Width of window");
+    opts.add_option("--height", options.h, "Height of window");
+    opts.add_flag("-f,--fullscreen", options.fullScreen, "Run in fullscreen");
 #endif
-    opts.add_flag("-X,--textmode", textMode, "Run in textmode");
+    opts.add_flag("-X,--textmode", options.textMode, "Run in textmode");
     opts.add_flag_function(
         "-d",
         [&](size_t count) {
-            fullScreen = false;
+            options.fullScreen = false;
             logging::setLevel(logging::Debug);
         },
         "Debug output");
 
-    opts.add_option("-T,--telnet", telnetServer, "Start telnet server");
-    opts.add_option("-p,--port", port, "Port for telnet server", true);
-    opts.add_flag("-K", onlyHeadless, "Only play if no keyboard is connected");
-    opts.add_option("--play", playWhat,
+    opts.add_option("-T,--telnet", options.telnetServer, "Start telnet server");
+    opts.add_option("-p,--port", options.port, "Port for telnet server", true);
+    opts.add_flag("-K", options.onlyHeadless,
+                  "Only play if no keyboard is connected");
+    opts.add_option("--play", options.playWhat,
                     "Shuffle a named collection (also 'all' or 'favorites')");
-    opts.add_option("files", songs, "Songs to play");
+    opts.add_option("files", options.songs, "Songs to play");
 
     CLI11_PARSE(opts, argc, argv)
 
-    auto path = makeSearchPath(
+    auto search_path = makeSearchPath(
         {
 #ifdef __APPLE__
             Environment::getExeDir() / ".." / "Resources",
@@ -97,9 +102,9 @@ int main(int argc, char* argv[])
             Environment::getExeDir() / "..",
             Environment::getExeDir() / ".." / "..", Environment::getAppDir() },
         true);
-    LOGD("PATH:%s", path);
+    LOGD("PATH:%s", search_path);
 
-    auto d = findFile(path, "data");
+    auto d = findFile(search_path, "data");
 
     if (!d) {
         fprintf(stderr, "** Error: Could not find data files\n");
@@ -113,7 +118,7 @@ int main(int argc, char* argv[])
                                             di::bind<utils::path>.to(workDir));
     LOGD("WorkDir:%s", workDir);
 
-    if (!songs.empty()) {
+    if (!options.songs.empty()) {
         int pos = 0;
 #ifdef ENABLE_CONSOLE
         auto* c = bbs::Console::createLocalConsole();
@@ -125,13 +130,14 @@ int main(int argc, char* argv[])
             injector.create<std::unique_ptr<chipmachine::MusicPlayer>>();
 
         while (true) {
-            if (pos >= songs.size()) return 0;
-            pl->playFile(songs[pos++].path);
+            if (pos >= options.songs.size()) return 0;
+            pl->playFile(options.songs[pos++].path);
             SongInfo info = pl->getPlayingInfo();
-            utils::print_fmt("Playing: %s\n",
-                             !info.title.empty()
-                                 ? info.title
-                                 : utils::path_filename(songs[pos - 1].path));
+            utils::print_fmt(
+                "Playing: %s\n",
+                !info.title.empty()
+                    ? info.title
+                    : utils::path_filename(options.songs[pos - 1].path));
             int tune = 0;
             while (pl->playing()) {
                 pl->update();
@@ -154,17 +160,17 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    if (textMode || telnetServer) {
+    if (options.textMode || options.telnetServer) {
 
         static auto ci =
             injector.create<std::unique_ptr<chipmachine::ChipInterface>>();
-        if (textMode) {
+        if (options.textMode) {
 #ifndef _WIN32
             logging::setLevel(logging::Error);
             auto console = std::shared_ptr<bbs::Console>(
                 bbs::Console::createLocalConsole());
             chipmachine::runConsole(console, *ci);
-            if (telnetServer)
+            if (options.telnetServer)
                 std::thread conThread(chipmachine::runConsole, console,
                                       std::ref(*ci));
             else
@@ -174,8 +180,8 @@ int main(int argc, char* argv[])
             exit(0);
 #endif
         }
-        if (telnetServer) {
-            auto telnet = std::make_shared<bbs::TelnetServer>(port);
+        if (options.telnetServer) {
+            auto telnet = std::make_shared<bbs::TelnetServer>(options.port);
             telnet->setOnConnect([&](bbs::TelnetServer::Session& session) {
                 try {
                     std::shared_ptr<bbs::Console> console;
@@ -200,20 +206,22 @@ int main(int argc, char* argv[])
     }
 #ifndef TEXTMODE_ONLY
     grappix::screen.setTitle("Chipmachine " VERSION_STR);
-    if (fullScreen)
+    if (options.fullScreen)
         grappix::screen.open(true);
     else
-        grappix::screen.open(w, h, false);
+        grappix::screen.open(options.w, options.h, false);
 
-    auto cm = injector.create<std::unique_ptr<chipmachine::ChipMachine>>();
+    auto chip_machine =
+        injector.create<std::unique_ptr<chipmachine::ChipMachine>>();
 
-    if (!playWhat.empty() && (!onlyHeadless || !grappix::screen.haveKeyboard()))
-        cm->playNamed(playWhat);
+    if (!options.playWhat.empty() &&
+        (!options.onlyHeadless || !grappix::screen.haveKeyboard()))
+        chip_machine->playNamed(options.playWhat);
 
     grappix::screen.render_loop(
-        [&cm](uint32_t delta) {
-            cm->update();
-            cm->render(delta);
+        [&chip_machine](uint32_t delta) {
+            chip_machine->update();
+            chip_machine->render(delta);
         },
         20);
 #endif

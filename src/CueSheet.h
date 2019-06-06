@@ -12,8 +12,8 @@
 */
 #include <coreutils/file.h>
 #include <coreutils/log.h>
-#include <coreutils/utils.h>
 #include <coreutils/split.h>
+#include <coreutils/utils.h>
 
 #include <string>
 
@@ -24,10 +24,10 @@ public:
     {
         std::string title;
         std::string performer;
-        int index;
+        int index{};
     };
 
-    CueSheet(utils::File cf)
+    explicit CueSheet(utils::File cf)
     {
 
         for (const std::string& line : cf.getLines()) {
@@ -49,11 +49,11 @@ public:
                 }
             }
             if (start < line.length()) parts.push_back(line.substr(start));
-            if (parts.size() > 0) {
+            if (!parts.empty()) {
                 const auto& cmd = parts[0];
                 // LOGD("[%s]", parts);
                 if (cmd == "TRACK") tracks.emplace_back();
-                if (tracks.size() > 0) {
+                if (!tracks.empty()) {
                     auto& track = tracks.back();
                     if (cmd == "TITLE")
                         track.title = parts[1];
@@ -61,14 +61,15 @@ public:
                         track.performer = parts[1];
                     else if (cmd == "INDEX") {
                         auto iparts = utils::split(parts[2], ":");
-                        track.index = std::stol(iparts[0]) * 60 + std::stol(iparts[1]);
+                        track.index =
+                            std::stoi(iparts[0]) * 60 + std::stoi(iparts[1]);
                     }
                 }
             }
         }
     }
 
-    std::string getTitle(int pos) const
+    [[nodiscard]] std::string getTitle(int pos) const
     {
         const Track* lastt = nullptr;
         for (const auto& t : tracks) {

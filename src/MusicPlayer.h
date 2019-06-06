@@ -20,15 +20,15 @@ namespace chipmachine {
 class MusicPlayer
 {
 public:
-    MusicPlayer(AudioPlayer& ap);
+    explicit MusicPlayer(AudioPlayer& ap);
     MusicPlayer(MusicPlayer const& other) = delete;
     ~MusicPlayer();
     bool playFile(const std::string& fileName);
     bool streamFile(const std::string& fileName);
-    bool playing() const { return !playEnded && player != nullptr; }
+    [[nodiscard]] bool playing() const { return !playEnded && player != nullptr; }
     void stop() { player = nullptr; }
-    uint32_t getPosition() const { return pos / 44100; };
-    uint32_t getLength() const { return length; }
+    [[nodiscard]] uint32_t getPosition() const { return pos / 44100; };
+    [[nodiscard]] uint32_t getLength() const { return length; }
 
     void putStream(const uint8_t* ptr, int size);
     void clearStreamFifo()
@@ -46,21 +46,21 @@ public:
 
     void pause(bool dopause = true);
 
-    bool isPaused() const { return paused; }
+    [[nodiscard]] bool isPaused() const { return paused; }
 
     void seek(int song, int seconds = -1);
 
-    int getTune() const { return currentTune; }
+    [[nodiscard]] int getTune() const { return currentTune; }
 
-    SongInfo getPlayingInfo() const { return playingInfo; }
+    [[nodiscard]] SongInfo getPlayingInfo() const { return playingInfo; }
 
     std::string getMeta(const std::string& what);
 
     // Returns silence (from now) in seconds
-    int getSilence() const;
+    [[nodiscard]] int getSilence() const;
 
     void setVolume(float v);
-    float getVolume() const;
+    [[nodiscard]] float getVolume() const;
 
     // Fadeout music
     void fadeOut(float secs);
@@ -95,7 +95,7 @@ private:
     int fadeOutPos = 0;
     int silentFrames = 0;
     int currentTune = 0;
-    std::atomic<float> volume = 1.0f;
+    std::atomic<float> volume = 1.0F;
 
     std::atomic<bool> dontPlay{ false };
     std::atomic<bool> playEnded{ false };

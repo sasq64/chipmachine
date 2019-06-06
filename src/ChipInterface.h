@@ -69,21 +69,23 @@ public:
         return MetaHolder(nullptr, [=](std::nullptr_t) {
             std::lock_guard<std::mutex> lg(m);
             meta_callbacks.erase(
-                std::remove(meta_callbacks.begin(), meta_callbacks.end(), mc));
+                std::remove(meta_callbacks.begin(), meta_callbacks.end(), mc),
+                meta_callbacks.end());
         });
     }
 
-    int seconds() { return player.getPosition(); }
+    [[nodiscard]] int seconds() const { return player.getPosition(); }
 
-    RemoteLoader& remoteLoader;
+    RemoteLoader& getRemoteLoader() { return remoteLoader; }
 
 private:
+    RemoteLoader& remoteLoader;
     utils::path workDir;
     std::mutex m;
     MusicDatabase& mdb;
     SongInfo info;
     MusicPlayerList& player;
-    MusicPlayerList::State playerState;
+    MusicPlayerList::State playerState{ MusicPlayerList::State::Stopped };
     std::vector<std::shared_ptr<MetaCallback>> meta_callbacks;
     void setupRules();
     void updateKeys();
