@@ -123,9 +123,6 @@ int main(int argc, char* argv[])
 #ifdef ENABLE_CONSOLE
         auto* c = bbs::Console::createLocalConsole();
 #endif
-        // auto pl =
-        // std::make_unique<chipmachine::MusicPlayer>(workDir.string());
-
         static auto pl =
             injector.create<std::unique_ptr<chipmachine::MusicPlayer>>();
 

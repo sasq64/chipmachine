@@ -183,7 +183,8 @@ else()
     add_executable(chipmachine ${MAIN_FILES} ${GUI_FILES} src/main.cpp)
 endif()
 
-target_link_libraries(chipmachine PRIVATE plugin_register musicplayer ${CORE_MODULES} ${GUI_MODULES} ${MUSICPLAYER_PLUGINS} pthread sol z)
+target_link_libraries(chipmachine PRIVATE musicplayer plugin_register
+                      ${CORE_MODULES} ${GUI_MODULES} ${MUSICPLAYER_PLUGINS} pthread sol z)
 target_compile_definitions(chipmachine PRIVATE -DAPP_NAME=chipmachine)
 
 if(NOT WIN32)
@@ -211,10 +212,10 @@ endif()
 add_executable(mksonglist mksonglist/mksonglist.cpp src/SongFileIdentifier.cpp)
 target_link_libraries(mksonglist coreutils archive sc68plugin mp3plugin)
 
-# add_executable(cmtest ${PLUGIN_EXTRA_FILES} testmain.cpp test.cpp ${APP_FILES} ${SOURCE_FILES})
-# target_link_libraries(cmtest ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} pthread sol)
-# target_include_directories(cmtest PRIVATE ${APONE}/mods)
-# target_compile_definitions(cmtest PRIVATE -DTESTING)
+add_executable(cmtest testmain.cpp test.cpp ${MAIN_FILES})
+target_link_libraries(cmtest PRIVATE plugin_register ${CORE_MODULES} ${MUSICPLAYER_PLUGINS} musicplayer z pthread sol)
+target_include_directories(cmtest PRIVATE ${APONE}/mods)
+target_compile_definitions(cmtest PRIVATE -DTESTING)
 
 #${TEXTMODE_FILES} add_executable(ditest ${PLUGIN_EXTRA_FILES} testmain.cpp ditest.cpp ${APP_FILES} ${SOURCE_FILES})
 # target_link_libraries(ditest ${APONE_MODULES} ${MUSICPLAYER_PLUGINS} pthread sol)

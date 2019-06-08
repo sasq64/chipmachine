@@ -24,7 +24,7 @@ namespace chipmachine {
 class not_found_exception : public std::exception
 {
 public:
-    char const* what() const noexcept override { return "Not found exception"; }
+    [[nodiscard]] char const* what() const noexcept override { return "Not found exception"; }
 };
 
 // console -- sid -- tracker -- amiga
@@ -208,7 +208,7 @@ public:
         {
             if (utils::exists(f)) {
                 for (auto const& l : apone::File{ f }.lines()) {
-                    if (l != "") songs.emplace_back(l);
+                    if (!l.empty()) songs.emplace_back(l);
                 }
             }
             name = f.filename().string();

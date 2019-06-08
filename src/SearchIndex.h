@@ -103,14 +103,14 @@ private:
 class SearchProvider
 {
 public:
-    virtual ~SearchProvider() {}
+    virtual ~SearchProvider() = default;
     // Search for a string, return indexes of hits
     virtual int search(const std::string& word, std::vector<int>& result,
                        unsigned int searchLimit) = 0;
     // Lookup internal string for index
-    virtual std::string getString(int index) const = 0;
+    [[nodiscard]] virtual std::string getString(int index) const = 0;
     // Get full data, may require SQL query
-    virtual std::string getFullString(int index) const
+    [[nodiscard]] virtual std::string getFullString(int index) const
     {
         return getString(index);
     }
@@ -121,7 +121,7 @@ class IncrementalQuery
 public:
     IncrementalQuery() : provider(nullptr) {}
 
-    IncrementalQuery(SearchProvider* provider)
+    explicit IncrementalQuery(SearchProvider* provider)
         : newRes(false), provider(provider), searchLimit(20000), lastStart(-1),
           lastSize(-1)
     {}
@@ -136,7 +136,7 @@ public:
 
     int getIndex(int no) { return finalResult[no]; }
 
-    int numHits() const;
+    [[nodiscard]] int numHits() const;
     bool newResult()
     {
         bool r = newRes;
@@ -153,30 +153,30 @@ public:
 private:
     void search();
 
-    bool newRes;
+    bool newRes{};
 
     SearchProvider* provider;
-    unsigned int searchLimit;
+    unsigned int searchLimit{};
     std::vector<char> query;
     std::vector<std::string> oldWords;
     std::vector<int> firstResult;
     std::vector<int> finalResult;
     std::vector<std::string> textResult;
-    int lastStart;
-    int lastSize;
+    int lastStart{};
+    int lastSize{};
 };
 
 class SearchIndex : public SearchProvider
 {
 public:
-    SearchIndex() {}
-    ~SearchIndex() {}
+    SearchIndex() = default;
+    ~SearchIndex() override = default;
 
     void reserve(uint32_t sz) { strings.reserve(sz); }
 
     int search(const std::string& word, std::vector<int>& result,
                unsigned int searchLimit) override;
-    std::string getString(int index) const override { return strings[index]; }
+    [[nodiscard]] std::string getString(int index) const override { return strings[index]; }
 
     int add(const std::string& str, bool stringonly = false);
 

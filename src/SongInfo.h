@@ -18,7 +18,7 @@ struct SongInfo
         if (pos != std::string::npos) {
             auto s = path.substr(pos + 1);
             if (s.size() < 3) {
-                starttune = stol(s);
+                starttune = stoi(s);
                 this->path = path.substr(0, pos);
             }
         }

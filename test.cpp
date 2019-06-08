@@ -8,11 +8,15 @@
 #include "src/di.hpp"
 namespace di = boost::di;
 
+#include <audioplayer/audioplayer.h>
 #include <coreutils/log.h>
 #include <musicplayer/chipplugin.h>
-#include <audioplayer/audioplayer.h>
-#include <string>
+#include <musicplayer/plugins/plugins.h>
+
+#include <algorithm>
 #include <array>
+#include <numeric>
+#include <string>
 
 TEST_CASE("modutils", "[machine]")
 {
@@ -36,12 +40,10 @@ TEST_CASE("modutils", "[machine]")
                         "2fChris Huelsbeck%2fmdat.apidya (level 3)") == "mdat");
 }
 
-TEST_CASE("music database", "")
+TEST_CASE("music database", "[database]")
 {
     using namespace chipmachine;
-    const auto injector = di::make_injector(
-        di::bind<utils::path>.to(".")
-    );
+    const auto injector = di::make_injector(di::bind<utils::path>.to("."));
 
     auto mdb = injector.create<std::unique_ptr<MusicDatabase>>();
     REQUIRE(mdb->initFromLua(utils::path(".")) == true);
@@ -50,53 +52,55 @@ TEST_CASE("music database", "")
 
 struct AudioPlayerNull : public AudioPlayer
 {
-    std::function<void(int16_t *, int)> callback;
-    virtual void play(std::function<void(int16_t *, int)> cb) override
+    std::function<void(int16_t*, int)> callback;
+    virtual void play(std::function<void(int16_t*, int)> cb) override
     {
-        int16_t temp[8192];
         callback = cb;
-        callback(&temp[0], 8192);
+    }
+
+    void get(std::vector<int16_t>& target)
+    {
+        callback(&target[0], target.size());
     }
 };
 
 TEST_CASE("music player", "")
 {
     AudioPlayerNull ap{};
-    const auto injector = di::make_injector(
-        di::bind<utils::path>.to("."),
-        di::bind<AudioPlayer>.to(ap)
-    );
-    chipmachine::MusicPlayer mp{ap};
-    mp.playFile("music/Amiga/Nuke - Loader.mod");
+    const auto injector = di::make_injector(di::bind<utils::path>.to("."),
+                                            di::bind<AudioPlayer>.to(ap));
+    musix::ChipPlugin::createPlugins("data");
+    chipmachine::MusicPlayer mp{ ap };
+    bool ok = mp.playFile("music/Amiga/Nuke - Loader.mod");
+    REQUIRE(ok);
     mp.update();
+    std::vector<int16_t> data(8192);
+    ap.get(data);
+    auto sum = std::accumulate(data.begin(), data.end(), (int64_t)0);
+    REQUIRE(sum != 0);
 }
 
-#include <musicplayer/plugins/plugins.h>
-#include <numeric>
-
 template <typename PLUGIN, typename... ARGS>
-bool testPlugin(std::string const& dir, std::string const& exclude, const ARGS&... args)
+bool testPlugin(std::string const& dir, std::string const& exclude,
+                const ARGS&... args)
 {
     std::array<int16_t, 8192> buffer;
-    PLUGIN plugin{args...};
+    PLUGIN plugin{ args... };
     printf("---- %s ----\n", plugin.name().c_str());
     logging::setLevel(logging::Level::Warning);
-    for (auto f : utils::File{dir}.listFiles()) {
-        if(exclude != "" && f.getName().find(exclude) != std::string::npos)
+    for (auto f : utils::File{ dir }.listFiles()) {
+        if (exclude != "" && f.getName().find(exclude) != std::string::npos)
             continue;
 
         int64_t sum = 0;
         printf("Trying %s\n", f.getName().c_str());
         auto* player = plugin.fromFile(f.getName());
         if (player) {
-            //puts("Player created");
             int count = 15;
             while (sum == 0 && count != 0) {
                 int rc = player->getSamples(&buffer[0], buffer.size());
-                // REQUIRE(rc > 0);
                 if (rc > 0) {
                     sum = std::accumulate(&buffer[0], &buffer[rc], (int64_t)0);
-                    // REQUIRE(sum != 0);
                     if (sum != 0) {
                         break;
                     }
@@ -106,11 +110,8 @@ bool testPlugin(std::string const& dir, std::string const& exclude, const ARGS&.
             }
             delete player;
         }
-        printf("#### Playing %s : %s\n", f.getName().c_str(), 
-                player ?
-                (sum == 0 ? "NO SOUND" : "OK")
-                : "FAILED"
-                );
+        printf("#### Playing %s : %s\n", f.getName().c_str(),
+               player ? (sum == 0 ? "NO SOUND" : "OK") : "FAILED");
     }
     return true;
 }

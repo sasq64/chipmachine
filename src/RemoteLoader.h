@@ -13,8 +13,8 @@ class RemoteLoader
 public:
     RemoteLoader();
 
-    void registerSource(const std::string& name, const std::string url,
-                        const std::string local_dir);
+    void registerSource(const std::string& name, std::string url,
+                        std::string local_dir);
 
     bool load(const std::string& path,
               std::function<void(utils::File)> done_cb);
@@ -44,7 +44,7 @@ public:
 private:
     struct Source
     {
-        Source() {}
+        Source() = default;
         Source(const std::string& url, const std::string& ld)
             : url(url), local_dir(ld)
         {}
