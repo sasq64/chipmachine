@@ -2,6 +2,7 @@
 
 #include "src/MusicDatabase.h"
 #include "src/MusicPlayer.h"
+#include "src/MusicPlayerList.h"
 #include "src/RemoteLoader.h"
 #include "src/modutils.h"
 
@@ -62,9 +63,38 @@ struct AudioPlayerNull : public AudioPlayer
     {
         callback(&target[0], target.size());
     }
+
+    void seek(int seconds)
+    {
+        std::array<int16_t, 44100 * 2> dummy;
+        while (seconds--) {
+            callback(dummy.data(), dummy.size());
+        }
+    };
 };
 
-TEST_CASE("music player", "")
+TEST_CASE("musicplayerlist", "")
+{
+    logging::setLevel(logging::Level::Debug);
+    AudioPlayerNull ap{};
+    const auto injector = di::make_injector(di::bind<utils::path>.to("."),
+                                            di::bind<AudioPlayer>.to(ap));
+    musix::ChipPlugin::createPlugins("data");
+    auto mpl = injector.create<std::unique_ptr<chipmachine::MusicPlayerList>>();
+    mpl->addSong("music/Amiga/Starbuck - Tennis.mod"s);
+    mpl->addSong("music/Amiga/Dr.Awesome - Intromusic3.mod"s);
+    mpl->nextSong();
+    mpl->wait();
+    auto state = mpl->getState();
+    auto info = mpl->getInfo();
+    LOGI("%s %s %d", info.title, info.path, state);
+    ap.seek(150);
+    mpl->wait();
+    info = mpl->getInfo();
+    LOGI("%s %s %d", info.title, info.path, state);
+}
+
+TEST_CASE("musicplayer", "")
 {
     AudioPlayerNull ap{};
     const auto injector = di::make_injector(di::bind<utils::path>.to("."),

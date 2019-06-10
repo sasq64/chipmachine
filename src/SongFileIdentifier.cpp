@@ -13,6 +13,7 @@
 #endif
 
 #include <algorithm>
+#include <array>
 #include <memory>
 #include <string>
 
@@ -60,7 +61,7 @@ std::vector<std::string> getLines(std::string const& text)
 
 bool parseSid(SongInfo& info)
 {
-    static std::vector<uint8_t> buffer(0xd8);
+    std::array<uint8_t, 0xd8> buffer;
     File f{ info.path };
     info.format = "Commodore 64";
     f.read(&buffer[0], buffer.size());

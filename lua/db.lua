@@ -16,10 +16,9 @@ DB = {
 {
 	name = "HVSC",
 	id =  "hvsc",
-	source = "https://www.sannic.nl/hvsc/C64Music/",
+	source = "https://www.hvsc.c64.org/download/C64Music/",
 	song_list = "data/hvsc.txt",
 	remote_list = "http://raw.githubusercontent.com/sasq64/cmds/master/hvsc.txt",
-	local_dir = "/opt/Music/C64Music",
 	color = 0xfffff
 },
 {

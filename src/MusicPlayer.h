@@ -25,17 +25,16 @@ public:
     ~MusicPlayer();
     bool playFile(const std::string& fileName);
     bool streamFile(const std::string& fileName);
-    [[nodiscard]] bool playing() const { return !playEnded && player != nullptr; }
+    [[nodiscard]] bool playing() const
+    {
+        return !play_ended && player != nullptr;
+    }
     void stop() { player = nullptr; }
-    [[nodiscard]] uint32_t getPosition() const { return pos / 44100; };
+    [[nodiscard]] uint32_t getPosition() const { return play_pos / 44100; };
     [[nodiscard]] uint32_t getLength() const { return length; }
 
     void putStream(const uint8_t* ptr, int size);
-    void clearStreamFifo()
-    {
-        LOGD("Clearing stream fifo");
-        streamFifo->clear();
-    }
+    void clearStreamFifo() { stream_fifo->clear(); }
 
     void setParameter(const std::string& what, int v);
 
@@ -52,7 +51,7 @@ public:
 
     [[nodiscard]] int getTune() const { return currentTune; }
 
-    [[nodiscard]] SongInfo getPlayingInfo() const { return playingInfo; }
+    [[nodiscard]] SongInfo getPlayingInfo() const { return playing_info; }
 
     std::string getMeta(const std::string& what);
 
@@ -64,45 +63,44 @@ public:
 
     // Fadeout music
     void fadeOut(float secs);
-    float getFadeVolume() { return fifo.getVolume(); }
+    [[nodiscard]] float getFadeVolume() const { return fifo.getVolume(); }
 
     void update();
 
     void setAudioCallback(const std::function<void(int16_t*, int)>& cb)
     {
-        audioCb = cb;
+        audio_callback = cb;
     }
 
 private:
     std::shared_ptr<musix::ChipPlayer> fromFile(const std::string& fileName);
-    // std::shared_ptr<musix::ChipPlayer> fromStream(const std::string
-    // &fileName);
     void updatePlayingInfo();
 
     utils::AudioFifo<int16_t> fifo;
-    SongInfo playingInfo;
+    SongInfo playing_info;
     // Fifo fifo;
-    std::function<void(int16_t*, int)> audioCb;
+    std::function<void(int16_t*, int)> audio_callback;
 
     std::atomic<bool> paused{ false };
 
     std::shared_ptr<musix::ChipPlayer> player;
     std::string message;
     std::string sub_title;
-    std::atomic<int> pos{ 0 };
+    std::atomic<int> play_pos{ 0 };
     std::atomic<int> length{ 0 };
-    int fadeLength = 0;
-    int fadeOutPos = 0;
-    int silentFrames = 0;
+    int fade_length = 0;
+    int fadeout_pos = 0;
+    int silent_frames = 0;
     int currentTune = 0;
     std::atomic<float> volume = 1.0F;
 
-    std::atomic<bool> dontPlay{ false };
-    std::atomic<bool> playEnded{ false };
-    bool checkSilence = true;
+    // Feed silence to audio player
+    std::atomic<bool> dont_play{ false };
+    std::atomic<bool> play_ended{ false };
+    bool check_silence = true;
 
-    std::shared_ptr<utils::Fifo<uint8_t>> streamFifo;
+    std::shared_ptr<utils::Fifo<uint8_t>> stream_fifo;
 
-    AudioPlayer& audioPlayer;
+    AudioPlayer& audio_player;
 };
 } // namespace chipmachine

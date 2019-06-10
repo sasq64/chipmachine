@@ -33,6 +33,20 @@ MusicPlayerList::MusicPlayerList(MusicDatabase& mdb, RemoteLoader& rl,
     });
 }
 
+void MusicPlayerList::wait()
+{
+    if (funcs.empty()) {
+        onThisThread([=] {});
+    }
+    plMutex.lock();
+    while (!funcs.empty()) {
+        plMutex.unlock();
+        sleepms(1);
+        plMutex.lock();
+    }
+    plMutex.unlock();
+}
+
 void MusicPlayerList::addSong(const SongInfo& si, bool shuffle)
 {
 
@@ -239,7 +253,8 @@ void MusicPlayerList::update()
 
     if (state == Playnow) {
         SET_STATE(Started);
-        // LOGD("##### PLAY NOW: %s (%s)", currentInfo.path, currentInfo.title);
+        // LOGD("##### PLAY NOW: %s (%s)", currentInfo.path,
+        // currentInfo.title);
         multiSongs.clear();
         playedNext = false;
         playCurrent();

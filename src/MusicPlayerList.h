@@ -146,6 +146,8 @@ public:
 
     bool playlistUpdated() { return playList.wasUpdated(); }
 
+    void wait();
+
 private:
     void onThisThread(const std::function<void()>& f)
     {

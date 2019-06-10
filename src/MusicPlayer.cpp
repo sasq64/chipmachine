@@ -16,63 +16,60 @@ namespace chipmachine {
 
 MusicPlayer::MusicPlayer(AudioPlayer& ap)
     : fifo(32786 * 4),
-      streamFifo(std::make_shared<utils::Fifo<uint8_t>>(32768 * 8)),
-      audioPlayer(ap)
+      stream_fifo(std::make_shared<utils::Fifo<uint8_t>>(32768 * 8)),
+      audio_player(ap)
 {
-    audioPlayer.set_volume(80);
+    audio_player.set_volume(80);
     volume = 0.8;
 
     musix::ChipPlugin::addPlugin(
         std::make_shared<GZPlugin>(musix::ChipPlugin::getPlugins()), true);
 
-    audioPlayer.play([=](int16_t* ptr, int size) mutable {
-        if (dontPlay) {
+    audio_player.play([this](int16_t* ptr, int size) mutable {
+        if (dont_play) {
             memset(ptr, 0, size * 2);
             return;
         }
 
         if (fifo.filled() >= size) {
             fifo.get(ptr, size);
-            pos += size / 2;
-            if (audioCb) audioCb(ptr, size);
+            play_pos += size / 2;
+            if (audio_callback) audio_callback(ptr, size);
         } else
             memset(ptr, 0, size * 2);
     });
 }
 
-// MusicPlayer::MusicPlayer(MusicPlayer const& other) = default;
-
 // Make sure the fifo is filled
 void MusicPlayer::update()
 {
-    static std::vector<int16_t> tempBuf(fifo.size());
+    static std::vector<int16_t> temp_buf(fifo.size());
 
     if (!paused && player) {
 
         sub_title = player->getMeta("sub_title");
         length = player->getMetaInt("length");
         message = player->getMeta("message");
-        silentFrames = checkSilence ? fifo.getSilence() : 0;
+        silent_frames = check_silence ? fifo.getSilence() : 0;
 
         while (true) {
 
-            int f = fifo.left();
+            int space_left = fifo.left();
 
-            if (f < 4096) break;
+            if (space_left < 4096) break;
 
-            int rc = player->getSamples(&tempBuf[0], f - 1024);
+            int samples_generated =
+                player->getSamples(&temp_buf[0], space_left - 1024);
 
-            if (rc == 0) break;
-
-            if (rc < 0) {
-                playEnded = true;
+            if (samples_generated <= 0) {
+                play_ended = samples_generated < 0;
                 break;
             }
-            if (fadeOutPos != 0 && fadeOutPos >= pos) {
-                fifo.setVolume((fadeOutPos - pos) / (float)fadeLength);
+            if (fadeout_pos != 0 && fadeout_pos >= play_pos) {
+                fifo.setVolume((fadeout_pos - play_pos) / (float)fade_length);
             }
 
-            fifo.put(&tempBuf[0], rc);
+            fifo.put(&temp_buf[0], samples_generated);
             if (fifo.filled() >= fifo.size() / 2) {
                 break;
             }
@@ -82,7 +79,7 @@ void MusicPlayer::update()
 
 MusicPlayer::~MusicPlayer()
 {
-    streamFifo->quit();
+    stream_fifo->quit();
 }
 
 void MusicPlayer::seek(int song, int seconds)
@@ -90,9 +87,9 @@ void MusicPlayer::seek(int song, int seconds)
     if (!player) return;
     if (player->seekTo(song, seconds)) {
         if (seconds < 0)
-            pos = 0;
+            play_pos = 0;
         else
-            pos = seconds * 44100;
+            play_pos = seconds * 44100;
         fifo.clear();
         // length = player->getMetaInt("length");
         updatePlayingInfo();
@@ -102,20 +99,20 @@ void MusicPlayer::seek(int song, int seconds)
 
 int MusicPlayer::getSilence() const
 {
-    return silentFrames;
+    return silent_frames;
 }
 
 // fadeOutPos music
 void MusicPlayer::fadeOut(float secs)
 {
-    fadeLength = secs * 44100;
-    fadeOutPos = pos + fadeLength;
+    fade_length = secs * 44100;
+    fadeout_pos = play_pos + fade_length;
 }
 
 void MusicPlayer::putStream(const uint8_t* ptr, int size)
 {
     // LOGD("Writing %d bytes to stream", size);
-    streamFifo->put(ptr, size);
+    stream_fifo->put(ptr, size);
 }
 
 void MusicPlayer::setParameter(const std::string& what, int v)
@@ -125,41 +122,40 @@ void MusicPlayer::setParameter(const std::string& what, int v)
 
 bool MusicPlayer::streamFile(const std::string& fileName)
 {
-    dontPlay = true;
-    silentFrames = 0;
+    dont_play = true;
+    silent_frames = 0;
 
-    playingInfo = SongInfo();
+    playing_info = SongInfo();
     std::string name = fileName;
     player = nullptr;
 
     utils::makeLower(name);
-    checkSilence = true;
+    check_silence = true;
     for (auto& plugin : musix::ChipPlugin::getPlugins()) {
         if (plugin->canHandle(name)) {
             LOGD("Playing with %s\n", plugin->name());
             auto newPlayer = std::shared_ptr<musix::ChipPlayer>(
-                plugin->fromStream(streamFifo));
+                plugin->fromStream(stream_fifo));
             if (newPlayer) player = newPlayer;
-            checkSilence = plugin->checkSilence();
+            check_silence = plugin->checkSilence();
             break;
         }
     }
 
-    dontPlay = false;
-    playEnded = false;
+    dont_play = false;
+    play_ended = false;
 
     if (player) {
 
         clearStreamFifo();
         fifo.clear();
-        fadeOutPos = 0;
+        fadeout_pos = 0;
         pause(false);
-        pos = 0;
-        // updatePlayingInfo();
+        play_pos = 0;
         message = "";
         length = 0;
         sub_title = "";
-        currentTune = playingInfo.starttune;
+        currentTune = playing_info.starttune;
         return true;
     }
     return false;
@@ -168,9 +164,9 @@ bool MusicPlayer::streamFile(const std::string& fileName)
 bool MusicPlayer::playFile(const std::string& fileName)
 {
 
-    dontPlay = true;
-    silentFrames = 0;
-    playingInfo = SongInfo();
+    dont_play = true;
+    silent_frames = 0;
+    playing_info = SongInfo();
     std::string name = fileName;
 
     if (utils::endsWith(name, ".rar")) {
@@ -191,17 +187,17 @@ bool MusicPlayer::playFile(const std::string& fileName)
     player = nullptr;
     player = fromFile(name);
 
-    dontPlay = false;
-    playEnded = false;
+    dont_play = false;
+    play_ended = false;
 
     if (player) {
 
         fifo.clear();
-        fadeOutPos = 0;
+        fadeout_pos = 0;
         pause(false);
-        pos = 0;
+        play_pos = 0;
         updatePlayingInfo();
-        currentTune = playingInfo.starttune;
+        currentTune = playing_info.starttune;
         return true;
     }
     return false;
@@ -209,35 +205,35 @@ bool MusicPlayer::playFile(const std::string& fileName)
 
 void MusicPlayer::updatePlayingInfo()
 {
-    SongInfo si;
+    SongInfo info;
     auto game = player->getMeta("game");
-    si.title = player->getMeta("title");
-    if (game != "") {
-        if (si.title != "") {
-            si.title = utils::format("%s (%s)", game, si.title);
+    info.title = player->getMeta("title");
+    if (!game.empty()) {
+        if (!info.title.empty()) {
+            info.title = utils::format("%s (%s)", game, info.title);
         } else
-            si.title = game;
+            info.title = game;
     }
 
-    si.composer = player->getMeta("composer");
-    si.format = player->getMeta("format");
-    si.numtunes = player->getMetaInt("songs");
-    si.starttune = player->getMetaInt("startSong");
-    if (si.starttune == -1) si.starttune = 0;
+    info.composer = player->getMeta("composer");
+    info.format = player->getMeta("format");
+    info.numtunes = player->getMetaInt("songs");
+    info.starttune = player->getMetaInt("startSong");
+    if (info.starttune == -1) info.starttune = 0;
 
     length = player->getMetaInt("length");
     message = player->getMeta("message");
     sub_title = player->getMeta("sub_title");
-    playingInfo = si;
+    playing_info = info;
 }
 
-void MusicPlayer::pause(bool dopause)
+void MusicPlayer::pause(bool do_pause)
 {
-    if (dopause)
-        audioPlayer.pause();
+    if (do_pause)
+        audio_player.pause();
     else
-        audioPlayer.resume();
-    paused = dopause;
+        audio_player.resume();
+    paused = do_pause;
 }
 
 std::string MusicPlayer::getMeta(const std::string& what)
@@ -254,7 +250,7 @@ std::string MusicPlayer::getMeta(const std::string& what)
 void MusicPlayer::setVolume(float v)
 {
     volume = utils::clamp(v);
-    audioPlayer.set_volume(volume * 100);
+    audio_player.set_volume(volume * 100);
 }
 
 float MusicPlayer::getVolume() const
@@ -264,23 +260,20 @@ float MusicPlayer::getVolume() const
 
 std::vector<std::string> MusicPlayer::getSecondaryFiles(const std::string& name)
 {
-
     utils::File file{ name };
     if (file.exists()) {
         PSFFile f{ name };
         if (f.valid()) {
-            LOGD("IS PSF");
-            const std::string tagNames[] = { "_lib", "_lib2", "_lib3",
-                                             "_lib4" };
-            std::vector<std::string> libFiles;
-            for (auto const& tag : tagNames) {
+            std::array tag_names = { "_lib", "_lib2", "_lib3", "_lib4" };
+            std::vector<std::string> lib_files;
+            for (auto const& tag : tag_names) {
                 auto lib = f.tags()[tag];
                 if (lib != "") {
                     utils::makeLower(lib);
-                    libFiles.push_back(lib);
+                    lib_files.push_back(lib);
                 }
             }
-            return libFiles;
+            return lib_files;
         }
 
         for (auto& plugin : musix::ChipPlugin::getPlugins()) {
@@ -295,19 +288,19 @@ std::vector<std::string> MusicPlayer::getSecondaryFiles(const std::string& name)
 // PRIVATE
 
 std::shared_ptr<musix::ChipPlayer>
-MusicPlayer::fromFile(const std::string& fileName)
+MusicPlayer::fromFile(const std::string& file_name)
 {
-    auto name = fileName;
+    auto name = file_name;
     utils::makeLower(name);
-    checkSilence = true;
-    LOGD("Finding plugin for '%s' (%s)", fileName, name);
+    check_silence = true;
+    LOGD("Finding plugin for '%s' (%s)", file_name, name);
     for (auto& plugin : musix::ChipPlugin::getPlugins()) {
         if (plugin->canHandle(name)) {
             LOGD("Playing with %s\n", plugin->name());
             auto player =
-                std::shared_ptr<musix::ChipPlayer>(plugin->fromFile(fileName));
+                std::shared_ptr<musix::ChipPlayer>(plugin->fromFile(file_name));
             if (!player) continue;
-            checkSilence = plugin->checkSilence();
+            check_silence = plugin->checkSilence();
             return player;
         }
     }
