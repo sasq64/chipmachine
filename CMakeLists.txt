@@ -56,6 +56,11 @@ endif()
 add_library(Warnings INTERFACE)
 target_compile_options(Warnings INTERFACE ${WARNINGS})
 
+# Workaround for gcc10 linking errors
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fcommon")
+endif()
+
 if(WINDOWS)
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -funsigned-char")
